@@ -1,0 +1,72 @@
+# Default image (https://hub.docker.com/r/mcserep/php)
+image: mcserep/php:7.4
+
+# Stages: lint -> test -> deploy
+stages:
+  - lint
+  - test
+
+# Cached files between builds
+cache:
+  key: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+  paths:
+    - vendor/
+
+# Dependency scanning
+include:
+  - template: Dependency-Scanning.gitlab-ci.yml
+
+.test:
+  # Variables
+  variables:
+    # Configure mysql environment variables (https://hub.docker.com/r/_/mysql/)
+    MYSQL_USER: tms
+    MYSQL_PASSWORD: tms
+    MYSQL_DATABASE: tms
+    MYSQL_ROOT_PASSWORD: v7tqfR9U
+    # Enable code coverage for Xdebug
+    XDEBUG_MODE: develop,coverage
+
+  # Executed before every job
+  before_script:
+  # Run Composer
+  - composer install --prefer-dist --no-ansi --no-interaction
+  # Configure application
+  - cp -f config/db.sample.php config/db.php
+  - cp -f config/test_db.gitlab-ci.php config/test_db.php
+  - cp -f config/mailer.sample.php config/mailer.php
+  - cp -f config/params.sample.php config/params.php
+  # Initialize application
+  - php tests/bin/yii migrate --interactive=0
+
+  # Services: http://docs.gitlab.com/ee/ci/docker/using_docker_images.html#what-is-a-service
+  # Examples: http://docs.gitlab.com/ce/ci/services/README.html
+  services:
+    - mariadb:10.4
+
+# PHPCS linter
+phpcs:
+  stage: lint
+  before_script:
+    # Run Composer
+    - composer install --prefer-dist --no-ansi --no-interaction
+  script:
+    - vendor/bin/phpcs -n --report=full
+  allow_failure: true
+
+# Codeception tests & overage reports
+# PHP 7.3
+codecept_7.3:
+  stage: test
+  extends: .test
+  image: mcserep/php:7.3
+  script:
+    - vendor/bin/codecept run unit,api --no-ansi --coverage --coverage-text
+
+# PHP 7.4
+codecept_7.4:
+  stage: test
+  extends: .test
+  image: mcserep/php:7.4
+  script:
+    - vendor/bin/codecept run unit,api --no-ansi --coverage --coverage-text
