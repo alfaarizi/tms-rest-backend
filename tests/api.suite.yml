@@ -1,0 +1,12 @@
+actor: ApiTester
+modules:
+    enabled:
+        - Filesystem
+        - Yii2
+        - REST:
+              depends: Yii2
+              part: Json
+        - \Helper\Api
+    config:
+        Yii2:
+          - part: [orm, email]

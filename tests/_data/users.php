@@ -1,0 +1,80 @@
+<?php
+
+return [
+    'users0' => [
+        'id' => 1,
+        'neptun' => 'BATMAN',
+        'name' => 'Bruce Wayne',
+        'email' => 'batman@nanana.hu',
+        'locale' => 'en-US',
+    ],
+    'users1' => [
+        'id' => 2,
+        'neptun' => 'STUD01',
+        'name' => 'Student One',
+        'email' => 'stud01@elte.hu',
+        'locale' => 'en-US',
+    ],
+    'users2' => [
+        'id' => 3,
+        'neptun' => 'STUD02',
+        'name' => 'Student Two',
+        'email' => 'stud02@elte.hu',
+        'locale' => 'en-US',
+    ],
+    'users3' => [
+        'id' => 4,
+        'neptun' => 'STUD03',
+        'name' => 'Student Three',
+        'email' => 'stud03@elte.hu',
+        'locale' => 'en-US',
+    ],
+    'users4' => [
+        'id' => 5,
+        'neptun' => 'STUD04',
+        'name' => 'Student Four',
+        'email' => 'stud04@elte.hu',
+        'locale' => 'en-US',
+    ],
+    'users5' => [
+        'id' => 6,
+        'neptun' => 'STUD05',
+        'name' => 'Student Five',
+        'email' => 'stud05@elte.hu',
+    ],
+    'teacher1' => [
+        'id' => 7,
+        'neptun' => 'TEACH1',
+        'name' => 'Teacher One',
+        'email' => 'teach1@elte.hu',
+        'locale' => 'en-US',
+    ],
+    'teacher2' => [
+        'id' => 8,
+        'neptun' => 'TEACH2',
+        'name' => 'Teacher Two',
+        'email' => 'teach2@elte.hu',
+        'locale' => 'en-US',
+    ],
+    'teacher3' => [
+        'id' => 9,
+        'neptun' => 'TEACH3',
+        'name' => 'Teacher Three',
+        'email' => 'teach3@elte.hu',
+        'locale' => 'en-US',
+    ],
+    'teacher4' => [
+        'id' => 10,
+        'neptun' => 'TEACH4',
+        'name' => 'Teacher Four',
+        'email' => 'teach4@elte.hu',
+        'locale' => 'en-US',
+    ],
+    'teacher5' => [
+        'id' => 11,
+        'neptun' => 'TEACH5',
+        'name' => 'Teacher Five',
+        'email' => 'teach5@elte.hu',
+        'locale' => 'en-US',
+    ],
+];

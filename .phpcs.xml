@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<ruleset name="PSR12 (TMS)">
+    <description>TMS coding convention</description>
+
+    <!-- Arguments -->
+    <arg name="report" value="summary"/>
+    <arg value="p"/> <!-- show progress -->
+    <arg value="n"/> <!-- no warnings -->
+
+    <!-- Files to analyze -->
+    <file>./commands/</file>
+    <file>./components/</file>
+    <file>./config/</file>
+    <file>./controllers/</file>
+    <file>./mail/</file>
+    <file>./messages/</file>
+    <file>./migrations/</file>
+    <file>./models/</file>
+    <file>./rbac/</file>
+    <file>./tests/</file>
+    <file>./web/</file>
+
+    <exclude-pattern>*/components/Moss.php</exclude-pattern>
+    <exclude-pattern>*/components/LdapAuthenticator.php</exclude-pattern>
+    <exclude-pattern>*/tests/_output/*</exclude-pattern>
+    <exclude-pattern>*/tests/_support/*</exclude-pattern>
+    <exclude-pattern>*/web/assets/*</exclude-pattern>
+    <exclude-pattern>*.min.js</exclude-pattern>
+
+    <!-- Include general rules for all PHP, JS and CSS files -->
+    <rule ref="Generic.WhiteSpace.DisallowTabIndent.TabsUsed"/>
+    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine"/>
+
+    <!-- Include the PSR-12 standard for PHP files -->
+    <rule ref="PSR12">
+        <include-pattern>*.php</include-pattern>
+        <include-pattern>*.inc</include-pattern>
+
+         <!-- Disable rule: All PHP files MUST use the Unix LF (linefeed) line ending. -->
+        <exclude name="Generic.Files.LineEndings"/>
+    </rule>
+
+    <!-- Disable some PSR-2 rules for the migration files -->
+    <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
+        <exclude-pattern>*/migrations/*</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.Classes.ValidClassName.NotCamelCaps">
+        <exclude-pattern>*/migrations/*</exclude-pattern>
+    </rule>
+
+    <!-- Disable some PSR-2 rules for the test classes -->
+    <rule ref="PSR2.Methods.MethodDeclaration.Underscore">
+        <exclude-pattern>*/tests/*</exclude-pattern>
+    </rule>
+</ruleset>

@@ -1,0 +1,59 @@
+<?php
+
+namespace app\modules\student\resources;
+
+use Yii;
+use yii\web\UploadedFile;
+
+/**
+ * Class StudentFileUploadResource
+ * @property int $taskID
+ * @property UploadedFile $file
+ */
+class StudentFileUploadResource extends \yii\base\Model
+{
+    public $taskID;
+    public $file;
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['taskID', 'file'], 'required'],
+            [['taskID'], 'integer'],
+            [['taskID'], 'checkIfTaskExists'],
+            [['file'], 'file', 'skipOnEmpty' => false, 'extensions' => 'zip', 'maxSize' => 1024 * 1024 * 10],
+            [['file'], 'validateFile'],
+        ];
+    }
+
+    public function checkIfTaskExists()
+    {
+        $task = TaskResource::findOne($this->taskID);
+        if (is_null($task)) {
+            $this->addError('taskID', Yii::t('app', 'Task not found for the given taskID'));
+        }
+    }
+
+    public function validateFile()
+    {
+        $file = $this->file;
+        $zip = new \ZipArchive();
+        if ($zip->open($file->tempName, \ZIPARCHIVE::FL_NOCASE) === true) {
+            for ($i = 0; $i < $zip->numFiles; ++$i) {
+                $filename = $zip->getNameIndex($i);
+                if (strpos($filename, DIRECTORY_SEPARATOR . '.git' . DIRECTORY_SEPARATOR) !== false) {
+                    $this->addError('file', Yii::t('app', 'The uploaded archive should NOT contain git repository.'));
+                }
+                $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                if (in_array($extension, ['dll', 'exe'])) {
+                    $this->addError('file', Yii::t('app', 'The uploaded archive should NOT contain binaries.'));
+                }
+            }
+        } else {
+            $this->addError('file', Yii::t('app', 'The uploaded archive is corrupted, please retry!'));
+        }
+    }
+}
