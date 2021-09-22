@@ -85,5 +85,6 @@
             "type": "composer",
             "url": "https://asset-packagist.org"
         }
-    ]
+    ],
+    "version": "2.0.0"
 }
