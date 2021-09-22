@@ -1,9 +1,9 @@
 <IfModule mod_rewrite.c>
   RewriteEngine on
-  RewriteBase /tms/
+  RewriteBase /backend-core/
 
   #RewriteCond %{SERVER_PORT} =80
-  #RewriteRule ^(.*) https://%{SERVER_NAME}/tms/$1 [L]
+  #RewriteRule ^(.*) https://%{SERVER_NAME}/backend-core/$1 [L]
 
   # If a directory or a file exists, use it directly
   RewriteCond %{REQUEST_FILENAME} !-f
