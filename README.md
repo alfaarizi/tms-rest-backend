@@ -48,7 +48,7 @@ To enable Git version controller submissions, beside enabling the feature in the
 In case of Apache 2 webserver, the following configuration shall be placed in the main configuration file (`apache2.conf` on Linux, `httpd.conf` on Windows), or preferably in a separate and included config file:
 
 ```apacheconf
-SetEnv GIT_PROJECT_ROOT "path/to/TMS/uploadedfiles"
+SetEnv GIT_PROJECT_ROOT "path/to/backend-core/uploadedfiles"
 SetEnv GIT_HTTP_EXPORT_ALL
 SetEnv REMOTE_USER $REDIRECT_REMOTE_USER
 
@@ -112,13 +112,13 @@ yii setup/seed
 Now you should be able to access the application through the following URL, assuming `tms` is the directory directly under the Web root.
 
 ~~~
-http://localhost/tms/web/
+http://localhost/backend-core/web/
 ~~~
 
 In order to check whether you web server environment fulfills all requirements by Yii, you may visit the following page: 
 
 ~~~
-http://localhost/tms/requirements.php
+http://localhost/backend-core/requirements.php
 ~~~
 
 

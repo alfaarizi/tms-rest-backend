@@ -1,19 +1,22 @@
 {
-    "name": "tms/tms",
-    "description": "Task Management System",
+    "name": "tms-elte/backend-core",
+    "description": "Task Management System (TMS) / REST Backend",
     "keywords": [
         "tms",
         "yii2",
         "task management",
         "submission",
-        "examination"
+        "examination",
+        "plagiarism detection",
+        "automated evaluation",
+        "Canvas LMS"
     ],
-    "homepage": "https://gitlab.inf.elte.hu/tms/tms/",
+    "homepage": "https://gitlab.com/tms-elte/backend-core",
     "type": "project",
     "license": "BSD-3-Clause",
     "support": {
-        "issues": "https://gitlab.inf.elte.hu/tms/tms/issues?state=opened",
-        "source": "https://gitlab.inf.elte.hu/tms/tms/"
+        "issues": "https://gitlab.com/tms-elte/backend-core/-/issues",
+        "source": "https://gitlab.com/tms-elte/backend-core"
     },
     "minimum-stability": "stable",
     "require": {
