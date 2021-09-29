@@ -1,6 +1,5 @@
 BSD 3-Clause License
 
-Copyright (c) 2008, Yii Software LLC (http://www.yiisoft.com)  
 Copyright (c) 2017-2021, Máté Cserép, Eötvös Loránd University  
 All rights reserved.
 
