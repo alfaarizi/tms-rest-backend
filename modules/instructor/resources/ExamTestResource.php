@@ -21,8 +21,8 @@ class ExamTestResource extends ExamTest
             'groupNumber',
             'courseID',
             'groupID',
-            'questionsetID'
-
+            'questionsetID',
+            'semesterID',
         ];
     }
 
@@ -34,22 +34,33 @@ class ExamTestResource extends ExamTest
     /**
      * @return string
      */
-    public function getCourseName() {
+    public function getCourseName()
+    {
         return $this->group->course->name;
     }
 
     /**
      * @return string
      */
-    public function getCourseID() {
+    public function getCourseID()
+    {
         return $this->group->courseID;
     }
 
     /**
      * @return int
      */
-    public function getGroupNumber() {
+    public function getGroupNumber()
+    {
         return $this->group->number;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSemesterID()
+    {
+        return $this->group->semesterID;
     }
 
     /**
