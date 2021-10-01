@@ -31,8 +31,8 @@ class InstructorExamTestsCest
         'groupNumber' => 'integer',
         'courseID' => 'integer',
         'groupID' => 'integer',
-        'questionsetID' => 'integer'
-
+        'questionsetID' => 'integer',
+        'semesterID' => 'integer',
     ];
 
     public function _fixtures()
@@ -130,6 +130,7 @@ class InstructorExamTestsCest
                 'courseID' => 1,
                 'groupID' => 1,
                 'questionsetID' => 1,
+                'semesterID' => 2,
             ]
         );
     }
@@ -221,6 +222,7 @@ class InstructorExamTestsCest
                 'courseID' => 1,
                 'groupID' => 1,
                 'questionsetID' => 1,
+                'semesterID' => 2,
             ]
         );
 
@@ -320,6 +322,7 @@ class InstructorExamTestsCest
                 'courseID' => 1,
                 'groupID' => 1,
                 'questionsetID' => 1,
+                'semesterID' => 2,
             ]
         );
 
@@ -395,6 +398,7 @@ class InstructorExamTestsCest
                 'courseID' => 1,
                 'groupID' => 1,
                 'questionsetID' => 1,
+                'semesterID' => 2,
             ]
         );
 
