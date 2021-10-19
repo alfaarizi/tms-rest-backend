@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\behaviors\ISODateTimeBehavior;
 use Yii;
 
 /**
@@ -23,6 +24,16 @@ class InstructorFile extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return '{{%instructor_files}}';
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => ISODateTimeBehavior::class,
+                'attributes' => ['uploadTime']
+            ]
+        ];
     }
 
     /**

@@ -24,7 +24,8 @@ class GroupResource extends \app\models\Group
             'isExamGroup',
             'semesterID',
             'canvasCanBeSynchronized',
-            'isCanvasCourse'
+            'isCanvasCourse',
+            'timezone',
         ];
     }
 

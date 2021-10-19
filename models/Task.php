@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\behaviors\ISODateTimeBehavior;
 use app\models\queries\TaskQuery;
 use Yii;
 use yii\helpers\FileHelper;
@@ -35,6 +36,7 @@ use yii\helpers\FileHelper;
  * @property Semester $semester
  * @property User $creator
  *
+ * @property-read string timezone
  * @property-read string $localImageName
  * @property-read string $containerName
  * @property-read string $dockerSocket
@@ -84,6 +86,19 @@ class Task extends \yii\db\ActiveRecord
         'linux',
         'windows',
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => ISODateTimeBehavior::class,
+                'attributes' => ['hardDeadline', 'softDeadline', 'available']
+            ]
+        ];
+    }
 
     /**
      * @inheritdoc

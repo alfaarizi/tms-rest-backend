@@ -149,6 +149,7 @@ class InstructorGroupsCRUDCest
                 'number' => 100,
                 'courseID' => 2,
                 'isExamGroup' => '1',
+                'timezone' => 'Europe/Budapest',
             ]
         );
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
@@ -176,6 +177,7 @@ class InstructorGroupsCRUDCest
                 'number' => 100,
                 'courseID' => 1,
                 'isExamGroup' => '1',
+                'timezone' => 'Europe/Budapest',
             ]
         );
 
@@ -298,7 +300,8 @@ class InstructorGroupsCRUDCest
                     'code' => '1'
                 ],
                 'isExamGroup' => '1',
-                'semesterID' => '2'
+                'semesterID' => '2',
+                'timezone' => 'Europe/Budapest'
             ]
         );
 
@@ -310,6 +313,7 @@ class InstructorGroupsCRUDCest
                 'number' => 111,
                 'courseID' => 1,
                 'isExamGroup' => 1,
+                'timezone' => 'Europe/Budapest'
             ]
         );
     }

@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\behaviors\ISODateTimeBehavior;
 use Yii;
 use yii\helpers\StringHelper;
 
@@ -38,6 +39,20 @@ class StudentFile extends \yii\db\ActiveRecord
         $scenarios = parent::scenarios();
         $scenarios[self::SCENARIO_GRADE] = ['isAccepted', 'grade', 'notes'];
         return $scenarios;
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => ISODateTimeBehavior::class,
+                'attributes' => ['uploadTime']
+            ]
+        ];
     }
 
     /**
@@ -151,5 +166,48 @@ class StudentFile extends \yii\db\ActiveRecord
     public function getTranslatedIsAccepted()
     {
         return Yii::t('app', $this->isAccepted);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDelay()
+    {
+        $uploadTime = $this->uploadTime;
+        if (is_null($uploadTime)) {
+            return null;
+        }
+        $softDeadline = $this->task->softDeadline;
+
+        if (
+            !empty($softDeadline) &&
+            strtotime($uploadTime) > strtotime($softDeadline)
+        ) {
+            $timeSwitchHourDelay = 0;
+
+            $softDeadlineInTime = strtotime($softDeadline);
+            $softDeadlineInDaylight = date('I', $softDeadlineInTime);
+
+            $uploadTimeInTime = strtotime($uploadTime);
+            $uploadTimeInDaylight = date('I', $uploadTimeInTime);
+
+            if ($softDeadlineInDaylight == 0 && $uploadTimeInDaylight == 1) { //$softDeadlineInDaylight in winter time && $uploadTimeInDaylight in summer time
+                $timeSwitchHourDelay -= 1;
+            } elseif ($softDeadlineInDaylight == 1 && $uploadTimeInDaylight == 0) { //$softDeadlineInDaylight in summer time && $uploadTimeInDaylight in winter time
+                $timeSwitchHourDelay += 1;
+            }
+
+            $delay = ceil(
+                (((float)($uploadTimeInTime - $softDeadlineInTime) / 3600) + $timeSwitchHourDelay) / 24
+            );
+
+            return Yii::t(
+                'app',
+                '+{days} days',
+                ['days' => $delay]
+            );
+        }
+
+        return null;
     }
 }

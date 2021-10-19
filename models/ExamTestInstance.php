@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\behaviors\ISODateTimeBehavior;
 use app\models\queries\ExamTestInstanceQuery;
 use Yii;
 use app\models\User;
@@ -33,6 +34,19 @@ class ExamTestInstance extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return '{{%exam_testinstances}}';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => ISODateTimeBehavior::class,
+                'attributes' => ['starttime', 'finishtime']
+            ]
+        ];
     }
 
     /**

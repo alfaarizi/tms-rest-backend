@@ -3,6 +3,7 @@
 namespace tests\api;
 
 use ApiTester;
+use DateTime;
 use Yii;
 use app\models\ExamTest;
 use app\models\ExamTestInstance;
@@ -123,13 +124,14 @@ class InstructorExamTestsCest
                 'duration' => 30,
                 'shuffled' => 1,
                 'unique' => 1,
-                'availablefrom' => "2021-02-01 10:00:00",
-                'availableuntil' => "2021-02-01 11:00:00",
+                'availablefrom' => "2021-02-01T10:00:00+01:00",
+                'availableuntil' => "2021-02-01T11:00:00+01:00",
                 'courseName' => 'Java',
                 'groupNumber' => 1,
                 'courseID' => 1,
                 'groupID' => 1,
                 'questionsetID' => 1,
+                'timezone' => 'Europe/Budapest',
                 'semesterID' => 2,
             ]
         );
@@ -190,8 +192,8 @@ class InstructorExamTestsCest
 
     public function createValid(ApiTester $I)
     {
-        $from = date('Y-m-d H:i:s');
-        $until = date('Y-m-d H:i:s', strtotime('+1 day'));
+        $from = date(DateTime::ATOM);
+        $until = date(DateTime::ATOM, strtotime('+1 day'));
         $I->sendPost(
             '/instructor/exam-tests',
             [
@@ -222,6 +224,7 @@ class InstructorExamTestsCest
                 'courseID' => 1,
                 'groupID' => 1,
                 'questionsetID' => 1,
+                'timezone' => 'Europe/Budapest',
                 'semesterID' => 2,
             ]
         );
@@ -296,8 +299,8 @@ class InstructorExamTestsCest
 
     public function updateValid(ApiTester $I)
     {
-        $from = date('Y-m-d H:i:s');
-        $until = date('Y-m-d H:i:s', strtotime('+1 day'));
+        $from = date(DateTime::ATOM);
+        $until = date(DateTime::ATOM, strtotime('+1 day'));
         $I->sendPatch(
             '/instructor/exam-tests/10',
             [
@@ -322,6 +325,7 @@ class InstructorExamTestsCest
                 'courseID' => 1,
                 'groupID' => 1,
                 'questionsetID' => 1,
+                'timezone' => 'Europe/Budapest',
                 'semesterID' => 2,
             ]
         );
@@ -398,6 +402,7 @@ class InstructorExamTestsCest
                 'courseID' => 1,
                 'groupID' => 1,
                 'questionsetID' => 1,
+                'timezone' => 'Europe/Budapest',
                 'semesterID' => 2,
             ]
         );

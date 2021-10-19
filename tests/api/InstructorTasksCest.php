@@ -133,7 +133,7 @@ class InstructorTasksCest
                 'category' => 'Larger tasks',
                 'translatedCategory' => 'Larger tasks',
                 'description' => 'Description',
-                'hardDeadline' => '2021-03-08 10:00:00',
+                'hardDeadline' => '2021-03-08T10:00:00+01:00',
                 'softDeadline' => null,
                 'available' => null,
                 'autoTest' => 0,
@@ -207,8 +207,8 @@ class InstructorTasksCest
     {
         $data = [
             'name' => 'Created',
-            'softDeadLine' => date('Y-m-d H:i:s', strtotime('+1 day')),
-            'hardDeadline' => date('Y-m-d H:i:s', strtotime('+2 day')),
+            'softDeadLine' => date(\DateTime::ATOM, strtotime('+1 day')),
+            'hardDeadline' => date(\DateTime::ATOM, strtotime('+2 day')),
             'groupID' => 1,
             'category' => 'Smaller tasks',
             'description' => 'Description',
@@ -307,7 +307,7 @@ class InstructorTasksCest
         $I->seeEmailIsSent(0);
     }
 
-    public function updateValidDontChangeDeadline(ApiTester $I)
+    public function updateValidDoesntChangeDeadline(ApiTester $I)
     {
         $I->sendPatch(
             '/instructor/tasks/1',
@@ -325,7 +325,7 @@ class InstructorTasksCest
                 'category' => 'Larger tasks',
                 'translatedCategory' => 'Larger tasks',
                 'description' => 'Description',
-                'hardDeadline' => '2021-03-08 10:00:00',
+                'hardDeadline' => '2021-03-08T10:00:00+01:00',
                 'softDeadline' => null,
                 'available' => null,
                 'autoTest' => 0,

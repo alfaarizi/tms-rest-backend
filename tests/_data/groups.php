@@ -6,35 +6,40 @@ return [
         'courseID' => 1,
         'semesterID' => 2,
         'number' => 1,
-        'isExamGroup' => 0
+        'isExamGroup' => 0,
+        'timezone' => 'Europe/Budapest',
     ],
     'group2' => [
         'id' => 2,
         'courseID' => 3,
         'semesterID' => 2,
         'number' => 2,
-        'isExamGroup' => 0
+        'isExamGroup' => 0,
+        'timezone' => 'Europe/Budapest',
     ],
     'group3' => [
         'id' => 3,
         'courseID' => 1,
         'semesterID' => 2,
         'number' => 3,
-        'isExamGroup' => 0
+        'isExamGroup' => 0,
+        'timezone' => 'Europe/Budapest',
     ],
     "group4" => [
         'id' => 4,
         'courseID' => 1,
         'semesterID' => 2,
         'number' => 4,
-        'isExamGroup' => 0
+        'isExamGroup' => 0,
+        'timezone' => 'Europe/Budapest',
     ],
     'group5' => [
         'id' => 5,
         'courseID' => 1,
         'semesterID' => 2,
         'number' => 5,
-        'isExamGroup' => 0
+        'isExamGroup' => 0,
+        'timezone' => 'Europe/Budapest',
     ],
     'group6_canvas' => [
         'id' => 6,
@@ -42,41 +47,47 @@ return [
         'semesterID' => 2,
         'number' => 6,
         'isExamGroup' => 0,
-        'canvasCourseID' => 1
+        'canvasCourseID' => 1,
+        'timezone' => 'Europe/Budapest',
     ],
     'group7' => [
         'id' => 7,
         'courseID' => 2,
         'semesterID' => 2,
         'number' => 7,
-        'isExamGroup' => 0
+        'isExamGroup' => 0,
+        'timezone' => 'Europe/Budapest',
     ],
     'group8' => [
         'id' => 8,
         'courseID' => 2,
         'semesterID' => 2,
         'number' => 8,
-        'isExamGroup' => 0
+        'isExamGroup' => 0,
+        'timezone' => 'Europe/Budapest',
     ],
     'group9' => [
         'id' => 9,
         'courseID' => 2,
         'semesterID' => 1,
         'number' => 9,
-        'isExamGroup' => 0
+        'isExamGroup' => 0,
+        'timezone' => 'Europe/Budapest',
     ],
     'group10' => [
         'id' => 10,
         'courseID' => 2,
         'semesterID' => 1,
         'number' => 10,
-        'isExamGroup' => 0
+        'isExamGroup' => 0,
+        'timezone' => 'Europe/Budapest',
     ],
     'group11' => [
         'id' => 11,
         'courseID' => 3,
         'semesterID' => 1,
         'number' => 11,
-        'isExamGroup' => 0
+        'isExamGroup' => 0,
+        'timezone' => 'Europe/Budapest',
     ],
 ];

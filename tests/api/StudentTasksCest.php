@@ -112,7 +112,7 @@ class StudentTasksCest
                 'translatedCategory' => 'Larger tasks',
                 'description' => 'Description',
                 'softDeadline' => null,
-                'hardDeadline' => '2021-03-08 10:00:00',
+                'hardDeadline' => '2021-03-08T10:00:00+01:00',
                 'available' => null,
                 'creatorName' => 'Teacher Two',
                 'semesterID' => 2,
