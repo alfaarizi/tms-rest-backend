@@ -42,8 +42,6 @@ use app\components\DateTimeHelpers;
         <?= \Yii::t('app/mail', 'Soft deadline of task') ?>: <?= DateTimeHelpers::timeZoneConvert($task->softDeadline, $task->group->timezone, true) ?><br>
     <?php endif; ?>
     <?= \Yii::t('app/mail', 'Hard deadline of task') ?>: <?= DateTimeHelpers::timeZoneConvert($task->hardDeadline, $task->group->timezone, true) ?><br>
-    <?php if (empty($task->available)) : ?>
-        <?= \Yii::t('app/mail', 'Task description') ?>:<br>
-        <?= nl2br($task->description, false) ?>
-    <?php endif; ?>
 </p>
+
+<?= $this->render('../partials/taskDescription', ['task' => $task]) ?>
