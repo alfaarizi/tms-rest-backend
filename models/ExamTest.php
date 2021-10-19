@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\behaviors\ISODateTimeBehavior;
 use app\models\queries\ExamTestQuery;
 use Yii;
 use yii\db\ActiveQuery;
@@ -21,6 +22,7 @@ use yii\helpers\ArrayHelper;
  * @property string $availableuntil
  * @property int $groupID
  * @property int $questionsetID
+ * @property-read string timezone
  *
  * @property ExamTestInstance[] $testinstances
  * @property ExamQuestionSet $questionset
@@ -67,6 +69,19 @@ class ExamTest extends ActiveRecord
     public static function tableName()
     {
         return '{{%exam_tests}}';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => ISODateTimeBehavior::class,
+                'attributes' => ['availablefrom', 'availableuntil']
+            ]
+        ];
     }
 
     /**

@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\components\DateTimeHelpers;
 
 /* @var $this \yii\web\View view component instance */
 /* @var $message \yii\mail\BaseMessage instance of newly created mail message */
@@ -32,12 +33,12 @@ use yii\helpers\Url;
     <?= \Yii::t('app/mail', 'Task name') ?>: <?= $task->name ?><br>
     <?= \Yii::t('app/mail', 'Category') ?>: <?=\Yii::t('app/mail', $task->category)?><br>
 <?php if (!empty($task->available)) : ?>
-    <?= \Yii::t('app/mail', 'Available from') ?>: <?= $task->available ?><br>
+    <?= \Yii::t('app/mail', 'Available from') ?>: <?= DateTimeHelpers::timeZoneConvert($task->available, $task->group->timezone, true) ?><br>
 <?php endif; ?>
 <?php if (!empty($task->softDeadline)) : ?>
-    <?= \Yii::t('app/mail', 'Soft deadline of task') ?>: <?= $task->softDeadline ?><br>
+    <?= \Yii::t('app/mail', 'Soft deadline of task') ?>: <?= DateTimeHelpers::timeZoneConvert($task->softDeadline, $task->group->timezone, true) ?><br>
 <?php endif; ?>
-    <?= \Yii::t('app/mail', 'Hard deadline of task') ?>: <?= $task->hardDeadline ?><br>
+    <?= \Yii::t('app/mail', 'Hard deadline of task') ?>: <?= DateTimeHelpers::timeZoneConvert($task->hardDeadline, $task->group->timezone, true) ?><br>
 <?php if (empty($task->available)) : ?>
     <?= \Yii::t('app/mail', 'Task description') ?>:<br>
     <?= nl2br($task->description, false) ?>

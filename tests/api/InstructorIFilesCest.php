@@ -86,17 +86,17 @@ class InstructorIFilesCest
                 [
                     'id' => 1,
                     'name' => 'file1.txt',
-                    'uploadTime' => '2021-02-01 10:00:00',
+                    'uploadTime' => '2021-02-01T10:00:00+01:00',
                 ],
                 [
                     'id' => 2,
                     'name' => 'file2.txt',
-                    'uploadTime' => '2021-02-02 10:00:00',
+                    'uploadTime' => '2021-02-02T10:00:00+01:00',
                 ],
                 [
                     'id' => 3,
                     'name' => 'file3.txt',
-                    'uploadTime' => '2021-02-03 10:00:00',
+                    'uploadTime' => '2021-02-03T10:00:00+01:00',
                 ],
             ]
         );

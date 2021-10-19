@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\models\queries\GroupQuery;
+use app\validators\TimeZoneValidator;
 use Yii;
 
 /**
@@ -16,6 +17,7 @@ use Yii;
  * @property integer $canvasSectionID
  * @property integer $canvasCourseID
  * @property boolean $isExamGroup
+ * @property string timezone
  * @property-read boolean isCanvasCourse
  * @property-read boolean canvasCanBeSynchronized
  *
@@ -36,8 +38,8 @@ class Group extends \yii\db\ActiveRecord
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_CREATE] = ['number', 'courseID', 'isExamGroup'];
-        $scenarios[self::SCENARIO_UPDATE] = ['number', 'isExamGroup'];
+        $scenarios[self::SCENARIO_CREATE] = ['number', 'courseID', 'isExamGroup', 'timezone'];
+        $scenarios[self::SCENARIO_UPDATE] = ['number', 'isExamGroup', 'timezone'];
 
         return $scenarios;
     }
@@ -72,8 +74,16 @@ class Group extends \yii\db\ActiveRecord
                 'message' => Yii::t('app', 'The combination of Group Number, Course ID and Semester ID has already been taken.')
             ],
             [
-                ['courseID'],
+                ['timezone'],
+                'string'
+            ],
+            [
+                ['courseID', 'timezone'],
                 'required'
+            ],
+            [
+                ['timezone'],
+                TimeZoneValidator::class
             ],
             [
                 ['courseID'],
@@ -112,7 +122,8 @@ class Group extends \yii\db\ActiveRecord
             'synchronizerID' => Yii::t('app', 'Synchronizer ID'),
             'isExamGroup' => Yii::t('app', 'Exam Group'),
             'canvasSectionID' => Yii::t('app', 'Canvas Section'),
-            'canvasCourseID' => Yii::t('app', 'Canvas Course')
+            'canvasCourseID' => Yii::t('app', 'Canvas Course'),
+            'timezone' => Yii::t('app', 'Timezone')
         ];
     }
 

@@ -28,45 +28,8 @@ class StudentFileResource extends StudentFile
             'groupID',
             'gitRepo',
             'uploaderID',
-            'uploadTime' => function() {
-                $uploadTime = $this->uploadTime;
-                if (is_null($uploadTime)) {
-                    return Yii::t('app', '(No file uploaded)');
-                }
-                $softDeadline = $this->task->softDeadline;
-
-                $content = $uploadTime;
-                if (
-                    !empty($softDeadline) &&
-                    strtotime($uploadTime) > strtotime($softDeadline)
-                ) {
-                    $timeSwitchHourDelay = 0;
-
-                    $softDeadlineInTime = strtotime($softDeadline);
-                    $softDeadlineInDaylight = date('I', $softDeadlineInTime);
-
-                    $uploadTimeInTime = strtotime($uploadTime);
-                    $uploadTimeInDaylight = date('I', $uploadTimeInTime);
-
-                    if ($softDeadlineInDaylight == 0 && $uploadTimeInDaylight == 1) { //$softDeadlineInDaylight in winter time && $uploadTimeInDaylight in summer time
-                        $timeSwitchHourDelay -= 1;
-                    } elseif ($softDeadlineInDaylight == 1 && $uploadTimeInDaylight == 0) { //$softDeadlineInDaylight in summer time && $uploadTimeInDaylight in winter time
-                        $timeSwitchHourDelay += 1;
-                    }
-
-                    $delay = ceil(
-                        (((float)($uploadTimeInTime - $softDeadlineInTime) / 3600) + $timeSwitchHourDelay) / 24
-                    );
-
-                    $content .= ' (' . Yii::t(
-                            'app',
-                            '+{days} days',
-                            ['days' => $delay]
-                        ) . ')';
-                }
-
-                return $content;
-            },
+            'uploadTime',
+            'delay',
         ];
     }
 

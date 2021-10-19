@@ -22,6 +22,7 @@ class ExamTestResource extends ExamTest
             'courseID',
             'groupID',
             'questionsetID',
+            'timezone',
             'semesterID',
         ];
     }
@@ -69,5 +70,14 @@ class ExamTestResource extends ExamTest
     public function getTestInstances()
     {
         return $this->hasMany(ExamTestInstanceResource::class, ['testID' => 'id']);
+    }
+
+    /**
+     * Timezone of the group
+     * @return string
+     */
+    public function getTimezone()
+    {
+        return $this->group->timezone;
     }
 }
