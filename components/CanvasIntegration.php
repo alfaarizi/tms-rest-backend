@@ -605,6 +605,10 @@ class CanvasIntegration
             // $user not exists in TMS, it is the Test account of the Canvas course
             return -1;
         }
+        if (is_null($file['size'])) {
+            // Canvas file upload by student is invalid or corrupted
+            return -1;
+        }
 
         $studentFile = $task->getStudentFiles()->where(['canvasID' => $submission['id']])->one();
         if (empty($studentFile)) {
