@@ -61,6 +61,13 @@ class SemestersController extends BaseAdminRestController
                 $semester->actual = true;
                 if ($semester->save()) {
                     $transaction->commit();
+
+                    // Log
+                    Yii::info(
+                        "An admin has added a new semester ($semesterName)",
+                        __METHOD__
+                    );
+
                     return $semester;
                 } else {
                     $transaction->rollBack();

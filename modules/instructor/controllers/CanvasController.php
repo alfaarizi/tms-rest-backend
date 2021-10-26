@@ -112,7 +112,11 @@ class CanvasController extends BaseInstructorRestController
                 $user->refreshToken = $responseJson['refresh_token'];
                 $user->save();
                 $this->response->statusCode = 204;
-                return;
+
+                Yii::info(
+                    "Successful canvas login (canvas userID: $user->canvasID)",
+                    __METHOD__
+                );
             } else {
                 throw new ServerErrorHttpException(Yii::t('app', 'Canvas login failed'));
             }
@@ -175,6 +179,7 @@ class CanvasController extends BaseInstructorRestController
             $canvasCourse->canvasSection,
             $canvasCourse->canvasCourse
         );
+
         $this->canvas->synchronizeGroupData($group);
         $this->response->statusCode = 204;
     }

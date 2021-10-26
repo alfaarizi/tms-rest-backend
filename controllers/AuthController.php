@@ -195,6 +195,7 @@ class AuthController extends BaseRestController
         $current = AccessToken::getCurrent();
         $current->delete();
         $this->response->statusCode = 204;
+        Yii::info("A user has logged out", __METHOD__);
     }
 
     /**
@@ -204,5 +205,6 @@ class AuthController extends BaseRestController
     {
         AccessToken::deleteAll(['userId' => Yii::$app->user->id]);
         $this->response->statusCode = 204;
+        Yii::info("A user has logged out from all devices", __METHOD__);
     }
 }

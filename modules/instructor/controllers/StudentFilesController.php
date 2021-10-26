@@ -302,8 +302,7 @@ class StudentFilesController extends BaseInstructorRestController
 
         // Log
         Yii::info(
-            "Solution #$studentFile->id graded by " .
-            Yii::$app->user->identity->name . " (" . Yii::$app->user->identity->neptun . ") " .
+            "Solution #$studentFile->id graded" .
             "for task {$studentFile->task->name} (#$studentFile->taskID) " .
             "with status $studentFile->isAccepted, grade $studentFile->grade and notes: $studentFile->notes",
             __METHOD__
