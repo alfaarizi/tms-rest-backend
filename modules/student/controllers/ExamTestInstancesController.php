@@ -169,6 +169,10 @@ class ExamTestInstancesController extends BaseStudentRestController
 
         // Can't resume when test is over
         if ($duration <= 0) {
+            Yii::warning(
+                "A user started to write a test instance (testInstance: $id), but the test was over.",
+                __METHOD__
+            );
             throw new BadRequestHttpException(Yii::t('app', "Time is over: you can't resume this test"));
         }
 
@@ -191,6 +195,11 @@ class ExamTestInstancesController extends BaseStudentRestController
                 }, $question->getAnswers()->all());
             }
         }
+
+        Yii::info(
+            "A user started to write a test instance (testInstance: $id)",
+            __METHOD__
+        );
 
         return new ExamWriterResource($testInstance->test->name, $duration / 1000, $questionResources);
     }
@@ -231,7 +240,8 @@ class ExamTestInstancesController extends BaseStudentRestController
         // 30 seconds gratis time, so JavaScript-based auto-submission at the end of the test is still valid
         if ($duration <= -30000) {
             Yii::info(
-                "Test instance saved with 0 points after timeout (testinstance: $testInstance->id). Post Data: "
+                "A test instance has been saved with 0 points after timeout" .
+                "(testInstanceID: $testInstance->id)." . PHP_EOL ." Post Data: "
                 . VarDumper::dumpAsString(Yii::$app->request->post()),
                 __METHOD__
             );
@@ -254,8 +264,8 @@ class ExamTestInstancesController extends BaseStudentRestController
 
         if (!Model::loadMultiple($submittedAnswers, Yii::$app->request->post(), '')) {
             Yii::error(
-                "Failed to load post data (testinstance: $testInstance->id)." .
-                " Post Data: " . VarDumper::dumpAsString(Yii::$app->request->post()),
+                "Failed to load post data (testInstanceID: $testInstance->id)" . PHP_EOL .
+                "Post Data:" . VarDumper::dumpAsString(Yii::$app->request->post()),
                 __METHOD__
             );
             throw new BadRequestHttpException(Yii::t("app", "Failed to load post data"));
@@ -272,8 +282,9 @@ class ExamTestInstancesController extends BaseStudentRestController
                 } elseif ($answer->hasErrors()) {
                     $transaction->rollBack();
                     Yii::error(
-                        "Failed to validate answer ($answer->answerID) and testinsance ($testInstance->id)." .
-                        " Post Data: " . VarDumper::dumpAsString(Yii::$app->request->post()),
+                        "Failed to validate answer." . PHP_EOL .
+                        "(answerID: $answer->answerID, testInstanceID: $testInstance->id)" . PHP_EOL .
+                        "Post Data:" . VarDumper::dumpAsString(Yii::$app->request->post()),
                         __METHOD__
                     );
                     $this->response->statusCode = 422;
@@ -305,15 +316,21 @@ class ExamTestInstancesController extends BaseStudentRestController
                 throw new Exception("Failed to save test instance (id: $testInstance->id)");
             }
             $transaction->commit();
+
+            Yii::info(
+                "A test instance has been saved successfully (testInstanceID: $testInstance->id).",
+                __METHOD__
+            );
+
             return $testInstance;
 
         }
         catch (\Exception $e) {
             $transaction->rollBack();
             Yii::error(
-                "Failed to save answers ($testInstance->id)." .
-                " Message: " . $e->getMessage() .
-                " Post Data: " . VarDumper::dumpAsString(Yii::$app->request->post()),
+                "Failed to save answers ($testInstance->id)" . PHP_EOL .
+                "Message: " . $e->getMessage() . PHP_EOL .
+                "Post Data:" . VarDumper::dumpAsString(Yii::$app->request->post()),
                 __METHOD__
             );
             throw new ServerErrorHttpException(Yii::t("app", "A database error occurred"));

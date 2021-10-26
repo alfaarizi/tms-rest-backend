@@ -225,6 +225,12 @@ class CanvasIntegration
         $group->canvasCourseID = $canvasCourseId;
         $group->synchronizerID = Yii::$app->user->id;
         $group->save();
+
+        Yii::info(
+            "Canvas configuration has been saved for group" . PHP_EOL .
+            "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
+            __METHOD__
+        );
         return $group;
     }
 
@@ -239,6 +245,12 @@ class CanvasIntegration
             $this->saveCanvasTeachersToGroup($group);
             $this->saveTasksToCourse($group);
             $this->saveSolutions($group);
+
+            Yii::info(
+                "Canvas sync was successful" . PHP_EOL .
+                "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
+                __METHOD__
+            );
         }
     }
 

@@ -40,13 +40,16 @@ $config = [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
                     'except' => ['app\*'],
-                    'maskVars' => ['_POST.LoginForm.password'],
+                    'maskVars' => ['_POST.password'],
                 ],
                 [
                     'class' => 'yii\log\DbTarget',
                     'levels' => ['error', 'warning', 'info'],
                     'categories' => ['app\*'],
                     'logVars' => [],
+                    'prefix' => function () {
+                        return "[console][-]";
+                    }
                 ],
             ],
         ],

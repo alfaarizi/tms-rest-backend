@@ -85,13 +85,23 @@ $config = [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
                     'except' => ['app\*'],
-                    'maskVars' => ['_POST.LoginForm.password'],
+                    'maskVars' => ['_POST.password'],
                 ],
                 [
                     'class' => 'yii\log\DbTarget',
                     'levels' => ['error', 'warning', 'info'],
                     'categories' => ['app\*'],
                     'logVars' => [],
+                    'prefix' => function () {
+                        // Get ip address
+                        $ip = Yii::$app->request->getUserIP();
+
+                        // Get user identity
+                        $identity = Yii::$app->user->identity;
+                        $userString = !is_null($identity) ? "$identity->name ($identity->neptun)" : "-";
+
+                        return "[$ip][$userString]";
+                    }
                 ],
             ],
         ],

@@ -16,7 +16,6 @@ use app\modules\instructor\resources\GroupResource;
 use app\resources\SemesterResource;
 use Yii;
 use yii\data\ActiveDataProvider;
-use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\ConflictHttpException;
@@ -122,6 +121,12 @@ class ExamTestsController extends BaseInstructorRestController
         }
 
         if ($test->save(false)) {
+            Yii::info(
+                "A new test has been created: $test->name ($test->id)." . PHP_EOL .
+                "Course: {$test->group->course->name}" . PHP_EOL .
+                "Group number: {$test->group->number}, groupID: {$test->groupID}",
+                __METHOD__
+            );
             $this->response->statusCode = 201;
             return $test;
         } else {
@@ -238,6 +243,12 @@ class ExamTestsController extends BaseInstructorRestController
         $copy->groupID = $test->groupID;
 
         if ($copy->save()) {
+            Yii::info(
+                "A test has been copied, new test: $copy->name ($copy->id)." . PHP_EOL .
+                "Course: {$test->group->course->name}" . PHP_EOL .
+                "Group number: {$test->group->number}, groupID: {$test->groupID}",
+                __METHOD__
+            );
             $this->response->statusCode = 201;
             return $copy;
         } elseif ($copy->hasErrors()) {
@@ -339,6 +350,11 @@ class ExamTestsController extends BaseInstructorRestController
             )->execute();
 
             $transaction->commit();
+            Yii::info(
+                "A new test has been finalized: $test->name ($test->id)." . PHP_EOL .
+                "Course: {$test->group->course->name}" . PHP_EOL .
+                "Group number: {$test->group->number}, groupID: {$test->groupID}",
+                __METHOD__);
             $this->response->statusCode = 204;
         } catch (\Exception $e) {
             $transaction->rollBack();

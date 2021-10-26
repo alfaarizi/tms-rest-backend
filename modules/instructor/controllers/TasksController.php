@@ -46,7 +46,7 @@ class TasksController extends BaseInstructorRestController
                 'list-for-course' => ['GET'],
                 'list-for-users' => ['POST'],
                 'toggle-auto-tester' => ['PATCH'],
-                'update-auto-tester' => ['POST'],
+                'setup-auto-tester' => ['POST'],
                 'tester-form-data' => ['GET']
             ]
         );
@@ -185,6 +185,12 @@ class TasksController extends BaseInstructorRestController
         // Send mass email notifications
         Yii::$app->mailer->sendMultiple($messages);
 
+        Yii::info(
+            "A new task $task->name (id: $task->id) has been created " .
+            "for {$task->group->course->name} ({$task->group->number})",
+            __METHOD__
+        );
+
         $this->response->statusCode = 201;
         return $task;
     }
@@ -281,6 +287,12 @@ class TasksController extends BaseInstructorRestController
             // Send mass email notifications
             Yii::$app->mailer->sendMultiple($messages);
         }
+
+        Yii::info(
+            "A task has been updated: $task->name (id: $task->id)." . PHP_EOL .
+            "Course and group: {$task->group->course->name} ({$task->group->number})",
+            __METHOD__
+        );
 
         return $task;
     }

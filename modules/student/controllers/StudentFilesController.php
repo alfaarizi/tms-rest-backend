@@ -193,6 +193,11 @@ class StudentFilesController extends BaseStudentRestController
         }
 
         if ($studentFile->save()) {
+            Yii::info(
+                "A new solution has been uploaded for " .
+                "{$studentFile->task->name} ($taskID)",
+                __METHOD__
+            );
             return $studentFile;
         } else {
             throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
