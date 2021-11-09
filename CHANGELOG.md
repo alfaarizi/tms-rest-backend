@@ -4,6 +4,13 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.1.1](https://gitlab.com//tms-elte/backend-core/compare/v2.1.0...v2.1.1) (2021-11-09)
+### Bug Fixes
+
+* Synchronize Canvas tasks with custom user deadline overrides ([67938b](https://gitlab.com//tms-elte/backend-core/commit/67938beac1227e63de6546f68c7013e380a369d2))
+
+---
+
 ## [2.1.0](https://gitlab.com//tms-elte/backend-core/compare/v2.0.0...v2.1.0) (2021-10-27)
 ### Features
 
