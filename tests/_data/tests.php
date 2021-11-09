@@ -133,4 +133,16 @@ return [
         'questionsetID' => 1,
         'groupID' => 7,
     ],
+    'testFuture' => [
+        'id' => 13,
+        'name' => 'Vizsga',
+        'questionamount' => 100,
+        'duration' => 110,
+        'shuffled' => 1,
+        'unique' => 1,
+        'availablefrom' => date('Y-m-d H:i:s', strtotime('+1 day')),
+        'availableuntil' => date('Y-m-d H:i:s', strtotime('+2 day')),
+        'questionsetID' => 1,
+        'groupID' => 1,
+    ],
 ];

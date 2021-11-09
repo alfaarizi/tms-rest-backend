@@ -44,19 +44,31 @@ class ExamTestInstancesController extends BaseStudentRestController
     /**
      * @param int $semesterID
      * @param int $submitted
+     * @param int $future
      * @return ActiveDataProvider
      */
-    public function actionIndex($semesterID, $submitted)
+    public function actionIndex($semesterID, $submitted, $future = false)
     {
         $submitted = filter_var($submitted, FILTER_VALIDATE_BOOLEAN);
+        $future = filter_var($future, FILTER_VALIDATE_BOOLEAN);
+
+        if ($submitted && $future) {
+            throw new BadRequestHttpException(Yii::t('app', "Future tests can not be submitted"));
+        }
+
         // All tests for the given semester
         $tests = ExamTest::find()
             ->select('id')
             ->forSemester($semesterID);
 
         // List active tests
-        if (!$submitted) {
+        if (!$submitted && !$future) {
             $tests = $tests->onlyActive();
+        }
+
+        // List future tests
+        if (!$submitted && $future) {
+            $tests = $tests->onlyFuture();
         }
 
         // Query test instances

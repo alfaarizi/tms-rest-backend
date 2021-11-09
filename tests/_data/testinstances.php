@@ -82,4 +82,13 @@ return [
         'userID' => 3,
         'testID' => 1,
     ],
+    'testinstance10' => [
+        'id' => 10,
+        'submitted' => 0,
+        'starttime' => date('Y-m-d H:i:s', time() + 240),
+        'finishtime' => null,
+        'score' => 0,
+        'userID' => 3,
+        'testID' => 13,
+    ],
 ];
