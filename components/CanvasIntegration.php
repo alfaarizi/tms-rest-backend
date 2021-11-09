@@ -458,6 +458,7 @@ class CanvasIntegration
                 ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
                 ->setData([
                     'include[]' => 'overrides',
+                    'override_assignment_dates' => false,
                     'page' => $page++,
                     'per_page' => 50])
                 ->send();
@@ -466,24 +467,30 @@ class CanvasIntegration
                 $morePages = !empty($response->data);
 
                 foreach ($out as $assignment) {
-                    if (
-                        $assignment['published'] && !$assignment['is_quiz_assignment'] &&
-                        (!empty($assignment['lock_at'] || !empty($assignment['overrides'])))
-                    ) {
-                        if (empty($assignment['overrides'])) {
+                    if ($assignment['published'] && !$assignment['is_quiz_assignment']) {
+                        if ($group->canvasSectionID == -1 && !empty($assignment['lock_at'])) {
                             $id = $this->saveTask($assignment, $group);
                             array_push($taskIds, $id);
                         } elseif ($group->canvasSectionID > 0) {
-                            foreach ($assignment['overrides'] as $override) {
-                                if (isset($override['course_section_id']) && $override['course_section_id'] == $group->canvasSectionID) {
-                                    $assignment['due_at'] = $override['due_at'];
-                                    $assignment['unlock_at'] = $override['unlock_at'];
-                                    $assignment['lock_at'] = $override['lock_at'];
-                                    if (!empty($assignment['lock_at'])) {
-                                        $id = $this->saveTask($assignment, $group);
-                                        array_push($taskIds, $id);
+                            $sectionOverride = null;
+                            if (!empty($assignment['overrides'])) {
+                                foreach ($assignment['overrides'] as $override) {
+                                    if (isset($override['course_section_id']) && $override['course_section_id'] == $group->canvasSectionID) {
+                                        $sectionOverride = $override;
+                                        break;
                                     }
                                 }
+                            }
+
+                            if (!is_null($sectionOverride)) {
+                                $assignment['due_at'] = $sectionOverride['due_at'];
+                                $assignment['unlock_at'] = $sectionOverride['unlock_at'];
+                                $assignment['lock_at'] = $sectionOverride['lock_at'];
+                            }
+
+                            if (!empty($assignment['lock_at'])) {
+                                $id = $this->saveTask($assignment, $group);
+                                array_push($taskIds, $id);
                             }
                         }
                     }
