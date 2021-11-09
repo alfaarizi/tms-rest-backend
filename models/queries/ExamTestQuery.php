@@ -48,4 +48,10 @@ class ExamTestQuery extends ActiveQuery
             ->andWhere(["<=", "availablefrom", new Expression('NOW()')])
             ->andWhere([">=", "availableuntil", new Expression('NOW()')]);
     }
+
+    public function onlyFuture()
+    {
+        return $this
+            ->andWhere([">=", "availablefrom", new Expression('NOW()')]);
+    }
 }

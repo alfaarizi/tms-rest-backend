@@ -46,7 +46,7 @@ class StudentExamTestInstanceCest
 
     public function indexSubmitted(ApiTester $I)
     {
-        $I->sendGet("/student/exam-test-instances?semesterID=2&submitted=true");
+        $I->sendGet("/student/exam-test-instances?semesterID=2&submitted=true&future=false");
         $I->seeResponseCodeIs(HttpCode::OK); // 200
 
         $I->seeResponseIsJson();
@@ -67,6 +67,7 @@ class StudentExamTestInstanceCest
                 ['id' => 7],
                 ['id' => 8],
                 ['id' => 9],
+                ['id' => 10],
             ]
         );
 
@@ -94,7 +95,7 @@ class StudentExamTestInstanceCest
 
     public function indexNotSubmitted(ApiTester $I)
     {
-        $I->sendGet("/student/exam-test-instances?semesterID=2&submitted=false");
+        $I->sendGet("/student/exam-test-instances?semesterID=2&submitted=false&future=false");
         $I->seeResponseCodeIs(HttpCode::OK); // 200
 
         $I->seeResponseIsJson();
@@ -113,12 +114,62 @@ class StudentExamTestInstanceCest
         $I->cantSeeResponseContainsJson([['id' => 5]]);
         $I->cantSeeResponseContainsJson([['id' => 6]]);
         $I->cantSeeResponseContainsJson([['id' => 7]]);
+        $I->cantSeeResponseContainsJson([['id' => 10]]);
 
         $I->seeResponseMatchesJsonType(
             [
                 'id' => 'integer',
                 'submitted' => 'integer',
                 'starttime' => 'string|null',
+                'finishtime' => 'null',
+                'score' => 'integer',
+                'maxScore' => 'integer',
+                'test' =>
+                    [
+                        'name' => 'string',
+                        'duration' => 'integer',
+                        'groupNumber' => 'integer',
+                        'courseName' => 'string',
+                        'availablefrom' => 'string',
+                        'availableuntil' => 'string',
+                    ],
+            ],
+            '$.[*]'
+        );
+    }
+
+    public function indexFuture(ApiTester $I)
+    {
+        $I->sendGet("/student/exam-test-instances?semesterID=2&submitted=false&future=true");
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+
+        $I->seeResponseIsJson();
+
+        $I->seeResponseContainsJson(
+            [
+                ['id' => 10],
+            ]
+        );
+
+        $I->cantSeeResponseContainsJson(
+            [
+                ['id' => 1],
+                ['id' => 2],
+                ['id' => 3],
+                ['id' => 4],
+                ['id' => 5],
+                ['id' => 6],
+                ['id' => 7],
+                ['id' => 8],
+                ['id' => 9],
+            ]
+        );
+
+        $I->seeResponseMatchesJsonType(
+            [
+                'id' => 'integer',
+                'submitted' => 'integer',
+                'starttime' => 'string',
                 'finishtime' => 'null',
                 'score' => 'integer',
                 'maxScore' => 'integer',
