@@ -167,8 +167,8 @@ class Task extends \yii\db\ActiveRecord
                 'targetAttribute' => ['semesterID' => 'id']
             ],
             [['autoTest', 'showFullErrorMsg'], 'boolean'],
-            [['imageName', 'runInstructions'], 'string', 'max' => 255],
-            [['compileInstructions'], 'string', 'max' => 1000],
+            [['imageName'], 'string', 'max' => 255],
+            [['compileInstructions', 'runInstructions'], 'string', 'max' => 1000],
         ];
     }
 
