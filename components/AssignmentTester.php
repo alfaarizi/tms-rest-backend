@@ -169,7 +169,7 @@ class AssignmentTester
         $testCaseNr = 1;
         // run the test cases on the solution
         foreach ($this->testCases as $testCase) {
-            $result = $this->runTestCase($testCase, $container);
+            $result = $this->runTestCase($testCaseNr, $testCase, $container);
             if (!$this->checkResult($result, $testCaseNr, $testCase)) {
                 $this->stopContainer($containerName);
                 return;
@@ -257,31 +257,35 @@ class AssignmentTester
     /**
      * Runs a test case in the container
      *
+     * @param int $testCaseNr
      * @param \app\models\TestCase $testCase
      * @param \Docker\API\Model\ContainersIdJsonGetResponse200 $container
      */
-    private function runTestCase($testCase, $container)
+    private function runTestCase($testCaseNr, $testCase, $container)
     {
+        $task = $this->studentFile->task;
+
         // runs the compiled program with the testCase input redirected to it's stdin
-        $execResult = $this->executeCommand([
+        // set TEST_CASE_NR environment variable
+        $runCommand = [
             'timeout',
             Yii::$app->params['evaluator']['testTimeout'],
             '/bin/bash',
             '-c',
-            $testCase->task->runInstructions . ' <<< "' . $testCase->input . '"'
-        ], $container);
-
-        if ($this->studentFile->task->testOS == 'windows') {
-            $execResult = $this->executeCommand([
-                'powershell',
-                'echo "' . $testCase->input . '" | ' . $testCase->task->runInstructions
-            ], $container);
+            "TEST_CASE_NR=$testCaseNr /test/run.sh" . ' <<< "' . $testCase->input . '"'];
+        if ($task->testOS == 'windows') {
+            $runCommand = [
+                'powershell echo "' . $testCase->input . '" | ',
+                "powershell \$TEST_CASE_NR=$testCaseNr; C:\\test\\run.ps1"];
         }
+        $execResult = $this->executeCommand($runCommand, $container);
 
-        // Check for output equality; removing /r from output preventing errors from newline mismatches
+        // Check for output equality
+        // trimming expected and actual output
+        // removing /r from output preventing errors from newline mismatches
         $execResult['equal'] = strcmp(
-            preg_replace('/\r/', '', $execResult['stdout']),
-            preg_replace('/\r/', '', $testCase->output)
+            preg_replace('/\r/', '', trim($execResult['stdout'])),
+            preg_replace('/\r/', '', trim($testCase->output))
         );
         return $execResult;
     }
@@ -317,11 +321,18 @@ class AssignmentTester
 
         // add compile commands file
         $task = $this->studentFile->task;
-        file_put_contents(
-            Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/compile.' .
-                ($this->studentFile->task->testOS == 'windows' ? 'ps1' : 'sh'),
-            $task->compileInstructions
-        );
+        $compileFile = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/compile.' .
+            ($this->studentFile->task->testOS == 'windows' ? 'ps1' : 'sh');
+        file_put_contents($compileFile, $task->compileInstructions);
+        chmod($compileFile, 0755);
+
+        // add run command file
+        if (!empty($task->runInstructions)) {
+            $runFile = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/run.' .
+                ($this->studentFile->task->testOS == 'windows' ? 'ps1' : 'sh');
+            file_put_contents($runFile, $task->runInstructions);
+            chmod($runFile, 0755);
+        }
 
         return $containerCreateResult;
     }

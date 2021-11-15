@@ -11,8 +11,8 @@ class SetupAutoTester extends Model
         return [
             [['testOS'], 'required'],
             [['testOS'], 'string'],
-            [['imageName', 'runInstructions'], 'string', 'max' => 255],
-            [['compileInstructions'], 'string', 'max' => 1000],
+            [['imageName'], 'string', 'max' => 255],
+            [['compileInstructions', 'runInstructions'], 'string', 'max' => 1000],
             [['showFullErrorMsg'], 'boolean'],
             [['files'], 'file', 'skipOnEmpty' => true, 'maxFiles' => 20]
         ];
