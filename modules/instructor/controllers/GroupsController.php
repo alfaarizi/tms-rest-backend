@@ -474,7 +474,7 @@ class GroupsController extends BaseInstructorRestController
                 }
 
                 $users[] = $user;
-                if (!empty($user->email)) {
+                if (!empty($user->notificationEmail)) {
                     $originalLanguage = Yii::$app->language;
 
                     Yii::$app->language = $user->locale;
@@ -483,7 +483,7 @@ class GroupsController extends BaseInstructorRestController
                         'actor' => Yii::$app->user->identity,
                     ])
                         ->setFrom(Yii::$app->params['systemEmail'])
-                        ->setTo($user->email)
+                        ->setTo($user->notificationEmail)
                         ->setSubject(Yii::t('app/mail', 'New group assignment'));
                     Yii::$app->language = $originalLanguage;
                 }
@@ -664,7 +664,7 @@ class GroupsController extends BaseInstructorRestController
                     throw new AddFailedException($neptun, $subscription->errors);
                 }
 
-                if (!empty($user->email)) {
+                if (!empty($user->notificationEmail)) {
                     $originalLanguage = Yii::$app->language;
                     Yii::$app->language = $user->locale;
                     $messages[] = Yii::$app->mailer->compose(
@@ -675,7 +675,7 @@ class GroupsController extends BaseInstructorRestController
                         ]
                     )
                         ->setFrom(Yii::$app->params['systemEmail'])
-                        ->setTo($user->email)
+                        ->setTo($user->notificationEmail)
                         ->setSubject(Yii::t('app/mail', 'New group assignment'));
                     Yii::$app->language = $originalLanguage;
                 }

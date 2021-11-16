@@ -31,6 +31,10 @@ return [
     'Grade' => 'Értékelés',
     'Graded submission' => 'Beadandó értékelés',
     'Hard deadline of task' => 'Feladat végső határideje',
+    'If it was you, please click the following link to confirm the address: {link}' =>
+        'Ha te voltál, kattints a következő hivatkozásra a cím megerősítéséhez: {link}',
+    'If it wasn’t you, you may disregard this email.' =>
+        'Ha nem te voltál, nyugodtan hagyd figyelmen kívül ezt az e-mailt.',
     'Larger tasks' => 'Beadandók',
     'Modifier' => 'Módosító',
     'Name' => 'Név',
@@ -40,11 +44,14 @@ return [
     'New task' => 'Új feladat kiírás',
     'New task was assigned to the course {course} (group: {group}).' => 'Új feladat került kiírásra a(z) {course} (csoport: {group}) kurzushoz.',
     'New task was assigned to the course {course}.' => 'Új feladat került kiírásra a(z) {course} kurzushoz.',
+    'Please confirm your custom email address' => 'Egyedi e-mail-cím megerősítése',
     'Remark' => 'Megjegyzés',
     'Result' => 'Eredmény',
     'Smaller tasks' => 'Házi feladatok',
     'Soft deadline of task' => 'Feladat pótolható határideje',
     'Solution' => 'Megoldás',
+    'Someone, probably you, added this email address to the account of {name} in the Task Management System.' =>
+        'Valaki, valószínűleg te, hozzáadta ezt az e-mail-címet {name} fiókjához a Beadandó Kezelő Rendszerben.',
     'Status' => 'Státusz',
     'Student solutions submitted in the past {hours} hours' => 'Az elmúlt {hours} órában beküldött új hallgatói megoldások',
     'Submitted solutions' => 'Beküldött megoldások',

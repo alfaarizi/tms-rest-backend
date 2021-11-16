@@ -166,7 +166,7 @@ class TasksController extends BaseInstructorRestController
 
         $originalLanguage = Yii::$app->language;
         foreach ($task->group->subscriptions as $subscription) {
-            if (!empty($subscription->user->email)) {
+            if (!empty($subscription->user->notificationEmail)) {
                 Yii::$app->language = $subscription->user->locale;
                 $messages[] = Yii::$app->mailer->compose(
                     'student/newTask',
@@ -176,7 +176,7 @@ class TasksController extends BaseInstructorRestController
                     ]
                 )
                     ->setFrom(Yii::$app->params['systemEmail'])
-                    ->setTo($subscription->user->email)
+                    ->setTo($subscription->user->notificationEmail)
                     ->setSubject(Yii::t('app/mail', 'New task'));
             }
         }
@@ -262,7 +262,7 @@ class TasksController extends BaseInstructorRestController
 
             $originalLanguage = Yii::$app->language;
             foreach ($task->group->subscriptions as $subscription) {
-                if (!empty($subscription->user->email)) {
+                if (!empty($subscription->user->notificationEmail)) {
                     Yii::$app->language = $subscription->user->locale;
                     $messages[] = Yii::$app->mailer->compose(
                         'student/updateTaskDeadline',
@@ -273,7 +273,7 @@ class TasksController extends BaseInstructorRestController
                         ]
                     )
                         ->setFrom(Yii::$app->params['systemEmail'])
-                        ->setTo($subscription->user->email)
+                        ->setTo($subscription->user->notificationEmail)
                         ->setSubject(Yii::t('app/mail', 'Task deadline change'));
                 }
 

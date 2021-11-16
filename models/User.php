@@ -12,20 +12,33 @@ use yii\web\IdentityInterface;
  * @property string $name
  * @property string $neptun
  * @property string $email
+ * @property string $customEmail
  * @property string $locale
  * @property string $lastLoginTime
  * @property string $lastLoginIP
  * @property integer $canvasID
  * @property string $canvasToken
  * @property string $refreshToken
+ * @property boolean $customEmailConfirmed
+ * @property string $customEmailConfirmationCode
+ * @property string $customEmailConfirmationExpiry
+ * @property string $notificationTarget
  * @property-read boolean $isAuthenticatedInCanvas
+ * @property-read string $notificationEmail
  *
- * @property Groups[] $groups
+ * @property Group[] $groups
  * @property Subscription[] $subscriptions
  * @property StudentFile[] $files
  */
 class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
+    public const SCENARIO_SETTINGS = 'settings';
+    private const NOTIFICATION_TARGET = [
+        'official' => 'Official email address',
+        'custom' => 'Custom email address',
+        'none' => 'Don’t send notifications'
+    ];
+
     /**
      * @inheritdoc
      */
@@ -41,12 +54,25 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return [
             [['neptun'], 'required'],
-            [['name', 'email'], 'string', 'max' => 50],
-            [['email'], 'email'],
+            [['locale', 'notificationTarget'], 'required', 'on' => self::SCENARIO_SETTINGS],
+            [['name', 'email', 'customEmail'], 'string', 'max' => 50],
+            [['email', 'customEmail'], 'email'],
             [['neptun'], 'string', 'max' => 6],
             [['neptun'], 'unique'],
-            [['locale'], 'string', 'max' => 5],
-            // lastLoginIP and lastLoginTime is unsafe for mass assignments
+            [['locale'], 'in', 'range' => array_keys(Yii::$app->params['supportedLocale'])],
+            [['customEmailConfirmed'], 'boolean'],
+            [
+                ['notificationTarget'],
+                'in',
+                'range' => function ($model) {
+                    $range = self::NOTIFICATION_TARGET;
+                    if (!$model->customEmailConfirmed) {
+                        unset($range['custom']);
+                    }
+                    return array_keys($range);
+                }
+            ],
+            // lastLoginIP, lastLoginTime and custom email-related fields are unsafe for mass assignments
         ];
     }
 
@@ -59,14 +85,41 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
             'neptun' => Yii::t('app', 'Neptun'),
-            'email' => Yii::t('app', 'Email'),
+            'email' => Yii::t('app', 'Official email address'),
+            'customEmail' => Yii::t('app', 'Custom email address'),
             'locale' => Yii::t('app', 'Locale'),
             'lastLoginTime' => Yii::t('app', 'Login time'),
             'lastLoginIP' => Yii::t('app', 'Login IP address'),
             'canvasID' => Yii::t('app', 'Canvas id'),
             'canvasToken' => Yii::t('app', 'Canvas token'),
             'refeshToken' => Yii::t('app', 'Refresh token'),
+            'notificationTarget' => Yii::t('app', 'Notification target'),
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $scenarios[self::SCENARIO_SETTINGS] = ['locale', 'customEmail', 'notificationTarget'];
+        return $scenarios;
+    }
+
+    /**
+     * Get a 'map' of the supported notification targets and their language-specific translations.
+     *
+     * @param string|null $language the language code (e.g. `en-US`, `en`). If this is null, the current
+     * [[\yii\base\Application::language|application language]] will be used.
+     * @return array An associative array of notification target identifiers and their
+     * language-specific translations.
+     */
+    public static function notificationTargetMap(?string $language = null): array
+    {
+        return array_map(function ($en) use ($language) {
+            return Yii::t('app', $en, [], $language);
+        }, self::NOTIFICATION_TARGET);
     }
 
     /**
@@ -129,6 +182,21 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
 
         return $user;
+    }
+
+    /**
+     * Get the user corresponding to an email confirmation code.
+     *
+     * @param string $code The confirmation code.
+     * @return static|null The user corresponding to the code, if any.
+     */
+    public static function findByConfirmationCode(string $code): ?User
+    {
+        return static::find()->where([
+            'and',
+            ['=', 'customEmailConfirmationCode', $code],
+            ['>', 'customEmailConfirmationExpiry', date('Y/m/d H:i:s')]
+        ])->one();
     }
 
     /**
@@ -210,5 +278,61 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function validateAuthKey($authKey)
     {
         return $this->authKey === $authKey;
+    }
+
+    /**
+     * Get the email address used for notifications.
+     *
+     * @return string|null The notification email, or `null` if it’s unknown
+     * or notifications are disabled.
+     */
+    public function getNotificationEmail(): ?string
+    {
+        switch ($this->notificationTarget) {
+            case 'none':
+                return null;
+            case 'custom':
+                if ($this->customEmailConfirmed) {
+                    return $this->customEmail;
+                }
+                // else fall through
+            case 'official':
+            default:
+                return $this->email;
+        }
+    }
+
+    /**
+     * Get (and store) custom email confirmation code if the custom
+     * email is dirty. Saving to the database is the caller’s
+     * responsibility.
+     * @return string|null The confirmation code, or null if the custom
+     * email is not dirty.
+     */
+    public function getConfirmationCodeIfNecessary(): ?string
+    {
+        if ($this->getDirtyAttributes(['customEmail']) && $this->customEmail) {
+            $code = Yii::$app->getSecurity()->generateRandomString();
+            $this->customEmailConfirmationCode = $code;
+            $this->customEmailConfirmationExpiry = date('Y/m/d H:i:s', strtotime('+24hours'));
+            return $code;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        if (!$insert && $this->getDirtyAttributes(['customEmail'])) {
+            $this->customEmailConfirmed = false;
+        }
+        return true;
     }
 }

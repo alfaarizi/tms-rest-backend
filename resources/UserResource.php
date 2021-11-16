@@ -10,7 +10,7 @@ class UserResource extends \app\models\User
     /**
      * @inheritdoc
      */
-    public function fields()
+    public function fields(): array
     {
         return [
             'id',

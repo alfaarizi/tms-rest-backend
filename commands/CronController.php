@@ -88,6 +88,7 @@ class CronController extends BaseController
 
             // Email notifications
             if ($sendEmails) {
+                /** @var \app\models\User[] $instructors */
                 $instructors = [];
                 $solutionsByInstructor = [];
                 foreach ($newSolutions as $solution) {
@@ -105,14 +106,14 @@ class CronController extends BaseController
                 $origLanguage = Yii::$app->language;
                 foreach ($solutionsByInstructor as $neptun => $solutions) {
                     /** @var \app\models\StudentFile[] $solutions */
-                    if (!empty($instructors[$neptun]->email)) {
+                    if (!empty($instructors[$neptun]->notificationEmail)) {
                         Yii::$app->language = $instructors[$neptun]->locale;
                         $messages[] = Yii::$app->mailer->compose('instructor/digestSolution', [
                             'solutions' => $solutions,
                             'hours' => $hours,
                         ])
                             ->setFrom(Yii::$app->params['systemEmail'])
-                            ->setTo($instructors[$neptun]->email)
+                            ->setTo($instructors[$neptun]->notificationEmail)
                             ->setSubject(Yii::t('app/mail', 'Submitted solutions'));
                     }
                 }
@@ -238,12 +239,12 @@ class CronController extends BaseController
         );
 
         // E-mail notification
-        if (!empty($studentFile->uploader->email)) {
+        if (!empty($studentFile->uploader->notificationEmail)) {
             Yii::$app->mailer->compose('student/checkSolution', [
                 'studentFile' => $studentFile
             ])
                 ->setFrom(Yii::$app->params['systemEmail'])
-                ->setTo($studentFile->uploader->email)
+                ->setTo($studentFile->uploader->notificationEmail)
                 ->setSubject(Yii::t('app/mail', 'Automated submission test ready'))
                 ->send();
         }
