@@ -260,8 +260,9 @@ class InstructorGroupsStudentsCest
             '$.[failed]'
         );
 
-        // for STUD04 and STUD05
-        $I->seeEmailIsSent(2);
+        // For STUD05. STUD04 also has an official email address set,
+        // but has explicitly opted out of receiving notification emails.
+        $I->seeEmailIsSent(1);
 
         // Check for exsisting users
         $I->seeRecord(Subscription::class, ['userID' => 2, 'groupID' => 1, 'semesterID' => 2, 'isAccepted' => 1]);

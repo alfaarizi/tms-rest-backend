@@ -147,23 +147,20 @@ class CoursesController extends BaseAdminActiveController
                 }
 
                 $users[] = $user;
-                if (!empty($user->email)) {
+                if (!empty($user->notificationEmail)) {
                     $originalLanguage = Yii::$app->language;
 
                     Yii::$app->language = $user->locale;
-                    if (!empty($user->email)) {
-                        Yii::$app->language = $user->locale;
-                        $messages[] = Yii::$app->mailer->compose(
-                            'instructor/newCourse',
-                            [
-                                'course' => Course::findOne(['id' => $courseID]),
-                                'actor' => Yii::$app->user->identity,
-                            ]
-                        )
-                            ->setFrom(Yii::$app->params['systemEmail'])
-                            ->setTo($user->email)
-                            ->setSubject(Yii::t('app/mail', 'New course assignment'));
-                    }
+                    $messages[] = Yii::$app->mailer->compose(
+                        'instructor/newCourse',
+                        [
+                            'course' => Course::findOne(['id' => $courseID]),
+                            'actor' => Yii::$app->user->identity,
+                        ]
+                    )
+                        ->setFrom(Yii::$app->params['systemEmail'])
+                        ->setTo($user->notificationEmail)
+                        ->setSubject(Yii::t('app/mail', 'New course assignment'));
                     Yii::$app->language = $originalLanguage;
                 }
             } catch (AddFailedException $e) {

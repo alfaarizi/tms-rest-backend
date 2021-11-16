@@ -146,6 +146,7 @@ class AuthController extends BaseRestController
     /**
      * Updates the locale of the current user
      * @throws BadRequestHttpException
+     * @deprecated Use [[UserSettingsContainer::actionUpdate]] instead.
      */
     public function actionUpdateUserLocale()
     {

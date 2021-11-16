@@ -310,7 +310,7 @@ class StudentFilesController extends BaseInstructorRestController
 
 
         // E-mail notification
-        if ($studentFile->uploader->email) {
+        if ($studentFile->uploader->notificationEmail) {
             $originalLanguage = Yii::$app->language;
             Yii::$app->language = $studentFile->uploader->locale;
             Yii::$app->mailer->compose('student/markSolution', [
@@ -318,7 +318,7 @@ class StudentFilesController extends BaseInstructorRestController
                 'actor' => Yii::$app->user->identity,
             ])
                 ->setFrom(Yii::$app->params['systemEmail'])
-                ->setTo($studentFile->uploader->email)
+                ->setTo($studentFile->uploader->notificationEmail)
                 ->setSubject(Yii::t('app/mail', 'Graded submission'))
                 ->send();
             Yii::$app->language = $originalLanguage;

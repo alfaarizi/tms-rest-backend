@@ -7,6 +7,9 @@ return [
     "examination/image/<id>/<filename>" => 'images/view-exam-image',
     // Keep the old git path for compatibility
     "git/<action>" => "git/<action>",
+    // User settings recieves the user ID implicitly from
+    // authentication, so no /<id:\d+> is needed
+    'PUT,PATCH common/user-settings' => 'user-settings/update',
 
     'GET,HEAD common/<controller>' => '<controller>/index',
     'POST common/<controller>' => '<controller>/create',
