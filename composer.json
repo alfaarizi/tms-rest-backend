@@ -30,7 +30,8 @@
         "jane-php/open-api-runtime": "4.2",
         "yiisoft/yii2-httpclient": "^2.0.0",
         "yii2tech/spreadsheet": "^1.0",
-        "yii2tech/csv-grid": "^1.0"
+        "yii2tech/csv-grid": "^1.0",
+        "neitanod/forceutf8": "^2.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

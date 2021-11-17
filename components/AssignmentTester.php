@@ -11,6 +11,7 @@ use Docker\API\Model\BuildInfo;
 use Docker\API\Model\ContainersIdExecPostBody;
 use Docker\API\Model\ExecIdStartPostBody;
 use yii\helpers\FileHelper;
+use ForceUTF8\Encoding;
 
 /**
  *  This class implements the automatic tester using docker containers.
@@ -509,8 +510,8 @@ class AssignmentTester
         $exitCode = $execFindResult->getExitCode();
 
         return [
-            'stdout' => $stdoutFull,
-            'stderr' => $stderrFull,
+            'stdout' => Encoding::toUTF8($stdoutFull),
+            'stderr' => Encoding::toUTF8($stderrFull),
             'exitCode' => $exitCode
         ];
     }
