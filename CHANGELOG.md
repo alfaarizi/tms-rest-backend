@@ -4,6 +4,19 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.2.0](https://gitlab.com//tms-elte/backend-core/compare/v2.1.1...v2.2.0) (2021-11-17)
+### Features
+
+* Return future exams ([e0c16b](https://gitlab.com//tms-elte/backend-core/commit/e0c16b9e47eb05fbc22ed96f6c69f434be5084a0))
+* Support multi command run instructions in automated testing ([b08dcf](https://gitlab.com//tms-elte/backend-core/commit/b08dcfde2ef72fedbec3ccb602d61314ba52658a))
+* User settings backend ([eca45f](https://gitlab.com//tms-elte/backend-core/commit/eca45fefba3a753217321a038f5e35a966712b0c))
+
+### Bug Fixes
+
+* Remove non UTF-8 characters from stdout and stderr output on automated evaluation of submissions. ([c7ec8d](https://gitlab.com//tms-elte/backend-core/commit/c7ec8d7a0c20bfccc896fc38e12e5cdb0503a736))
+
+---
+
 ## [2.1.1](https://gitlab.com//tms-elte/backend-core/compare/v2.1.0...v2.1.1) (2021-11-09)
 ### Bug Fixes
 
