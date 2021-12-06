@@ -522,14 +522,17 @@ class CanvasIntegration
     private function saveTask($assignment, $group)
     {
         $task = $group->getTasks()->where(['canvasID' => $assignment['id']])->one();
+        // Create new task if it was not synchronized before
         if (empty($task)) {
-            $task = new Task(['canvasID' => $assignment['id']]);
+            $task = new Task([
+                'canvasID' => $assignment['id'],
+                'autoTest' => false
+            ]);
         }
         $task->name = $assignment['name'];
         $task->description = strip_tags($assignment['description']);
         $task->semesterID = $group->semesterID;
         $task->groupID = $group->id;
-        $task->autoTest = true;
         $task->createrID = $group->synchronizerID;
         if (!empty($assignment['due_at'])) {
             $task->softDeadline = date('Y-m-d H:i:s', strtotime($assignment['due_at']));
