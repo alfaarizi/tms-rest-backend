@@ -9,6 +9,7 @@ use Yii;
  *
  * @property integer $id
  * @property integer $taskID
+ * @property string $arguments
  * @property string $input
  * @property string $output
  *
@@ -22,8 +23,8 @@ class TestCase extends \yii\db\ActiveRecord
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_CREATE] = ['taskID', 'input', 'output'];
-        $scenarios[self::SCENARIO_UPDATE] = ['input', 'output'];
+        $scenarios[self::SCENARIO_CREATE] = ['taskID', 'arguments', 'input', 'output'];
+        $scenarios[self::SCENARIO_UPDATE] = ['arguments', 'input', 'output'];
         return $scenarios;
     }
 
@@ -41,9 +42,9 @@ class TestCase extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['taskID', 'input', 'output'], 'required'],
+            [['taskID', 'output'], 'required'],
             [['taskID'], 'integer'],
-            [['input', 'output'], 'string'],
+            [['arguments', 'input', 'output'], 'string'],
             [
                 ['taskID'],
                 'exist',
@@ -62,6 +63,7 @@ class TestCase extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'taskID' => Yii::t('app', 'Task ID'),
+            'arguments' => Yii::t('app', 'Arguments'),
             'input' => Yii::t('app', 'Input'),
             'output' => Yii::t('app', 'Output'),
         ];
