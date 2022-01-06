@@ -62,7 +62,7 @@ return [
                     '# Build the program' . PHP_EOL .
                     'CFLAGS="-std=c++14 -pedantic -Wall -I ./include"' . PHP_EOL .
                     'g++ $CFLAGS $(find . -type f -iname "*.cpp") -o program.out',
-                'runInstructions' => './program.out',
+                'runInstructions' => './program.out "$@"',
             ],
             [
                 'name' => 'Linux / Qt5',

@@ -8,6 +8,7 @@ class TestCaseResource extends \app\models\TestCase
     {
         return [
             'id',
+            'arguments',
             'input',
             'output',
             'taskID'

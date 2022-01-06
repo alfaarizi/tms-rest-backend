@@ -51,12 +51,14 @@ class InstructorTestCasesCest
                     'id' => 1,
                     'input' => '1',
                     'output' => '1',
+                    'arguments' => '1',
                     'taskID' => 1
                 ],
                 [
                     'id' => 2,
                     'input' => '2',
                     'output' => '4',
+                    'arguments' => '8',
                     'taskID' => 1
                 ],
             ]
@@ -81,6 +83,7 @@ class InstructorTestCasesCest
     {
         $data = [
             'taskID' => 1,
+            'arguments' => 'Created arguments',
             'input' => 'Created input',
             'output' => 'Created output'
         ];
@@ -97,8 +100,43 @@ class InstructorTestCasesCest
     {
         $data = [
             'taskID' => 0,
+            'arguments' => 'Created arguments',
             'input' => 'Created input',
             'output' => 'Created output'
+        ];
+        $I->sendPost(
+            "/instructor/test-cases",
+            $data
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseMatchesJsonType(['string'], '$.[*]');
+        $I->cantSeeRecord(TestCase::class, $data);
+    }
+
+    public function createValidEmptyInput(ApiTester $I)
+    {
+        $data = [
+            'taskID' => 1,
+            'arguments' => '',
+            'input' => '',
+            'output' => 'Created output'
+        ];
+        $I->sendPost(
+            "/instructor/test-cases",
+            $data
+        );
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeResponseMatchesJsonType(self::TEST_CASE_SCHEMA);
+        $I->seeRecord(TestCase::class, $data);
+    }
+
+    public function createInvalidEmptyOutput(ApiTester $I)
+    {
+        $data = [
+            'taskID' => 1,
+            'arguments' => 'Created arguments',
+            'input' => 'Created input',
+            'output' => ''
         ];
         $I->sendPost(
             "/instructor/test-cases",
@@ -113,6 +151,7 @@ class InstructorTestCasesCest
     {
         $data = [
             'taskID' => 6,
+            'arguments' => 'Created arguments',
             'input' => 'Created input',
             'output' => 'Created output'
         ];
@@ -133,6 +172,7 @@ class InstructorTestCasesCest
     {
         $data = [
             'taskID' => 5,
+            'arguments' => 'Created arguments',
             'input' => 'Created input',
             'output' => 'Created output'
         ];
@@ -147,12 +187,14 @@ class InstructorTestCasesCest
     public function updateValid(ApiTester $I)
     {
         $data = [
+            'arguments' => 'Updated arguments',
             'input' => 'Updated input',
             'output' => 'Updated output',
             'taskID' => 2 // cant update taskID
         ];
         $expectedData = [
             'id' => 1,
+            'arguments' => 'Updated arguments',
             'input' => 'Updated input',
             'output' => 'Updated output',
             'taskID' => 1 // cant update taskID
@@ -170,6 +212,7 @@ class InstructorTestCasesCest
     public function updateNotFound(ApiTester $I)
     {
         $data = [
+            'arguments' => 'Updated arguments',
             'input' => 'Updated input',
             'output' => 'Updated output',
         ];
@@ -184,6 +227,7 @@ class InstructorTestCasesCest
     public function updatePreviousSemester(ApiTester $I)
     {
         $data = [
+            'arguments' => 'Updated arguments',
             'input' => 'Updated input',
             'output' => 'Updated output',
         ];
@@ -203,6 +247,7 @@ class InstructorTestCasesCest
     public function updateWithoutPermission(ApiTester $I)
     {
         $data = [
+            'arguments' => 'Updated arguments',
             'input' => 'Updated input',
             'output' => 'Updated output',
         ];

@@ -213,6 +213,7 @@ class AssignmentTester
             }
             return false;
         }
+        $this->results[$testCaseNr]['arguments'] = $testCase->arguments;
         $this->results[$testCaseNr]['input'] = $testCase->input;
         $this->results[$testCaseNr]['expectedOutput'] = $testCase->output;
         $this->results[$testCaseNr]['output'] = $result['stdout'];
@@ -222,6 +223,8 @@ class AssignmentTester
         } else {
             if ($task->showFullErrorMsg) {
                 $this->results['errorMsg'] = Yii::t('app', 'Your solution failed on') . ':' . PHP_EOL .
+                    Yii::t('app', 'Command arguments') . ': ' . PHP_EOL .
+                    $testCase->arguments . PHP_EOL . PHP_EOL .
                     Yii::t('app', 'Given input') . ': ' . PHP_EOL .
                     $testCase->input . PHP_EOL . PHP_EOL .
                     Yii::t('app', 'Expected output') . ': ' . PHP_EOL .
@@ -273,11 +276,11 @@ class AssignmentTester
             Yii::$app->params['evaluator']['testTimeout'],
             '/bin/bash',
             '-c',
-            "TEST_CASE_NR=$testCaseNr /test/run.sh" . ' <<< "' . $testCase->input . '"'];
+            "TEST_CASE_NR=$testCaseNr /test/run.sh $testCase->arguments <<< \"{$testCase->input}\""];
         if ($task->testOS == 'windows') {
             $runCommand = [
-                'powershell echo "' . $testCase->input . '" | ',
-                "powershell \$TEST_CASE_NR=$testCaseNr; C:\\test\\run.ps1"];
+                "powershell echo \"{$testCase->input}\" | ",
+                "powershell \$TEST_CASE_NR=$testCaseNr; C:\\test\\run.ps1 $testCase->arguments"];
         }
         $execResult = $this->executeCommand($runCommand, $container);
 

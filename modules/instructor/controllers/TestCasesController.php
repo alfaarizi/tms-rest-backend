@@ -62,6 +62,7 @@ class TestCasesController extends BaseInstructorRestController
     /**
      * @return TestCaseResource|array
      * @throws ForbiddenHttpException
+     * @throws BadRequestHttpException
      * @throws ServerErrorHttpException
      */
     public function actionCreate()
