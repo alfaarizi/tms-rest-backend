@@ -322,10 +322,18 @@ class PlagiarismController extends BaseInstructorRestController
                                 ++$languageCounter[$lang];
                             }
 
+                            // Generate unique output file name.
+                            $outFileName = $fileinfo['basename'];
+                            $outFileIndex = 0;
+                            while (file_exists($path . '/' . $outFileName)) {
+                                ++$outFileIndex;
+                                $outFileName = "{$fileinfo['filename']}_$outFileIndex.{$fileinfo['extension']}";
+                            }
+
                             // Copy the file into the plagiarism validation folder.
                             copy(
                                 'zip://' . $zipfile . '#' . $filename,
-                                $path . '/' . $fileinfo['basename']
+                                $path . '/' . $outFileName
                             );
                         }
                     }
