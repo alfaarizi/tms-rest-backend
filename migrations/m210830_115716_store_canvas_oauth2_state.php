@@ -3,7 +3,7 @@
 use yii\db\Migration;
 
 /**
- * Class m210604_094916_store_canvas_oauth2_state
+ * Add OAuth2 state to access token table.
  */
 class m210830_115716_store_canvas_oauth2_state extends Migration
 {

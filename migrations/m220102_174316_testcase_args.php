@@ -3,7 +3,7 @@
 use yii\db\Migration;
 
 /**
- * Class m220102_174316_testcase_args
+ * Extend automated evaluation test cases with input command line arguments.
  */
 class m220102_174316_testcase_args extends Migration
 {

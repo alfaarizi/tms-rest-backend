@@ -3,7 +3,7 @@
 use yii\db\Migration;
 
 /**
- * Class m210917_133443_add_timezone_to_groups
+ * Store customizable timezone for groups.
  */
 class m210917_133443_add_timezone_to_groups extends Migration
 {

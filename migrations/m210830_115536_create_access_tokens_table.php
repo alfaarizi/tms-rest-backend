@@ -3,7 +3,7 @@
 use yii\db\Migration;
 
 /**
- * Create a table storing access
+ * Create a table storing access.
  */
 class m210830_115536_create_access_tokens_table extends Migration
 {

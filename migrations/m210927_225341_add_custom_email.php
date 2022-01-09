@@ -3,7 +3,7 @@
 use yii\db\Migration;
 
 /**
- * Class m210927_225341_add_custom_email
+ * Extend user information with custom notification email address and relating settings.
  */
 class m210927_225341_add_custom_email extends Migration
 {
