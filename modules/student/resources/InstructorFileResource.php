@@ -12,7 +12,8 @@ class InstructorFileResource extends \app\models\InstructorFile
         return [
             'id',
             'name',
-            'uploadTime'
+            'uploadTime',
+            'category'
         ];
     }
 

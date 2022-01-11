@@ -17,7 +17,7 @@ use yii\web\ServerErrorHttpException;
 use yii\web\UploadedFile;
 
 /**
- * This class provides access to studentfiles for students
+ * This class provides access to student files for students
  */
 class StudentFilesController extends BaseStudentRestController
 {

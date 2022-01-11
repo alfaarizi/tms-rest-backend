@@ -38,12 +38,9 @@ class TaskResource extends \app\models\Task
 
     public function getInstructorFiles()
     {
-        return  $this->hasMany(InstructorFileResource::class, ['taskID' => 'id'])->andOnCondition(
-            [
-                'not',
-                ['name' => 'Dockerfile']
-            ]
-        );
+        return $this->hasMany(InstructorFileResource::class, ['taskID' => 'id'])
+            ->andOnCondition(['not', ['name' => 'Dockerfile']])
+            ->andOnCondition(['category' => InstructorFileResource::CATEGORY_ATTACHMENT]);
     }
 
     /**

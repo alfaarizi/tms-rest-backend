@@ -20,6 +20,7 @@ return [
     'All' => 'Összes',
     'All sections' => 'Összes hallgató',
     'Assignments' => 'Beadandók',
+    'Attachment' => 'Csatolmány',
     'Authentication failure' => 'Azonosítási hiba',
     'Category' => 'Kategória',
     'Can not remove the last instructor.' => 'Nem törölheted az utolsó gyakorlatvezetőt.',
@@ -149,6 +150,7 @@ return [
     'Timezone' => 'Időzóna',
     'Teacher access' => 'Oktatói hozzáférés',
     'Test duration' => 'Kitöltés időtartama',
+    'Test file' => 'Teszt fájl',
     'The canvas course' => 'A canvas kurzus',
     'The canvas section' => 'A canvas kurzusszekció',
     'The email confirmation failed. Either you provided a wrong confirmation code, or the code has expired.' =>
@@ -208,6 +210,8 @@ return [
 
     "Task not found." => "A feladat nem található.",
     "Group not found." => "A csoport nem található.",
+    "Instructor File not found." => "Az oktatói állomány nem található.",
+    "Instructor File not available." => "Az oktatói állomány nem elérhető.",
     "The combination of Group Number, Course ID and Semester ID has already been taken." => "Ez csoport kód, kurzus, és szemeszter kombináció már foglalt.",
     "You can't modify a group from a previous semester!" => "Előző szemeszterből származó csoportot nem lehet módosítani!",
     "You can't modify a task from a previous semester!" => "Előző szemeszterből származó beadandót nem lehet módosítani!",

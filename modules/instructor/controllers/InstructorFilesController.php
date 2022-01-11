@@ -3,6 +3,7 @@
 namespace app\modules\instructor\controllers;
 
 use app\exceptions\AddFailedException;
+use app\models\InstructorFile;
 use app\modules\instructor\resources\InstructorFileResource;
 use app\modules\instructor\resources\TaskResource;
 use app\modules\instructor\resources\UploadInstructorFileResource;
@@ -18,7 +19,7 @@ use yii\web\ServerErrorHttpException;
 use yii\web\UploadedFile;
 
 /**
- * This class provides access to instructorfiles for instructors
+ * This class provides access to instructor files for instructors
  */
 class InstructorFilesController extends BaseInstructorRestController
 {
@@ -37,16 +38,18 @@ class InstructorFilesController extends BaseInstructorRestController
 
     /**
      * @param int $taskID
+     * @param bool $includeAttachments
+     * @param bool $includeTestFiles
      * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      */
-    public function actionIndex($taskID)
+    public function actionIndex($taskID, $includeAttachments = true, $includeTestFiles = false)
     {
         $task = TaskResource::findOne($taskID);
 
         if (is_null($task)) {
-            throw new NotFoundHttpException(Yii::t('app', 'Task not found'));
+            throw new NotFoundHttpException(Yii::t('app', 'Task not found.'));
         }
 
         // Authorization check
@@ -54,9 +57,25 @@ class InstructorFilesController extends BaseInstructorRestController
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
+        // boolean values in QS passes as strings
+        $includeAttachments = filter_var($includeAttachments, FILTER_VALIDATE_BOOLEAN);
+        $includeTestFiles = filter_var($includeTestFiles, FILTER_VALIDATE_BOOLEAN);
+
+        $categories = [];
+        if ($includeAttachments) {
+            $categories[] = InstructorFile::CATEGORY_ATTACHMENT;
+        }
+        if ($includeTestFiles) {
+            $categories[] = InstructorFile::CATEGORY_TESTFILE;
+        }
+
+        $query = InstructorFileResource::find()
+            ->where(['taskID' => $taskID])
+            ->andWhere(['in', 'category', $categories]);
+
         return new ActiveDataProvider(
             [
-                'query' => $task->getInstructorFiles(),
+                'query' => $query,
                 'pagination' => false
             ]
         );
@@ -72,7 +91,7 @@ class InstructorFilesController extends BaseInstructorRestController
         $file = InstructorFileResource::findOne($id);
 
         if (is_null($file)) {
-            throw new NotFoundHttpException(Yii::t('app', 'InstuctorFile not found'));
+            throw new NotFoundHttpException(Yii::t('app', 'Instructor File not found.'));
         }
 
         // Authorization check
@@ -85,7 +104,9 @@ class InstructorFilesController extends BaseInstructorRestController
 
     /**
      * @return array|array[]
+     * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
+     * @throws ServerErrorHttpException
      */
     public function actionCreate()
     {
@@ -113,7 +134,7 @@ class InstructorFilesController extends BaseInstructorRestController
         }
 
         // Canvas synchronization check
-        if ($group->isCanvasCourse) {
+        if ($group->isCanvasCourse && $upload->category == InstructorFile::CATEGORY_ATTACHMENT) {
             throw new BadRequestHttpException(
                 Yii::t('app', 'This operation cannot be performed on a canvas synchronized course!')
             );
@@ -131,6 +152,7 @@ class InstructorFilesController extends BaseInstructorRestController
             try {
                 $instructorFile = new InstructorFileResource();
                 $instructorFile->taskID = $upload->taskID;
+                $instructorFile->category = $upload->category;
                 $instructorFile->uploadTime = date('Y-m-d H:i:s');
                 $instructorFile->name = $file->baseName . '.' . $file->extension;
 

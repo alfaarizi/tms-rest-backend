@@ -22,7 +22,7 @@ use yii2tech\spreadsheet\Spreadsheet;
 use yii2tech\csvgrid\CsvGrid;
 
 /**
- * This class provides access to studentfiles for instructors
+ * This class provides access to student files for instructors
  */
 class StudentFilesController extends BaseInstructorRestController
 {

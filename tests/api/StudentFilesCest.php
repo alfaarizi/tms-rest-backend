@@ -12,7 +12,7 @@ use app\tests\unit\fixtures\TaskFixture;
 use app\tests\unit\fixtures\UserFixture;
 use Codeception\Util\HttpCode;
 
-class StudentSFilesCest
+class StudentFilesCest
 {
     public const STUDENT_FILES_SCHEMA = [
         'id' => 'integer',
