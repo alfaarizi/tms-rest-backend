@@ -4,6 +4,19 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.3.0](https://gitlab.com//tms-elte/backend-core/compare/v2.2.0...v2.3.0) (2022-01-13)
+### Features
+
+* Command line arguments for test cases ([9ff494](https://gitlab.com//tms-elte/backend-core/commit/9ff494fab4286eb49b557ec25ee7543ac49ebbb5))
+
+### Bug Fixes
+
+* Auto tester is automatically turned on after synchronization for each Canvas task ([b8dcd6](https://gitlab.com//tms-elte/backend-core/commit/b8dcd69b136be6a0081b3eb2471136e6382678f1))
+* Do not overwrite files with matching names in plagiarism checks. ([0c5605](https://gitlab.com//tms-elte/backend-core/commit/0c5605b89e234c3db5ad12734f6b210832c8abf1))
+* Replace string-based timestamp comparisons ([72e311](https://gitlab.com//tms-elte/backend-core/commit/72e311758c684311ed63f4d1f2d1494e58ccf270))
+
+---
+
 ## [2.2.0](https://gitlab.com//tms-elte/backend-core/compare/v2.1.1...v2.2.0) (2021-11-17)
 ### Features
 
