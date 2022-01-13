@@ -818,7 +818,7 @@ class GroupsController extends BaseInstructorRestController
             }
 
             $submittedMissed = 0;
-            if ($task->hardDeadline < date('Y-m-d H:i:s')) {
+            if (strtotime($task->hardDeadline) < time()) {
                 $submittedMissed = $submittedNot;
             }
 

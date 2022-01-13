@@ -232,7 +232,7 @@ class ExamTestsController extends BaseInstructorRestController
         $copy->scenario = ExamTestResource::SCENARIO_CREATE;
         $copy->availablefrom = $test->availablefrom;
         //End of availability is set to next day if the original one is a past date
-        $copy->availableuntil = $test->availableuntil > date('Y-m-d H:i:s')
+        $copy->availableuntil = strtotime($test->availableuntil) > time()
             ? $test->availableuntil : date('Y-m-d H:i:s', strtotime('+1 day'));
         $copy->shuffled = $test->shuffled;
         $copy->unique = $test->unique;
