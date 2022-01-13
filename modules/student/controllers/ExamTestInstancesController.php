@@ -105,7 +105,7 @@ class ExamTestInstancesController extends BaseStudentRestController
         }
 
         if (!$testInstance->submitted &&
-            ($testInstance->test->availablefrom > date('Y-m-d H:i:s') || $testInstance->test->availableuntil < date('Y-m-d H:i:s'))
+            (strtotime($testInstance->test->availablefrom) > time() || strtotime($testInstance->test->availableuntil) < time())
         ) {
             throw new ForbiddenHttpException(Yii::t('app', "You don't have permission to access this test instance"));
         }
@@ -159,8 +159,8 @@ class ExamTestInstancesController extends BaseStudentRestController
             throw new NotFoundHttpException(Yii::t('app', "Test instance does not exist"));
         }
 
-        if ($testInstance->submitted || $testInstance->test->availablefrom > date('Y-m-d H:i:s')
-            || $testInstance->test->availableuntil < date('Y-m-d H:i:s') || $testInstance->userID != Yii::$app->user->id) {
+        if ($testInstance->submitted || strtotime($testInstance->test->availablefrom) > time()
+            || strtotime($testInstance->test->availableuntil) < time() || $testInstance->userID != Yii::$app->user->id) {
 
             throw new ForbiddenHttpException(Yii::t('app', "You don't have permission to modify this test instance"));
         }
@@ -232,8 +232,8 @@ class ExamTestInstancesController extends BaseStudentRestController
             throw new NotFoundHttpException(Yii::t('app', "Test instance does not exist"));
         }
 
-        if ($testInstance->submitted || $testInstance->test->availablefrom > date('Y-m-d H:i:s')
-            || $testInstance->test->availableuntil < date('Y-m-d H:i:s') || $testInstance->userID != Yii::$app->user->id) {
+        if ($testInstance->submitted || strtotime($testInstance->test->availablefrom) > time()
+            || strtotime($testInstance->test->availableuntil) < time() || $testInstance->userID != Yii::$app->user->id) {
 
             throw new ForbiddenHttpException(Yii::t('app', "You don't have permission to modify this test instance"));
         }
