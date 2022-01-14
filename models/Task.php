@@ -151,7 +151,7 @@ class Task extends \yii\db\ActiveRecord
             [['description', 'category', 'testOS'], 'string'],
             [['isVersionControlled'], 'boolean'],
             [['softDeadline', 'available'], 'safe'],
-            [['name'], 'string', 'max' => 25],
+            [['name'], 'string', 'max' => 40],
             [
                 ['groupID'],
                 'exist',

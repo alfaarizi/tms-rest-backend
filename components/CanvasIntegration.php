@@ -529,7 +529,7 @@ class CanvasIntegration
                 'autoTest' => false
             ]);
         }
-        $task->name = $assignment['name'];
+        $task->name = mb_substr($assignment['name'], 0, 40);
         $task->description = strip_tags($assignment['description']);
         $task->semesterID = $group->semesterID;
         $task->groupID = $group->id;
