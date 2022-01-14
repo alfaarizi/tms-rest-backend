@@ -4,6 +4,14 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.3.1](https://gitlab.com//tms-elte/backend-core/compare/v2.3.0...v2.3.1) (2022-01-15)
+### Bug Fixes
+
+* Extend exam deadline by 30 sec to properly accept JS-based auto submissions when the time is up. ([6789cb](https://gitlab.com//tms-elte/backend-core/commit/6789cb0b4e2204c7a97dd8b8bec7167925a1d256))
+* Extend task name to 40 character length and trim task name when imported from Canvas. ([03df5b](https://gitlab.com//tms-elte/backend-core/commit/03df5bec7c69c9d09bb2512ab194d709def3df4d))
+
+---
+
 ## [2.3.0](https://gitlab.com//tms-elte/backend-core/compare/v2.2.0...v2.3.0) (2022-01-13)
 ### Features
 
