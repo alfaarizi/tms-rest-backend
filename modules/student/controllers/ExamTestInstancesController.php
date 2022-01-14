@@ -162,7 +162,7 @@ class ExamTestInstancesController extends BaseStudentRestController
         if ($testInstance->submitted || strtotime($testInstance->test->availablefrom) > time()
             || strtotime($testInstance->test->availableuntil) < time() || $testInstance->userID != Yii::$app->user->id) {
 
-            throw new ForbiddenHttpException(Yii::t('app', "You don't have permission to modify this test instance"));
+            throw new ForbiddenHttpException(Yii::t('app', "You don't have permission to access this test instance"));
         }
 
         //Save starttime on the first occasion
@@ -233,9 +233,9 @@ class ExamTestInstancesController extends BaseStudentRestController
         }
 
         if ($testInstance->submitted || strtotime($testInstance->test->availablefrom) > time()
-            || strtotime($testInstance->test->availableuntil) < time() || $testInstance->userID != Yii::$app->user->id) {
-
-            throw new ForbiddenHttpException(Yii::t('app', "You don't have permission to modify this test instance"));
+            || strtotime($testInstance->test->availableuntil) + 30 < time() || $testInstance->userID != Yii::$app->user->id) {
+            // 30 seconds gratis time, so JavaScript-based auto-submission at the end of the test is still valid
+            throw new ForbiddenHttpException(Yii::t('app', "You don't have permission to access this test instance"));
         }
 
         $submittedAnswers = [];
