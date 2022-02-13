@@ -55,7 +55,7 @@ phpcs:
     - vendor/bin/phpcs -n --report=full
   allow_failure: true
 
-# Codeception tests & overage reports
+# Codeception tests & coverage reports
 # PHP 7.3
 codecept_7.3:
   stage: test
@@ -63,6 +63,7 @@ codecept_7.3:
   image: mcserep/php:7.3
   script:
     - vendor/bin/codecept run unit,api --no-ansi --coverage --coverage-text
+  coverage: '/^\s*Lines:\s*\d+.\d+\%/'
 
 # PHP 7.4
 codecept_7.4:
@@ -71,6 +72,7 @@ codecept_7.4:
   image: mcserep/php:7.4
   script:
     - vendor/bin/codecept run unit,api --no-ansi --coverage --coverage-text
+  coverage: '/^\s*Lines:\s*\d+.\d+\%/'
 
 # Deployment over SSH
 .deploy:
