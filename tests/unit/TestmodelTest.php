@@ -9,7 +9,6 @@ use app\tests\unit\fixtures\TestFixture;
 
 class TestmodelTest extends \Codeception\Test\Unit
 {
-
     public function _fixtures()
     {
         return [

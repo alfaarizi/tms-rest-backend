@@ -10,7 +10,6 @@ use app\tests\unit\fixtures\UserFixture;
 
 class TestInstanceTest extends \Codeception\Test\Unit
 {
-
     public function _fixtures()
     {
         return [
