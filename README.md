@@ -10,7 +10,7 @@ Task Management System
 REQUIREMENTS
 ------------
 
-The minimum requirement by this application is that your web server supports PHP 7.3.0.
+The minimum requirement by this application is that your web server supports PHP 7.4.0.
 
 
 INSTALLATION
