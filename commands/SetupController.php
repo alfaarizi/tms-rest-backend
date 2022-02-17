@@ -185,6 +185,7 @@ class SetupController extends BaseController
                     $group->courseID = Course::find()->one()->id;
                     $group->semesterID = Semester::find()->one()->id;
                     $group->number = 1;
+                    $group->timezone = \Yii::$app->timeZone;
 
                     if ($group->save()) {
                         $this->stdout("Successfully inserted initial group." . PHP_EOL, Console::FG_GREEN);
