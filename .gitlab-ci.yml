@@ -56,15 +56,6 @@ phpcs:
   allow_failure: true
 
 # Codeception tests & coverage reports
-# PHP 7.3
-codecept_7.3:
-  stage: test
-  extends: .test
-  image: mcserep/php:7.3
-  script:
-    - vendor/bin/codecept run unit,api --no-ansi --coverage --coverage-text
-  coverage: '/^\s*Lines:\s*\d+.\d+\%/'
-
 # PHP 7.4
 codecept_7.4:
   stage: test
