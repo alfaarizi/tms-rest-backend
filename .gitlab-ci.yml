@@ -138,7 +138,6 @@ deploy_production:
 # Upload code coverage report to CodeCov
 codecov:
   stage: deploy
-  image: ubuntu:20.04
   before_script:
     - 'which curl || ( apt-get update -y && apt-get install -y curl)'
   script:
