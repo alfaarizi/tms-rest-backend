@@ -13,7 +13,7 @@ use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
 /**
- * Class TestCasesController
+ * This class provides access to test cases for instructors
  */
 class TestCasesController extends BaseInstructorRestController
 {
@@ -30,6 +30,43 @@ class TestCasesController extends BaseInstructorRestController
         ]);
     }
 
+    /**
+     * Get test cases for a task
+     * @param $taskID
+     * @return ActiveDataProvider
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/test-cases",
+     *     operationId="instructor::TestCasesController::actionIndex",
+     *     tags={"Instructor Test Cases"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="taskID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the task",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_TestCaseResource_Read")),
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
     public function actionIndex($taskID)
     {
         if (!Yii::$app->params['evaluator']['enabled']) {
@@ -60,10 +97,38 @@ class TestCasesController extends BaseInstructorRestController
     }
 
     /**
+     * Create a new test case for a task
      * @return TestCaseResource|array
      * @throws ForbiddenHttpException
      * @throws BadRequestHttpException
      * @throws ServerErrorHttpException
+     * @throws BadRequestHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/test-cases",
+     *     operationId="instructor::TestCasesController::actionCreate",
+     *     tags={"Instructor Test Cases"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="new test case",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_TestCaseResource_ScenarioCreate"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="new test case created",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_TestCaseResource_Read")),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionCreate()
     {
@@ -106,11 +171,47 @@ class TestCasesController extends BaseInstructorRestController
     }
 
     /**
+     * Update a test case
      * @param int $id
      * @return TestCaseResource|array
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
      * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
+     *
+     * @OA\Put(
+     *     path="/instructor/test-cases/{id}",
+     *     operationId="instructor::TestCasesController::actionUpdate",
+     *     tags={"Instructor Test Cases"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the test case",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="updated test case",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_TestCaseResource_ScenarioUpdate"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="test case updated",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TestCaseResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionUpdate($id)
     {
@@ -153,12 +254,38 @@ class TestCasesController extends BaseInstructorRestController
     }
 
     /**
+     * Delete a test case
      * @param int $id
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
+     *
+     *
+     * @OA\Delete(
+     *     path="/instructor/test-cases/{id}",
+     *     operationId="instructor::TestCasesController::actionDelete",
+     *     tags={"Instructor Test Cases"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the test case",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="test case deleted",
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionDelete($id)
     {

@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use Yii;
 
 /**
@@ -23,7 +25,7 @@ use Yii;
  * ToDo:
  *      -Rename to Plagiarism Validations.
  */
-class Plagiarism extends \yii\db\ActiveRecord
+class Plagiarism extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     public const SCENARIO_UPDATE = 'update';
 
@@ -92,6 +94,21 @@ class Plagiarism extends \yii\db\ActiveRecord
             'description' => Yii::t('app', 'Description'),
             'response' => Yii::t('app', 'Response'),
             'ignoreThreshold' => Yii::t('app', 'Ignore threshold'),
+        ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'requesterID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'taskIDs' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'userIDs' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'semesterID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'name' => new OAProperty(['type' => 'string']),
+            'description' => new OAProperty(['type' => 'string']),
+            'response' => new OAProperty(['type' => 'string']),
+            'ignoreThreshold' => new OAProperty(['type' => 'integer']),
         ];
     }
 

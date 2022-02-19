@@ -2,6 +2,8 @@
 
 namespace app\resources;
 
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use app\models\Model;
 
 /**
@@ -19,7 +21,7 @@ use app\models\Model;
  * @property bool $isVersionControlEnabled;
  * @property bool $isCanvasEnabled;
  */
-class UserInfoResource extends Model
+class UserInfoResource extends Model implements IOpenApiFieldTypes
 {
     public $id;
     public $neptun;
@@ -31,4 +33,47 @@ class UserInfoResource extends Model
     public $isAutoTestEnabled;
     public $isVersionControlEnabled;
     public $isCanvasEnabled;
+
+    /**
+     * @return string[]
+     */
+    public function fields()
+    {
+        return [
+            'id',
+            'neptun',
+            'locale',
+            'isStudent',
+            'isFaculty',
+            'isAdmin',
+            'actualSemester',
+            'isAutoTestEnabled',
+            'isVersionControlEnabled',
+            'isCanvasEnabled',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function extraFields()
+    {
+        return [];
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'neptun' => new OAProperty(['type' => 'string']),
+            'locale' => new OAProperty(['type' => 'string']),
+            'isStudent' => new OAProperty(['type' => 'boolean']),
+            'isFaculty' => new OAProperty(['type' => 'boolean']),
+            'isAdmin' => new OAProperty(['type' => 'boolean']),
+            'actualSemester' => new OAProperty(['ref' => '#/components/schemas/Common_SemesterResource_Read']),
+            'isAutoTestEnabled' => new OAProperty(['type' => 'boolean']),
+            'isVersionControlEnabled' => new OAProperty(['type' => 'boolean']),
+            'isCanvasEnabled' => new OAProperty(['type' => 'boolean']),
+        ];
+    }
 }

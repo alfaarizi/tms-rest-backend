@@ -35,16 +35,55 @@ class ImagesController extends BaseRestController
     }
 
     /**
-     * Fetches an exam image.
+     * Fetches an exam image
      * @param int $id The id of the questionset.
      * @param string $filename The filename of the image.
-     * @param string|null $imageToken
+     * @param null $imageToken
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/examination/image/{id}/{filename}",
+     *     operationId="common::ImagesController::actionViewExamImage",
+     *     tags={"Common Images"},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the question set",
+     *        @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(
+     *        name="filename",
+     *        in="path",
+     *        required=true,
+     *        description="Name of the image",
+     *        @OA\Schema(type="string"),
+     *     ),
+     *     @OA\Parameter(
+     *        name="imageToken",
+     *        in="query",
+     *        required=false,
+     *        description="Image token",
+     *        explode=true,
+     *        @OA\Schema(type="string"),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionViewExamImage($id, $filename, $imageToken = null)
     {
         $this->checkImageToken($imageToken);
 
-        $image = new ExamImageResource($filename, $id);
+        $image = new ExamImageResource();
+        $image->name = $filename;
+        $image->questionSetID = $id;
         if (!file_exists($image->getFilePath())) {
             throw new NotFoundHttpException(Yii::t('app', 'File not found.'));
         }

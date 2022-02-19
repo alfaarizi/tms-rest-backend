@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use Yii;
 
 /**
@@ -14,7 +16,7 @@ use Yii;
  * @property InstructorCourse[] $instructorCourses
  * @property User[] $lecturers
  */
-class Course extends \yii\db\ActiveRecord
+class Course extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     /**
      * @inheritdoc
@@ -45,6 +47,15 @@ class Course extends \yii\db\ActiveRecord
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
             'code' => Yii::t('app', 'Code')
+        ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['type' => 'integer']),
+            'name' => new OAProperty(['type' => 'string']),
+            'code' => new OAProperty(['type' => 'string']),
         ];
     }
 

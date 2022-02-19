@@ -34,10 +34,40 @@ class GitController extends BaseRestController
     }
 
     /**
-     * Saves the studentfile to database
-     * This action is called from post-receive git hooks
+     * Saves the student file to database.
+     * This action is called from post-receive git hooks and only accessible from localhost.
      * @param int $taskid is the id of the task
      * @param int $studentid is the id of the student
+     *
+     * @OA\Get(
+     *     path="/git/git-push",
+     *     operationId="local::GitController::actionGitPush",
+     *     tags={"Local Git"},
+     *
+     *     @OA\Parameter(
+     *      name="taskid",
+     *      in="query",
+     *      required=true,
+     *      description="ID of the task",
+     *      explode=true,
+     *      @OA\Schema(ref="#/components/schemas/int_id"),
+     *    ),
+     *     @OA\Parameter(
+     *      name="studentid",
+     *      in="query",
+     *      required=true,
+     *      description="userID of the student",
+     *      explode=true,
+     *      @OA\Schema(ref="#/components/schemas/int_id"),
+     *    ),
+     *    @OA\Response(
+     *       response=200,
+     *       description="successful operation",
+     *       @OA\JsonContent(type="string"),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionGitPush($taskid, $studentid)
     {

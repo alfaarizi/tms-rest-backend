@@ -9,14 +9,37 @@ use app\resources\AddUsersListResource;
 use app\resources\CourseResource;
 use app\resources\UserAddErrorResource;
 use app\resources\UserResource;
+use app\resources\UsersAddedResource;
 use Throwable;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use yii\db\StaleObjectException;
-use yii\web\BadRequestHttpException;
-use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
+
+/**
+ * @OA\PathItem(
+ *   path="/admin/courses/{id}",
+ *   @OA\Parameter(
+ *      name="id",
+ *      in="path",
+ *      required=true,
+ *      description="ID of the course",
+ *      @OA\Schema(ref="#/components/schemas/int_id"),
+ *   ),
+ * ),
+ * @OA\PathItem(
+ *   path="/admin/courses/{courseID}/lecturers",
+ *   @OA\Parameter(
+ *      name="courseID",
+ *      in="path",
+ *      required=true,
+ *      description="ID of the course",
+ *      @OA\Schema(ref="#/components/schemas/int_id"),
+ *   ),
+ * )
+ */
 
 /**
  * Controller class for managing courses
@@ -60,9 +83,28 @@ class CoursesController extends BaseAdminActiveController
     }
 
     /**
+     * List lecturers for the given course
      * @param int $courseID
-     * @return array
+     * @return ArrayDataProvider
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/admin/courses/{courseID}/lecturers",
+     *     operationId="admin::CoursesController::actionListLecturers",
+     *     tags={"Admin Courses"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Common_UserResource_Read")),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionListLecturers($courseID)
     {
@@ -78,16 +120,41 @@ class CoursesController extends BaseAdminActiveController
             $users[] = new UserResource($ic->user);
         }
 
-        return $users;
+        return new ArrayDataProvider([
+            'allModels' => $users,
+            'modelClass' => UserResource::class,
+            'pagination' => false
+        ]);
     }
 
 
     /**
-     * @param $groupID
+     * Add lecturers to a course
+     * @param $courseID
      * @return array|array[]
-     * @throws BadRequestHttpException
-     * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     * @OA\Post(
+     *     path="/admin/courses/{courseID}/lecturers",
+     *     operationId="admin::CoursesController::actionAddLecturers",
+     *     tags={"Admin Courses"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         description="list of lecturers",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Common_AddUsersListResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=207,
+     *         description="multistatus result",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_UsersAddedResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionAddLecturers($courseID)
     {
@@ -111,9 +178,9 @@ class CoursesController extends BaseAdminActiveController
     /**
      * @param $neptunCodes
      * @param $courseID
-     * @return array[]
+     * @return UsersAddedResource
      */
-    private function processLecturers($neptunCodes, $courseID)
+    private function processLecturers($neptunCodes, $courseID): UsersAddedResource
     {
         // Email notifications
         $messages = [];
@@ -170,19 +237,48 @@ class CoursesController extends BaseAdminActiveController
         // Send mass email notifications
         Yii::$app->mailer->sendMultiple($messages);
 
-        return [
-            'addedUsers' => $users,
-            'failed' => $failed
-        ];
+        $resource = new UsersAddedResource();
+        $resource->addedUsers = $users;
+        $resource->failed = $failed;
+        return $resource;
     }
 
     /**
+     * Remove a lecturer from the given course
      * @param int $courseID
      * @param int $userID
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
      * @throws Throwable
      * @throws StaleObjectException
+     *
+     * @OA\Delete(
+     *     path="/admin/courses/{courseID}/lecturers/{userID}",
+     *     operationId="admin::CoursesController::actionDeleteLecturer",
+     *     tags={"Admin Courses"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *           name="courseID",
+     *           in="path",
+     *           required=true,
+     *           description="ID of the course",
+     *           @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(
+     *          name="userID",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the lecturer",
+     *          @OA\Schema(ref="#/components/schemas/int_id"),
+     *    ),
+     *    @OA\Response(
+     *         response=204,
+     *         description="lecturer deleted from the course",
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionDeleteLecturer($courseID, $userID)
     {
@@ -198,4 +294,96 @@ class CoursesController extends BaseAdminActiveController
             throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
         }
     }
+
+    /**
+     * Annotate ActiveController actions
+     *
+     * @OA\Get(
+     *     path="/admin/courses",
+     *     operationId="admin::CoursesController::actionIndex",
+     *     summary="List courses",
+     *     tags={"Admin Courses"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Common_CourseResource_Read")),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     *
+     * @OA\Get(
+     *     path="/admin/courses/{id}",
+     *     operationId="admin::CoursesController::actionView",
+     *     summary="View a course",
+     *     tags={"Admin Courses"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_CourseResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     *
+     * @OA\Post(
+     *     path="/admin/courses",
+     *     operationId="admin::CoursesController::actionCreate",
+     *     summary="Create a new course",
+     *     tags={"Admin Courses"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="new course",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Common_CourseResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="new course created",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_CourseResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     *
+     * @OA\Put(
+     *     path="/admin/courses/{id}",
+     *     operationId="admin::CoursesController::actionUpdate",
+     *     summary="Update a course",
+     *     tags={"Admin Courses"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="updated course",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Common_CourseResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="course updated",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_CourseResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
 }

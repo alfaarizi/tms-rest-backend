@@ -24,6 +24,19 @@ use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
 /**
+ * @OA\PathItem(
+ *   path="/instructor/exam-tests/{id}",
+ *   @OA\Parameter(
+ *      name="id",
+ *      in="path",
+ *      required=true,
+ *      description="ID of the test",
+ *      @OA\Schema(ref="#/components/schemas/int_id")
+ *   ),
+ * )
+ */
+
+/**
  * This class provides access to exam tests for instructors
  */
 class ExamTestsController extends BaseInstructorRestController
@@ -44,6 +57,36 @@ class ExamTestsController extends BaseInstructorRestController
         );
     }
 
+    /**
+     * List tests from the given semester
+     * @param $semesterID
+     * @return ActiveDataProvider
+     *
+     * @OA\Get(
+     *     path="/instructor/exam-tests",
+     *     operationId="instructor::ExamTestsController::actionIndex",
+     *     tags={"Instructor Exam Tests"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="semesterID",
+     *        in="query",
+     *        required=true,
+     *        description="ID of the semester",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_ExamTestResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
     public function actionIndex($semesterID)
     {
         // Groups the current user lectures or instructs in this semester.
@@ -61,10 +104,30 @@ class ExamTestsController extends BaseInstructorRestController
     }
 
     /**
+     * View a test
      * @param int $id
      * @return ExamTestResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/exam-tests/{id}",
+     *     operationId="instructor::ExamTestsController::actionView",
+     *     tags={"Instructor Exam Tests"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_ExamTestResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionView($id)
     {
@@ -84,9 +147,35 @@ class ExamTestsController extends BaseInstructorRestController
     }
 
     /**
+     * Create a new test
      * @return ExamTestResource|array
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/exam-tests",
+     *     tags={"Instructor Exam Tests"},
+     *     operationId="instructor::ExamTestsController::actionCreate",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="new test",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_ExamTestResource_ScenarioCreate"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="new test created",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_ExamTestResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionCreate()
     {
@@ -135,12 +224,40 @@ class ExamTestsController extends BaseInstructorRestController
     }
 
     /**
+     * Update a test
      * @param int $id
      * @return ExamTestResource|array
      * @throws ConflictHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
+     *
+     * @OA\Put(
+     *     path="/instructor/exam-tests/{id}",
+     *     operationId="instructor::ExamTestsController::actionUpdate",
+     *     tags={"Instructor Exam Tests"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="updated test",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_ExamTestResource_ScenarioUpdate"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="test updated",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_ExamTestResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=409, ref="#/components/responses/409"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionUpdate($id)
     {
@@ -174,6 +291,7 @@ class ExamTestsController extends BaseInstructorRestController
     }
 
     /**
+     * Create a new test
      * @param int $id
      * @throws ConflictHttpException
      * @throws ForbiddenHttpException
@@ -181,6 +299,22 @@ class ExamTestsController extends BaseInstructorRestController
      * @throws ServerErrorHttpException
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
+     *
+     * @OA\Delete(
+     *     path="/instructor/exam-tests/{id}",
+     *     operationId="instructor::ExamTestsController::actionDelete",
+     *     tags={"Instructor Exam Tests"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=204,
+     *         description="test deleted",
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=409, ref="#/components/responses/409"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionDelete($id)
     {
@@ -208,11 +342,38 @@ class ExamTestsController extends BaseInstructorRestController
     }
 
     /**
+     * Copy a test
      * @param int $id
      * @return ExamTestResource|array
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/exam-tests/{id}/duplicate",
+     *     tags={"Instructor Exam Tests"},
+     *     operationId="instructor::ExamTestsController::actionDuplicate",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the test",
+     *        @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="question set duplicated",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_ExamTestResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionDuplicate($id)
     {
@@ -261,10 +422,38 @@ class ExamTestsController extends BaseInstructorRestController
 
 
     /**
-     * Finalizes test. The test cannot be updated after that.
-     * Generates test instances of the given test for the group the test is bound to
-     * The questions will be bound to the test instances via a junction table
+     * Finalize test.
+     * The test cannot be updated after that.
+     * Generates test instances of the given test for the group.
+     * The questions will be bound to the test instances via a junction table.
      * @param int $id is the id of the test used for generating test instances
+     *
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     * @OA\Post(
+     *     path="/instructor/exam-tests/{id}/finalize",
+     *     tags={"Instructor Exam Tests"},
+     *     operationId="instructor::ExamTestsController::actionFinalize",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the test",
+     *        @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="test finalized",
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionFinalize($id)
     {

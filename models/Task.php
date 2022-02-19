@@ -3,6 +3,9 @@
 namespace app\models;
 
 use app\behaviors\ISODateTimeBehavior;
+use app\components\openapi\generators\OAList;
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use app\models\queries\TaskQuery;
 use Yii;
 use yii\helpers\FileHelper;
@@ -41,7 +44,7 @@ use yii\helpers\FileHelper;
  * @property-read string $containerName
  * @property-read string $dockerSocket
  */
-class Task extends \yii\db\ActiveRecord
+class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     public const SCENARIO_CREATE = 'create';
     public const SCENARIO_UPDATE = 'update';
@@ -71,6 +74,8 @@ class Task extends \yii\db\ActiveRecord
         return $scenarios;
     }
 
+
+
     /**
      * Array of supported category types for a Task.
      */
@@ -82,7 +87,7 @@ class Task extends \yii\db\ActiveRecord
         'Canvas tasks'
     ];
 
-    private const TEST_OS = [
+    public const TEST_OS = [
         'linux',
         'windows',
     ];
@@ -350,5 +355,29 @@ class Task extends \yii\db\ActiveRecord
     public function getCreatorName()
     {
         return $this->creator->name;
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'name' => new OAProperty(['type' => 'string']),
+            'category' => new OAProperty(['type' => 'string', 'enum' => new OAList(self::CATEGORY_TYPES)]),
+            'translatedCategory' => new OAProperty(['type' => 'string']),
+            'description' => new OAProperty(['type' => 'string']),
+            'softDeadline' => new OAProperty(['type' => 'string', 'example' => '2022-01-01T23:59:00+00:00']),
+            'hardDeadline' => new OAProperty(['type' => 'string', 'example' => '2022-01-01T23:59:00+00:00']),
+            'available' => new OAProperty(['type' => 'string', 'example' => '2022-01-01T23:59:00+00:00']),
+            'autoTest' => new OAProperty(['type' => 'integer']),
+            'isVersionControlled' => new OAProperty(['type' => 'integer']),
+            'groupID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'semesterID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'creatorName' => new OAProperty(['type' => 'string']),
+            'testOS' => new OAProperty(['type' => 'string', 'enum' => new OAList(self::TEST_OS)]),
+            'showFullErrorMsg' => new OAProperty(['type' => 'integer']),
+            'imageName' => new OAProperty(['type' => 'string']),
+            'compileInstructions' => new OAProperty(['type' => 'string']),
+            'runInstructions' => new OAProperty(['type' => 'string']),
+        ];
     }
 }

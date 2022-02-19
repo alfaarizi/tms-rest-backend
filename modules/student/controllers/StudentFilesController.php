@@ -17,7 +17,7 @@ use yii\web\ServerErrorHttpException;
 use yii\web\UploadedFile;
 
 /**
- * This class provides access to studentfiles for students
+ * This class provides access to student file actions for students
  */
 class StudentFilesController extends BaseStudentRestController
 {
@@ -34,11 +34,37 @@ class StudentFilesController extends BaseStudentRestController
     }
 
     /**
-     * View StudentFile information
+     * Get information about an uploaded file
      * @param int $id
      * @return StudentFileResource|null
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/student/student-files/{id}",
+     *     operationId="student::StudentFilesController::actionView",
+     *     tags={"Student Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the file",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Student_StudentFileResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionView($id)
     {
@@ -55,10 +81,32 @@ class StudentFilesController extends BaseStudentRestController
     }
 
     /**
-     * Download uploaded solution
+     * Download a student file
      * @param int $id
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/student/student-files/{id}/download",
+     *     operationId="student::StudentFilesController::actionDownload",
+     *     tags={"Student Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the file",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionDownload($id)
     {
@@ -75,10 +123,38 @@ class StudentFilesController extends BaseStudentRestController
     }
 
     /**
+     * Upload a new student file
      * @return StudentFileResource|array
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
+     * @throws \Cz\Git\GitException
+     *
+     * @OA\Post(
+     *     path="/student/student-files/upload",
+     *     operationId="student::StudentFilesController::actionUpload",
+     *     tags={"Student Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="file to upload and taskID",
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(ref="#/components/schemas/Student_StudentFileUploadResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="file uploaded",
+     *         @OA\JsonContent(ref="#/components/schemas/Student_StudentFileResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionUpload()
     {

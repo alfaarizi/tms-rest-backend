@@ -33,6 +33,39 @@ class ExamAnswersController extends BaseInstructorRestController
         );
     }
 
+    /**
+     * Get all answers for the given question
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/exam-answers",
+     *     operationId="instructor::ExamAnswersController::actionIndex",
+     *     tags={"Instructor Exam Answers"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="questionID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the question",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_ExamAnswerResource_Read")),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
     public function actionIndex($questionID)
     {
         $question = ExamQuestionResource::findOne($questionID);
@@ -56,6 +89,39 @@ class ExamAnswersController extends BaseInstructorRestController
         );
     }
 
+    /**
+     * Create new answer for a question
+     * @return ExamAnswerResource|array
+     * @throws ConflictHttpException
+     * @throws ForbiddenHttpException
+     * @throws ServerErrorHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/exam-answers",
+     *     operationId="instructor::ExamAnswersController::actionCreate",
+     *     tags={"Instructor Exam Answers"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="new answer",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_ExamAnswerResource_ScenarioCreate"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="new answer created",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_ExamAnswerResource_Read")),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=409, ref="#/components/responses/409"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
     public function actionCreate()
     {
         $answer = new ExamAnswerResource();
@@ -87,11 +153,48 @@ class ExamAnswersController extends BaseInstructorRestController
     }
 
     /**
+     * Update an answer
      * @param int $id
-     * @return ExamAnswerResource
+     * @return ExamAnswerResource|array
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
+     * @throws ConflictHttpException
+     *
+     *
+     * @OA\Put(
+     *     path="/instructor/exam-answers/{id}",
+     *     operationId="instructor::ExamAnswersController::actionUpdate",
+     *     tags={"Instructor Exam Answers"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the answer",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="updated answer",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_ExamAnswerResource_ScenarioUpdate"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="answer updated",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_ExamAnswerResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=409, ref="#/components/responses/409"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionUpdate($id)
     {
@@ -128,6 +231,7 @@ class ExamAnswersController extends BaseInstructorRestController
     }
 
     /**
+     * Delete an answer
      * @param int $id
      * @return void|BadRequestHttpException
      * @throws ConflictHttpException
@@ -136,6 +240,29 @@ class ExamAnswersController extends BaseInstructorRestController
      * @throws ServerErrorHttpException
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
+     *
+     * @OA\Delete(
+     *     path="/instructor/exam-answers/{id}",
+     *     operationId="instructor::ExamAnswersController::actionDelete",
+     *     tags={"Instructor Exam Answers"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the answer",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="answer deleted",
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=409, ref="#/components/responses/409"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionDelete($id)
     {

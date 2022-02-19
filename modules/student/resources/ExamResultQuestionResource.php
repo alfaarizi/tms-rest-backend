@@ -2,11 +2,14 @@
 
 namespace app\modules\student\resources;
 
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use app\models\ExamAnswer;
 use app\models\ExamSubmittedAnswer;
 use app\models\ExamTestInstanceQuestion;
+use yii\helpers\ArrayHelper;
 
-class ExamResultQuestionResource extends ExamTestInstanceQuestion
+class ExamResultQuestionResource extends ExamTestInstanceQuestion implements IOpenApiFieldTypes
 {
     public function fields()
     {
@@ -23,18 +26,30 @@ class ExamResultQuestionResource extends ExamTestInstanceQuestion
         return [];
     }
 
+    public function fieldTypes(): array
+    {
+        return ArrayHelper::merge(
+            parent::fieldTypes(),
+            [
+                'isCorrect' => new OAProperty(['type' => 'boolean']),
+                'questionText' => new OAProperty(['type' => 'string']),
+                'answerText' => new OAProperty(['type' => 'string']),
+            ]
+        );
+    }
+
     /**
      * @return string
      */
-    public function getQuestionText()
+    public function getQuestionText(): string
     {
         return $this->question->text;
     }
 
     /**
-     * @return int
+     * @return bool
      */
-    public function getIsCorrect()
+    public function getIsCorrect(): bool
     {
         // Get selected answer
         $query = ExamSubmittedAnswer::find()->where(["testinstanceID" => $this->testinstanceID])->select('answerID');
@@ -43,7 +58,7 @@ class ExamResultQuestionResource extends ExamTestInstanceQuestion
         return (bool)$result;
     }
 
-    public function getAnswerText()
+    public function getAnswerText(): string
     {
         $query = ExamSubmittedAnswer::find()->where(["testinstanceID" => $this->testinstanceID])->select('answerID');
         $text = ExamAnswer::find()->select("text")->where(['in', 'id', $query])->andWhere(["questionID" => $this->questionID])->scalar();

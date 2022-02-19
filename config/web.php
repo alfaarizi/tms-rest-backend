@@ -118,7 +118,7 @@ $config = [
                     ],
                 ],
             ],
-        ]
+        ],
     ],
     'modules' => [
         'student' => [
@@ -156,6 +156,18 @@ if (YII_ENV_DEV) {
         'class' => 'yii\gii\Module',
         // uncomment the following to add your IP if you are not connecting from localhost.
         //'allowedIPs' => ['127.0.0.1', '::1'],
+    ];
+
+    $config['components']['swagger'] = [
+        'class' => 'app\components\openapi\SchemaGenerator',
+        'outputDir' => '@app/runtime/openapi-schemas/',
+        // Scanned namespaces
+        'namespaces' => [
+            // Prefix => Namespace
+            'Common' => 'app\\resources',
+            'Student' => 'app\\modules\\student\\resources',
+            'Instructor' => 'app\\modules\\instructor\\resources',
+        ],
     ];
 }
 

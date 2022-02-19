@@ -1,10 +1,11 @@
 # Default image (https://hub.docker.com/r/mcserep/php)
 image: mcserep/php:7.4
 
-# Stages: lint -> test -> deploy
+# Stages: lint -> test -> docs -> deploy
 stages:
   - lint
   - test
+  - docs
   - deploy
 
 # Cached files between builds
@@ -17,7 +18,7 @@ cache:
 include:
   - template: Dependency-Scanning.gitlab-ci.yml
 
-.test:
+.db:
   # Variables
   variables:
     # Configure mysql environment variables (https://hub.docker.com/r/_/mysql/)
@@ -25,6 +26,16 @@ include:
     MYSQL_PASSWORD: tms
     MYSQL_DATABASE: tms
     MYSQL_ROOT_PASSWORD: v7tqfR9U
+
+  # Services: http://docs.gitlab.com/ee/ci/docker/using_docker_images.html#what-is-a-service
+  # Examples: http://docs.gitlab.com/ce/ci/services/README.html
+  services:
+    - mariadb:10.4
+
+.test:
+  extends: .db
+  # Variables
+  variables:
     # Enable code coverage for Xdebug
     XDEBUG_MODE: develop,coverage
 
@@ -33,17 +44,12 @@ include:
   # Run Composer
   - composer install --prefer-dist --no-ansi --no-interaction
   # Configure application
-  - cp -f config/db.sample.php config/db.php
-  - cp -f config/test_db.gitlab-ci.php config/test_db.php
+  - cp -f config/db.gitlab-ci.php config/db.php
+  - cp -f config/db.gitlab-ci.php config/test_db.php
   - cp -f config/mailer.sample.php config/mailer.php
   - cp -f config/params.sample.php config/params.php
   # Initialize application
   - php tests/bin/yii migrate --interactive=0
-
-  # Services: http://docs.gitlab.com/ee/ci/docker/using_docker_images.html#what-is-a-service
-  # Examples: http://docs.gitlab.com/ce/ci/services/README.html
-  services:
-    - mariadb:10.4
 
 # PHPCS linter
 phpcs:
@@ -71,6 +77,36 @@ codecept_7.4:
       - tests/_output/cobertura.xml
     reports:
       cobertura: tests/_output/cobertura.xml
+
+
+# Generates OpenApi docs in yaml and json format then packages it with swagger-ui
+openapi:
+  # The schema generator requires active database connection so
+  extends: .test
+  stage: docs
+
+  script:
+    - cp -r components/openapi/swagger-ui-ci swagger-ui
+    - php yii open-api/generate-docs json > swagger-ui/openapi-docs.json
+    - php yii open-api/generate-docs yaml > swagger-ui/openapi-docs.yaml
+  artifacts:
+    paths:
+      - swagger-ui
+    expire_in: 1 day
+
+# Collect generated docs and deploy them to GitLab Pages
+pages:
+  stage: deploy
+  script:
+    # Copy all docs to the public folder
+    - mkdir public
+    - cp -r swagger-ui public
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 day
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "develop" && $CI_PROJECT_NAMESPACE == "tms-elte"'
 
 # Deployment over SSH
 .deploy:

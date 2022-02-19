@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use Yii;
 
 /**
@@ -15,7 +17,7 @@ use Yii;
  *
  * @property Task $task
  */
-class TestCase extends \yii\db\ActiveRecord
+class TestCase extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     public const SCENARIO_CREATE = 'create';
     public const SCENARIO_UPDATE = 'update';
@@ -66,6 +68,17 @@ class TestCase extends \yii\db\ActiveRecord
             'arguments' => Yii::t('app', 'Arguments'),
             'input' => Yii::t('app', 'Input'),
             'output' => Yii::t('app', 'Output'),
+        ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'arguments' => new OAProperty(['type' => 'string']),
+            'input' => new OAProperty(['type' => 'string']),
+            'output' => new OAProperty(['type' => 'string']),
         ];
     }
 

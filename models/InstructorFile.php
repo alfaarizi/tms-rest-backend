@@ -3,6 +3,8 @@
 namespace app\models;
 
 use app\behaviors\ISODateTimeBehavior;
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use Yii;
 
 /**
@@ -16,7 +18,7 @@ use Yii;
  *
  * @property Task $task
  */
-class InstructorFile extends \yii\db\ActiveRecord
+class InstructorFile extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     /**
      * @inheritdoc
@@ -73,6 +75,17 @@ class InstructorFile extends \yii\db\ActiveRecord
             'path' => Yii::t('app', 'Path'),
             'uploadTime' => Yii::t('app', 'Upload Time'),
             'taskID' => Yii::t('app', 'Task ID'),
+        ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'name' => new OAProperty(['type' => 'string']),
+            'path' => new OAProperty(['type' => 'string']),
+            'uploadTime' => new OAProperty(['type' => 'string']),
+            'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
         ];
     }
 

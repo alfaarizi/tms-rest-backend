@@ -8,7 +8,7 @@ return [
     // Notification sender email address
     'systemEmail' => 'noreply@example.com',
     // Console commands cannot auto-detect host base URL, this will be used
-    'consoleUrl' => 'http://localhost',
+    'backendUrl' => 'http://localhost/backend-core/web',
     // Frontend application base URL
     'frontendUrl' => 'http://localhost:3000/app',
     // Moss user id for plagiarism detection
