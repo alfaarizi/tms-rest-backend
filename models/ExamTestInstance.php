@@ -3,6 +3,8 @@
 namespace app\models;
 
 use app\behaviors\ISODateTimeBehavior;
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use app\models\queries\ExamTestInstanceQuery;
 use Yii;
 use app\models\User;
@@ -26,7 +28,7 @@ use app\models\User;
  * @property User $user
  * @property ExamTest $test
  */
-class ExamTestInstance extends \yii\db\ActiveRecord
+class ExamTestInstance extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     /**
      * {@inheritdoc}
@@ -76,6 +78,19 @@ class ExamTestInstance extends \yii\db\ActiveRecord
             'score' => Yii::t('app', 'Score'),
             'userID' => Yii::t('app', 'User ID'),
             'testID' => Yii::t('app', 'Test ID'),
+        ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'starttime' => new OAProperty(['type' => 'string']),
+            'finishtime' => new OAProperty(['type' => 'string']),
+            'submitted' => new OAProperty(['type' => 'integer']),
+            'score' => new OAProperty(['type' => 'integer']),
+            'userID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'testID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
         ];
     }
 

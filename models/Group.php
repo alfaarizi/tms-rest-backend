@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use app\models\queries\GroupQuery;
 use app\validators\TimeZoneValidator;
 use Yii;
@@ -30,7 +32,7 @@ use Yii;
  * @property User[] $instructors
  * @property User $synchronizer
  */
-class Group extends \yii\db\ActiveRecord
+class Group extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     public const SCENARIO_CREATE = 'create';
     public const SCENARIO_UPDATE = 'update';
@@ -124,6 +126,23 @@ class Group extends \yii\db\ActiveRecord
             'canvasSectionID' => Yii::t('app', 'Canvas Section'),
             'canvasCourseID' => Yii::t('app', 'Canvas Course'),
             'timezone' => Yii::t('app', 'Timezone')
+        ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'number' => new OAProperty(['type' => 'integer']),
+            'courseID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'semesterID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'synchronizerID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'canvasSectionID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'canvasCourseID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'canvasCanBeSynchronized' => new OAProperty(['type' => 'boolean']),
+            'isCanvasCourse' => new OAProperty(['type' => 'boolean']),
+            'isExamGroup' => new OAProperty(['type' => 'boolean']),
+            'timezone' => new OAProperty(['type' => 'string', 'example' => 'Europe/Budapest']),
         ];
     }
 

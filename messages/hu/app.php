@@ -220,7 +220,7 @@ return [
     "You can't submit multiple answers for the same question" => "Egy kérdéshez nem adható meg több válasz",
     "User not found found." => "A keresett felhasználó nem található.",
     "Failed to save file. Error logged." => "Fájl mentése sikertelen. Hiba naplózva.",
-    "Mock login is not allowed in production mode!" => "A mock login nem engedélyezett éles környezetben!",
+    "This action is not allowed in the current environment!" => "Ez az akció nem engedélyezett az aktuális környezetben!",
     "Unsupported file format" => "Nem támogatott fájlformátum",
     "Failed to load post data" => "A post adatok betöltése sikertelen volt",
     "A database error occurred" => "Hiba történt az adatbázisban",

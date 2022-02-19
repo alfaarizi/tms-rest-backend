@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use Yii;
 
 /**
@@ -13,7 +15,7 @@ use Yii;
  * @property ExamTestInstance $testInstance
  * @property ExamAnswer $answer
  */
-class ExamSubmittedAnswer extends \yii\db\ActiveRecord
+class ExamSubmittedAnswer extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     /**
      * {@inheritdoc}
@@ -23,6 +25,23 @@ class ExamSubmittedAnswer extends \yii\db\ActiveRecord
         return '{{%exam_answers_submitted}}';
     }
 
+    public function fieldTypes(): array
+    {
+        return [
+            'testinstanceID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'answerID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+        ];
+    }
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+
+        $scenarios[self::SCENARIO_DEFAULT] = ['!testinstanceID', 'answerID'];
+
+        return $scenarios;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -30,7 +49,7 @@ class ExamSubmittedAnswer extends \yii\db\ActiveRecord
     {
         return [
             // testInstanceID is marked as unsafe for mass assignment (!testinstanceID)
-            [['!testinstanceID'], 'required'],
+            [['testinstanceID'], 'required'],
             [['testinstanceID', 'answerID'], 'integer'],
             [['answerID'], 'unique', 'skipOnEmpty' => true, 'targetAttribute' => ['testinstanceID', 'answerID']],
             [['testinstanceID'], 'exist', 'skipOnError' => true, 'targetClass' => ExamTestInstance::class, 'targetAttribute' => ['testinstanceID' => 'id']],

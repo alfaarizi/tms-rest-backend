@@ -9,7 +9,7 @@ use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
 
 /**
- * This class controls the group actions
+ * This class provides access to group actions for students
  */
 class GroupsController extends BaseStudentRestController
 {
@@ -25,9 +25,35 @@ class GroupsController extends BaseStudentRestController
     }
 
     /**
-     * Lists groups for the current student in a given semester
-     * @param integer $semesterID
+     * Lists groups for the current student in the given semester
+     * @param int $semesterID
      * @return ActiveDataProvider
+     *
+     *
+     * @OA\Get(
+     *     path="/student/groups",
+     *     operationId="student::GroupsController::actionIndex",
+     *     tags={"Student Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="semesterID",
+     *        in="query",
+     *        required=true,
+     *        description="ID of the semester",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Student_GroupResource_Read")),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionIndex($semesterID)
     {
@@ -42,10 +68,37 @@ class GroupsController extends BaseStudentRestController
     }
 
     /**
+     * View a group
      * @param int $id
      * @return GroupResource|null
      * @throws NotFoundHttpException
      * @throws \yii\web\ForbiddenHttpException
+     *
+     * @OA\Get(
+     *     path="/student/groups/{id}",
+     *     operationId="student::GroupsController::actionView",
+     *     tags={"Student Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the group",
+     *         @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Student_GroupResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionView($id)
     {

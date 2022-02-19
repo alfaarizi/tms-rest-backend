@@ -3,10 +3,10 @@
 namespace app\modules\student\controllers;
 
 use app\models\ExamAnswer;
-use app\models\ExamSubmittedAnswer;
 use app\models\ExamTest;
 use app\models\ExamTestInstance;
 use app\modules\student\resources\ExamResultQuestionResource;
+use app\modules\student\resources\ExamSubmittedAnswerResource;
 use app\modules\student\resources\ExamTestInstanceResource;
 use app\modules\student\resources\ExamWriterAnswerResource;
 use app\modules\student\resources\ExamWriterQuestionResource;
@@ -23,7 +23,7 @@ use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
 /**
- * This class provides access to test instances for students
+ * This class provides access to test instance actions for students
  */
 class ExamTestInstancesController extends BaseStudentRestController
 {
@@ -42,10 +42,55 @@ class ExamTestInstancesController extends BaseStudentRestController
     }
 
     /**
+     * Get the list of the test instances
      * @param int $semesterID
      * @param int $submitted
-     * @param int $future
+     * @param boolean $future
      * @return ActiveDataProvider
+     * @throws BadRequestHttpException
+     *
+     * @OA\Get(
+     *     path="/student/exam-test-instances",
+     *     operationId="student::ExamTestInstancesController::actionIndex",
+     *     tags={"Student Exam Test Instances"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="semesterID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the semester",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(
+     *         name="submitted",
+     *         in="query",
+     *         required=true,
+     *         description="List submitted or list finished tests",
+     *         explode=true,
+     *         @OA\Schema(type="boolean")
+     *     ),
+     *     @OA\Parameter(
+     *         name="future",
+     *         in="query",
+     *         required=false,
+     *         description="List future tests",
+     *         explode=true,
+     *         @OA\Schema(type="boolean")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Student_ExamTestInstanceResource_Read")),
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionIndex($semesterID, $submitted, $future = false)
     {
@@ -87,10 +132,36 @@ class ExamTestInstancesController extends BaseStudentRestController
     }
 
     /**
+     * Get a test instance
      * @param int $id
      * @return ExamTestInstanceResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/student/exam-test-instances/{id}",
+     *     operationId="student::ExamTestInstancesController::actionView",
+     *     tags={"Student Exam Test Instances"},
+     *     security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the test instance",
+     *          @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Student_ExamTestInstanceResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionView($id)
     {
@@ -114,11 +185,41 @@ class ExamTestInstancesController extends BaseStudentRestController
     }
 
     /**
+     * List the questions with the results for a submitted test instance
      * @param int $id
      * @return ActiveDataProvider
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/student/exam-test-instances/{id}/results",
+     *     operationId="student::ExamTestInstancesController::actionResults",
+     *     tags={"Student Exam Test Instances"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the test instance",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Student_ExamResultQuestionResource_Read")),
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionResults($id)
     {
@@ -145,11 +246,40 @@ class ExamTestInstancesController extends BaseStudentRestController
     }
 
     /**
+     * Start writing a test instance.
+     * This actions sets the starting time and returns with the questions and possible answers.
      * @param int $id
      * @return ExamWriterResource
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Post(
+     *     path="/student/exam-test-instances/{id}/start-write",
+     *     operationId="student::ExamTestInstancesController::actionStartWrite",
+     *     tags={"Student Exam Test Instances"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the test instance",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="test writing started",
+     *         @OA\JsonContent(ref="#/components/schemas/Student_ExamWriterResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionStartWrite($id)
     {
@@ -217,12 +347,51 @@ class ExamTestInstancesController extends BaseStudentRestController
     }
 
     /**
+     * Finish writing the test instance.
+     * This actions saves the results for the current test and calculates the score.
      * @param int $id
      * @return ExamTestInstanceResource
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
+     *
+     * @OA\Post(
+     *     path="/student/exam-test-instances/{id}/finish-write",
+     *     operationId="student::ExamTestInstancesController::actionFinishWrite",
+     *     tags={"Student Exam Test Instances"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the test instance",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="submitted answers",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                type="array",
+     *                @OA\Items(ref="#/components/schemas/Student_ExamSubmittedAnswerResource_ScenarioDefault")
+     *             ),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="test submitted",
+     *         @OA\JsonContent(ref="#/components/schemas/Student_ExamTestInstanceResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionFinishWrite($id)
     {
@@ -243,7 +412,7 @@ class ExamTestInstancesController extends BaseStudentRestController
         $duration = $this->calcDuration($testInstance);
 
         for ($i = 0; $i < $count; ++$i) {
-            $submittedAnswer = new ExamSubmittedAnswer();
+            $submittedAnswer = new ExamSubmittedAnswerResource();
             $submittedAnswer->testinstanceID = $id;
             $submittedAnswers[] = $submittedAnswer;
         }

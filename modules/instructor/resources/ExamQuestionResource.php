@@ -2,8 +2,11 @@
 
 namespace app\modules\instructor\resources;
 
+use app\components\openapi\generators\OAItems;
+use app\components\openapi\generators\OAProperty;
 use app\models\ExamAnswer;
 use app\models\ExamQuestion;
+use yii\helpers\ArrayHelper;
 
 class ExamQuestionResource extends ExamQuestion
 {
@@ -22,6 +25,27 @@ class ExamQuestionResource extends ExamQuestion
             'answers',
             'correctAnswers'
         ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return ArrayHelper::merge(
+            parent::fieldTypes(),
+            [
+                'answers' => new OAProperty(
+                    [
+                        'type' => 'array',
+                        new OAItems(['ref' => '#/components/schemas/Instructor_ExamAnswerResource_Read'])
+                    ]
+                ),
+                'correctAnswers' => new OAProperty(
+                    [
+                        'type' => 'array',
+                        new OAItems(['ref' => '#/components/schemas/Instructor_ExamAnswerResource_Read'])
+                    ]
+                ),
+            ],
+        );
     }
 
     /**

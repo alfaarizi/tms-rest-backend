@@ -75,5 +75,73 @@ Currently code coverage level of tests for the project is low. If you fix a bug 
 ### Continuous integration
 
 Upon pushing or merging to the server, the following tests are performed on the last commit:
-*  on all branches: code style check with PHPCS (backend) and ESLint (frontend); unit and api tests.
-*  on master, develop2 branches: continuous deployment to production / staging environment.
+* on all branches: code style check with PHPCS; generate OpenAPI documentation; unit and api tests.
+* develop branch: continuous deployment to staging environment; deploy the generated documentation to Gitlab Pages.
+* master branch: continuous deployment to production.
+
+DOCUMENTATION
+--------------
+
+### OpenAPI
+
+Writing OpenAPI documentation is required for new contributions.
+This project contains several tools for writing and visualizing the specification:
+- `zircote/swagger-php`: generates OpenAPI documentation from doctrine annotations
+- `light/yii2-swagger`: integrates `zircote/swagger-php` and `swagger-api/swagger-ui` with Yii2.
+- A custom tool that generates schemas from model and resource classes and passes them to the `zircote/swagger-php` library.
+
+#### Write annotations for action methods
+
+You should write annotations for all action methods.
+[See zircote/swagger-php documentation for more information.](https://zircote.github.io/swagger-php/)
+
+- The annotations should contain all possible responses with the corresponding status codes.
+- You should write `operationId`s with the following convention: `moduleName::controllerName:actionName`
+- The tags should contain the module name and controller name.
+- Use the generated schemas when possible.
+- Reuse the provided definitions when possible.
+
+#### Reusable definitions
+
+The reusable definitions are placed in the `components/openapi/definitions` directory. 
+
+- `apiInfo`: API and server information. It reads information from global constants.
+- `intId`: number format for all ids. Usage: `@OA\Schema(ref="#/components/schemas/int_id")`
+- `responses`: the most common responses with status codes.
+Usage: `@OA\Response(response=<code>, ref="#/components/responses/<code>")`
+- `security`: security schemes
+- `yii2Error`: schema of the Yii2 error responses. Usage: `ref="#/components/schemas/Yii2Error"`
+- `yii2Params`: definition of the optional parameters provided by Yii2: `sort`, `fields`, `extraFields`.
+Usage: `@OA\Parameter(ref="#/components/parameters/yii2_expand")`
+
+
+#### Generate schemas from model and resource classes
+
+`OA\Schema` annotations are automatically generated, if a model or resource class implements the `IOpenApiFieldTypes` interface.
+The `fieldTypes` method returns an associative array that contains all necessary information to generate annotation for the fields.
+
+Currently, it supports the following annotations:
+- `OAProperty`: contains the type of the field, ref, constrains or other annotation classes.
+  Examples:
+    - string field with examples: `'description' => new OAProperty(['type' => 'string', 'example' => 'example']),`
+    - use a ref: `'id' => new OAProperty(['ref' => '#/components/schemas/int_id'])`
+- `OAItems`: describes an item of an array property. Example:
+  - string array: `'stringArray' =>  new OAProperty(['type' => 'array', new OAItems(['ref' => '#/components/schemas/int_id'])])`
+  - use a ref: `'ids' =>  new OAProperty(['type' => 'array', new OAItems(['type' => 'string'])])`
+- `OAList`: generates list of items for annotations. Example:
+  - Possible values of an enum: `'os' => new OAProperty(['type' => 'string', 'enum' => new OAList(['linux', 'windows')])]),`
+
+The tool generates `OA\Schema` annotations for all scenarios and read requests with the following names
+`<prefix>_<resource-name>_Scenario<scenario-name>` and `<prefix>_<resource-name>_Read`.
+The generated files can be found in the `runtime/openapi-schemas` directory.
+
+Currently, the following prefixes are used:
+- `Common`: for the `resources` directory
+- `Student`: for the `student/resources` directory 
+- `Instructor`: for the `instructor/resources` directory 
+- `Admin`: for the `admin/resources` directory 
+
+The schemas can be used in documentation via refs:
+`#/components/schemas/schema_name`
+
+

@@ -4,7 +4,9 @@ namespace app\modules\instructor\controllers;
 
 use app\exceptions\AddFailedException;
 use app\modules\instructor\resources\InstructorFileResource;
+use app\modules\instructor\resources\InstructorFilesUploadResultResource;
 use app\modules\instructor\resources\TaskResource;
+use app\modules\instructor\resources\UploadFailedResource;
 use app\modules\instructor\resources\UploadInstructorFileResource;
 use app\resources\SemesterResource;
 use Yii;
@@ -18,7 +20,7 @@ use yii\web\ServerErrorHttpException;
 use yii\web\UploadedFile;
 
 /**
- * This class provides access to instructorfiles for instructors
+ * This class provides access to instructor files for instructors
  */
 class InstructorFilesController extends BaseInstructorRestController
 {
@@ -36,10 +38,38 @@ class InstructorFilesController extends BaseInstructorRestController
     }
 
     /**
+     * List instructor files for a task
      * @param int $taskID
      * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/instructor-files",
+     *     operationId="instructor::InstructorFilesController::actionIndex",
+     *     tags={"Instructor Instructor Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="taskID",
+     *        in="query",
+     *        required=true,
+     *        description="ID of the task",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_InstructorFileResource_Read")),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionIndex($taskID)
     {
@@ -63,9 +93,32 @@ class InstructorFilesController extends BaseInstructorRestController
     }
 
     /**
+     * Download an instructor file
      * @param int $id
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *    path="/instructor/instructor-files/{id}/download",
+     *    operationId="instructor::InstructorFilesController::actionDownload",
+     *    tags={"Instructor Instructor Files"},
+     *    security={{"bearerAuth":{}}},
+     *    @OA\Parameter(
+     *       name="id",
+     *       in="path",
+     *       required=true,
+     *       description="ID of the file",
+     *       @OA\Schema(ref="#/components/schemas/int_id"),
+     *    ),
+     *    @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionDownload($id)
     {
@@ -84,8 +137,35 @@ class InstructorFilesController extends BaseInstructorRestController
     }
 
     /**
-     * @return array|array[]
+     * Upload new instructor files
+     * @return array|InstructorFilesUploadResultResource
+     * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
+     * @throws ServerErrorHttpException
+     *
+     * @OA\Post(
+     *    path="/instructor/instructor-files",
+     *    operationId="instructor::InstructorFilesController::actionCreate",
+     *    tags={"Instructor Instructor Files"},
+     *    security={{"bearerAuth":{}}},
+     *    @OA\RequestBody(
+     *        description="files to upload and taskID",
+     *        @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(ref="#/components/schemas/Instructor_UploadInstructorFileResource_ScenarioDefault"),
+     *        )
+     *    ),
+     *    @OA\Response(
+     *        response=207,
+     *        description="multistatus result",
+     *        @OA\JsonContent(ref="#/components/schemas/Instructor_InstructorFilesUploadResultResource_Read")
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionCreate()
     {
@@ -155,26 +235,50 @@ class InstructorFilesController extends BaseInstructorRestController
                     throw new ServerErrorHttpException(Yii::t("app", "A database error occurred" ));
                 }
             } catch (AddFailedException $e) {
-                $failed[] = [
-                    'name' => $e->getIdentifier(),
-                    'cause' => $e->getCause()
-                ];
+                $failedResource = new UploadFailedResource();
+                $failedResource->name = $e->getIdentifier();
+                $failedResource->cause = $e->getCause();
+                $failed[] = $failedResource;
             }
         }
 
         $this->response->statusCode = 207;
-        return [
-            'uploaded' => $uploaded,
-            'failed' => $failed
-        ];
+        $response = new InstructorFilesUploadResultResource();
+        $response->uploaded = $uploaded;
+        $response->failed = $failed;
+        return $response;
     }
 
     /**
+     * Delete an instructor file
      * @param int $id
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
      * @throws BadRequestHttpException
+     *
+     * @OA\Delete(
+     *    path="/instructor/instructor-files/{id}",
+     *    operationId="instructor::InstructorFilesController::actionDelete",
+     *    tags={"Instructor Instructor Files"},
+     *    security={{"bearerAuth":{}}},
+     *    @OA\Parameter(
+     *       name="id",
+     *       in="path",
+     *       required=true,
+     *       description="ID of the file",
+     *       @OA\Schema(ref="#/components/schemas/int_id"),
+     *    ),
+     *    @OA\Response(
+     *        response=204,
+     *        description="instructor file deleted",
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionDelete($id)
     {

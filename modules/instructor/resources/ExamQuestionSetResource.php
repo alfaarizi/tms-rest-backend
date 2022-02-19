@@ -2,8 +2,11 @@
 
 namespace app\modules\instructor\resources;
 
+use app\components\openapi\generators\OAItems;
+use app\components\openapi\generators\OAProperty;
 use app\models\ExamQuestionSet;
 use app\resources\CourseResource;
+use yii\helpers\ArrayHelper;
 
 class ExamQuestionSetResource extends ExamQuestionSet
 {
@@ -22,6 +25,22 @@ class ExamQuestionSetResource extends ExamQuestionSet
         return [
             'tests'
         ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return ArrayHelper::merge(
+            parent::fieldTypes(),
+            [
+                'course' => new OAProperty(['ref' => '#/components/schemas/Common_CourseResource_Read']),
+                'tests' => new OAProperty(
+                    [
+                        'type' => 'array',
+                        new OAItems(['ref' => '#/components/schemas/Instructor_ExamTestResource_Read'])
+                    ]
+                ),
+            ]
+        );
     }
 
     /**

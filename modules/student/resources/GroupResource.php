@@ -2,6 +2,8 @@
 
 namespace app\modules\student\resources;
 
+use app\components\openapi\generators\OAItems;
+use app\components\openapi\generators\OAProperty;
 use app\models\Group;
 use app\resources\CourseResource;
 
@@ -31,6 +33,17 @@ class GroupResource extends Group
     public function extraFields()
     {
         return [];
+    }
+
+    public function fieldTypes(): array
+    {
+        $types = parent::fieldTypes();
+
+        $types['number'] = new OAProperty(['type' => 'integer', 'nullable' => 'true']);
+        $types['course'] = new OAProperty(['ref' => '#/components/schemas/Common_CourseResource_Read']);
+        $types['instructorNames'] = new OAProperty(['type' => 'array', new OAItems(['type' => 'string'])]);
+
+        return $types;
     }
 
     /**

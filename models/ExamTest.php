@@ -3,6 +3,8 @@
 namespace app\models;
 
 use app\behaviors\ISODateTimeBehavior;
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use app\models\queries\ExamTestQuery;
 use Yii;
 use yii\db\ActiveQuery;
@@ -28,7 +30,7 @@ use yii\helpers\ArrayHelper;
  * @property ExamQuestionSet $questionset
  * @property Group $group
  */
-class ExamTest extends ActiveRecord
+class ExamTest extends ActiveRecord implements IOpenApiFieldTypes
 {
     public const SCENARIO_CREATE = 'create';
     public const SCENARIO_UPDATE = 'update';
@@ -193,6 +195,22 @@ class ExamTest extends ActiveRecord
             'availableuntil' => Yii::t('app', 'Available until'),
             'groupID' => Yii::t('app', 'Group ID'),
             'questionsetID' => Yii::t('app', 'Question set ID'),
+        ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'name' => new OAProperty(['type' => 'string']),
+            'questionamount' => new OAProperty(['type' => 'integer']),
+            'duration' => new OAProperty(['type' => 'integer']),
+            'shuffled' => new OAProperty(['type' => 'integer']),
+            'unique' => new OAProperty(['type' => 'integer']),
+            'availablefrom' => new OAProperty(['type' => 'string']),
+            'availableuntil' => new OAProperty(['type' => 'string']),
+            'groupID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'questionsetID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
         ];
     }
 

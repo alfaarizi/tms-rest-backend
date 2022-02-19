@@ -516,6 +516,17 @@ class InstructorTasksCest
         $I->cantSeeResponseContainsJson([['id' => 6]]);
     }
 
+    public function listUsersTaskNotFound(ApiTester $I)
+    {
+        $I->sendPost(
+            "/instructor/tasks/list-users",
+            [
+                "ids" => [0, 1, 5]
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
     public function listForCourse(ApiTester $I)
     {
         $I->sendGet(

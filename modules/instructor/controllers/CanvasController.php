@@ -9,9 +9,10 @@ use app\models\User;
 use app\modules\instructor\resources\CanvasCourseResource;
 use app\modules\instructor\resources\CanvasSectionResource;
 use app\modules\instructor\resources\CanvasSetupResource;
-use app\modules\instructor\resources\OAuth2Response;
+use app\modules\instructor\resources\OAuth2ResponseResource;
 use Yii;
 use yii\base\Action;
+use yii\data\ArrayDataProvider;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\httpclient\Client;
@@ -66,16 +67,38 @@ class CanvasController extends BaseInstructorRestController
     }
 
     /**
-     * Get the oauth2 token and refresh token from the canvas and save in the database.
+     * Get the OAuth2 token and refresh token from Canvas and save to the database
      * @return array|void
      * @throws ServerErrorHttpException
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\httpclient\Exception
+     *
+     * @OA\Post(
+     *     path="/instructor/canvas/oauth2-response",
+     *     operationId="instructor::CanvasController::actionOauth2Response",
+     *     tags={"Instructor Canvas"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         description="OAuth2 response",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_OAuth2ResponseResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionOauth2Response()
     {
         // Load and validate OAuth2 response
-        $model = new OAuth2Response();
+        $model = new OAuth2ResponseResource();
         $model->load(Yii::$app->request->post(), '');
 
         if (!$model->validate()) {
@@ -126,7 +149,7 @@ class CanvasController extends BaseInstructorRestController
     }
 
     /**
-     * Sets Canvas course and section fields before synchronization, then synchronizes course
+     * Set Canvas course and section fields before synchronization, then synchronizes course
      * @param int $groupID the id of the selected group
      * @return array|void
      * @throws BadRequestHttpException
@@ -134,6 +157,42 @@ class CanvasController extends BaseInstructorRestController
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
+     * @OA\Post(
+     *     path="/instructor/canvas/setup",
+     *     operationId="instructor::CanvasController::actionSetup",
+     *     tags={"Instructor Canvas"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="groupID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the group",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\RequestBody(
+     *         description="Canvas course settings",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_CanvasSetupResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(
+     *        response=401,
+     *        description="Unauthorized: missing, invalid or expired access or Canvas token. If Canvas login is required, the Proxy-Authenticate header containains the login URL.",
+     *        @OA\JsonContent(ref="#/components/schemas/Yii2Error"),
+     *    ),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=409, ref="#/components/responses/409"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionSetup($groupID)
     {
@@ -185,12 +244,41 @@ class CanvasController extends BaseInstructorRestController
     }
 
     /**
-     * Synchronize the selected course and group with the canvas.
+     * Synchronize the selected course and group with Canvas
      * @param int $groupID the id of the selected group
      * @throws ConflictHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/canvas/sync",
+     *     operationId="instructor::CanvasController::actionSync",
+     *     tags={"Instructor Canvas"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="groupID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the group",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(
+     *        response=401,
+     *        description="Unauthorized: missing, invalid or expired access or Canvas token. If Canvas login is required, the Proxy-Authenticate header containains the login URL.",
+     *        @OA\JsonContent(ref="#/components/schemas/Yii2Error"),
+     *    ),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=409, ref="#/components/responses/409"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionSync($groupID)
     {
@@ -232,8 +320,31 @@ class CanvasController extends BaseInstructorRestController
 
     /**
      * Lists available Canvas courses
-     * @return array|void
+     * @return ArrayDataProvider|void
      * @throws ServerErrorHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/canvas/courses",
+     *     operationId="instructor::CanvasController::actionCourses",
+     *     tags={"Instructor Canvas"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_CanvasCourseResource_Read")),
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(
+     *        response=401,
+     *        description="Unauthorized: missing, invalid or expired access or Canvas token. If Canvas login is required, the Proxy-Authenticate header containains the login URL.",
+     *        @OA\JsonContent(ref="#/components/schemas/Yii2Error"),
+     *    ),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionCourses()
     {
@@ -258,13 +369,49 @@ class CanvasController extends BaseInstructorRestController
             $out[] = $resource;
         }
 
-        return $out;
+        return  new ArrayDataProvider(
+            [
+                'modelClass' => CanvasCourseResource::class,
+                'allModels' => $out,
+                'pagination' => false,
+            ]
+        );
     }
 
     /**
-     * Get the sections for the selected canvas course
-     * @param int $courseID Canvas Course id
-     * @return array|void
+     * Get the sections for the selected Canvas course
+     * @param int $courseID Canvas Course ID
+     * @return ArrayDataProvider|void
+     *
+     * @OA\Get(
+     *     path="/instructor/canvas/sections",
+     *     operationId="instructor::CanvasController::actionSections",
+     *     tags={"Instructor Canvas"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *     @OA\Parameter(
+     *         name="courseID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the Canvas course",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_CanvasSectionResource_Read")),
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(
+     *        response=401,
+     *        description="Unauthorized: missing, invalid or expired access or Canvas token. If Canvas login is required, the Proxy-Authenticate header containains the login URL.",
+     *        @OA\JsonContent(ref="#/components/schemas/Yii2Error"),
+     *    ),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionSections($courseID)
     {
@@ -296,6 +443,13 @@ class CanvasController extends BaseInstructorRestController
             $resource->totalStudents = $section['total_students'];
             $out[] = $resource;
         }
-        return $out;
+
+        return  new ArrayDataProvider(
+            [
+                'modelClass' => CanvasSectionResource::class,
+                'allModels' => $out,
+                'pagination' => false,
+            ]
+        );
     }
 }

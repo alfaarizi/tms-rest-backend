@@ -22,12 +22,48 @@ class ExamTestInstancesController extends BaseInstructorRestController
     }
 
     /**
-     * Lists instances for the given test
+     * List test instances for the given test
      * @param int $testID
      * @param null|bool $submitted
      * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/exam-test-instances",
+     *     operationId="instructor::ExamTestInstancesController::actionIndex",
+     *     tags={"Instructor Exam Test Instances"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="testID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the test",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(
+     *         name="submitted",
+     *         in="query",
+     *         required=false,
+     *         description="null or empty: all instances, true: submitted instances, false: not submitted instances",
+     *         explode=true,
+     *         @OA\Schema(type="boolean")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_ExamTestInstanceResource_Read")),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionIndex($testID, $submitted = null)
     {

@@ -150,6 +150,19 @@ Run the following command to execute TMS's tests:
 vendor/bin/codecept run unit,api
 ~~~
 
+DOCUMENTATION
+------------
+
+### OpenAPI
+There are multiple ways to access the OpenAPI documentation for this project:
+
+- For the latest version from the `develop` branch the OpenAPI documentation with `SwaggerUI` is uploaded to 
+[Gitlab Pages](https://tms-elte.gitlab.io/backend-core/swagger-ui/).
+- Web interface in a local development server:
+  - `<baseurl>/common/open-api/json`: get the latest OpenAPI documentation in `json` format
+  - `<baseurl>/common/open-api/swagger-ui`: visualize the latest documentation with `SwaggerUI`
+- CLI interface in a local development server: the `yii open-api/generate-docs (yaml|json)` command writes the documentation to `stdout` in the desired output format. It also prints warnings to `stderr`.
+
 
 CONTRIBUTING
 ------------

@@ -2,7 +2,9 @@
 
 namespace app\modules\student\resources;
 
+use app\components\openapi\generators\OAProperty;
 use app\models\ExamTestInstance;
+use yii\helpers\ArrayHelper;
 
 class ExamTestInstanceResource extends ExamTestInstance
 {
@@ -19,7 +21,6 @@ class ExamTestInstanceResource extends ExamTestInstance
             'score',
             'maxScore',
             'test',
-            'submitted'
         ];
     }
 
@@ -29,6 +30,17 @@ class ExamTestInstanceResource extends ExamTestInstance
     public function extraFields()
     {
         return [];
+    }
+
+    public function fieldTypes(): array
+    {
+        return ArrayHelper::merge(
+            parent::fieldTypes(),
+            [
+                'maxScore' => new OAProperty(['type' => 'integer']),
+                'test' => new OAProperty(['ref' => '#/components/schemas/Instructor_ExamTestResource_Read']),
+            ]
+        );
     }
 
     /**

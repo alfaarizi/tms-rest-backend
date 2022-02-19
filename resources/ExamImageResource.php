@@ -2,11 +2,13 @@
 
 namespace app\resources;
 
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes as IOpenApiFieldTypesAlias;
 use Yii;
 use app\models\Model;
 use yii\helpers\Url;
 
-class ExamImageResource extends Model
+class ExamImageResource extends Model implements IOpenApiFieldTypesAlias
 {
     public function fields()
     {
@@ -22,19 +24,17 @@ class ExamImageResource extends Model
         return [];
     }
 
+    public function fieldTypes(): array
+    {
+        return [
+            'name' => new OAProperty(['type' => 'string']),
+            'url' => new OAProperty(['type' => 'string']),
+            'size' => new OAProperty(['type' => 'integer']),
+        ];
+    }
+
     public $name;
     public $questionSetID;
-
-    /**
-     * ExamImageResource constructor.
-     * @param $name
-     * @param $questionSetID
-     */
-    public function __construct($name, $questionSetID)
-    {
-        $this->name = $name;
-        $this->questionSetID = $questionSetID;
-    }
 
     public function getUrl()
     {

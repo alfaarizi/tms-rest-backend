@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use Yii;
 
 /**
@@ -13,7 +15,7 @@ use Yii;
  * @property ExamTestInstance $testInstance
  * @property ExamQuestion $question
  */
-class ExamTestInstanceQuestion extends \yii\db\ActiveRecord
+class ExamTestInstanceQuestion extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     /**
      * {@inheritdoc}
@@ -45,6 +47,14 @@ class ExamTestInstanceQuestion extends \yii\db\ActiveRecord
         return [
             'testinstanceID' => Yii::t('app', 'Test Instance ID'),
             'questionID' => Yii::t('app', 'Question ID'),
+        ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'testinstanceID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'questionID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
         ];
     }
 
