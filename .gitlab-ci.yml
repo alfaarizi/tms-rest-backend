@@ -62,8 +62,15 @@ codecept_7.4:
   extends: .test
   image: mcserep/php:7.4
   script:
-    - vendor/bin/codecept run unit,api --no-ansi --coverage --coverage-text
+    - vendor/bin/codecept run unit,api --no-ansi --coverage --coverage-text --coverage-xml --coverage-cobertura
   coverage: '/^\s*Lines:\s*\d+.\d+\%/'
+  artifacts:
+    paths:
+      - tests/_output/coverage.txt
+      - tests/_output/coverage.xml
+      - tests/_output/cobertura.xml
+    reports:
+      cobertura: tests/_output/cobertura.xml
 
 # Deployment over SSH
 .deploy:
@@ -127,3 +134,14 @@ deploy_production:
     url: https://tms.inf.elte.hu/api/
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /^v.*$/ && $CI_PROJECT_NAMESPACE == "tms-elte"'
+
+# Upload code coverage report to CodeCov
+codecov:
+  stage: deploy
+  image: ubuntu:20.04
+  before_script:
+    - 'which curl || ( apt-get update -y && apt-get install -y curl)'
+  script:
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - chmod +x codecov
+    - ./codecov -f tests/_output/coverage.xml -t ${CODECOV_TOKEN}

@@ -3,6 +3,7 @@ Task Management System
 
 [![pipeline status](https://gitlab.com/tms-elte/backend-core/badges/develop/pipeline.svg)](https://gitlab.com/tms-elte/backend-core/-/commits/develop)
 [![coverage report](https://gitlab.com/tms-elte/backend-core/badges/develop/coverage.svg)](https://gitlab.com/tms-elte/backend-core/-/commits/develop)
+[![codecov report](https://codecov.io/gl/tms-elte/backend-core/branch/develop/graph/badge.svg?token=MSA7R9D4DS)](https://codecov.io/gl/tms-elte/backend-core)
 
 <abbr title="Task Management System">TMS</abbr> is an assignment management and plagiarism detection software written in [PHP](http://php.net/) and based on the [Yii 2 Framework](http://www.yiiframework.com/).
 
