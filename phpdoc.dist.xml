@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdocumentor
+        configVersion="3"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="https://www.phpdoc.org"
+>
+    <title>TMS REST backend</title>
+
+    <version number="latest">
+        <api>
+            <source dsn=".">
+                <path>.</path>
+            </source>
+            <ignore>
+                <path>appdata/**/*</path>
+                <path>migrations/**/*</path>
+                <path>runtime/**/*</path>
+                <path>tests/**/*</path>
+                <path>vendor/**/*</path>
+            </ignore>
+
+            <ignore-tags>
+                <ignore-tag>OA\Get</ignore-tag>
+                <ignore-tag>OA\Post</ignore-tag>
+                <ignore-tag>OA\Put</ignore-tag>
+                <ignore-tag>OA\Patch</ignore-tag>
+                <ignore-tag>OA\Delete</ignore-tag>
+                <ignore-tag>OA\Schema</ignore-tag>
+            </ignore-tags>
+
+        </api>
+    </version>
+</phpdocumentor>

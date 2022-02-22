@@ -153,8 +153,14 @@ vendor/bin/codecept run unit,api
 DOCUMENTATION
 ------------
 
+### PhpDocumentor
+
+A documentation of the external and internal API of the PHP codebase can be auto-generated with [PhpDocumentor](https://www.phpdoc.org/).
+For the latest version on the `develop` branch this documentation is available at
+[Gitlab Pages](https://tms-elte.gitlab.io/backend-core/phpdoc/).
+
 ### OpenAPI
-There are multiple ways to access the OpenAPI documentation for this project:
+There are multiple ways to access the OpenAPI documentation for the project:
 
 - For the latest version from the `develop` branch the OpenAPI documentation with `SwaggerUI` is uploaded to 
 [Gitlab Pages](https://tms-elte.gitlab.io/backend-core/swagger-ui/).

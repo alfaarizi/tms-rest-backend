@@ -75,12 +75,21 @@ Currently code coverage level of tests for the project is low. If you fix a bug 
 ### Continuous integration
 
 Upon pushing or merging to the server, the following tests are performed on the last commit:
-* on all branches: code style check with PHPCS; generate OpenAPI documentation; unit and api tests.
-* develop branch: continuous deployment to staging environment; deploy the generated documentation to Gitlab Pages.
-* master branch: continuous deployment to production.
+* on all branches: code style check with PHPCS; generate PhpDoc and OpenAPI documentation; unit and api tests.
+* *develop* branch: continuous deployment to staging environment; deploy the generated documentation to Gitlab Pages.
+* *master* branch: continuous deployment to production.
 
 DOCUMENTATION
 --------------
+
+All *structural elements* (classes, methods, etc.) in the source code must be documented with the 
+[DocBlock](https://docs.phpdoc.org/guide/getting-started/what-is-a-docblock.html) 
+format, so that an API documentation of codebase can be generated with [PhpDocumentor](https://www.phpdoc.org/).
+
+The documentation is auto-generated in the CI pipeline and can be downloaded as an artifact if needed to be analyzed.
+To generate the documentation locally for yourself during development, simply download the 
+[PHAR file](https://phpdoc.org/phpDocumentor.phar) and execute it, as instructed in the *Usage* section 
+on the website of [PhpDocumentor](https://www.phpdoc.org/).
 
 ### OpenAPI
 

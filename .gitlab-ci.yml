@@ -81,7 +81,7 @@ codecept_7.4:
 
 # Generates OpenApi docs in yaml and json format then packages it with swagger-ui
 openapi:
-  # The schema generator requires active database connection so
+  # The schema generator requires active database connection
   extends: .test
   stage: docs
 
@@ -94,6 +94,20 @@ openapi:
       - swagger-ui
     expire_in: 1 day
 
+# Generates phpdoc documentation
+phpdoc:
+  stage: docs
+  before_script:
+    - 'which curl || ( apt-get update -yqq && apt-get install -yqq curl)'
+  script:
+    - curl -sL https://phpdoc.org/phpDocumentor.phar -o phpdoc
+    - chmod +x phpdoc
+    - ./phpdoc
+  artifacts:
+    paths:
+      - .phpdoc/build
+    expire_in: 1 day
+
 # Collect generated docs and deploy them to GitLab Pages
 pages:
   stage: deploy
@@ -101,6 +115,7 @@ pages:
     # Copy all docs to the public folder
     - mkdir public
     - cp -r swagger-ui public
+    - cp -r .phpdoc/build public/phpdoc
   artifacts:
     paths:
       - public
@@ -115,7 +130,7 @@ pages:
   variables:
     DEPLOY_PATH: /var/www/html
   before_script:
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - 'which ssh-agent || ( apt-get update -yqq && apt-get install -yqq openssh-client)'
     - mkdir -p ~/.ssh
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
@@ -175,7 +190,7 @@ deploy_production:
 codecov:
   stage: deploy
   before_script:
-    - 'which curl || ( apt-get update -y && apt-get install -y curl)'
+    - 'which curl || ( apt-get update -yqq && apt-get install -yqq curl)'
   script:
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
