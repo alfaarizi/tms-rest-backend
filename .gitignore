@@ -53,6 +53,9 @@ Thumbs.db
 tests/_output/*
 tests/_support/_generated
 
+# PhpDocumentor
+.phpdoc/
+
 # TMS itself
 /appdata/
 /appdata_*/

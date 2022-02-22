@@ -18,6 +18,16 @@
                 <path>tests/**/*</path>
                 <path>vendor/**/*</path>
             </ignore>
+
+            <ignore-tags>
+                <ignore-tag>OA\Get</ignore-tag>
+                <ignore-tag>OA\Post</ignore-tag>
+                <ignore-tag>OA\Put</ignore-tag>
+                <ignore-tag>OA\Patch</ignore-tag>
+                <ignore-tag>OA\Delete</ignore-tag>
+                <ignore-tag>OA\Schema</ignore-tag>
+            </ignore-tags>
+
         </api>
     </version>
 </phpdocumentor>
