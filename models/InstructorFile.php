@@ -125,6 +125,7 @@ class InstructorFile extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'path' => new OAProperty(['type' => 'string']),
             'uploadTime' => new OAProperty(['type' => 'string']),
             'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'category' => new OAProperty(['type' => 'string']),
         ];
     }
 

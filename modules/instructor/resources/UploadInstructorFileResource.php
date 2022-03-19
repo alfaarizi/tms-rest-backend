@@ -48,6 +48,7 @@ class UploadInstructorFileResource extends Model implements IOpenApiFieldTypes
     {
         return [
             'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'category' => new OAProperty(['type' => 'string']),
             'files' => new OAProperty(['type' => 'array', new OAItems(['type' => 'string', 'format' => 'binary'])]),
         ];
     }
