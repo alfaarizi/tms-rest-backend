@@ -15,7 +15,6 @@ use Yii;
  */
 class InstructorGroup extends \yii\db\ActiveRecord
 {
-
     /**
      * {@inheritdoc}
      */

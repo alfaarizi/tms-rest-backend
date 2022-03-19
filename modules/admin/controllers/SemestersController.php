@@ -6,6 +6,7 @@ use Yii;
 use app\models\Semester;
 use app\resources\SemesterResource;
 use yii\web\BadRequestHttpException;
+use yii\web\ConflictHttpException;
 use yii\web\ServerErrorHttpException;
 
 /**
@@ -25,8 +26,25 @@ class SemestersController extends BaseAdminRestController
     }
 
     /**
-     * Returns with the name of the next semester
+     * Get the next semester
      * @return SemesterResource
+     *
+     * @OA\Get(
+     *     path="/admin/semesters/get-next",
+     *     operationId="admin::SemestersController::actionGetNext",
+     *     tags={"Admin Semesters"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_SemesterResource_Read"),
+     *     ),
+     *     @OA\Response(response=401, ref="#/components/responses/401"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionGetNext()
     {
@@ -36,18 +54,36 @@ class SemestersController extends BaseAdminRestController
     }
 
     /**
-     * Add next semester
+     * Add next semester.
      * It checks if the semester is already exists, if not it saves the new one.
      * @return SemesterResource
-     * @throws BadRequestHttpException
+     * @throws ConflictHttpException
      * @throws ServerErrorHttpException
+     *
+     * @OA\POST(
+     *     path="/admin/semesters/add-next",
+     *     operationId="admin::SemestersController::actionAddNext",
+     *     tags={"Admin Semesters"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=201,
+     *         description="new semester added",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_SemesterResource_Read"),
+     *     ),
+     *     @OA\Response(response=401, ref="#/components/responses/401"),
+     *     @OA\Response(response=409, ref="#/components/responses/409"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionAddNext()
     {
         $semesterName = SemesterResource::calculateNextSemesterName();
         $semesterName = str_replace("-", "/", $semesterName);
         if (!is_null(Semester::findOne(['name' => $semesterName]))) {
-            throw new BadRequestHttpException(Yii::t('app', "Semester already exists."));
+            throw new ConflictHttpException(Yii::t('app', "Semester already exists."));
         } else {
             $transaction = Yii::$app->db->beginTransaction();
             try {
@@ -68,6 +104,7 @@ class SemestersController extends BaseAdminRestController
                         __METHOD__
                     );
 
+                    $this->response->statusCode = 201;
                     return $semester;
                 } else {
                     $transaction->rollBack();

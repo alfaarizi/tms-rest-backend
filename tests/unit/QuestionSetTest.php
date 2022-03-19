@@ -12,7 +12,6 @@ use app\tests\unit\fixtures\TestFixture;
 
 class QuestionSetTest extends \Codeception\Test\Unit
 {
-
     public function _fixtures()
     {
         return [

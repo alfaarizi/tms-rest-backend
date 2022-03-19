@@ -2,9 +2,12 @@
 
 namespace app\modules\instructor\resources;
 
+use app\components\openapi\generators\OAItems;
+use app\components\openapi\generators\OAProperty;
 use app\models\ExamQuestion;
 use app\models\ExamTestInstance;
 use app\resources\UserResource;
+use yii\helpers\ArrayHelper;
 
 class ExamTestInstanceResource extends ExamTestInstance
 {
@@ -28,6 +31,29 @@ class ExamTestInstanceResource extends ExamTestInstance
             'testID',
             'questions'
         ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return ArrayHelper::merge(
+            parent::fieldTypes(),
+            [
+                'userID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+                'testID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+                'testDuration' => new OAProperty(['type' => 'integer']),
+                'questions' => new OAProperty(
+                    [
+                        'type' => 'array',
+                        new OAItems(['ref' => '#/components/schemas/Instructor_ExamTestResource_Read'])]
+                ),
+                'user' => new OAProperty(
+                    [
+                        'type' => 'array',
+                        new OAItems(['ref' => '#/components/schemas/Common_UserResource_Read'])
+                    ]
+                ),
+            ]
+        );
     }
 
     public function getUser()

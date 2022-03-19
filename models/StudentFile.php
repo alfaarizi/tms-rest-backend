@@ -3,6 +3,8 @@
 namespace app\models;
 
 use app\behaviors\ISODateTimeBehavior;
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use Yii;
 use yii\helpers\StringHelper;
 
@@ -27,7 +29,7 @@ use yii\helpers\StringHelper;
  * @property User $uploader
  * @property User $grader
  */
-class StudentFile extends \yii\db\ActiveRecord
+class StudentFile extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     public const SCENARIO_GRADE = 'grade';
 
@@ -101,6 +103,27 @@ class StudentFile extends \yii\db\ActiveRecord
             'graderID' => Yii::t('app', 'Graded By'),
             'errorMsg' => Yii::t('app', 'Error Message'),
             'canvasID' => Yii::t('app', 'Canvas id')
+        ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'name' => new OAProperty(['type' => 'string']),
+            'path' => new OAProperty(['type' => 'string']),
+            'uploadTime' => new OAProperty(['type' => 'string']),
+            'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'uploaderID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'isAccepted' => new OAProperty(['type' => 'string']),
+            'translatedIsAccepted' => new OAProperty(['type' => 'string']),
+            'isVersionControlled' => new OAProperty(['type' => 'string']),
+            'grade' => new OAProperty(['type' => 'number', 'format' => 'float']),
+            'notes' => new OAProperty(['type' => 'string']),
+            'graderID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'errorMsg' => new OAProperty(['type' => 'string']),
+            'canvasID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'groupID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
         ];
     }
 

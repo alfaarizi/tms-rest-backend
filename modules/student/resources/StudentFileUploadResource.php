@@ -2,6 +2,8 @@
 
 namespace app\modules\student\resources;
 
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use Yii;
 use yii\web\UploadedFile;
 
@@ -10,7 +12,7 @@ use yii\web\UploadedFile;
  * @property int $taskID
  * @property UploadedFile $file
  */
-class StudentFileUploadResource extends \yii\base\Model
+class StudentFileUploadResource extends \yii\base\Model implements IOpenApiFieldTypes
 {
     public $taskID;
     public $file;
@@ -55,5 +57,13 @@ class StudentFileUploadResource extends \yii\base\Model
         } else {
             $this->addError('file', Yii::t('app', 'The uploaded archive is corrupted, please retry!'));
         }
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'file' => new OAProperty(['type' => 'string', 'format' => 'binary'])
+        ];
     }
 }

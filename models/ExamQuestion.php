@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -15,7 +17,7 @@ use yii\helpers\ArrayHelper;
  * @property ExamAnswer[] $answers
  * @property ExamQuestionSet $questionSet
  */
-class ExamQuestion extends \yii\db\ActiveRecord
+class ExamQuestion extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     public const SCENARIO_CREATE = 'create';
     public const SCENARIO_UPDATE = 'update';
@@ -58,6 +60,15 @@ class ExamQuestion extends \yii\db\ActiveRecord
             'id' => Yii::t('app', 'ID'),
             'text' => Yii::t('app', 'Text'),
             'questionsetID' => Yii::t('app', 'Questionset ID'),
+        ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['ref' => "#/components/schemas/int_id"]),
+            'text' => new OAProperty(['type' => 'string']),
+            'questionsetID' => new OAProperty(['ref' => "#/components/schemas/int_id"]),
         ];
     }
 

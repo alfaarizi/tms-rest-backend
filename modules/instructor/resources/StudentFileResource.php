@@ -2,9 +2,11 @@
 
 namespace app\modules\instructor\resources;
 
+use app\components\openapi\generators\OAProperty;
 use Yii;
 use app\models\StudentFile;
 use app\resources\UserResource;
+use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
 
 class StudentFileResource extends StudentFile
@@ -43,6 +45,21 @@ class StudentFileResource extends StudentFile
             'grader',
             'task'
         ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return ArrayHelper::merge(
+            parent::fieldTypes(),
+            [
+                'graderName' => new OAProperty(['type' => 'string']),
+                'delay' => new OAProperty(['type' => 'string']),
+                'gitRepo' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
+                'uploader' => new OAProperty(['ref' => '#/components/schemas/Common_UserResource_Read']),
+                'grader' => new OAProperty(['ref' => '#/components/schemas/Common_UserResource_Read']),
+                'task' => new OAProperty(['ref' => '#/components/schemas/Instructor_TaskResource_Read']),
+            ]
+        );
     }
 
     /**

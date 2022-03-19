@@ -42,10 +42,39 @@ class StudentFilesController extends BaseInstructorRestController
     }
 
     /**
+     * List student files for a task
      * @param int $taskID
      * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/student-files/list-for-task",
+     *     operationId="instructor::StudentFilesController::actionListForTask",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="taskID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the task",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_StudentFileResource_Read")),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionListForTask($taskID)
     {
@@ -72,11 +101,43 @@ class StudentFilesController extends BaseInstructorRestController
     }
 
     /**
+     * List student files for a task, then export the list to a spreadsheet
      * @param int $taskID
      * @param string $format
      * @return \yii\web\Response
+     * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     *  @OA\Get(
+     *     path="/instructor/student-files/export-spreadsheet",
+     *     operationId="instructor::StudentFilesController::actionExportSpreadsheet",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="taskID",
+     *        in="query",
+     *        required=true,
+     *        description="ID of the task",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(
+     *        name="format",
+     *        in="query",
+     *        required=true,
+     *        description="Format of the spreadsheet",
+     *        @OA\Schema(type="string", enum={"xls", "csv"}),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionExportSpreadsheet($taskID, $format)
     {
@@ -91,7 +152,7 @@ class StudentFilesController extends BaseInstructorRestController
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
-        // Create dataProvide for studentfiles
+        // Create dataProvide for student files
         $dataProvider = new ActiveDataProvider(
             [
                 'query' => StudentFile::find()->where(['taskID' => $taskID]),
@@ -186,11 +247,48 @@ class StudentFilesController extends BaseInstructorRestController
     }
 
     /**
+     * List student files for a group and a student
      * @param int $groupID
      * @param int $uploaderID
      * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/student-files/list-for-student",
+     *     operationId="instructor::StudentFilesController::actionListForStudent",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="groupID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the group",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(
+     *         name="uploaderID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the student",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_StudentFileResource_Read")),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionListForStudent($groupID, $uploaderID)
     {
@@ -223,10 +321,36 @@ class StudentFilesController extends BaseInstructorRestController
     }
 
     /**
+     * Get information about an uploaded file
      * @param int $id
      * @return StudentFileResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/student-files/{id}",
+     *     operationId="instructor::StudentFilesController::actionView",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the student file",
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_StudentFileResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionView($id)
     {
@@ -245,13 +369,51 @@ class StudentFilesController extends BaseInstructorRestController
     }
 
     /**
-     * Grade solution
+     * Grade solution (update student file)
      * @param int $id
      * @return StudentFileResource|array
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
+     *
+     * @OA\Patch(
+     *     path="/instructor/student-files/{id}",
+     *     operationId="instructor::StudentFilesController::actionUpdate",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the student file",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="updated student file",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_StudentFileResource_ScenarioGrade"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="student file updated",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TestCaseResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(
+     *        response=401,
+     *        description="Unauthorized: missing, invalid or expired access or Canvas token. If Canvas login is required, the Proxy-Authenticate header containains the login URL.",
+     *        @OA\JsonContent(ref="#/components/schemas/Yii2Error"),
+     *    ),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionUpdate($id)
     {
@@ -338,9 +500,32 @@ class StudentFilesController extends BaseInstructorRestController
     }
 
     /**
+     * Download a student file
      * @param int $id
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     *  @OA\Get(
+     *     path="/instructor/student-files/{id}/download",
+     *     operationId="instructor::StudentFilesController::actionDownload",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the file",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionDownload($id)
     {
@@ -363,13 +548,45 @@ class StudentFilesController extends BaseInstructorRestController
 
 
     /**
-     * Sends all solutions of the task zipped to the user browser.
+     * Send all solutions of the task zipped to the client
      * @param int $taskID is the id of the task
      * @param boolean $onlyUngraded select only ungraded solutions to be downloaded
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws \yii\base\Exception
+     *
+     *  @OA\Get(
+     *     path="/instructor/student-files/download-all-files",
+     *     operationId="instructor::StudentFilesController::actionDownloadAllFiles",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="taskID",
+     *        in="query",
+     *        required=true,
+     *        description="ID of the task",
+     *        explode=true,
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(
+     *        name="onlyUngraded",
+     *        in="query",
+     *        required=false,
+     *        description="Collect unrgraded solutions only. Optional parameter, the default value is false",
+     *        explode=true,
+     *        @OA\Schema(type="boolean"),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionDownloadAllFiles($taskID, $onlyUngraded = false)
     {

@@ -2,7 +2,13 @@
 
 namespace app\models;
 
+use app\components\openapi\generators\OAList;
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use Yii;
+use yii\base\NotSupportedException;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
 /**
@@ -30,7 +36,7 @@ use yii\web\IdentityInterface;
  * @property Subscription[] $subscriptions
  * @property StudentFile[] $files
  */
-class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
+class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
 {
     public const SCENARIO_SETTINGS = 'settings';
     private const NOTIFICATION_TARGET = [
@@ -45,6 +51,111 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function tableName()
     {
         return '{{%users}}';
+    }
+
+    /**
+     * Get a 'map' of the supported notification targets and their language-specific translations.
+     *
+     * @param string|null $language the language code (e.g. `en-US`, `en`). If this is null, the current
+     * [[\yii\base\Application::language|application language]] will be used.
+     * @return array An associative array of notification target identifiers and their
+     * language-specific translations.
+     */
+    public static function notificationTargetMap(?string $language = null): array
+    {
+        return array_map(function ($en) use ($language) {
+            return Yii::t('app', $en, [], $language);
+        }, self::NOTIFICATION_TARGET);
+    }
+
+    /**
+     *  Creates or updates a user's details.
+     */
+    public static function createOrUpdate(AuthInterface $authModel)
+    {
+        $user = static::findOne(['neptun' => $authModel->id]);
+
+        // If the user null then create a new one.
+        if ($user == null) {
+            $user = new User();
+            $user->neptun = $authModel->id;
+            $user->locale = Yii::$app->user->locale ?: Yii::$app->language;
+        }
+
+        $user->name = $authModel->name;
+        $user->email = $authModel->email;
+        $user->lastLoginTime = date('Y/m/d H:i:s');
+        $user->lastLoginIP = Yii::$app->request->userIP;
+        $user->save();
+
+        $authManager = Yii::$app->authManager;
+        if ($authModel->isTeacher && !$authManager->checkAccess($user->id, 'faculty')) {
+            $authManager->assign($authManager->getRole('faculty'), $user->id);
+        }
+        if (
+            $authModel->isStudent && !$authManager->checkAccess($user->id, 'student') ||
+            !$authModel->isStudent && !$authModel->isTeacher && !$authManager->checkAccess($user->id, 'student')
+        ) {
+            $authManager->assign($authManager->getRole('student'), $user->id);
+        }
+        if ($authModel->isAdmin && !$authManager->checkAccess($user->id, 'admin')) {
+            $authManager->assign($authManager->getRole('admin'), $user->id);
+        }
+
+        return $user;
+    }
+
+    /**
+     * Get the user corresponding to an email confirmation code.
+     *
+     * @param string $code The confirmation code.
+     * @return static|null The user corresponding to the code, if any.
+     */
+    public static function findByConfirmationCode(string $code): ?User
+    {
+        return static::find()->where(
+            [
+                'and',
+                ['=', 'customEmailConfirmationCode', $code],
+                ['>', 'customEmailConfirmationExpiry', date('Y/m/d H:i:s')]
+            ]
+        )->one();
+    }
+
+    /**
+     * Finds an identity by the given ID.
+     * @param integer $id the ID to be looked for
+     * @return IdentityInterface the identity object that matches the given ID.
+     */
+    public static function findIdentity($id)
+    {
+        return static::findOne($id);
+    }
+
+    /**
+     * Finds an identity by the given token.
+     *
+     * @param mixed $token the token to be looked for
+     * @param mixed $type the type of the token.
+     * @return IdentityInterface the identity object that matches the given token.
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        $accessToken = AccessToken::findOne($token);
+
+        if (is_null($accessToken)) {
+            return null;
+        }
+
+        // Check token validation
+        if ($accessToken->checkValidation()) {
+            // If the token is valid, refresh validation date and return the associated user
+            $accessToken->refreshValidUntil();
+
+            return $accessToken->user;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -97,6 +208,33 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         ];
     }
 
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['type' => 'integer']),
+            'name' => new OAProperty(['type' => 'string']),
+            'neptun' => new OAProperty(['type' => 'string']),
+            'email' => new OAProperty(['type' => 'string']),
+            'customEmail' => new OAProperty(['type' => 'string']),
+            'locale' => new OAProperty(
+                [
+                    'type' => 'string',
+                    'enum' => new OAList(array_keys(Yii::$app->params['supportedLocale']))
+                ]
+            ),
+            'lastLoginTime' => new OAProperty(['type' => 'string']),
+            'lastLoginIP' => new OAProperty(['type' => 'string']),
+            'customEmailConfirmed' => new OAProperty(['type' => 'string']),
+            'customEmailConfirmationCode' => new OAProperty(['type' => 'string']),
+            'customEmailConfirmationExpiry' => new OAProperty(['type' => 'string']),
+            'isAuthenticatedInCanvas' => new OAProperty(['type' => 'string']),
+            'notificationEmail' => new OAProperty(['type' => 'string']),
+            'notificationTarget' => new OAProperty(
+                ['type' => 'string', 'enum' => new OAList(array_keys(self::NOTIFICATION_TARGET))]
+            ),
+        ];
+    }
+
     /**
      * @inheritdoc
      */
@@ -108,22 +246,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * Get a 'map' of the supported notification targets and their language-specific translations.
-     *
-     * @param string|null $language the language code (e.g. `en-US`, `en`). If this is null, the current
-     * [[\yii\base\Application::language|application language]] will be used.
-     * @return array An associative array of notification target identifiers and their
-     * language-specific translations.
-     */
-    public static function notificationTargetMap(?string $language = null): array
-    {
-        return array_map(function ($en) use ($language) {
-            return Yii::t('app', $en, [], $language);
-        }, self::NOTIFICATION_TARGET);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getSubscriptions()
     {
@@ -131,72 +254,20 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getGroups()
     {
         return $this->hasMany(Group::class, ['id' => 'groupID'])
-        ->viaTable('{{%instructor_groups}}', ['userID' => 'id']);
+            ->viaTable('{{%instructor_groups}}', ['userID' => 'id']);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getFiles()
     {
         return $this->hasMany(StudentFile::class, ['uploaderID' => 'id']);
-    }
-
-    /**
-     *  Creates or updates a user's details.
-     */
-    public static function createOrUpdate(AuthInterface $authModel)
-    {
-        $user = static::findOne(['neptun' => $authModel->id]);
-
-        // If the user null then create a new one.
-        if ($user == null) {
-            $user = new User();
-            $user->neptun = $authModel->id;
-            $user->locale = Yii::$app->user->locale ?: Yii::$app->language;
-        }
-
-        $user->name = $authModel->name;
-        $user->email = $authModel->email;
-        $user->lastLoginTime = date('Y/m/d H:i:s');
-        $user->lastLoginIP = Yii::$app->request->userIP;
-        $user->save();
-
-        $authManager = Yii::$app->authManager;
-        if ($authModel->isTeacher && !$authManager->checkAccess($user->id, 'faculty')) {
-            $authManager->assign($authManager->getRole('faculty'), $user->id);
-        }
-        if (
-            $authModel->isStudent && !$authManager->checkAccess($user->id, 'student') ||
-            !$authModel->isStudent && !$authModel->isTeacher && !$authManager->checkAccess($user->id, 'student')
-        ) {
-            $authManager->assign($authManager->getRole('student'), $user->id);
-        }
-        if ($authModel->isAdmin && !$authManager->checkAccess($user->id, 'admin')) {
-            $authManager->assign($authManager->getRole('admin'), $user->id);
-        }
-
-        return $user;
-    }
-
-    /**
-     * Get the user corresponding to an email confirmation code.
-     *
-     * @param string $code The confirmation code.
-     * @return static|null The user corresponding to the code, if any.
-     */
-    public static function findByConfirmationCode(string $code): ?User
-    {
-        return static::find()->where([
-            'and',
-            ['=', 'customEmailConfirmationCode', $code],
-            ['>', 'customEmailConfirmationExpiry', date('Y/m/d H:i:s')]
-        ])->one();
     }
 
     /**
@@ -207,42 +278,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getIsAuthenticatedInCanvas()
     {
         return $this->canvasToken !== null && $this->refreshToken !== null;
-    }
-
-    /**
-     * Finds an identity by the given ID.
-     * @param integer $id the ID to be looked for
-     * @return IdentityInterface the identity object that matches the given ID.
-     */
-    public static function findIdentity($id)
-    {
-        return static::findOne($id);
-    }
-
-    /**
-     * Finds an identity by the given token.
-     *
-     * @param mixed $token the token to be looked for
-     * @param mixed $type the type of the token.
-     * @return IdentityInterface the identity object that matches the given token.
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        $accessToken = AccessToken::findOne($token);
-
-        if (is_null($accessToken)) {
-            return null;
-        }
-
-        // Check token validation
-        if ($accessToken->checkValidation()) {
-            // If the token is valid, refresh validation date and return the associated user
-            $accessToken->refreshValidUntil();
-
-            return $accessToken->user;
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -259,12 +294,12 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      *
      * Not implemented.
      * @return string a key that is used to check the validity of a given identity ID.
-     * @throws \yii\base\NotSupportedException
+     * @throws NotSupportedException
      * @see validateAuthKey()
      */
     public function getAuthKey()
     {
-        throw new \yii\base\NotSupportedException("Cookie-based authentication is not supported yet.");
+        throw new NotSupportedException("Cookie-based authentication is not supported yet.");
     }
 
     /**
@@ -295,7 +330,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                 if ($this->customEmailConfirmed) {
                     return $this->customEmail;
                 }
-                // else fall through
+            // else fall through
             case 'official':
             default:
                 return $this->email;

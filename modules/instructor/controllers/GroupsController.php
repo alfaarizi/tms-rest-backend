@@ -10,12 +10,20 @@ use app\models\Semester;
 use app\models\Subscription;
 use app\models\Task;
 use app\modules\instructor\resources\GroupResource;
+use app\modules\instructor\resources\GroupSubmittedStatsResource;
+use app\modules\instructor\resources\GroupTaskStatsResource;
+use app\modules\instructor\resources\StudentStatsResource;
 use app\resources\AddUsersListResource;
 use app\resources\SemesterResource;
 use app\resources\UserAddErrorResource;
 use app\resources\UserResource;
+use app\resources\UsersAddedResource;
+use Exception;
+use Throwable;
 use Yii;
+use yii\base\ErrorException;
 use yii\data\ActiveDataProvider;
+use yii\db\StaleObjectException;
 use yii\helpers\FileHelper;
 use yii\helpers\VarDumper;
 use yii\web\BadRequestHttpException;
@@ -24,6 +32,39 @@ use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 use app\exceptions\AddFailedException;
+
+/**
+* @OA\PathItem(
+ *   path="/instructor/groups/{id}",
+ *   @OA\Parameter(
+ *      name="id",
+ *      in="path",
+ *      required=true,
+ *      description="ID of the group",
+ *      @OA\Schema(ref="#/components/schemas/int_id"),
+ *   ),
+ * ),
+ * @OA\PathItem(
+ *   path="/instructor/groups/{groupID}/students",
+ *   @OA\Parameter(
+ *      name="groupID",
+ *      in="path",
+ *      required=true,
+ *      description="ID of the group",
+ *      @OA\Schema(ref="#/components/schemas/int_id"),
+ *   ),
+ * ),
+ * @OA\PathItem(
+ *   path="/instructor/groups/{groupID}/instructors",
+ *   @OA\Parameter(
+ *      name="groupID",
+ *      in="path",
+ *      required=true,
+ *      description="ID of the group",
+ *      @OA\Schema(ref="#/components/schemas/int_id"),
+ *   ),
+ * ),
+*/
 
 /**
  * This class provides access to groups for instructors
@@ -54,9 +95,43 @@ class GroupsController extends BaseInstructorRestController
     }
 
     /**
+     * List groups for a course and a semester
      * @param int $semesterID
      * @param int|null $courseID
      * @return ActiveDataProvider
+     *
+     * @OA\Get(
+     *     path="/instructor/groups",
+     *     operationId="instructor::GroupsController::actionIndex",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *     @OA\Parameter(
+     *         name="semesterID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the semester",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(
+     *         name="courseID",
+     *         in="query",
+     *         required=false,
+     *         description="ID of the course (optional)",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_GroupResource_Read")),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionIndex($semesterID, $courseID = null)
     {
@@ -84,6 +159,24 @@ class GroupsController extends BaseInstructorRestController
      * @return GroupResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/groups/{id}",
+     *     operationId="instructor::GroupsController::actionView",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_GroupResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionView($id)
     {
@@ -104,11 +197,35 @@ class GroupsController extends BaseInstructorRestController
     }
 
     /**
-     * Adds a group to a course.
+     * Add a group to a course
      * @return GroupResource|array
      * @throws ForbiddenHttpException
-     * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/groups",
+     *     operationId="instructor::GroupsController::actionCreate",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="new group",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_GroupResource_ScenarioCreate"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="new group created",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_GroupResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionCreate()
     {
@@ -153,21 +270,39 @@ class GroupsController extends BaseInstructorRestController
             } else {
                 throw new yii\db\Exception(Yii::t('app', 'A database error occurred'));
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw new ServerErrorHttpException(Yii::t('app', 'Failed to add group. Message: ') . $e->getMessage());
         }
     }
 
     /**
+     * Delete a group
      * @param int $id
      * @throws BadRequestHttpException
      * @throws ConflictHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws Throwable
+     * @throws StaleObjectException
+     *
+     * @OA\Delete(
+     *     path="/instructor/groups/{id}",
+     *     operationId="instructor::GroupsController::actionDelete",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=204,
+     *         description="group deleted",
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=409, ref="#/components/responses/409"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionDelete($id)
     {
@@ -210,7 +345,7 @@ class GroupsController extends BaseInstructorRestController
             }
         } catch (yii\db\IntegrityException $e) {
             throw new ConflictHttpException(Yii::t('app', 'Failed to remove group. First you should remove the corresponding tasks!'));
-        } catch (yii\base\ErrorException $e) {
+        } catch (ErrorException $e) {
             throw new ServerErrorHttpException(
                 Yii::t('app', 'Failed to remove group. Message: ')
                 . Yii::t('app', 'A database error occurred'));
@@ -218,11 +353,39 @@ class GroupsController extends BaseInstructorRestController
     }
 
     /**
+     * Update a group
      * @param int $id
      * @return GroupResource|array
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     *
+     * @OA\Put(
+     *    path="/instructor/groups/{id}",
+     *    operationId="instructor::GroupsController::actionUpdate",
+     *    tags={"Instructor Groups"},
+     *    security={{"bearerAuth":{}}},
+     *    @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *    @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *    @OA\RequestBody(
+     *        description="updated group",
+     *        @OA\MediaType(
+     *            mediaType="application/json",
+     *            @OA\Schema(ref="#/components/schemas/Instructor_GroupResource_ScenarioUpdate"),
+     *        )
+     *    ),
+     *    @OA\Response(
+     *        response=200,
+     *        description="group updated",
+     *        @OA\JsonContent(ref="#/components/schemas/Instructor_GroupResource_Read"),
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionUpdate($id)
     {
@@ -261,14 +424,41 @@ class GroupsController extends BaseInstructorRestController
     }
 
     /**
+     * Duplicate a group
      * @param int $id
      * @return GroupResource
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
-     * @throws \yii\base\ErrorException
+     * @throws ErrorException
      * @throws \yii\db\Exception
+     *
+     * @OA\Post(
+     *     path="/instructor/groups/{id}/duplicate",
+     *     tags={"Instructor Groups"},
+     *     operationId="instructor::GroupsController::actionDuplicate",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the group",
+     *        @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="group duplicated",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_GroupResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionDuplicate($id)
     {
@@ -354,11 +544,11 @@ class GroupsController extends BaseInstructorRestController
             } else {
                 throw new ServerErrorHttpException('Failed to save group:' . VarDumper::dumpAsString($group->firstErrors));
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $transaction->rollBack();
 
             foreach ($directoryPaths as $dir) {
-                FileHelper::removeDirectory($dir);;
+                FileHelper::removeDirectory($dir);
             }
 
             throw $e;
@@ -366,11 +556,30 @@ class GroupsController extends BaseInstructorRestController
     }
 
     /**
-     * Lists instructors for the given group
+     * List instructors for the given group
      * @param int $groupID
      * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/groups/{groupID}/instructors",
+     *     operationId="instructor::GroupsController::actionListInstructors",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Common_UserResource_Read")),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionListInstructors($groupID)
     {
@@ -396,11 +605,37 @@ class GroupsController extends BaseInstructorRestController
     }
 
     /**
+     * Add instructors to a group
      * @param $groupID
-     * @return array|array[]
+     * @return array|UsersAddedResource
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/groups/{groupID}/instructors",
+     *     operationId="instructor::GroupsController::actionAddInstructors",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         description="list of instructors",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Common_AddUsersListResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=207,
+     *         description="multistatus result",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_UsersAddedResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionAddInstructors($groupID)
     {
@@ -437,7 +672,10 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Process the received list and saves them one by one.
-     * @param array|mixed $instructors is the list of (int) id or the (string) Neptun code of the instructor.
+     * @param $neptunCodes
+     * @param $groupID
+     * @return UsersAddedResource
+     * @throws Exception
      */
     private function processInstructors($neptunCodes, $groupID)
     {
@@ -494,22 +732,52 @@ class GroupsController extends BaseInstructorRestController
         // Send mass email notifications
         Yii::$app->mailer->sendMultiple($messages);
 
-        return [
-            'addedUsers' => $users,
-            'failed' => $failed
-        ];
+        $result = new UsersAddedResource();
+        $result->addedUsers = $users;
+        $result->failed = $failed;
+        return $result;
     }
 
     /**
-     * Removes the selected instructor from a the selected group.
+     * Remove an instructor from a group
      * @param int $groupID
      * @param int $userID
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws Throwable
+     * @throws StaleObjectException
+     *
+     * @OA\Delete(
+     *     path="/instructor/groups/{groupID}/instructors/{userID}",
+     *     operationId="instructor::GroupsController::actionDeleteInstructor",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *           name="groupID",
+     *           in="path",
+     *           required=true,
+     *           description="ID of the group",
+     *           @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(
+     *          name="userID",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the instructor",
+     *          @OA\Schema(ref="#/components/schemas/int_id"),
+     *    ),
+     *    @OA\Response(
+     *         response=204,
+     *         description="instructor deleted from the group",
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionDeleteInstructor($groupID, $userID)
     {
@@ -550,11 +818,30 @@ class GroupsController extends BaseInstructorRestController
     }
 
     /**
-     * Lists students for the given group
+     * List students for the given group
      * @param int $groupID
      * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/groups/{groupID}/students",
+     *     operationId="instructor::GroupsController::actionListStudents",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Common_UserResource_Read")),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionListStudents($groupID)
     {
@@ -579,6 +866,38 @@ class GroupsController extends BaseInstructorRestController
         );
     }
 
+    /**
+     * Add students to a group
+     * @param $groupID
+     * @return array|UsersAddedResource
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/groups/{groupID}/students",
+     *     operationId="instructor::GroupsController::actionAddStudents",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         description="list of students",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Common_AddUsersListResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=207,
+     *         description="multistatus result",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_UsersAddedResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
     public function actionAddStudents($groupID)
     {
         $group = GroupResource::findOne($groupID);
@@ -621,6 +940,7 @@ class GroupsController extends BaseInstructorRestController
      * Process the received list and saves them one by one.
      * @param array $neptunCodes
      * @param GroupResource $group
+     * @return UsersAddedResource
      */
     private function processStudents($neptunCodes, $group)
     {
@@ -689,22 +1009,52 @@ class GroupsController extends BaseInstructorRestController
         // Send mass email notifications
         Yii::$app->mailer->sendMultiple($messages);
 
-        return [
-            'addedUsers' => $users,
-            'failed' => $failed
-        ];
+        $result = new UsersAddedResource();
+        $result->addedUsers = $users;
+        $result->failed = $failed;
+        return $result;
     }
 
     /**
-     * Removes the selected student from a the selected group.
+     * Removes a student from a group
      * @param int $groupID
      * @param int $userID
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws Throwable
+     * @throws StaleObjectException
+     *
+     * @OA\Delete(
+     *     path="/instructor/groups/{groupID}/students/{userID}",
+     *     operationId="instructor::GroupsController::actionDeleteStudent",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *           name="groupID",
+     *           in="path",
+     *           required=true,
+     *           description="ID of the group",
+     *           @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(
+     *          name="userID",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the student",
+     *          @OA\Schema(ref="#/components/schemas/int_id"),
+     *    ),
+     *    @OA\Response(
+     *         response=204,
+     *         description="student deleted from the group",
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionDeleteStudent($groupID, $userID)
     {
@@ -767,11 +1117,34 @@ class GroupsController extends BaseInstructorRestController
     }
 
     /**
-     * Getting mandatory data for student statistics.
+     * Get mandatory data for group statistics
      * @param int $groupID is the id of the group.
      * @return array
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *    path="/instructor/groups/{groupID}/stats",
+     *    operationId="instructor::GroupsController::actionGroupStats",
+     *    tags={"Instructor Groups"},
+     *    security={{"bearerAuth":{}}},
+     *    @OA\Parameter(
+     *        name="groupID",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the group",
+     *        @OA\Schema(ref="#/components/schemas/int_id")
+     *    ),
+     *    @OA\Response(
+     *       response=200,
+     *       description="successful operation",
+     *       @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_GroupTaskStatsResource_Read")),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionGroupStats($groupID)
     {
@@ -813,38 +1186,69 @@ class GroupsController extends BaseInstructorRestController
                     }
                 }
                 if (!is_null($studentFile->grade)) {
-                    array_push($groupScores, $studentFile->grade);
+                    $groupScores[] = $studentFile->grade;
                 }
             }
 
             $submittedMissed = 0;
-            if ($task->hardDeadline < date('Y-m-d H:i:s')) {
+            if (strtotime($task->hardDeadline) < time()) {
                 $submittedMissed = $submittedNot;
             }
 
-            $taskArray = [
-                "taskID" => $task->id,
-                "name" => $task->name,
-                "points" => $groupScores,
-                "submitted" => [
-                    "intime" => (int)$submittedInTime,
-                    "delayed" => (int)$submittedDelayed,
-                    "missed" => (int)$submittedMissed
-                ]
-            ];
-            array_push($stats, $taskArray);
+            $submitted = new GroupSubmittedStatsResource();
+            $submitted->intime = (int)$submittedInTime;
+            $submitted->delayed = (int)$submittedDelayed;
+            $submitted->missed = (int)$submittedMissed;
+
+            $taskStats = new GroupTaskStatsResource();
+            $taskStats->taskID = $task->id;
+            $taskStats->name = $task->name;
+            $taskStats->points = $groupScores;
+            $taskStats->submitted = $submitted;
+
+            $stats[] = $taskStats;
         }
 
         return $stats;
     }
 
     /**
-     * Getting mandatory data for student statistics.
+     * Get mandatory data for student statistics
      * @param int $groupID is the id of the group.
      * @param int $studentID is the id of the student.
      * @return array
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/groups/{groupID}/students/{studentID}/stats",
+     *     operationId="instructor::GroupsController::actionStudentStats",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="groupID",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the group",
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(
+     *         name="studentID",
+     *         in="path",
+     *         required=true,
+     *         description="userID of the student",
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_StudentStatsResource_Read")),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionStudentStats($groupID, $studentID)
     {
@@ -877,20 +1281,21 @@ class GroupsController extends BaseInstructorRestController
                     $submittingTime = $studentFile->uploadTime;
                 }
                 if ($studentFile->grade != null) {
-                    array_push($groupScores, $studentFile->grade);
+                    $groupScores[] = $studentFile->grade;
                 }
             }
-            $taskArray = [
-                "taskID" => $task->id,
-                "name" => $task->name,
-                "submittingTime" => $submittingTime,
-                "softDeadLine" => $task->softDeadline,
-                "hardDeadLine" => $task->hardDeadline,
-                "user" => $userScore,
-                "username" => $student->name,
-                "group" => $groupScores
-            ];
-            array_push($stats, $taskArray);
+
+            $studentStats = new StudentStatsResource();
+            $studentStats->taskID = $task->id;
+            $studentStats->name = $task->name;
+            $studentStats->submittingTime = $submittingTime;
+            $studentStats->softDeadLine = $task->softDeadline;
+            $studentStats->hardDeadLine = $task->hardDeadline;
+            $studentStats->user = $userScore;
+            $studentStats->username = $student->name;
+            $studentStats->group = $groupScores;
+
+            $stats[] = $studentStats;
         }
 
         return $stats;

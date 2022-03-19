@@ -8,7 +8,6 @@ use app\tests\unit\fixtures\AnswerFixture;
 
 class AnswerTest extends \Codeception\Test\Unit
 {
-
     public function _fixtures()
     {
         return [

@@ -6,6 +6,7 @@ use app\models\Group;
 use Yii;
 use app\models\InstructorCourse;
 use app\resources\CourseResource;
+use yii\data\ArrayDataProvider;
 
 /**
  * This class provides access to courses for instructors
@@ -26,7 +27,47 @@ class CoursesController extends BaseInstructorRestController
      * Lists available courses for the current user
      * @param bool $instructor
      * @param bool $forGroups
-     * @return array
+     * @return ArrayDataProvider
+     *
+     *  @OA\Get(
+     *     path="/instructor/courses",
+     *     operationId="instructor::CoursesController::actionIndex",
+     *     tags={"Instructor Courses"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Parameter(
+     *         name="instuctor",
+     *         in="query",
+     *         required=false,
+     *         description="List courses where the current user is a lecturer",
+     *         explode=true,
+     *         @OA\Schema(
+     *             type="boolean",
+     *             default=true
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="forGroups",
+     *         in="query",
+     *         required=false,
+     *         description="List courses where the current user is a group instructor",
+     *         explode=true,
+     *         @OA\Schema(
+     *             type="boolean",
+     *             default=false
+     *         )
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Common_CourseResource_Read")),
+     *     ),
+     *     @OA\Response(response=401, ref="#/components/responses/401"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionIndex($instructor = true, $forGroups = false)
     {
@@ -57,6 +98,10 @@ class CoursesController extends BaseInstructorRestController
             $courseList[] = $course;
         }
 
-        return $courseList;
+        return new ArrayDataProvider([
+            'allModels' => $courseList,
+            'modelClass' => CourseResource::class,
+            'pagination' => false
+        ]);
     }
 }

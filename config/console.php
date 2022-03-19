@@ -21,7 +21,7 @@ $config = [
         'mailer' => $mailer,
         'urlManager' => [
             'class' => 'yii\web\UrlManager',
-            'baseUrl' => $params['consoleUrl'],
+            'baseUrl' => $params['backendUrl'],
             // Hide index.php
             'showScriptName' => false,
             // Use pretty URLs
@@ -78,6 +78,17 @@ $config = [
                 ],
             ],
         ],
+        'swagger' => [
+            'class' => 'app\components\openapi\SchemaGenerator',
+            'outputDir' => '@app/runtime/openapi-schemas/',
+            // Scanned namespaces
+            'namespaces' => [
+                // Prefix => Namespace
+                'Common' => 'app\\resources',
+                'Student' => 'app\\modules\\student\\resources',
+                'Instructor' => 'app\\modules\\instructor\\resources',
+            ],
+        ]
     ],
     'params' => $params,
     'controllerMap' => [

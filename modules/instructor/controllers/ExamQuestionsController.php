@@ -39,10 +39,39 @@ class ExamQuestionsController extends BaseInstructorRestController
     }
 
     /**
+     * Get questions from a question set
      * @param int $questionsetID
      * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/exam-questions/list-for-set",
+     *     operationId="instructor::ExamQuestonsController::actionListForSet",
+     *     tags={"Instructor Exam Questions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="questionsetID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the question set",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_ExamQuestionResource_Read")),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionListForSet($questionsetID)
     {
@@ -76,13 +105,51 @@ class ExamQuestionsController extends BaseInstructorRestController
     }
 
     /**
-     * Lists questions for the given test
+     * Get questions for a test.
+     * List questions for the given test (and for a user, if the test instances are unique for the given test).
      * @param int $testID
      * @param int|null $userID required when the test instances are unique
      * @return ActiveDataProvider|array
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/exam-questions/list-for-test",
+     *     operationId="instructor::ExamQuestonsController::actionListForTest",
+     *     tags={"Instructor Exam Questions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="testID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the test",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(
+     *         name="userID",
+     *         in="query",
+     *         required=false,
+     *         description="ID of the user (required if the test instances are unique)",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_ExamQuestionResource_Read")),
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionListForTest($testID, $userID = null)
     {
@@ -129,10 +196,35 @@ class ExamQuestionsController extends BaseInstructorRestController
     }
 
     /**
-     * Create question
+     * Create a question
      * @return ExamQuestionResource|array
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/exam-questions",
+     *     operationId="instructor::ExamQuestonsController::actionCreate",
+     *     tags={"Instructor Exam Questions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="new question",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_ExamQuestionResource_ScenarioCreate"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="new question created",
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_ExamQuestionResource_Read")),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionCreate()
     {
@@ -175,6 +267,41 @@ class ExamQuestionsController extends BaseInstructorRestController
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
+     * @throws ConflictHttpException
+     *
+     * @OA\Put(
+     *     path="/instructor/exam-questions/{id}",
+     *     operationId="instructor::ExamQuestonsController::actionUpdate",
+     *     tags={"Instructor Exam Questions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the question",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="updated question",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_ExamQuestionResource_ScenarioUpdate"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="question updated",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_ExamQuestionResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=409, ref="#/components/responses/409"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
      */
     public function actionUpdate($id)
     {
@@ -221,14 +348,38 @@ class ExamQuestionsController extends BaseInstructorRestController
     }
 
     /**
+     * Delete a question
      * @param int $id
-     * @return void|ActiveDataProvider
+     * @return void
      * @throws ConflictHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
      * @throws Throwable
      * @throws StaleObjectException
+     *
+     * @OA\Delete(
+     *     path="/instructor/exam-questions/{id}",
+     *     operationId="instructor::ExamQuestonsController::actionDelete",
+     *     tags={"Instructor Exam Questions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the question",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="question deleted",
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=409, ref="#/components/responses/409"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionDelete($id)
     {

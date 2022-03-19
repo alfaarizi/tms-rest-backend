@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\LdapAuth;
 use app\resources\LdapLoginResource;
+use app\resources\LoginResponseResource;
 use app\resources\SemesterResource;
 use app\resources\UserInfoResource;
 use Yii;
@@ -47,6 +48,32 @@ class AuthController extends BaseRestController
         );
     }
 
+    /**
+     * Authenticate with LDAP
+     * @return LoginResponseResource|array
+     * @throws \yii\base\Exception
+     * @throws \yii\base\NotSupportedException
+     *
+     * @OA\Post(
+     *     path="/common/auth/ldap-login",
+     *     tags={"Common Auth"},
+     *     operationId="common::AuthController::actionLdapLogin",
+     *     @OA\RequestBody(
+     *         description="Ldap login data",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Common_LdapLoginResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful login",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_LoginResponseResource_Read"),
+     *     ),
+     *     @OA\Response(response=422, ref="#/components/responses/422"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     */
     public function actionLdapLogin()
     {
         // Show login form
@@ -74,11 +101,12 @@ class AuthController extends BaseRestController
             Yii::info("$user->name ($user->neptun) logged in", __METHOD__);
             $accessToken = AccessToken::createForUser($user);
             $accessToken->save();
-            return [
-                'accessToken' => $accessToken->token,
-                'imageToken' => $accessToken->imageToken,
-                'userInfo' => $this->getUserInfo($user->id)
-            ];
+
+            $loginResponse = new LoginResponseResource();
+            $loginResponse->accessToken = $accessToken->token;
+            $loginResponse->imageToken = $accessToken->imageToken;
+            $loginResponse->userInfo =  $this->getUserInfo($user->id);
+            return $loginResponse;
         } else {
             Yii::info("Failed login: $model->username", __METHOD__);
             $model->addError('password', Yii::t('app', 'Invalid username or password'));
@@ -88,16 +116,38 @@ class AuthController extends BaseRestController
     }
 
     /**
-     * Development env only
-     * @return array
+     * Mocked login for development mode
+     * @return LoginResponseResource|array
      * @throws HttpException
      * @throws BadRequestHttpException
+     * @throws \yii\base\Exception
+     *
+     * @OA\Post(
+     *     path="/common/auth/mock-login",
+     *     tags={"Common Auth"},
+     *     operationId="common::AuthController::actionMockLogin",
+     *     @OA\RequestBody(
+     *         description="Mock login data",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Common_MockLoginResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful login",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_LoginResponseResource_Read"),
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400"),
+     *     @OA\Response(response=422, ref="#/components/responses/422"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionMockLogin()
     {
         // No mocked login in production mode.
         if (YII_ENV_PROD) {
-            throw new BadRequestHttpException(Yii::t('app', 'Mock login is not allowed in production mode!'));
+            throw new BadRequestHttpException(Yii::t('app', 'This action is not allowed in the current environment!'));
         }
 
         $model = new MockLoginResource();
@@ -127,15 +177,30 @@ class AuthController extends BaseRestController
         $accessToken->save();
         Yii::info("$user->name ($user->neptun) logged in", __METHOD__);
 
-        return [
-            'accessToken' => $accessToken->token,
-            'imageToken' => $accessToken->imageToken,
-            'userInfo' => $this->getUserInfo($user->id)
-        ];
+        $loginResponse = new LoginResponseResource();
+        $loginResponse->accessToken = $accessToken->token;
+        $loginResponse->imageToken = $accessToken->imageToken;
+        $loginResponse->userInfo =  $this->getUserInfo($user->id);
+        return $loginResponse;
     }
 
     /**
+     * Get the information about the current user
      * @return UserInfoResource
+     *
+     * @OA\Get (
+     *     path="/common/auth/user-info",
+     *     tags={"Common Auth"},
+     *     operationId="common::AuthController::actionUserInfo",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_UserInfoResource_Read"),
+     *     ),
+     *     @OA\Response(response=401, ref="#/components/responses/401"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionUserInfo()
     {
@@ -163,10 +228,6 @@ class AuthController extends BaseRestController
         $this->response->statusCode = 204;
     }
 
-    /**
-     * @param int $userID
-     * @return UserInfoResource
-     */
     private function getUserInfo($userID)
     {
         $user = User::findOne($userID);
@@ -189,7 +250,19 @@ class AuthController extends BaseRestController
     }
 
     /**
-     * Removes the currently used token
+     * Remove the currently used token
+     * @OA\Post(
+     *     path="/common/auth/logout",
+     *     tags={"Common Auth"},
+     *     operationId="common::AuthController::actionLogout",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=204,
+     *         description="successful logout",
+     *     ),
+     *     @OA\Response(response=401, ref="#/components/responses/401"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionLogout()
     {
@@ -200,7 +273,19 @@ class AuthController extends BaseRestController
     }
 
     /**
-     * Removes all tokens for the current user
+     * Remove all tokens for the current user
+     * @OA\Post(
+     *     path="/common/auth/logout-from-all",
+     *     tags={"Common Auth"},
+     *     operationId="common::AuthController::actionLogoutFromAll",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=204,
+     *         description="successful logout",
+     *     ),
+     *     @OA\Response(response=401, ref="#/components/responses/401"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionLogoutFromAll()
     {

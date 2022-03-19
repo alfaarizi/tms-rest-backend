@@ -2,13 +2,18 @@
 
 namespace app\modules\student\resources;
 
+use app\components\openapi\generators\OAItems;
+use app\components\openapi\generators\OAProperty;
+use app\models\Task;
 use Yii;
+use yii\db\ActiveQuery;
+use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
 
 /**
  * Resource class for module 'Task'
  */
-class TaskResource extends \app\models\Task
+class TaskResource extends Task
 {
     public function fields()
     {
@@ -36,6 +41,29 @@ class TaskResource extends \app\models\Task
         ];
     }
 
+    public function fieldTypes(): array
+    {
+        return ArrayHelper::merge(
+            parent::fieldTypes(),
+            [
+                'creatorName' => new OAProperty(['type' => 'string']),
+                'gitInfo' => new OAProperty(['type' => 'object']),
+                'studentFiles' => new OAProperty(
+                    [
+                        'type' => 'array',
+                        new OAItems(['ref' => '#/components/schemas/Student_StudentFileResource_Read'])
+                    ]
+                ),
+                'instructorFiles' => new OAProperty(
+                    [
+                        'type' => 'array',
+                        new OAItems(['ref' => '#/components/schemas/Student_InstructorFileResource_Read'])
+                    ]
+                ),
+            ]
+        );
+    }
+
     public function getInstructorFiles()
     {
         return $this->hasMany(InstructorFileResource::class, ['taskID' => 'id'])
@@ -44,7 +72,7 @@ class TaskResource extends \app\models\Task
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getStudentFiles()
     {
@@ -54,7 +82,8 @@ class TaskResource extends \app\models\Task
     /**
      * @return string
      */
-    public function getCreatorName() {
+    public function getCreatorName()
+    {
         return $this->group->isExamGroup ? '' : parent::getCreatorName();
     }
 
@@ -65,10 +94,14 @@ class TaskResource extends \app\models\Task
     {
         if (Yii::$app->params['versionControl']['enabled'] && $this->isVersionControlled) {
             // Search for random string id directory
-            $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $this->id . '/' . strtolower(Yii::$app->user->identity->neptun) . '/';
+            $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $this->id . '/' . strtolower(
+                    Yii::$app->user->identity->neptun
+                ) . '/';
             $dirs = FileHelper::findDirectories($path, ['recursive' => false]);
             rsort($dirs);
-            $path =  Yii::$app->request->hostInfo . Yii::$app->params['versionControl']['basePath'] . '/' . $this->id . '/' . strtolower(Yii::$app->user->identity->neptun) . '/' . basename($dirs[0]);
+            $path = Yii::$app->request->hostInfo . Yii::$app->params['versionControl']['basePath'] . '/' . $this->id . '/' . strtolower(
+                    Yii::$app->user->identity->neptun
+                ) . '/' . basename($dirs[0]);
             $usage = 'git clone ' . $path;
 
             return [

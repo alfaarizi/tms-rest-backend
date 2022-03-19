@@ -11,19 +11,35 @@ use app\models\Subscription;
 use app\models\Task;
 use app\models\TestCase;
 use app\modules\instructor\resources\GroupResource;
-use app\modules\instructor\resources\SetupAutoTester;
+use app\modules\instructor\resources\SetupAutoTesterResource;
 use app\modules\instructor\resources\TaskResource;
+use app\modules\instructor\resources\TesterFormDataResource;
 use app\resources\SemesterResource;
 use app\resources\UserResource;
 use Yii;
 use yii\base\ErrorException;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use yii\helpers\FileHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 use yii\web\UploadedFile;
+
+
+/**
+ * @OA\PathItem(
+ *   path="/instructor/tasks/{id}",
+ *   @OA\Parameter(
+ *      name="id",
+ *      in="path",
+ *      required=true,
+ *      description="ID of the task",
+ *      @OA\Schema(ref="#/components/schemas/int_id")
+ *   ),
+ * )
+ */
 
 /**
  * This class provides access to tasks for instructors
@@ -53,10 +69,42 @@ class TasksController extends BaseInstructorRestController
     }
 
     /**
+     * List tasks for the given group
      * @param int $groupID
      * @return ActiveDataProvider[]
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/tasks",
+     *     operationId="instructor::TasksController::actionIndex",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="groupID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the group",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *        @OA\JsonContent(
+     *          type="array",
+     *          @OA\Items(type="array", @OA\Items(ref="#/components/schemas/Instructor_TaskResource_Read"))
+     *        ),
+     *    ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionIndex($groupID)
     {
@@ -91,6 +139,31 @@ class TasksController extends BaseInstructorRestController
         return $dataProviders;
     }
 
+    /**
+     * View Task
+     * @param $id
+     * @return TaskResource
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/tasks/{id}",
+     *     operationId="instructor::TasksController::actionView",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TaskResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     */
     public function actionView($id)
     {
         $task = TaskResource::findOne($id);
@@ -110,10 +183,37 @@ class TasksController extends BaseInstructorRestController
     }
 
     /**
+     * Create a new task
      * @return TaskResource|array
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
      * @throws BadRequestHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/tasks",
+     *     operationId="instructor::TasksController::actionCreate",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="new task",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_TaskResource_ScenarioCreate"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="new task created",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TaskResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionCreate()
     {
@@ -156,7 +256,6 @@ class TasksController extends BaseInstructorRestController
         // Create remote repository for everybody in the group if the task is version controlled
         if (Yii::$app->params['versionControl']['enabled'] && $task->isVersionControlled) {
             foreach ($task->group->subscriptions as $subcription) {
-                //$this->createRepositories($task->id, $subcription->user, $task->hardDeadline);
                 GitManager::createRepositories($task->id, $subcription->user, $task->hardDeadline);
             }
         }
@@ -196,12 +295,40 @@ class TasksController extends BaseInstructorRestController
     }
 
     /**
+     * Update a task
      * @param int $id
      * @return TaskResource|array
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
+     *
+     * @OA\Put(
+     *     path="/instructor/tasks/{id}",
+     *     operationId="instructor::TasksController::actionUpdate",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="updated task",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_TaskResource_ScenarioUpdate"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="task updated",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TaskResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionUpdate($id)
     {
@@ -298,6 +425,7 @@ class TasksController extends BaseInstructorRestController
     }
 
     /**
+     * Remove a task
      * @param int $id
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
@@ -305,6 +433,22 @@ class TasksController extends BaseInstructorRestController
      * @throws ServerErrorHttpException
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
+     *
+     * @OA\Delete(
+     *     path="/instructor/tasks/{id}",
+     *     operationId="instructor::TasksController::actionDelete",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=204,
+     *         description="task deleted",
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionDelete($id)
     {
@@ -386,12 +530,58 @@ class TasksController extends BaseInstructorRestController
     }
 
     /**
-     * This action is mainly used in plagiarism check form
+     * Filter tasks by courseID and semester.
+     * This action is mainly used in plagiarism check form.
      * @param int|string $courseID
      * @param mixed $myTasks
      * @param int $semesterFromID
      * @param int $semesterToID
      * @return ActiveDataProvider
+     *
+     * @OA\Get (
+     *     path="/instructor/tasks/list-for-course",
+     *     operationId="instructor::TasksController::actionListForCourse",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="courseID",
+     *        in="query",
+     *        required=true,
+     *        description="ID of the course",
+     *        @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(
+     *        name="myTasks",
+     *        in="query",
+     *        required=true,
+     *        description="Show tasks only for the current user",
+     *        @OA\Schema(type="boolean")
+     *     ),
+     *     @OA\Parameter(
+     *        name="semesterFromID",
+     *        in="query",
+     *        required=true,
+     *        description="ID of the first semester",
+     *        @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(
+     *        name="semesterToID",
+     *        in="query",
+     *        required=true,
+     *        description="ID of the last semester",
+     *        @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="tasks listed",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TaskResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionListForCourse($courseID, $myTasks, $semesterFromID, $semesterToID)
     {
@@ -402,7 +592,7 @@ class TasksController extends BaseInstructorRestController
         }
         if ($myTasks) {
             $groupQuery = $groupQuery->joinWith('instructorGroups')->andWhere(
-                ['userID' => $userID = Yii::$app->user->id]
+                ['userID' => Yii::$app->user->id]
             );
         }
 
@@ -413,20 +603,9 @@ class TasksController extends BaseInstructorRestController
             $groupQuery->all()
         );
 
-        if ($semesterToID === $semesterFromID) {
-            $semester = ['semesterID' => $semesterToID];
-        } else {
-            $semester = [
-                'between',
-                'semesterID',
-                $semesterFromID,
-                $semesterToID
-            ];
-        }
-
         $taskQuery = TaskResource::find()
-            ->where(['groupID' => $instIds])
-            ->andWhere($semester);
+            ->andWhere(['groupID' => $instIds])
+            ->semesterInterval($semesterFromID, $semesterToID);
 
         return new ActiveDataProvider(
             [
@@ -437,19 +616,53 @@ class TasksController extends BaseInstructorRestController
     }
 
     /**
-     * @return array
+     * List students for the given task ids
+     * @return ArrayDataProvider
+     * @throws NotFoundHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/tasks/list-users",
+     *     operationId="instructor::TasksController::actionListUsers",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
+     *     @OA\RequestBody(
+     *         description="list of userIDs",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                  @OA\Property(property="ids", type="array", @OA\Items(ref="#/components/schemas/int_id")),
+     *             ),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="users",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_UserResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionListUsers()
     {
         $values = Yii::$app->request->post('ids', []);
         $studentsMap = [];
 
-        // Process each task by there id.
+        // Process each task by their id.
         foreach ($values as $id) {
-            $groupID = Task::findOne($id)->groupID;
+            $task = TaskResource::findOne($id);
+            if (is_null($task)) {
+                throw new NotFoundHttpException(
+                    Yii::t('app', 'Task not found.') . " (taskID: $id)"
+                );
+            }
 
             // Combine all the found user, filter unique users
-            foreach (Subscription::findAll(['groupID' => $groupID]) as $subscription) {
+            foreach (Subscription::findAll(['groupID' => $task->groupID]) as $subscription) {
                 $user = $subscription->user;
                 $studentsMap[$user->id] = new UserResource($user);
             }
@@ -461,9 +674,50 @@ class TasksController extends BaseInstructorRestController
             $studentsList[] = $student;
         }
 
-        return $studentsList;
+        return new ArrayDataProvider(
+            [
+                'modelClass' => UserResource::class,
+                'allModels' => $studentsList,
+                'pagination' => false,
+            ]
+        );
     }
 
+    /**
+     * Turn auto tester on or off for the given task
+     * @param $id
+     * @return TaskResource
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     *
+     * @OA\Patch(
+     *     path="/instructor/tasks/{id}/toggle-auto-tester",
+     *     operationId="instructor::TasksController::actionToggleAutoTester",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the task",
+     *          @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="task updated",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TaskResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     */
     public function actionToggleAutoTester($id)
     {
         if (!Yii::$app->params['evaluator']['enabled']) {
@@ -496,11 +750,12 @@ class TasksController extends BaseInstructorRestController
                 Yii::t('app', 'Failed to save task. Message: ') . Yii::t('app', 'A database error occurred')
             );
         }
+
         return $task;
     }
 
     /**
-     * Updates auto tester for a task.
+     * Updates auto tester for a task
      *
      * @param int $id the id of the task
      * @return TaskResource|array
@@ -510,6 +765,39 @@ class TasksController extends BaseInstructorRestController
      * @throws ServerErrorHttpException
      * @throws ErrorException
      *
+     * @OA\Post(
+     *     path="/instructor/tasks/{id}/setup-auto-tester",
+     *     operationId="instructor::TasksController::actionSetupAutoTester",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the task",
+     *          @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="tester data task",
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_SetupAutoTesterResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="updated task",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TaskResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionSetupAutoTester($id)
     {
@@ -537,7 +825,7 @@ class TasksController extends BaseInstructorRestController
             );
         }
 
-        $setupData = new SetupAutoTester();
+        $setupData = new SetupAutoTesterResource();
         $setupData->load(Yii::$app->request->post(), '');
         $setupData->files = UploadedFile::getInstancesByName('files');
 
@@ -613,11 +901,38 @@ class TasksController extends BaseInstructorRestController
     }
 
     /**
-     * Provides data for autotester setup
+     * Provides data for auto tester setup
      * @param int $id
-     * @return array
+     * @return TesterFormDataResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/tasks/{id}/tester-form-data",
+     *     operationId="instructor::TasksController::actionTesterFormData",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the task",
+     *          @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="updated task",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TesterFormDataResource_Read"),
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400"),
+     *     @OA\Response(response=401, ref="#/components/responses/401"),
+     *     @OA\Response(response=403, ref="#/components/responses/403"),
+     *     @OA\Response(response=404, ref="#/components/responses/404"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionTesterFormData($id)
     {
@@ -647,10 +962,10 @@ class TasksController extends BaseInstructorRestController
             }
         }
 
-        return [
-            'templates' => $templates,
-            'osMap' => $osMap,
-            'imageSuccessfullyBuilt' => AssignmentTester::alreadyBuilt($task->imageName, Yii::$app->params['evaluator'][$task->testOS])
-        ];
+        $response = new TesterFormDataResource();
+        $response->templates = $templates;
+        $response->osMap = $osMap;
+        $response->imageSuccessfullyBuilt = AssignmentTester::alreadyBuilt($task->imageName, Yii::$app->params['evaluator'][$task->testOS]);
+        return $response;
     }
 }

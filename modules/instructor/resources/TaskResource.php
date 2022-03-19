@@ -2,7 +2,11 @@
 
 namespace app\modules\instructor\resources;
 
+use app\components\openapi\generators\OAItems;
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use app\resources\SemesterResource;
+use yii\helpers\ArrayHelper;
 
 /**
  * Resource class for module 'Task'
@@ -41,6 +45,29 @@ class TaskResource extends \app\models\Task
             'group',
             'semester'
         ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return ArrayHelper::merge(
+            parent::fieldTypes(),
+            [
+                'studentFiles' => new OAProperty(
+                    [
+                        'type' => 'array',
+                        new OAItems(['ref' => '#/components/schemas/Instructor_StudentFileResource_Read'])
+                    ]
+                ),
+                'instructorFiles' => new OAProperty(
+                    [
+                        'type' => 'array',
+                        new OAItems(['ref' => '#/components/schemas/Instructor_InstructorFileResource_Read'])
+                    ]
+                ),
+                'group' => new OAProperty(['ref' => '#/components/schemas/Instructor_GroupResource_Read']),
+                'semester' => new OAProperty(['ref' => '#/components/schemas/Common_SemesterResource_Read']),
+            ]
+        );
     }
 
     public function getInstructorFiles()

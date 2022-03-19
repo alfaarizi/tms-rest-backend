@@ -36,7 +36,22 @@ class UserSettingsController extends BaseRestController
     }
 
     /**
-     * Read settings of the current user.
+     * Get settings of the current user
+     * @OA\Get(
+     *     path="/common/user-settings",
+     *     operationId="common::UserSettingsController::actionIndex",
+     *     tags={"Common UserSettings"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_UserSettingsResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionIndex(): UserSettingsResource
     {
@@ -44,9 +59,35 @@ class UserSettingsController extends BaseRestController
     }
 
     /**
-     * Change settings of the current user.
-     * @return UserSettingsResource|array A UserSettingsResource object upon
-     *  success, validation errors upon failure.
+     * Change settings of the current user
+     * @return UserSettingsResource|array A UserSettingsResource object upon success, validation errors upon failure.
+     * @throws BadRequestHttpException
+     * @throws \yii\base\InvalidConfigException
+     *
+     * @OA\Put(
+     *     path="/common/user-settings",
+     *     operationId="common::UserSettingsController::actionUpdate",
+     *     tags={"Common UserSettings"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="updated settings",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Common_UserSettingsResource_ScenarioSettings"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="settings updated",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_UserSettingsResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionUpdate()
     {
@@ -79,10 +120,35 @@ class UserSettingsController extends BaseRestController
     }
 
     /**
-     * Handle custom email address confirmation requests.
+     * Handle custom email address confirmation requests
      * @param string $code The email confirmation code.
-     * @return array The `currentUser` key describes whether the the
-     *  confirmed user equals the current user.
+     * @return array The `currentUser` key describes whether the confirmed user equals the current user.
+     * @throws BadRequestHttpException
+     *
+     * @OA\Post(
+     *     path="/common/user-settings/confirm-email",
+     *     operationId="common::UserSettingsController::actionConfirmEmail",
+     *     tags={"Common UserSettings"},
+     *     @OA\Parameter(
+     *         name="code",
+     *         in="query",
+     *         description="The email confirmation code",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="settings updated",
+     *         @OA\JsonContent(
+     *             @OA\Property(type="boolean", property="currentUser"),
+     *         ),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
      */
     public function actionConfirmEmail(string $code): array
     {

@@ -2,7 +2,9 @@
 
 namespace app\modules\instructor\resources;
 
+use app\components\openapi\generators\OAProperty;
 use app\models\ExamTest;
+use yii\helpers\ArrayHelper;
 
 class ExamTestResource extends ExamTest
 {
@@ -30,6 +32,22 @@ class ExamTestResource extends ExamTest
     public function extraFields()
     {
         return [];
+    }
+
+    public function fieldTypes(): array
+    {
+        return ArrayHelper::merge(
+            parent::fieldTypes(),
+            [
+                'courseName' => new OAProperty(['type' => 'string']),
+                'groupNumber' => new OAProperty(['type' => 'integer']),
+                'courseID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+                'groupID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+                'questionsetID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+                'timezone' => new OAProperty(['type' => 'string']),
+                'semesterID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            ]
+        );
     }
 
     /**
