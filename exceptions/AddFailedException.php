@@ -2,7 +2,7 @@
 
 namespace app\exceptions;
 
-class AddFailedException extends \Exception
+class AddFailedException extends \yii\base\UserException
 {
     protected $identifier;
     protected $cause;

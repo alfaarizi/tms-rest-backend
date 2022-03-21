@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use app\exceptions\CanvasRequestException;
 use app\models\AccessToken;
 use app\models\Group;
 use app\models\InstructorGroup;
@@ -155,15 +156,20 @@ class CanvasIntegration
                 ->setMethod('GET')
                 ->setUrl(['api/v1/courses/' . $courseId . '/sections', 'include[]' => 'total_students'])
                 ->setHeaders(['Authorization' => 'Bearer ' . $user->canvasToken])
-                ->setData([
-                    'page' => $page++,
-                    'per_page' => 50
-                ])
+                ->setData(
+                    [
+                        'page' => $page++,
+                        'per_page' => 50
+                    ]
+                )
                 ->send();
-            if ($response->isOk) {
-                $out = array_merge($out, $response->data);
-                $morePages = !empty($response->data);
+            if (!$response->isOk) {
+                Yii::error("Fetching sections from Canvas failed for course #{$courseId}.", __METHOD__);
+                throw new CanvasRequestException($response->statusCode, 'Fetching sections from Canvas failed.');
             }
+
+            $out = array_merge($out, $response->data);
+            $morePages = !empty($response->data);
         } while ($morePages);
 
         return $out;
@@ -193,17 +199,20 @@ class CanvasIntegration
                     'per_page' => 50
                 ])
                 ->send();
-            if ($response->isOk) {
-                $out = $response->data;
-                $morePages = !empty($response->data);
+            if (!$response->isOk) {
+                Yii::error("Fetching courses from Canvas failed for user {$user->neptun} (ID: #{$user->id}).", __METHOD__);
+                throw new CanvasRequestException($response->statusCode, 'Fetching courses from Canvas failed.');
+            }
 
-                foreach ($out as $canvasCourse) {
-                    if (
-                        empty($canvasCourse['term']) || empty($canvasCourse['term']['end_at']) ||
-                        strtotime($canvasCourse['term']['end_at']) > time()
-                    ) {
-                        array_push($courses, $canvasCourse);
-                    }
+            $out = $response->data;
+            $morePages = !empty($response->data);
+
+            foreach ($out as $canvasCourse) {
+                if (
+                    empty($canvasCourse['term']) || empty($canvasCourse['term']['end_at']) ||
+                    strtotime($canvasCourse['term']['end_at']) > time()
+                ) {
+                    array_push($courses, $canvasCourse);
                 }
             }
         } while ($morePages);
@@ -288,18 +297,25 @@ class CanvasIntegration
                         'per_page' => 50])
                     ->send();
             }
-            if ($response->isOk) {
-                $out = $response->data;
-                $morePages = !empty($response->data);
+            if (!$response->isOk) {
+                Yii::error(
+                    "Fetching students from Canvas failed" . PHP_EOL .
+                    "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
+                    __METHOD__
+                );
+                throw new CanvasRequestException($response->statusCode, 'Fetching students from Canvas failed.');
+            }
 
-                foreach ($out as $canvasEnrollment) {
-                    $user = $this->saveCanvasUser($canvasEnrollment['user']);
-                    $subscription = $this->getUserSubscription($user, $group->id);
-                    if ($subscription === null) {
-                        $subscription = $this->saveSubscription($user, $group);
-                    }
-                    array_push($subscriptions, $subscription);
+            $out = $response->data;
+            $morePages = !empty($response->data);
+
+            foreach ($out as $canvasEnrollment) {
+                $user = $this->saveCanvasUser($canvasEnrollment['user']);
+                $subscription = $this->getUserSubscription($user, $group->id);
+                if ($subscription === null) {
+                    $subscription = $this->saveSubscription($user, $group);
                 }
+                array_push($subscriptions, $subscription);
             }
         } while ($morePages);
 
@@ -335,22 +351,29 @@ class CanvasIntegration
                     'page' => $page++,
                     'per_page' => 50])
                 ->send();
-            if ($response->isOk) {
-                $out = $response->data;
-                $morePages = !empty($response->data);
+            if (!$response->isOk) {
+                Yii::error(
+                    "Fetching teachers from Canvas failed" . PHP_EOL .
+                    "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
+                    __METHOD__
+                );
+                throw new CanvasRequestException($response->statusCode, 'Fetching teachers from Canvas failed.');
+            }
 
-                if (!$hasAny && count($out) > 0) {
-                    $hasAny = true;
-                }
+            $out = $response->data;
+            $morePages = !empty($response->data);
 
-                foreach ($out as $canvasEnrollment) {
-                    $instructor = $this->saveCanvasUser($canvasEnrollment['user']);
-                    $instructorGroup = InstructorGroup::find()->andWhere(['groupID' => $group->id])->andWhere(['userID' => $instructor->id])->one();
-                    if (empty($instructorGroup)) {
-                        $instructorGroup = $this->saveInstructorGroup($instructor->id, $group->id);
-                    }
-                    array_push($groups, $instructorGroup->id);
+            if (!$hasAny && count($out) > 0) {
+                $hasAny = true;
+            }
+
+            foreach ($out as $canvasEnrollment) {
+                $instructor = $this->saveCanvasUser($canvasEnrollment['user']);
+                $instructorGroup = InstructorGroup::find()->andWhere(['groupID' => $group->id])->andWhere(['userID' => $instructor->id])->one();
+                if (empty($instructorGroup)) {
+                    $instructorGroup = $this->saveInstructorGroup($instructor->id, $group->id);
                 }
+                array_push($groups, $instructorGroup->id);
             }
         } while ($morePages);
 
@@ -462,36 +485,43 @@ class CanvasIntegration
                     'page' => $page++,
                     'per_page' => 50])
                 ->send();
-            if ($response->isOk) {
-                $out = $response->data;
-                $morePages = !empty($response->data);
+            if (!$response->isOk) {
+                Yii::error(
+                    "Fetching assignments from Canvas failed" . PHP_EOL .
+                    "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
+                    __METHOD__
+                );
+                throw new CanvasRequestException($response->statusCode, 'Fetching assignments from Canvas failed.');
+            }
 
-                foreach ($out as $assignment) {
-                    if ($assignment['published'] && !$assignment['is_quiz_assignment']) {
-                        if ($group->canvasSectionID == -1 && !empty($assignment['lock_at'])) {
-                            $id = $this->saveTask($assignment, $group);
-                            array_push($taskIds, $id);
-                        } elseif ($group->canvasSectionID > 0) {
-                            $sectionOverride = null;
-                            if (!empty($assignment['overrides'])) {
-                                foreach ($assignment['overrides'] as $override) {
-                                    if (isset($override['course_section_id']) && $override['course_section_id'] == $group->canvasSectionID) {
-                                        $sectionOverride = $override;
-                                        break;
-                                    }
+            $out = $response->data;
+            $morePages = !empty($response->data);
+
+            foreach ($out as $assignment) {
+                if ($assignment['published'] && !$assignment['is_quiz_assignment']) {
+                    if ($group->canvasSectionID == -1 && !empty($assignment['lock_at'])) {
+                        $id = $this->saveTask($assignment, $group);
+                        array_push($taskIds, $id);
+                    } elseif ($group->canvasSectionID > 0) {
+                        $sectionOverride = null;
+                        if (!empty($assignment['overrides'])) {
+                            foreach ($assignment['overrides'] as $override) {
+                                if (isset($override['course_section_id']) && $override['course_section_id'] == $group->canvasSectionID) {
+                                    $sectionOverride = $override;
+                                    break;
                                 }
                             }
+                        }
 
-                            if (!is_null($sectionOverride)) {
-                                $assignment['due_at'] = $sectionOverride['due_at'];
-                                $assignment['unlock_at'] = $sectionOverride['unlock_at'];
-                                $assignment['lock_at'] = $sectionOverride['lock_at'];
-                            }
+                        if (!is_null($sectionOverride)) {
+                            $assignment['due_at'] = $sectionOverride['due_at'];
+                            $assignment['unlock_at'] = $sectionOverride['unlock_at'];
+                            $assignment['lock_at'] = $sectionOverride['lock_at'];
+                        }
 
-                            if (!empty($assignment['lock_at'])) {
-                                $id = $this->saveTask($assignment, $group);
-                                array_push($taskIds, $id);
-                            }
+                        if (!empty($assignment['lock_at'])) {
+                            $id = $this->saveTask($assignment, $group);
+                            array_push($taskIds, $id);
                         }
                     }
                 }
@@ -587,16 +617,23 @@ class CanvasIntegration
                         ->send();
                 }
 
-                if ($response->isOk) {
-                    $out = $response->data;
-                    $morePages = !empty($response->data);
+                if (!$response->isOk) {
+                    Yii::error(
+                        "Fetching submissions from Canvas failed" . PHP_EOL .
+                        "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
+                        __METHOD__
+                    );
+                    throw new CanvasRequestException($response->statusCode, 'Fetching submissions from Canvas failed.');
+                }
 
-                    foreach ($out as $submission) {
-                        if (!empty($submission['attachments'])) {
-                            $id = $this->saveSolution($submission, $task);
-                            if ($id > 0) {
-                                array_push($studentFileIds, $id);
-                            }
+                $out = $response->data;
+                $morePages = !empty($response->data);
+
+                foreach ($out as $submission) {
+                    if (!empty($submission['attachments'])) {
+                        $id = $this->saveSolution($submission, $task);
+                        if ($id > 0) {
+                            array_push($studentFileIds, $id);
                         }
                     }
                 }
