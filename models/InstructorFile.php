@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\behaviors\ISODateTimeBehavior;
+use app\components\openapi\generators\OAList;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
 use app\models\queries\InstructorFileQuery;
@@ -125,7 +126,7 @@ class InstructorFile extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'path' => new OAProperty(['type' => 'string']),
             'uploadTime' => new OAProperty(['type' => 'string']),
             'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
-            'category' => new OAProperty(['type' => 'string']),
+            'category' => new OAProperty(['type' => 'string', 'enum' => new OAList(self::CATEGORY_TYPES)]),
         ];
     }
 

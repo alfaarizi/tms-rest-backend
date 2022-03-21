@@ -2,9 +2,8 @@
 
 namespace app\modules\student\controllers;
 
-use app\models\InstructorFile;
-use app\modules\student\resources\TaskResource;
 use Yii;
+use app\modules\student\resources\TaskResource;
 use app\modules\student\resources\InstructorFileResource;
 use app\modules\student\helpers\PermissionHelpers;
 use yii\data\ActiveDataProvider;
@@ -73,7 +72,7 @@ class InstructorFilesController extends BaseStudentRestController
         PermissionHelpers::checkIfTaskAvailable($task);
 
         return new ActiveDataProvider([
-            'query' => $task->getInstructorFiles()->where(['category' => InstructorFile::CATEGORY_ATTACHMENT]),
+            'query' => $task->getInstructorFiles(),
             'pagination' => false
         ]);
     }
