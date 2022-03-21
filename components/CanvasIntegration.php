@@ -16,6 +16,7 @@ use yii\helpers\FileHelper;
 use yii\helpers\Json;
 use yii\httpclient\Client;
 use yii\helpers\Console;
+use ForceUTF8\Encoding;
 
 /**
  *  This class implements the canvas synchronization methods.
@@ -559,8 +560,8 @@ class CanvasIntegration
                 'autoTest' => false
             ]);
         }
-        $task->name = mb_substr($assignment['name'], 0, 40);
-        $task->description = strip_tags($assignment['description']);
+        $task->name = Encoding::fixUTF8(mb_substr($assignment['name'], 0, 40));
+        $task->description = Encoding::fixUTF8(strip_tags($assignment['description']));
         $task->semesterID = $group->semesterID;
         $task->groupID = $group->id;
         $task->createrID = $group->synchronizerID;
