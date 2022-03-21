@@ -2,8 +2,8 @@
 
 namespace app\modules\student\controllers;
 
-use app\modules\student\resources\TaskResource;
 use Yii;
+use app\modules\student\resources\TaskResource;
 use app\modules\student\resources\InstructorFileResource;
 use app\modules\student\helpers\PermissionHelpers;
 use yii\data\ActiveDataProvider;
@@ -27,7 +27,7 @@ class InstructorFilesController extends BaseStudentRestController
     }
 
     /**
-     * List instructor files for a task
+     * Lists public instructor files for a task
      * @param int $taskID
      * @return ActiveDataProvider
      * @throws ForbiddenHttpException
@@ -115,6 +115,10 @@ class InstructorFilesController extends BaseStudentRestController
 
         PermissionHelpers::isItMyTask($file->taskID);
         PermissionHelpers::checkIfTaskAvailable($file->task);
+
+        if (!$file->isAttachment) {
+            throw new ForbiddenHttpException(Yii::t('app', 'Instructor File not available.'));
+        }
 
         Yii::$app->response->sendFile($file->path, basename($file->path));
     }

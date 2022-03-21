@@ -3,6 +3,7 @@
 namespace app\modules\instructor\controllers;
 
 use app\exceptions\AddFailedException;
+use app\models\InstructorFile;
 use app\modules\instructor\resources\InstructorFileResource;
 use app\modules\instructor\resources\InstructorFilesUploadResultResource;
 use app\modules\instructor\resources\TaskResource;
@@ -40,6 +41,8 @@ class InstructorFilesController extends BaseInstructorRestController
     /**
      * List instructor files for a task
      * @param int $taskID
+     * @param bool $includeAttachments
+     * @param bool $includeTestFiles
      * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -56,6 +59,20 @@ class InstructorFilesController extends BaseInstructorRestController
      *        description="ID of the task",
      *        @OA\Schema(ref="#/components/schemas/int_id"),
      *     ),
+     *     @OA\Parameter(
+     *        name="includeAttachments",
+     *        in="query",
+     *        required=false,
+     *        description="Include files with attachment category",
+     *        @OA\Schema(type="boolean", default=true),
+     *     ),
+     *     @OA\Parameter(
+     *        name="includeTestFiles",
+     *        in="query",
+     *        required=false,
+     *        description="Include files with test file category",
+     *        @OA\Schema(type="boolean", default=false),
+     *     ),
      *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
      *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
      *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
@@ -71,12 +88,12 @@ class InstructorFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex($taskID)
+    public function actionIndex($taskID, $includeAttachments = true, $includeTestFiles = false)
     {
         $task = TaskResource::findOne($taskID);
 
         if (is_null($task)) {
-            throw new NotFoundHttpException(Yii::t('app', 'Task not found'));
+            throw new NotFoundHttpException(Yii::t('app', 'Task not found.'));
         }
 
         // Authorization check
@@ -84,9 +101,25 @@ class InstructorFilesController extends BaseInstructorRestController
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
+        // boolean values in QS passes as strings
+        $includeAttachments = filter_var($includeAttachments, FILTER_VALIDATE_BOOLEAN);
+        $includeTestFiles = filter_var($includeTestFiles, FILTER_VALIDATE_BOOLEAN);
+
+        $categories = [];
+        if ($includeAttachments) {
+            $categories[] = InstructorFile::CATEGORY_ATTACHMENT;
+        }
+        if ($includeTestFiles) {
+            $categories[] = InstructorFile::CATEGORY_TESTFILE;
+        }
+
+        $query = InstructorFileResource::find()
+            ->where(['taskID' => $taskID])
+            ->andWhere(['in', 'category', $categories]);
+
         return new ActiveDataProvider(
             [
-                'query' => $task->getInstructorFiles(),
+                'query' => $query,
                 'pagination' => false
             ]
         );
@@ -125,7 +158,7 @@ class InstructorFilesController extends BaseInstructorRestController
         $file = InstructorFileResource::findOne($id);
 
         if (is_null($file)) {
-            throw new NotFoundHttpException(Yii::t('app', 'InstuctorFile not found'));
+            throw new NotFoundHttpException(Yii::t('app', 'Instructor File not found.'));
         }
 
         // Authorization check
@@ -193,7 +226,7 @@ class InstructorFilesController extends BaseInstructorRestController
         }
 
         // Canvas synchronization check
-        if ($group->isCanvasCourse) {
+        if ($group->isCanvasCourse && $upload->category == InstructorFile::CATEGORY_ATTACHMENT) {
             throw new BadRequestHttpException(
                 Yii::t('app', 'This operation cannot be performed on a canvas synchronized course!')
             );
@@ -211,6 +244,7 @@ class InstructorFilesController extends BaseInstructorRestController
             try {
                 $instructorFile = new InstructorFileResource();
                 $instructorFile->taskID = $upload->taskID;
+                $instructorFile->category = $upload->category;
                 $instructorFile->uploadTime = date('Y-m-d H:i:s');
                 $instructorFile->name = $file->baseName . '.' . $file->extension;
 

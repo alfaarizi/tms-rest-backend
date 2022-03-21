@@ -13,7 +13,7 @@ use app\tests\unit\fixtures\TaskFixture;
 use app\tests\unit\fixtures\UserFixture;
 use Codeception\Util\HttpCode;
 
-class InstructorIFilesCest
+class InstructorFilesCest
 {
     public const INSTRUCTOR_FILE_SCHEMA = [
         'id' => 'integer',
@@ -101,6 +101,86 @@ class InstructorIFilesCest
             ]
         );
 
+        $I->cantSeeResponseContainsJson(['id' => 4]);
+        $I->cantSeeResponseContainsJson(['id' => 5]);
+        $I->cantSeeResponseContainsJson(['id' => 6]);
+        $I->cantSeeResponseContainsJson(['id' => 7]);
+        $I->cantSeeResponseContainsJson(['id' => 8]);
+    }
+
+    public function indexAll(ApiTester $I)
+    {
+        $I->sendGet('/instructor/instructor-files', ['taskID' => 4, 'includeAttachments' => true, 'includeTestFiles' => true]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::INSTRUCTOR_FILE_SCHEMA, '$.[*]');
+
+        $I->seeResponseContainsJson(
+            [
+                [
+                    'id' => 4,
+                    'name' => 'file1.txt',
+                    'uploadTime' => '2021-02-03T10:00:00+01:00',
+                ],
+                [
+                    'id' => 8,
+                    'name' => 'file2.txt',
+                    'uploadTime' => '2021-02-04T10:00:00+01:00',
+                ],
+            ]
+        );
+
+        $I->cantSeeResponseContainsJson(['id' => 1]);
+        $I->cantSeeResponseContainsJson(['id' => 2]);
+        $I->cantSeeResponseContainsJson(['id' => 3]);
+        $I->cantSeeResponseContainsJson(['id' => 5]);
+        $I->cantSeeResponseContainsJson(['id' => 6]);
+        $I->cantSeeResponseContainsJson(['id' => 7]);
+    }
+
+    public function indexAttachments(ApiTester $I)
+    {
+        $I->sendGet('/instructor/instructor-files', ['taskID' => 4, 'includeAttachments' => true, 'includeTestFiles' => false]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::INSTRUCTOR_FILE_SCHEMA, '$.[*]');
+
+        $I->seeResponseContainsJson(
+            [
+                [
+                    'id' => 4,
+                    'name' => 'file1.txt',
+                    'uploadTime' => '2021-02-03T10:00:00+01:00',
+                ],
+            ]
+        );
+
+        $I->cantSeeResponseContainsJson(['id' => 1]);
+        $I->cantSeeResponseContainsJson(['id' => 2]);
+        $I->cantSeeResponseContainsJson(['id' => 3]);
+        $I->cantSeeResponseContainsJson(['id' => 5]);
+        $I->cantSeeResponseContainsJson(['id' => 6]);
+        $I->cantSeeResponseContainsJson(['id' => 7]);
+        $I->cantSeeResponseContainsJson(['id' => 8]);
+    }
+
+    public function indexTestFiles(ApiTester $I)
+    {
+        $I->sendGet('/instructor/instructor-files', ['taskID' => 4, 'includeAttachments' => false, 'includeTestFiles' => true]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::INSTRUCTOR_FILE_SCHEMA, '$.[*]');
+
+        $I->seeResponseContainsJson(
+            [
+                [
+                    'id' => 8,
+                    'name' => 'file2.txt',
+                    'uploadTime' => '2021-02-04T10:00:00+01:00',
+                ],
+            ]
+        );
+
+        $I->cantSeeResponseContainsJson(['id' => 1]);
+        $I->cantSeeResponseContainsJson(['id' => 2]);
+        $I->cantSeeResponseContainsJson(['id' => 3]);
         $I->cantSeeResponseContainsJson(['id' => 4]);
         $I->cantSeeResponseContainsJson(['id' => 5]);
         $I->cantSeeResponseContainsJson(['id' => 6]);

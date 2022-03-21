@@ -153,7 +153,9 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         return [
             [['name', 'semesterID', 'groupID', 'hardDeadline', 'category'], 'required'],
             [['semesterID', 'groupID'], 'integer'],
-            [['description', 'category', 'testOS'], 'string'],
+            [['description'], 'string'],
+            [['category'], 'in', 'range' => self::CATEGORY_TYPES],
+            [['testOS'], 'in', 'range' => self::TEST_OS],
             [['isVersionControlled'], 'boolean'],
             [['softDeadline', 'available'], 'safe'],
             [['name'], 'string', 'max' => 40],

@@ -5,18 +5,21 @@ namespace app\modules\instructor\resources;
 use app\components\openapi\generators\OAItems;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
+use app\models\InstructorFile;
 use app\models\Model;
 use yii\web\UploadedFile;
 
 /**
  * Class UploadInstructorFileResource
- * @property integer taskID
+ * @property integer $taskID
+ * @property string $category
  * @property UploadedFile[] $files
  */
 
 class UploadInstructorFileResource extends Model implements IOpenApiFieldTypes
 {
     public $taskID;
+    public $category = InstructorFile::CATEGORY_ATTACHMENT;
     public $files;
 
     /**
@@ -25,9 +28,10 @@ class UploadInstructorFileResource extends Model implements IOpenApiFieldTypes
     public function rules(): array
     {
         return [
-            [['taskID', 'files'], 'required'],
+            [['taskID', 'category', 'files'], 'required'],
             [['taskID'], 'integer'],
             [['taskID'], 'checkIfTaskExists'],
+            [['category'], 'in', 'range' => array_keys(InstructorFile::categoryMap())],
             [['files'], 'file', 'skipOnEmpty' => false, 'maxFiles' => 20],
         ];
     }
@@ -44,6 +48,7 @@ class UploadInstructorFileResource extends Model implements IOpenApiFieldTypes
     {
         return [
             'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'category' => new OAProperty(['type' => 'string']),
             'files' => new OAProperty(['type' => 'array', new OAItems(['type' => 'string', 'format' => 'binary'])]),
         ];
     }
