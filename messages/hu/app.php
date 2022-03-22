@@ -219,6 +219,7 @@ return [
     "You can't modify grade a solution from a previous semester!" => "Előző szemeszterből származó megoldást nem lehet értékelni",
     "Failed to remove task. This task can not be removed anymore, there is uploaded solution!"
     => "Beadandó feladat törlése sikertelen. Olyan feladatot nem lehet törölni, amihez már van feltöltött megoldás!",
+    "Local Docker images can't be updated from registry." => "Lokális Docker képek nem frissíthetőek a registryből",
 
     "You don't have permission to view this image" => "Nincs jogosultsága a kép megtekintéséhez",
     "You can't submit multiple answers for the same question" => "Egy kérdéshez nem adható meg több válasz",

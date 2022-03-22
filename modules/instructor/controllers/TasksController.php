@@ -16,6 +16,7 @@ use app\modules\instructor\resources\TaskResource;
 use app\modules\instructor\resources\TesterFormDataResource;
 use app\resources\SemesterResource;
 use app\resources\UserResource;
+use Http\Client\Socket\Exception\InvalidRequestException;
 use Yii;
 use yii\base\ErrorException;
 use yii\data\ActiveDataProvider;
@@ -63,7 +64,8 @@ class TasksController extends BaseInstructorRestController
                 'list-for-users' => ['POST'],
                 'toggle-auto-tester' => ['PATCH'],
                 'setup-auto-tester' => ['POST'],
-                'tester-form-data' => ['GET']
+                'tester-form-data' => ['GET'],
+                'update-docker-image' => ['PATCH']
             ]
         );
     }
@@ -882,7 +884,7 @@ class TasksController extends BaseInstructorRestController
         }
 
         if (
-            $task->localImageName != $task->imageName &&
+            !$task->isLocalImage &&
             !AssignmentTester::alreadyBuilt($task->imageName, Yii::$app->params['evaluator'][$task->testOS])
         ) {
             AssignmentTester::pullImage($task->imageName, Yii::$app->params['evaluator'][$task->testOS]);
@@ -966,6 +968,73 @@ class TasksController extends BaseInstructorRestController
         $response->templates = $templates;
         $response->osMap = $osMap;
         $response->imageSuccessfullyBuilt = AssignmentTester::alreadyBuilt($task->imageName, Yii::$app->params['evaluator'][$task->testOS]);
+        if ($response->imageSuccessfullyBuilt) {
+            $response->imageCreationDate = AssignmentTester::inspectImage(
+                $task->imageName,
+                Yii::$app->params['evaluator'][$task->testOS]
+            )->getCreated();
+        }
         return $response;
+    }
+
+    /**
+     * @param int $id
+     * @return TaskResource
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Patch (
+     *     path="/instructor/tasks/{id}/update-docker-image",
+     *     operationId="instructor::TasksController::udapteDockerImage",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the task",
+     *          @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="updated task",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TesterFormDataResource_Read"),
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400"),
+     *     @OA\Response(response=401, ref="#/components/responses/401"),
+     *     @OA\Response(response=403, ref="#/components/responses/403"),
+     *     @OA\Response(response=404, ref="#/components/responses/404"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     */
+    public function actionUpdateDockerImage($id)
+    {
+        if (!Yii::$app->params['evaluator']['enabled']) {
+            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
+        }
+
+        $task = TaskResource::findOne($id);
+
+        if (is_null($task)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Task not found.'));
+        }
+
+        // Authorization check
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $task->groupID])) {
+            throw new ForbiddenHttpException(
+                Yii::t('app', 'You must be an instructor of the group to perform this action!')
+            );
+        }
+
+        if (!$task->isLocalImage) {
+            AssignmentTester::pullImage($task->imageName, Yii::$app->params['evaluator'][$task->testOS]);
+        } else {
+            throw new BadRequestHttpException(Yii::t('app', 'Local Docker images can\'t be updated from registry.'));
+        }
+
+        return $task;
     }
 }
