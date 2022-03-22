@@ -4,6 +4,29 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.4.0](https://gitlab.com/tms-elte/backend-core/compare/v2.3.1...v2.4.0) (2022-03-22)
+### Features
+
+* Added OpenAPI documentation and SwaggerUI interface ([9ce962](https://gitlab.com/tms-elte/backend-core/commit/9ce9621d4a581332cb23bc803f605b3cd654c27d))
+* File upload support for automatic tester ([a78b55](https://gitlab.com/tms-elte/backend-core/commit/a78b554f8a1dfcdccdb7930d65e8e281899dd782))
+* Generate PHP API documentation with phpdoc and publish it to GitLab Pages ([f32790](https://gitlab.com/tms-elte/backend-core/commit/f3279068f508fec0b95657c02be4f1d1f90a201f))
+* Publish version information ([8d3e8a](https://gitlab.com/tms-elte/backend-core/commit/8d3e8a0f9b6151a41d95fca4a303a2134b66eedf))
+
+### Bug Fixes
+
+* Avoid possible infinite loops in Canvas synchronization upon HTTP request error. ([f9bf11](https://gitlab.com/tms-elte/backend-core/commit/f9bf11654ca38f05a1eeafa58f3b8a56c08c8e50))
+* Remove non UTF-8 characters from task name and description upon Canvas synchronization. ([473249](https://gitlab.com/tms-elte/backend-core/commit/4732495b732336dc9f2c39b00658393c7cd517ae))
+* The setup/seed command is unable to add the initial group ([d1dd91](https://gitlab.com/tms-elte/backend-core/commit/d1dd91dcee7ab20850346abdd7b8c57c8d35f653))
+
+
+---
+
+<!--- BEGIN HEADER -->
+# Changelog
+
+All notable changes to this project will be documented in this file.
+<!--- END HEADER -->
+
 ## [2.3.1](https://gitlab.com//tms-elte/backend-core/compare/v2.3.0...v2.3.1) (2022-01-15)
 ### Bug Fixes
 
