@@ -42,6 +42,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
             "PATCH <module:{$this->id}>/<controller:tasks>/<id>/toggle-auto-tester" => '<module>/<controller>/toggle-auto-tester',
             "POST <module:{$this->id}>/<controller:tasks>/<id>/setup-auto-tester" => '<module>/<controller>/setup-auto-tester',
             "GET <module:{$this->id}>/<controller:tasks>/<id>/tester-form-data" => '<module>/<controller>/tester-form-data',
+            "PATCH <module:{$this->id}>/<controller:tasks>/<id>/update-docker-image" => '<module>/<controller>/update-docker-image',
 
             // instructor/plagiarism
             "POST <module:{$this->id}>/<controller:plagiarism>/<id>/run-moss" => '<module>/<controller>/run-moss',

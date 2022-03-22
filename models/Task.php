@@ -41,6 +41,7 @@ use yii\helpers\FileHelper;
  *
  * @property-read string timezone
  * @property-read string $localImageName
+ * @property-read string $isLocalImage
  * @property-read string $containerName
  * @property-read string $dockerSocket
  */
@@ -264,6 +265,15 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     {
         // Prefixing.
         return "tms/task_{$this->id}:latest";
+    }
+
+    /**
+     * Checks if an image is locally built from Dockerfile.
+     * @return bool <code>true</code> if image built locally, otherwise <code>false</code>.
+     */
+    public function getIsLocalImage(): bool
+    {
+        return $this->localImageName == $this->imageName;
     }
 
     /**

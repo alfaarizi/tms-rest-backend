@@ -511,6 +511,20 @@ class AssignmentTester
     }
 
     /**
+     * Fetches the image information from an image
+     *
+     * @param string $imageName name of the image
+     * @param string|null $socket String socket of the Docker daemon to connect
+     * @return \Docker\API\Model\Image
+     */
+    public static function inspectImage(string $imageName, string $socket = null): \Docker\API\Model\Image
+    {
+        $docker = self::connect($socket);
+        /** @var \Docker\API\Model\Image $imageInfo */
+        return $docker->imageInspect($imageName);
+    }
+
+    /**
      *  Executes a command in a running container.
      *
      * @param array $commandDetails an array containing the command and it's parameters. For example ['g++', 'main.cpp']
