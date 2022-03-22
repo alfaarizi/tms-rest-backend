@@ -16,7 +16,7 @@ cache:
 
 # Dependency scanning
 include:
-  - template: Dependency-Scanning.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
 
 .db:
   # Variables
@@ -158,7 +158,7 @@ deploy_staging:
     name: staging
     url: https://tms.inf.elte.hu/dev-api/
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "develop" && $CI_PROJECT_NAMESPACE == "tms-elte"'
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_PROJECT_NAMESPACE == "tms-elte"'
 
 # Deployment to production environment of ELTE
 # All v* tags, excluding prereleases
@@ -184,7 +184,7 @@ deploy_production:
     name: production
     url: https://tms.inf.elte.hu/api/
   rules:
-    - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /^v.*$/ && $CI_PROJECT_NAMESPACE == "tms-elte"'
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /^v[^-].*$/ && $CI_PROJECT_NAMESPACE == "tms-elte"'
 
 # Upload code coverage report to CodeCov
 codecov:
