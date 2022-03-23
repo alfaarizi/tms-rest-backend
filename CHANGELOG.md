@@ -4,6 +4,20 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.4.1](https://gitlab.com/tms-elte/backend-core/compare/v2.4.0...v2.4.1) (2022-03-23)
+### Bug Fixes
+
+* Properly remove stucked containers before recreation. ([d9dcec](https://gitlab.com/tms-elte/backend-core/commit/d9dcec37c3d98412f363979e568bce9a171992c9))
+
+
+---
+
+<!--- BEGIN HEADER -->
+# Changelog
+
+All notable changes to this project will be documented in this file.
+<!--- END HEADER -->
+
 ## [2.4.0](https://gitlab.com/tms-elte/backend-core/compare/v2.3.1...v2.4.0) (2022-03-22)
 ### Features
 
