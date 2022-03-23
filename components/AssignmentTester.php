@@ -257,15 +257,15 @@ class AssignmentTester
     /**
      * Stops the container and cleans up the files.
      *
-     * @param string $imageName The name of the container
+     * @param string $containerName The name of the container
      */
-    private function stopContainer($imageName)
+    private function stopContainer($containerName)
     {
         // stop the container
-        $this->docker->containerStop($imageName);
+        $this->docker->containerStop($containerName);
 
         // remove the container
-        $this->docker->containerDelete($imageName);
+        $this->docker->containerDelete($containerName);
 
         // delete the student solution
         $this->deleteStudentSolution();
@@ -331,8 +331,8 @@ class AssignmentTester
         try {
             $containerCreateResult = $this->docker->containerCreate($containerConfig, ['name' => $containerName]);
         } catch (\Exception $e) {
-            $this->docker->containerStop($imageName);
-            $this->docker->containerDelete($imageName);
+            $this->docker->containerStop($containerName);
+            $this->docker->containerDelete($containerName);
             $containerCreateResult = $this->docker->containerCreate($containerConfig, ['name' => $containerName]);
         }
 
