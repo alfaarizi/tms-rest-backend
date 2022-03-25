@@ -43,7 +43,7 @@ class StudentFileUploadResource extends \yii\base\Model implements IOpenApiField
     {
         $file = $this->file;
         $zip = new \ZipArchive();
-        if ($zip->open($file->tempName, \ZIPARCHIVE::FL_NOCASE) === true) {
+        if ($zip->open($file->tempName) === true) {
             for ($i = 0; $i < $zip->numFiles; ++$i) {
                 $filename = $zip->getNameIndex($i);
                 if (strpos($filename, DIRECTORY_SEPARATOR . '.git' . DIRECTORY_SEPARATOR) !== false) {

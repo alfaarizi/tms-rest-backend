@@ -464,7 +464,7 @@ class PlagiarismController extends BaseInstructorRestController
                 $zipfile = $taskPath . '/' . $userNeptun . '/' . $studentFile->name;
 
                 // Open the zip for reading.
-                $res = $zip->open($zipfile, ZIPARCHIVE::FL_NOCASE);
+                $res = $zip->open($zipfile);
                 if ($res === true) {
                     $path = $plagiarismPath . '/' . $task . '/' . $userNeptun;
                     if (!file_exists($path)) {
