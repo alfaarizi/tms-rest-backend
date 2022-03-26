@@ -5,6 +5,7 @@ namespace app\models;
 use app\components\LdapAuthenticator;
 use Yii;
 use yii\base\NotSupportedException;
+use yii\base\UnknownPropertyException;
 
 /**
  * Defines an authentication mechanism with the Neptun academic registry system through SimpleSAMLphp.
@@ -153,13 +154,19 @@ class LdapAuth extends \yii\base\BaseObject implements AuthInterface
      */
     public function __get($name)
     {
-        if (!isset($this->_attributes[$name])) {
+        try {
             return parent::__get($name);
         }
-        if (is_array($this->_attributes[$name]) && count($this->_attributes[$name]) == 1) {
-            return $this->_attributes[$name][0];
-        } else {
-            return $this->_attributes[$name];
+        catch (UnknownPropertyException $e) {
+            if (!isset($this->_attributes[$name])) {
+                throw $e;
+            }
+
+            if (is_array($this->_attributes[$name]) && count($this->_attributes[$name]) == 1) {
+                return $this->_attributes[$name][0];
+            } else {
+                return $this->_attributes[$name];
+            }
         }
     }
 }
