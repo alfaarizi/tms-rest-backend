@@ -156,8 +156,7 @@ class LdapAuth extends \yii\base\BaseObject implements AuthInterface
     {
         try {
             return parent::__get($name);
-        }
-        catch (UnknownPropertyException $e) {
+        } catch (UnknownPropertyException $e) {
             if (!isset($this->_attributes[$name])) {
                 throw $e;
             }
