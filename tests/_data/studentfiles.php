@@ -7,12 +7,13 @@ return [
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
         'taskID' => '2',
         'uploaderID' => '2',
-        'isAccepted' => 'Late Submission',
+        'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_LATE_SUBMISSION,
         'isVersionControlled' => 0,
         'grade' => 4,
         'notes' => '',
         'graderID' => '8',
-        'errorMsg' => ''
+        'errorMsg' => 'FULL_ERROR_MESSAGE',
+        'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED,
     ],
     'file2' => [
         'id' => 2,
@@ -20,11 +21,12 @@ return [
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
         'taskID' => '2',
         'uploaderID' => '3',
-        'isAccepted' => 'Late Submission',
+        'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_LATE_SUBMISSION,
         'isVersionControlled' => 0,
         'grade' => '',
         'notes' => '',
-        'errorMsg' => ''
+        'errorMsg' => null,
+        'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_NOT_TESTED,
     ],
     'file3' => [
         'id' => 3,
@@ -32,12 +34,13 @@ return [
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
         'taskID' => '3',
         'uploaderID' => '2',
-        'isAccepted' => 'Accepted',
+        'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_ACCEPTED,
         'isVersionControlled' => 0,
         'grade' => 5,
         'notes' => '',
         'graderID' => '8',
-        'errorMsg' => ''
+        'errorMsg' => 'FULL_ERROR_MESSAGE',
+        'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED,
     ],
     'file4' => [
         'id' => 4,
@@ -45,11 +48,12 @@ return [
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
         'taskID' => '3',
         'uploaderID' => '3',
-        'isAccepted' => 'Rejected',
+        'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_REJECTED,
         'isVersionControlled' => 0,
         'grade' => '1',
         'notes' => '',
-        'errorMsg' => ''
+        'errorMsg' => null,
+        'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_NOT_TESTED,
     ],
     'file5' => [
         'id' => 5,
@@ -57,11 +61,12 @@ return [
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
         'taskID' => '8',
         'uploaderID' => '2',
-        'isAccepted' => 'Uploaded',
+        'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_UPLOADED,
         'isVersionControlled' => 0,
         'grade' => '',
         'notes' => '',
-        'errorMsg' => ''
+        'errorMsg' => null,
+        'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_NOT_TESTED,
     ],
     'file6' => [
         'id' => 6,
@@ -69,11 +74,12 @@ return [
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
         'taskID' => '5',
         'uploaderID' => '2',
-        'isAccepted' => 'Uploaded',
+        'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_UPLOADED,
         'isVersionControlled' => 0,
         'grade' => '',
         'notes' => '',
-        'errorMsg' => ''
+        'errorMsg' => null,
+        'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_NOT_TESTED,
     ],
     'file7' => [
         'id' => 7,
@@ -81,11 +87,12 @@ return [
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
         'taskID' => '6',
         'uploaderID' => '2',
-        'isAccepted' => 'Uploaded',
+        'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_UPLOADED,
         'isVersionControlled' => 0,
         'grade' => '',
         'notes' => '',
-        'errorMsg' => ''
+        'errorMsg' => null,
+        'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_NOT_TESTED,
     ],
     'file8' => [
         'id' => 8,
@@ -93,10 +100,11 @@ return [
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
         'taskID' => '2',
         'uploaderID' => '4',
-        'isAccepted' => 'Uploaded',
+        'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_UPLOADED,
         'isVersionControlled' => 0,
         'grade' => 4,
         'notes' => '',
-        'errorMsg' => ''
+        'errorMsg' => null,
+        'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_NOT_TESTED,
     ],
 ];

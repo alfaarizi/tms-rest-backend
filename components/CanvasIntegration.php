@@ -14,6 +14,7 @@ use Yii;
 use yii\base\InvalidArgumentException;
 use yii\helpers\FileHelper;
 use yii\helpers\Json;
+use yii\helpers\VarDumper;
 use yii\httpclient\Client;
 use yii\helpers\Console;
 use ForceUTF8\Encoding;
@@ -679,14 +680,16 @@ class CanvasIntegration
                 'uploadTime' => date('Y-m-d H:i:s', strtotime($file['updated_at'])),
                 'taskID' => $task->id,
                 'uploaderID' => $user->id,
-                'isAccepted' => 'Uploaded',
-                'notes' => ''
+                'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
+                'notes' => '',
+                'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_NOT_TESTED,
             ]);
         } else if (strtotime($studentFile->uploadTime) !== strtotime($file['updated_at'])) {
             $this->saveCanvasFile($task->id, $file['display_name'], $file['url'], $user->neptun);
             $studentFile->name = $file['display_name'];
             $studentFile->uploadTime = date('Y-m-d H:i:s', strtotime($file['updated_at']));
-            $studentFile->isAccepted = 'Updated';
+            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPDATED;
+            $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
         }
 
         if (!empty($submission['grader_id'])) {
@@ -704,7 +707,7 @@ class CanvasIntegration
         }
         if (!$studentFile->save()) {
             Yii::error("Saving solution for user {$user->neptun} (ID: #{$user->id}) on Task #{$task->id} failed." .
-                       "Message: {$studentFile->firstErrors[0]}", __METHOD__);
+                       "Message: " . VarDumper::dumpAsString($studentFile->firstErrors), __METHOD__);
             return null;
         }
         return $studentFile->id;
@@ -788,7 +791,10 @@ class CanvasIntegration
             return;
         }
 
-        if (!empty($studentFile->errorMsg) && $this->refreshCanvasToken($synchronizer)) {
+        if (!empty($studentFile->safeErrorMsg) && $this->refreshCanvasToken($synchronizer)) {
+            $originalLanguage = Yii::$app->language;
+            Yii::$app->language = $studentFile->uploader->locale;
+
             $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
             $url = 'api/v1/courses/' . $studentFile->task->group->canvasCourseID .
                 '/assignments/' . $studentFile->task->canvasID . '/submissions/' . $studentFile->uploader->canvasID;
@@ -800,9 +806,11 @@ class CanvasIntegration
                     'comment[text_comment]' => Yii::t(
                         'app',
                         'TMS automatic tester result: '
-                    ) . $studentFile->errorMsg
+                    ) . $studentFile->safeErrorMsg
                 ])
                 ->send();
+
+            Yii::$app->language = $originalLanguage;
         }
     }
 }

@@ -35,7 +35,17 @@ class CronController extends BaseController
             ->joinWith('task t')
             ->joinWith('task.group g')
             ->joinWith('task.group.instructors u')
-            ->where(['sf.isAccepted' => ['Uploaded', 'Updated', 'Passed', 'Failed']])
+            ->where(
+                [
+                    'sf.isAccepted' =>
+                        [
+                            StudentFile::IS_ACCEPTED_UPLOADED,
+                            StudentFile::IS_ACCEPTED_UPDATED,
+                            StudentFile::IS_ACCEPTED_PASSED,
+                            StudentFile::IS_ACCEPTED_FAILED,
+                        ]
+                ]
+            )
             ->andWhere([
                 '>',
                 'sf.uploadTime',
@@ -163,7 +173,12 @@ class CronController extends BaseController
 
             // Find the oldest untested studentFile.
             $studentFile = StudentFile::find()
-                ->where(['isAccepted' => ['Uploaded', 'Updated'], 'taskID' => $IDs])
+                ->where(
+                    [
+                        'isAccepted' => [StudentFile::IS_ACCEPTED_UPLOADED, StudentFile::IS_ACCEPTED_UPDATED],
+                        'taskID' => $IDs
+                    ]
+                )
                 ->orderBy('uploadTime')
                 ->one();
 
@@ -201,22 +216,26 @@ class CronController extends BaseController
         // If the solution didn't compile
         if (!$result['compiled']) {
             $errorMsg = $result['compilationError'];
-            $studentFile->isAccepted = 'Failed';
+            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
+            $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED;
             $studentFile->errorMsg = $errorMsg;
             // If there were errors executing the program
         } elseif ($result['error'] && $result['compiled']) {
             $errorMsg = $result['errorMsg'];
-            $studentFile->isAccepted = 'Failed';
+            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
+            $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_EXECUTION_FAILED;
             $studentFile->errorMsg = $errorMsg;
             // If the solution compiled and there were no errors
         } else if (!$result['error'] && $result['compiled']) {
             // If the solution passed
             if ($result['passed']) {
-                $studentFile->isAccepted = 'Passed';
-                $studentFile->errorMsg = Yii::t('app', 'Your solution passed the tests');
+                $studentFile->isAccepted = StudentFile::IS_ACCEPTED_PASSED;
+                $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_PASSED;
+                $studentFile->errorMsg = null;
             } else {
                 $errorMsg = $result['errorMsg'];
-                $studentFile->isAccepted = 'Failed';
+                $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
+                $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_TESTS_FAILED;
                 $studentFile->errorMsg = $errorMsg;
             }
         }

@@ -2,6 +2,7 @@
 
 namespace app\commands;
 
+use app\models\StudentFile;
 use Yii;
 use app\models\Semester;
 use app\models\Group;
@@ -123,7 +124,7 @@ class ReportController extends BaseController
             ->andWhere(['in', '{{%tasks}}.id', $taskIds])
             ->andWhere([
                 'or',
-                "{{%student_files}}.isAccepted <> 'Accepted'",
+                "{{%student_files}}.isAccepted <> '" . StudentFile::IS_ACCEPTED_ACCEPTED . "'",
                 "{{%student_files}}.isAccepted IS NULL"
             ])
             ->orderBy('userName');

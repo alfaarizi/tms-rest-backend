@@ -28,10 +28,11 @@ class InstructorTasksCest
         'hardDeadline' => 'string',
         'available' => 'string|null',
         'autoTest' => 'integer|null|string',
+        'showFullErrorMsg' => 'integer|null|string',
         'isVersionControlled' => 'integer|null|string',
         'groupID' => 'integer|string',
         'semesterID' => 'integer|string',
-        'creatorName' => 'string'
+        'creatorName' => 'string',
     ];
 
     public const USER_SCHEMA = [
@@ -137,6 +138,7 @@ class InstructorTasksCest
                 'softDeadline' => null,
                 'available' => null,
                 'autoTest' => 0,
+                'showFullErrorMsg' => 0,
                 'isVersionControlled' => 0,
                 'groupID' => 1,
                 'semesterID' => 2,

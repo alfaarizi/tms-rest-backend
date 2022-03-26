@@ -240,6 +240,7 @@ return [
     'Compile Instructions' => 'Fordítási Utasítások',
     'Run Instructions' => 'Futtatási Utasítások',
     'Error Message' => 'Hibaüzenet',
+    'Evaluator status' => 'Kiértékelés státusza',
     'Arguments' => 'Argumentumok',
     'Input' => 'Bemenet',
     'Output' => 'Kimenet',
@@ -279,6 +280,7 @@ return [
     'Compile and run instructions' => 'Fordítási és futtatási utasítások',
     'Test case not found' => 'A keresett teszteset nem található',
     'File with the same name already exists for this task' => 'Már létezik fájl a megadott névvel ehhez a feladathoz',
+    'The current values of evaluatorStatus and isAccepted are not valid' => 'Az evaluatorStatus és isAccepted mezők jelenlegi értékei érvénytelenek',
 
     //Examination module translations
     "An answer with the same text already exists for that question" => "Ezzel a szöveggel létezik már válasz a kérdéshez",
