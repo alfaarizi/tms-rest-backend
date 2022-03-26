@@ -335,7 +335,7 @@ class InstructorFilesController extends BaseInstructorRestController
         }
 
         // Canvas synchronization check
-        if ($file->task->group->isCanvasCourse) {
+        if ($file->task->group->isCanvasCourse && $file->category == InstructorFile::CATEGORY_ATTACHMENT) {
             throw new BadRequestHttpException(
                 Yii::t('app', 'This operation cannot be performed on a canvas synchronized course!')
             );
