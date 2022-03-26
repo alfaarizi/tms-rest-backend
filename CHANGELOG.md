@@ -9,28 +9,14 @@ All notable changes to this project will be documented in this file.
 
 * Allow to delete evaluator test files for Canvas synchronized groups ([f394c1](https://gitlab.com/tms-elte/backend-core/commit/f394c1f213aa6870293436ce4b7a971fefd1c157))
 
-
 ---
-
-<!--- BEGIN HEADER -->
-# Changelog
-
-All notable changes to this project will be documented in this file.
-<!--- END HEADER -->
 
 ## [2.4.1](https://gitlab.com/tms-elte/backend-core/compare/v2.4.0...v2.4.1) (2022-03-23)
 ### Bug Fixes
 
-* Properly remove stucked containers before recreation. ([d9dcec](https://gitlab.com/tms-elte/backend-core/commit/d9dcec37c3d98412f363979e568bce9a171992c9))
-
+* Properly remove stucked containers before recreation ([d9dcec](https://gitlab.com/tms-elte/backend-core/commit/d9dcec37c3d98412f363979e568bce9a171992c9))
 
 ---
-
-<!--- BEGIN HEADER -->
-# Changelog
-
-All notable changes to this project will be documented in this file.
-<!--- END HEADER -->
 
 ## [2.4.0](https://gitlab.com/tms-elte/backend-core/compare/v2.3.1...v2.4.0) (2022-03-22)
 ### Features
@@ -42,24 +28,17 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
-* Avoid possible infinite loops in Canvas synchronization upon HTTP request error. ([f9bf11](https://gitlab.com/tms-elte/backend-core/commit/f9bf11654ca38f05a1eeafa58f3b8a56c08c8e50))
-* Remove non UTF-8 characters from task name and description upon Canvas synchronization. ([473249](https://gitlab.com/tms-elte/backend-core/commit/4732495b732336dc9f2c39b00658393c7cd517ae))
+* Avoid possible infinite loops in Canvas synchronization upon HTTP request error ([f9bf11](https://gitlab.com/tms-elte/backend-core/commit/f9bf11654ca38f05a1eeafa58f3b8a56c08c8e50))
+* Remove non UTF-8 characters from task name and description upon Canvas synchronization ([473249](https://gitlab.com/tms-elte/backend-core/commit/4732495b732336dc9f2c39b00658393c7cd517ae))
 * The setup/seed command is unable to add the initial group ([d1dd91](https://gitlab.com/tms-elte/backend-core/commit/d1dd91dcee7ab20850346abdd7b8c57c8d35f653))
 
-
 ---
-
-<!--- BEGIN HEADER -->
-# Changelog
-
-All notable changes to this project will be documented in this file.
-<!--- END HEADER -->
 
 ## [2.3.1](https://gitlab.com//tms-elte/backend-core/compare/v2.3.0...v2.3.1) (2022-01-15)
 ### Bug Fixes
 
-* Extend exam deadline by 30 sec to properly accept JS-based auto submissions when the time is up. ([6789cb](https://gitlab.com//tms-elte/backend-core/commit/6789cb0b4e2204c7a97dd8b8bec7167925a1d256))
-* Extend task name to 40 character length and trim task name when imported from Canvas. ([03df5b](https://gitlab.com//tms-elte/backend-core/commit/03df5bec7c69c9d09bb2512ab194d709def3df4d))
+* Extend exam deadline by 30 sec to properly accept JS-based auto submissions when the time is up ([6789cb](https://gitlab.com//tms-elte/backend-core/commit/6789cb0b4e2204c7a97dd8b8bec7167925a1d256))
+* Extend task name to 40 character length and trim task name when imported from Canvas ([03df5b](https://gitlab.com//tms-elte/backend-core/commit/03df5bec7c69c9d09bb2512ab194d709def3df4d))
 
 ---
 
@@ -71,7 +50,7 @@ All notable changes to this project will be documented in this file.
 ### Bug Fixes
 
 * Auto tester is automatically turned on after synchronization for each Canvas task ([b8dcd6](https://gitlab.com//tms-elte/backend-core/commit/b8dcd69b136be6a0081b3eb2471136e6382678f1))
-* Do not overwrite files with matching names in plagiarism checks. ([0c5605](https://gitlab.com//tms-elte/backend-core/commit/0c5605b89e234c3db5ad12734f6b210832c8abf1))
+* Do not overwrite files with matching names in plagiarism checks ([0c5605](https://gitlab.com//tms-elte/backend-core/commit/0c5605b89e234c3db5ad12734f6b210832c8abf1))
 * Replace string-based timestamp comparisons ([72e311](https://gitlab.com//tms-elte/backend-core/commit/72e311758c684311ed63f4d1f2d1494e58ccf270))
 
 ---
@@ -85,7 +64,7 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
-* Remove non UTF-8 characters from stdout and stderr output on automated evaluation of submissions. ([c7ec8d](https://gitlab.com//tms-elte/backend-core/commit/c7ec8d7a0c20bfccc896fc38e12e5cdb0503a736))
+* Remove non UTF-8 characters from stdout and stderr output on automated evaluation of submissions ([c7ec8d](https://gitlab.com//tms-elte/backend-core/commit/c7ec8d7a0c20bfccc896fc38e12e5cdb0503a736))
 
 ---
 
