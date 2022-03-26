@@ -4,6 +4,20 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.4.2](https://gitlab.com/tms-elte/backend-core/compare/v2.4.1...v2.4.2) (2022-03-26)
+### Bug Fixes
+
+* Allow to delete evaluator test files for Canvas synchronized groups ([f394c1](https://gitlab.com/tms-elte/backend-core/commit/f394c1f213aa6870293436ce4b7a971fefd1c157))
+
+
+---
+
+<!--- BEGIN HEADER -->
+# Changelog
+
+All notable changes to this project will be documented in this file.
+<!--- END HEADER -->
+
 ## [2.4.1](https://gitlab.com/tms-elte/backend-core/compare/v2.4.0...v2.4.1) (2022-03-23)
 ### Bug Fixes
 
