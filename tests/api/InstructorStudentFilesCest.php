@@ -188,31 +188,17 @@ class InstructorStudentFilesCest
             [
                 'id' => 1,
                 'name' => 'stud01.zip',
-                'isAccepted' => 'Late Submission',
-                'translatedIsAccepted' => 'Late Submission',
-                'isVersionControlled' => 0,
-                'grade' => 4,
-                'notes' => '',
-                'graderName' => 'Teacher Two',
-                'errorMsg' => '',
-                'gitRepo' => null
-            ]
-        );
-
-        $I->seeResponseContainsJson(
-            [
-                'id' => 1,
-                'name' => 'stud01.zip',
-                'isAccepted' => 'Late Submission',
+                'isAccepted' => StudentFile::IS_ACCEPTED_LATE_SUBMISSION,
                 'translatedIsAccepted' => 'Late Submission',
                 'grade' => '4',
                 'notes' => '',
                 'isVersionControlled' => '0',
                 'graderName' => 'Teacher Two',
-                'errorMsg' => '',
+                'errorMsg' => 'FULL_ERROR_MESSAGE',
                 'taskID' => 2,
                 'groupID' => '1',
-                'uploaderID' => '2'
+                'uploaderID' => '2',
+                'gitRepo' => null
             ]
         );
     }
@@ -222,7 +208,7 @@ class InstructorStudentFilesCest
         $I->sendPatch(
             "/instructor/student-files/0",
             [
-                'isAccepted' => 'Accepted',
+                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
                 'grade' => 5,
                 'notes' => 'Note'
             ]
@@ -235,7 +221,7 @@ class InstructorStudentFilesCest
         $I->sendPatch(
             "/instructor/student-files/6",
             [
-                'isAccepted' => 'Accepted',
+                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
                 'grade' => 5,
                 'notes' => 'Note'
             ]
@@ -248,7 +234,7 @@ class InstructorStudentFilesCest
         $I->sendPatch(
             "/instructor/student-files/7",
             [
-                'isAccepted' => 'Accepted',
+                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
                 'grade' => 5,
                 'notes' => 'Note'
             ]
@@ -273,7 +259,7 @@ class InstructorStudentFilesCest
         $I->sendPatch(
             "/instructor/student-files/1",
             [
-                'isAccepted' => 'Accepted',
+                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
                 'grade' => 5,
                 'notes' => 'Note'
             ]
@@ -284,14 +270,14 @@ class InstructorStudentFilesCest
             [
                 'id' => 1,
                 'name' => 'stud01.zip',
-                'isAccepted' => 'Accepted',
+                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
                 'translatedIsAccepted' => 'Accepted',
                 'isVersionControlled' => 0,
                 'grade' => '5',
                 'notes' => 'Note',
                 'graderName' => 'Teacher Two',
-                'errorMsg' => '',
-                'gitRepo' => null
+                'gitRepo' => null,
+                'errorMsg' => 'FULL_ERROR_MESSAGE',
             ]
         );
 
@@ -299,7 +285,7 @@ class InstructorStudentFilesCest
             StudentFile::class,
             [
                 'id' => 1,
-                'isAccepted' => 'Accepted',
+                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
                 'grade' => 5,
                 'notes' => 'Note'
             ]

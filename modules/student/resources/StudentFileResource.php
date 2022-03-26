@@ -3,9 +3,7 @@
 namespace app\modules\student\resources;
 
 use app\components\openapi\generators\OAProperty;
-use Yii;
 use yii\helpers\ArrayHelper;
-use yii\helpers\FileHelper;
 
 /**
  * Resource class for module 'StudentFile'
@@ -27,7 +25,9 @@ class StudentFileResource extends \app\models\StudentFile
             'notes',
             'isVersionControlled',
             'graderName',
-            'errorMsg'
+            'errorMsg' => function($model) {
+                return $model->safeErrorMsg;
+            },
         ];
     }
 

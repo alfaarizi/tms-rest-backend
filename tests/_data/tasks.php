@@ -10,7 +10,9 @@ return [
         'category' => 'Larger tasks',
         'description' => 'Description',
         'createrID' => 8,
-        'isVersionControlled' => 0
+        'isVersionControlled' => 0,
+        'autoTest' => 0,
+        'showFullErrorMsg' => 0,
     ],
     'task2' => [
         'id' => 2,
@@ -23,7 +25,9 @@ return [
         'category' => 'Smaller tasks',
         'description' => 'Description',
         'createrID' => 8,
-        'isVersionControlled' => 0
+        'isVersionControlled' => 0,
+        'autoTest' => 1,
+        'showFullErrorMsg' => 0,
     ],
     'task3' => [
         'id' => 3,
@@ -36,7 +40,9 @@ return [
         'category' => 'Larger tasks',
         'description' => 'Description',
         'createrID' => 8,
-        'isVersionControlled' => 0
+        'isVersionControlled' => 0,
+        'autoTest' => 1,
+        'showFullErrorMsg' => 1,
     ],
     'task4' => [
         'id' => 4,
@@ -48,7 +54,9 @@ return [
         'category' => 'Exams',
         'description' => 'Description',
         'createrID' => 8,
-        'isVersionControlled' => 0
+        'isVersionControlled' => 0,
+        'autoTest' => 0,
+        'showFullErrorMsg' => 0,
     ],
     'task5' => [
         'id' => 5,
@@ -60,7 +68,9 @@ return [
         'category' => 'Classwork tasks',
         'description' => 'Description',
         'createrID' => 7,
-        'isVersionControlled' => 0
+        'isVersionControlled' => 0,
+        'autoTest' => 0,
+        'showFullErrorMsg' => 0,
     ],
     'task6' => [
         'id' => 6,
@@ -72,7 +82,9 @@ return [
         'category' => 'Classwork tasks',
         'description' => 'Description',
         'createrID' => 8,
-        'isVersionControlled' => 0
+        'isVersionControlled' => 0,
+        'autoTest' => 0,
+        'showFullErrorMsg' => 0,
     ],
     'task7_canvas' => [
         'id' => 7,
@@ -84,7 +96,9 @@ return [
         'category' => 'Smaller tasks',
         'description' => 'Description',
         'createrID' => 8,
-        'isVersionControlled' => 0
+        'isVersionControlled' => 0,
+        'autoTest' => 0,
+        'showFullErrorMsg' => 0,
     ],
     'task8' => [
         'id' => 8,
@@ -96,7 +110,9 @@ return [
         'category' => 'Smaller tasks',
         'description' => 'Description',
         'createrID' => 8,
-        'isVersionControlled' => 0
+        'isVersionControlled' => 0,
+        'autoTest' => 0,
+        'showFullErrorMsg' => 0,
     ],
     'task9' => [
         'id' => 9,
@@ -109,6 +125,8 @@ return [
         'category' => 'Larger tasks',
         'description' => 'Description',
         'createrID' => 8,
-        'isVersionControlled' => 0
+        'isVersionControlled' => 0,
+        'autoTest' => 0,
+        'showFullErrorMsg' => 0,
     ],
 ];

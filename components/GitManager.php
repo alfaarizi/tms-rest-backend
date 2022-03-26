@@ -123,7 +123,7 @@ exit \$rc";
         $repopath = $repopath . basename($dirs[0]) . '/';
         $hookfile = fopen($repopath . '.git/hooks/pre-receive', "w");
         $studentFile = StudentFile::findOne(['taskID' => $task->id, 'uploaderID' => $subscription->userID]);
-        self::writePreRecieveGitHook($hookfile, $task->hardDeadline, $studentFile != null && $studentFile->isAccepted == 'Accepted');
+        self::writePreRecieveGitHook($hookfile, $task->hardDeadline, $studentFile != null && $studentFile->isAccepted == StudentFile::IS_ACCEPTED_ACCEPTED);
         fclose($hookfile);
     }
 
@@ -137,7 +137,7 @@ exit \$rc";
         rsort($dirs);
         $repopath = $repopath . basename($dirs[0]) . '/';
         $hookfile = fopen($repopath . '.git/hooks/pre-receive', "w");
-        self::writePreRecieveGitHook($hookfile, $studentFile->task->hardDeadline, $studentFile->isAccepted == 'Accepted');
+        self::writePreRecieveGitHook($hookfile, $studentFile->task->hardDeadline, $studentFile->isAccepted == StudentFile::IS_ACCEPTED_ACCEPTED);
         fclose($hookfile);
     }
 

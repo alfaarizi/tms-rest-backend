@@ -3,6 +3,7 @@
 namespace app\modules\student\controllers;
 
 use app\components\GitManager;
+use app\models\StudentFile;
 use app\models\User;
 use app\modules\student\resources\StudentFileUploadResource;
 use Yii;
@@ -187,12 +188,12 @@ class StudentFilesController extends BaseStudentRestController
         // Verify that the task is open for submissions or the student has a special late submission permission.
         if (strtotime($task->hardDeadline) < time() && (is_null(
                     $prevStudentFile
-                ) || $prevStudentFile->isAccepted !== "Late Submission")) {
+                ) || $prevStudentFile->isAccepted !== StudentFile::IS_ACCEPTED_LATE_SUBMISSION)) {
             throw new BadRequestHttpException(Yii::t('app', 'The hard deadline of the solution has passed!'));
         }
 
         // Verify that the student has no accepted solution yet.
-        if (!is_null($prevStudentFile) && $prevStudentFile->isAccepted === "Accepted") {
+        if (!is_null($prevStudentFile) && $prevStudentFile->isAccepted === StudentFile::IS_ACCEPTED_ACCEPTED) {
             throw new BadRequestHttpException(Yii::t('app', 'Your solution was accepted!'));
         }
 
@@ -254,7 +255,8 @@ class StudentFilesController extends BaseStudentRestController
             $studentFile = new StudentFileResource();
             //Set details
             $studentFile->taskID = $taskID;
-            $studentFile->isAccepted = "Uploaded";
+            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
+            $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
             $studentFile->grade = null;
             $studentFile->notes = "";
             $studentFile->uploaderID = $uploader->id;
@@ -265,7 +267,8 @@ class StudentFilesController extends BaseStudentRestController
             $studentFile = $prevStudentFile;
             $studentFile->name = basename($newFile->name);
             $studentFile->uploadTime = date('Y-m-d H:i:s');
-            $studentFile->isAccepted = "Updated";
+            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPDATED;
+            $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
         }
 
         if ($studentFile->save()) {

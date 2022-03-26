@@ -162,21 +162,15 @@ class AssignmentTester
         // check if the compilation was successful
         if ($execResult['exitCode'] != 0) {
             $this->results['compiled'] = false;
-            // check if the student is allowed to see the full error message
-            if ($task->showFullErrorMsg) {
-                if ($task->testOS == 'windows') {
-                    $this->results['compilationError'] = $execResult['stdout'] . PHP_EOL . $execResult['stderr'];
-                } else {
-                    $this->results['compilationError'] = $execResult['stderr'];
-                }
+            if ($task->testOS == 'windows') {
+                $this->results['compilationError'] = $execResult['stdout'] . PHP_EOL . $execResult['stderr'];
             } else {
-                $this->results['compilationError'] = Yii::t('app', 'The solution didn\'t compile');
+                $this->results['compilationError'] = $execResult['stderr'];
             }
             $this->stopContainer($containerName);
             return;
         }
         $this->results['compiled'] = true;
-
         $this->results['passed'] = true;
         $this->results['error'] = false;
         $this->results['errorMsg'] = '';
@@ -212,17 +206,9 @@ class AssignmentTester
             $this->results['error'] = true;
             // If the execution timed out
             if ($result['exitCode'] == 124 && $task->testOS == 'linux') {
-                if ($task->showFullErrorMsg) {
-                    $this->results['errorMsg'] = Yii::t('app', 'Your solution exceeded the execution time limit.');
-                } else {
-                    $this->results['errorMsg'] = Yii::t('app', 'Some error happened executing the program');
-                }
+                $this->results['errorMsg'] = Yii::t('app', 'Your solution exceeded the execution time limit.');
             } else {
-                if ($task->showFullErrorMsg) {
-                    $this->results['errorMsg'] = $result['stderr'];
-                } else {
-                    $this->results['errorMsg'] = Yii::t('app', 'Some error happened executing the program');
-                }
+                $this->results['errorMsg'] = $result['stderr'];
             }
             return false;
         }
@@ -234,19 +220,15 @@ class AssignmentTester
         if ($result['equal'] === 0) {
             $this->results[$testCaseNr]['passed'] = true;
         } else {
-            if ($task->showFullErrorMsg) {
-                $this->results['errorMsg'] = Yii::t('app', 'Your solution failed on') . ':' . PHP_EOL .
-                    Yii::t('app', 'Command arguments') . ': ' . PHP_EOL .
-                    $testCase->arguments . PHP_EOL . PHP_EOL .
-                    Yii::t('app', 'Given input') . ': ' . PHP_EOL .
-                    $testCase->input . PHP_EOL . PHP_EOL .
-                    Yii::t('app', 'Expected output') . ': ' . PHP_EOL .
-                    $testCase->output . PHP_EOL . PHP_EOL .
-                    Yii::t('app', 'Actual output') . ': ' . PHP_EOL .
-                    $result['stdout'];
-            } else {
-                $this->results['errorMsg'] = Yii::t('app', 'Your solution failed the tests');
-            }
+            $this->results['errorMsg'] = Yii::t('app', 'Your solution failed on') . ':' . PHP_EOL .
+                Yii::t('app', 'Command arguments') . ': ' . PHP_EOL .
+                $testCase->arguments . PHP_EOL . PHP_EOL .
+                Yii::t('app', 'Given input') . ': ' . PHP_EOL .
+                $testCase->input . PHP_EOL . PHP_EOL .
+                Yii::t('app', 'Expected output') . ': ' . PHP_EOL .
+                $testCase->output . PHP_EOL . PHP_EOL .
+                Yii::t('app', 'Actual output') . ': ' . PHP_EOL .
+                $result['stdout'];
             $this->results[$testCaseNr]['passed'] = false;
             $this->results['passed'] = false;
             return false;

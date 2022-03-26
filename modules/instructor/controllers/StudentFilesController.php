@@ -464,7 +464,7 @@ class StudentFilesController extends BaseInstructorRestController
 
         // Log
         Yii::info(
-            "Solution #$studentFile->id graded" .
+            "Solution #$studentFile->id graded " .
             "for task {$studentFile->task->name} (#$studentFile->taskID) " .
             "with status $studentFile->isAccepted, grade $studentFile->grade and notes: $studentFile->notes",
             __METHOD__
@@ -612,7 +612,17 @@ class StudentFilesController extends BaseInstructorRestController
         }
 
         if ($onlyUngraded) {
-            $files = StudentFileResource::findAll(['taskID' => $taskID, 'isAccepted' => ['Uploaded', 'Updated', 'Passed', 'Failed']]);
+            $files = StudentFileResource::findAll(
+                [
+                    'taskID' => $taskID,
+                    'isAccepted' => [
+                        StudentFile::IS_ACCEPTED_UPLOADED,
+                        StudentFile::IS_ACCEPTED_UPDATED,
+                        StudentFile::IS_ACCEPTED_PASSED,
+                        StudentFile::IS_ACCEPTED_FAILED,
+                    ]
+                ]
+            );
         } else {
             $files = StudentFileResource::findAll(['taskID' => $taskID]);
         }

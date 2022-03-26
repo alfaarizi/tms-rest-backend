@@ -80,7 +80,8 @@ class GitController extends BaseRestController
             $studentfile = new StudentFile();
             // Set details
             $studentfile->taskID = $taskid;
-            $studentfile->isAccepted = "Uploaded";
+            $studentfile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
+            $studentfile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
             $studentfile->uploaderID = $studentid;
             $studentfile->name = strtolower($student->neptun) . '.zip';
             $studentfile->grade = null;
@@ -110,7 +111,8 @@ class GitController extends BaseRestController
             // Set details
             $studentfile->name = strtolower($student->neptun) . '.zip';
             $studentfile->uploadTime = date('Y-m-d H:i:s');
-            $studentfile->isAccepted = "Updated";
+            $studentfile->isAccepted = StudentFile::IS_ACCEPTED_UPDATED;
+            $studentfile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
             // Save it to the db.
             if ($studentfile->save()) {
                 $this->response->statusCode = 200;
