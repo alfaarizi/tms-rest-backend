@@ -2,10 +2,8 @@
 
 namespace app\modules\instructor\controllers;
 
-use app\components\Moss;
+use app\components\plagiarism\MossPlagiarismFinder;
 use app\models\Semester;
-use app\models\StudentFile;
-use app\models\User;
 use app\modules\instructor\resources\CreatePlagiarismResource;
 use app\modules\instructor\resources\PlagiarismResource;
 use Throwable;
@@ -13,7 +11,6 @@ use Yii;
 use yii\base\ErrorException;
 use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
-use yii\helpers\FileHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -191,20 +188,11 @@ class PlagiarismController extends BaseInstructorRestController
             return $requestModel->errors;
         }
 
-        // Get the selected tasks and students.
-        $selectedTasks = $requestModel->selectedTasks;
-        $selectedStudents = $requestModel->selectedStudents;
+        // Get the parameters.
+        $taskIDs = implode(',', $requestModel->selectedTasks);
+        $userIDs = implode(',', $requestModel->selectedStudents);
+        $basefileIDs = implode(',', $requestModel->selectedBasefiles);
         $ignoreThreshold = $requestModel->ignoreThreshold;
-
-        // Check if the request correct.
-        if (count($selectedStudents) <= 1) {
-            $message = Yii::t('app', "Error: Can not validate only one student!");
-            throw new BadRequestHttpException($message);
-        }
-
-        // Split up the tasks and the users.
-        $taskIDs = implode(",", $selectedTasks);
-        $userIDs = implode(",", $selectedStudents);
 
         // Check if the request already presents in the db.
         $requesterID = Yii::$app->user->id;
@@ -214,6 +202,7 @@ class PlagiarismController extends BaseInstructorRestController
                 'requesterID' => $requesterID,
                 'taskIDs' => $taskIDs,
                 'userIDs' => $userIDs,
+                'baseFileIDs' => $basefileIDs,
                 'semesterID' => $semesterID,
                 'ignoreThreshold' => $ignoreThreshold
             ]
@@ -230,6 +219,7 @@ class PlagiarismController extends BaseInstructorRestController
                     'requesterID' => $requesterID,
                     'taskIDs' => $taskIDs,
                     'userIDs' => $userIDs,
+                    'baseFileIDs' => $basefileIDs,
                     'semesterID' => $semesterID,
                     'name' => $name,
                     'description' => $description,
@@ -419,141 +409,29 @@ class PlagiarismController extends BaseInstructorRestController
             );
         }
 
+        $plagiarism = $this->findOwnPlagiarism($id);
+
         // This may take some time.
         set_time_limit(1800);
         ini_set('default_socket_timeout', 900);
 
-        // Get the entry.
-        $plagiarism = PlagiarismResource::findOne($id);
-
-        if (is_null($plagiarism)) {
-            throw new NotFoundHttpException(Yii::t("app", "Request not found"));
-        }
-
-        if ($plagiarism->requesterID != Yii::$app->user->id) {
-            throw new ForbiddenHttpException(Yii::t("app", "You don't have permission to view this request"));
-        }
-
-        // Create a folder to the plagiarism validation.
-        $dataDir =  Yii::$app->basePath . '/' . Yii::$app->params['data_dir'];
-        $uploadedFilesPath = $dataDir . '/uploadedfiles';
-        $plagiarismPath = $dataDir . '/plagiarism/' . $id;
-        if (!file_exists($plagiarismPath)) {
-            mkdir($plagiarismPath, 0755, true);
-        }
-
-        $zip = new ZipArchive();
-        $moss = new Moss(Yii::$app->params['mossId']);
-        $moss->setIgnoreLimit($plagiarism->ignoreThreshold);
-
-        $languageCounter = [];
-        $supported = $moss->getAllowedExtensions();
-
-        // Iterate through on the tasks.
-        foreach (explode(",", $plagiarism->taskIDs) as $task) {
-            $taskPath = $uploadedFilesPath . '/' . $task;
-
-            // And through the users.
-            foreach (explode(",", $plagiarism->userIDs) as $userID) {
-                $userNeptun = strtolower(User::findOne($userID)->neptun);
-                $studentFile = StudentFile::findOne(['uploaderID' => $userID, 'taskID' => $task]);
-                if ($studentFile === null) {
-                    continue;
-                }
-                // Get the uploaded zip for version controlled and non version controlled tasks as well
-                $zipfile = $taskPath . '/' . $userNeptun . '/' . $studentFile->name;
-
-                // Open the zip for reading.
-                $res = $zip->open($zipfile);
-                if ($res === true) {
-                    $path = $plagiarismPath . '/' . $task . '/' . $userNeptun;
-                    if (!file_exists($path)) {
-                        mkdir($path, 0755, true);
-                    }
-
-                    // Check all the files within the zip.
-                    for ($i = 0; $i < $zip->numFiles; $i++) {
-                        $filename = $zip->getNameIndex($i);
-                        $fileinfo = pathinfo($filename);
-                        if (!isset($fileinfo['extension'])) {
-                            continue;
-                        }
-
-                        $ext = $fileinfo['extension'];
-                        // If the extension is invalid then skip the file.
-                        if (
-                            $ext === null || $ext === 'jpg' || $ext === 'pdf' || $ext === 'odt' ||
-                            $ext === 'png' || $ext === 'docx' || $ext === 'exe' || $ext === 'pdb'
-                        ) {
-                            continue;
-                        }
-
-                        // If the extension is supported:
-                        if (array_search($ext, $supported) !== false) {
-                            // Increment the appropriate counters.
-                            $langs = $moss->getExtensionLanguages($ext);
-                            foreach ($langs as $lang) {
-                                if (!isset($languageCounter[$lang])) {
-                                    $languageCounter[$lang] = 0;
-                                }
-                                ++$languageCounter[$lang];
-                            }
-
-                            // Generate unique output file name.
-                            $outFileName = $fileinfo['basename'];
-                            $outFileIndex = 0;
-                            while (file_exists($path . '/' . $outFileName)) {
-                                ++$outFileIndex;
-                                $outFileName = "{$fileinfo['filename']}_$outFileIndex.{$fileinfo['extension']}";
-                            }
-
-                            // Copy the file into the plagiarism validation folder.
-                            copy(
-                                'zip://' . $zipfile . '#' . $filename,
-                                $path . '/' . $outFileName
-                            );
-                        }
-                    }
-                    // Close the zip.
-                    $zip->close();
-                }
-            }
-        }
-
-        if (empty($languageCounter)) {
-            throw new BadRequestHttpException(Yii::t('app', "Submissions contain none supported file formats."));
-        }
-
-        // Set the validation language to the one which was present most often.
-        arsort($languageCounter);
-        reset($languageCounter);
-        $lang = key($languageCounter);
-        $moss->setLanguage($lang);
-
-        // change CWD to plagiarism folder
-        $cwd = getcwd();
-        chdir($plagiarismPath);
-
-        // Point to the plagiarism validation folder.
-        $exts = $moss->getLanguageExtensions($lang);
-        foreach ($exts as $ext) {
-            $moss->addByWildcard('*/*/*.' . $ext);
-        }
-        // Add ascii files anyway
-        $moss->addByWildcard('*/*/*.txt');
-        $moss->addByWildcard('*/*/*.md');
-        // Use directory mode - specifies that submissions are by directory, not by file.
-        $moss->setDirectoryMode(true);
-
-        // Send the request.
-        $plagiarism->response = $moss->send();
-
-        // Save the entry.
-        $plagiarism->save();
-
-        chdir($cwd);
-        FileHelper::removeDirectory($plagiarismPath);
+        (new MossPlagiarismFinder($id))->start();
 
         return $plagiarism;
+    }
+
+    /**
+     * Find own plagiarism with the given ID, or finish the request
+     * handling immediately with a 404 status code if not found.
+     * @throws NotFoundHttpException if the plagiarism doesn’t exist, or belongs to another user.
+     */
+    private function findOwnPlagiarism(int $id): PlagiarismResource
+    {
+        $plagiarism = PlagiarismResource::findOne(['id' => $id, 'requesterID' => Yii::$app->user->id]);
+        if ($plagiarism) {
+            return $plagiarism;
+        } else {
+            throw new NotFoundHttpException(Yii::t('app', 'The plagiarism check does not exist or belongs to another user.'));
+        }
     }
 }

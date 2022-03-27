@@ -40,13 +40,13 @@ class StudentFileTest extends \Codeception\Test\Unit
             [
                 'name' => 'test.zip',
                 'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
-                'taskID' => '2',
-                'uploaderID' => '1',
+                'taskID' => 5001,
+                'uploaderID' => 1000,
                 'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
                 'isVersionControlled' => 0,
                 'grade' => 4,
                 'notes' => '',
-                'graderID' => '1',
+                'graderID' => 1000,
                 'errorMsg' => self::FULL_ERROR_MSG,
             ]
         );
@@ -83,13 +83,13 @@ class StudentFileTest extends \Codeception\Test\Unit
         $file = new StudentFile([
             'name' => 'test.zip',
             'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
-            'taskID' => '3',
-            'uploaderID' => '1',
+            'taskID' => 5002,
+            'uploaderID' => 1000,
             'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
             'isVersionControlled' => 0,
             'grade' => 4,
             'notes' => '',
-            'graderID' => '1',
+            'graderID' => 1000,
             'errorMsg' => self::FULL_ERROR_MSG,
         ]);
 
@@ -122,14 +122,14 @@ class StudentFileTest extends \Codeception\Test\Unit
             [
                 'name' => 'test.zip',
                 'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
-                'taskID' => '3',
-                'uploaderID' => '1',
+                'taskID' => 5002,
+                'uploaderID' => 1000,
                 'isAccepted' => StudentFile::IS_ACCEPTED_PASSED,
                 'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_PASSED,
                 'isVersionControlled' => 0,
                 'grade' => 4,
                 'notes' => '',
-                'graderID' => '1',
+                'graderID' => 1000,
                 'errorMsg' => self::FULL_ERROR_MSG,
             ]
         );
@@ -157,13 +157,13 @@ class StudentFileTest extends \Codeception\Test\Unit
             [
                 'name' => 'test.zip',
                 'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
-                'taskID' => '3',
-                'uploaderID' => '1',
+                'taskID' => 5002,
+                'uploaderID' => 1000,
                 'isAccepted' => StudentFile::IS_ACCEPTED_FAILED,
                 'isVersionControlled' => 0,
                 'grade' => 4,
                 'notes' => '',
-                'graderID' => '1',
+                'graderID' => 1000,
                 'errorMsg' => self::FULL_ERROR_MSG,
             ]
         );

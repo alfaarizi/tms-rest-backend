@@ -60,14 +60,14 @@ class InstructorGroupsStudentsCest
 
     public function listStudentsWithoutPermission(ApiTester $I)
     {
-        $I->sendGet('/instructor/groups/8/students');
+        $I->sendGet('/instructor/groups/2007/students');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
 
     public function listStudents(ApiTester $I)
     {
-        $I->sendGet('/instructor/groups/1/students');
+        $I->sendGet('/instructor/groups/2000/students');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::USER_SCHEMA, '$.[*]');
         $I->seeResponseContainsJson(
@@ -83,13 +83,13 @@ class InstructorGroupsStudentsCest
 
     public function deleteStudentNotFound(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/0/students/8');
+        $I->sendDelete('/instructor/groups/0/students/1007');
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function deleteStudentFromCanvasCourse(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/6/students/2');
+        $I->sendDelete('/instructor/groups/2005/students/1001');
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
         $I->seeResponseContainsJson(
             [
@@ -106,7 +106,7 @@ class InstructorGroupsStudentsCest
 
     public function deleteStudentFromPreviousSemester(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/11/students/2');
+        $I->sendDelete('/instructor/groups/2010/students/1001');
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
         $I->seeResponseContainsJson(
             [
@@ -123,7 +123,7 @@ class InstructorGroupsStudentsCest
 
     public function deleteStudentWithoutPermission(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/8/students/1');
+        $I->sendDelete('/instructor/groups/2007/students/1000');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
         $I->seeRecord(
             Subscription::class,
@@ -141,7 +141,7 @@ class InstructorGroupsStudentsCest
                 'id' => 1,
             ]
         );
-        $I->sendDelete('/instructor/groups/1/students/2');
+        $I->sendDelete('/instructor/groups/2000/students/1001');
         $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
         $I->cantSeeRecord(
             Subscription::class,
@@ -165,7 +165,7 @@ class InstructorGroupsStudentsCest
     public function addStudentsToCanvasCourse(ApiTester $I)
     {
         $I->sendPost(
-            '/instructor/groups/6/students',
+            '/instructor/groups/2005/students',
             [
                 'neptunCodes' => ['STUD01']
             ]
@@ -181,7 +181,7 @@ class InstructorGroupsStudentsCest
     public function addStudentsWithoutPermission(ApiTester $I)
     {
         $I->sendPost(
-            '/instructor/groups/8/students',
+            '/instructor/groups/2007/students',
             [
                 'neptunCodes' => ['STUD01']
             ]
@@ -192,7 +192,7 @@ class InstructorGroupsStudentsCest
     public function addStudentsPreviousSemester(ApiTester $I)
     {
         $I->sendPost(
-            '/instructor/groups/11/students',
+            '/instructor/groups/2010/students',
             [
                 'neptunCodes' => ['TEACH02']
             ]
@@ -208,7 +208,7 @@ class InstructorGroupsStudentsCest
     public function addStudentsInvalid(ApiTester $I)
     {
         $I->sendPost(
-            '/instructor/groups/1/students',
+            '/instructor/groups/2000/students',
             []
         );
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
@@ -219,7 +219,7 @@ class InstructorGroupsStudentsCest
     public function addStudentsValid(ApiTester $I)
     {
         $I->sendPost(
-            '/instructor/groups/1/students',
+            '/instructor/groups/2000/students',
             [
                 'neptunCodes' => ['STUD00', 'STUD01', 'STUD02', 'STUD03', 'STUD04', 'STUD05']
             ]
@@ -265,17 +265,17 @@ class InstructorGroupsStudentsCest
         $I->seeEmailIsSent(1);
 
         // Check for exsisting users
-        $I->seeRecord(Subscription::class, ['userID' => 2, 'groupID' => 1, 'semesterID' => 2, 'isAccepted' => 1]);
-        $I->seeRecord(Subscription::class, ['userID' => 3, 'groupID' => 1, 'semesterID' => 2, 'isAccepted' => 1]);
-        $I->seeRecord(Subscription::class, ['userID' => 4, 'groupID' => 1, 'semesterID' => 2, 'isAccepted' => 1]);
-        $I->seeRecord(Subscription::class, ['userID' => 5, 'groupID' => 1, 'semesterID' => 2, 'isAccepted' => 1]);
-        $I->seeRecord(Subscription::class, ['userID' => 6, 'groupID' => 1, 'semesterID' => 2, 'isAccepted' => 1]);
+        $I->seeRecord(Subscription::class, ['userID' => 1001, 'groupID' => 2000, 'semesterID' => 3001, 'isAccepted' => 1]);
+        $I->seeRecord(Subscription::class, ['userID' => 1002, 'groupID' => 2000, 'semesterID' => 3001, 'isAccepted' => 1]);
+        $I->seeRecord(Subscription::class, ['userID' => 1003, 'groupID' => 2000, 'semesterID' => 3001, 'isAccepted' => 1]);
+        $I->seeRecord(Subscription::class, ['userID' => 1004, 'groupID' => 2000, 'semesterID' => 3001, 'isAccepted' => 1]);
+        $I->seeRecord(Subscription::class, ['userID' => 1005, 'groupID' => 2000, 'semesterID' => 3001, 'isAccepted' => 1]);
 
         // Check for new user
         $newUser = $I->grabRecord(User::class, ['neptun' => 'stud00']);
         $I->seeRecord(
             Subscription::class,
-            ['userID' => $newUser->id, 'groupID' => 1, 'semesterID' => 2, 'isAccepted' => 1]
+            ['userID' => $newUser->id, 'groupID' => 2000, 'semesterID' => 3001, 'isAccepted' => 1]
         );
     }
 }

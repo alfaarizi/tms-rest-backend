@@ -89,25 +89,25 @@ class InstructorTasksCest
 
     public function indexWithoutPermission(ApiTester $I)
     {
-        $I->sendGet('/instructor/tasks?groupID=2');
+        $I->sendGet('/instructor/tasks?groupID=2001');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function index(ApiTester $I)
     {
-        $I->sendGet('/instructor/tasks?groupID=1');
+        $I->sendGet('/instructor/tasks?groupID=2000');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA, '$.[*].[*]');
 
-        $I->seeResponseContainsJson([['id' => 1]]);
-        $I->seeResponseContainsJson([['id' => 2]]);
-        $I->seeResponseContainsJson([['id' => 3]]);
-        $I->seeResponseContainsJson([['id' => 4]]);
-        $I->seeResponseContainsJson([['id' => 9]]);
+        $I->seeResponseContainsJson([['id' => 5000]]);
+        $I->seeResponseContainsJson([['id' => 5001]]);
+        $I->seeResponseContainsJson([['id' => 5002]]);
+        $I->seeResponseContainsJson([['id' => 5003]]);
+        $I->seeResponseContainsJson([['id' => 5008]]);
 
-        $I->cantSeeResponseContainsJson([['id' => 5]]);
-        $I->cantSeeResponseContainsJson([['id' => 6]]);
-        $I->cantSeeResponseContainsJson([['id' => 7]]);
+        $I->cantSeeResponseContainsJson([['id' => 5004]]);
+        $I->cantSeeResponseContainsJson([['id' => 5005]]);
+        $I->cantSeeResponseContainsJson([['id' => 5006]]);
     }
 
     public function viewNotFound(ApiTester $I)
@@ -118,18 +118,18 @@ class InstructorTasksCest
 
     public function viewWithoutPermission(ApiTester $I)
     {
-        $I->sendGet('/instructor/tasks/5');
+        $I->sendGet('/instructor/tasks/5004');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function view(ApiTester $I)
     {
-        $I->sendGet('/instructor/tasks/1');
+        $I->sendGet('/instructor/tasks/5000');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
         $I->seeResponseContainsJson(
             [
-                'id' => 1,
+                'id' => 5000,
                 'name' => 'Task 1',
                 'category' => 'Larger tasks',
                 'translatedCategory' => 'Larger tasks',
@@ -140,8 +140,8 @@ class InstructorTasksCest
                 'autoTest' => 0,
                 'showFullErrorMsg' => 0,
                 'isVersionControlled' => 0,
-                'groupID' => 1,
-                'semesterID' => 2,
+                'groupID' => 2000,
+                'semesterID' => 3001,
                 'creatorName' => 'Teacher Two',
             ]
         );
@@ -153,7 +153,7 @@ class InstructorTasksCest
             '/instructor/tasks',
             [
                 'name' => 'Created',
-                'groupID' => 8,
+                'groupID' => 2007,
                 'softDeadLine' => date('Y-m-d H:i:s', strtotime('+1 day')),
                 'hardDeadline' => date('Y-m-d H:i:s', strtotime('+2 day')),
                 'category' => 'Smaller tasks',
@@ -171,7 +171,7 @@ class InstructorTasksCest
             '/instructor/tasks',
             [
                 'name' => 'Created',
-                'groupID' => 1,
+                'groupID' => 2000,
                 'category' => 'Smaller tasks',
                 'description' => 'Description',
                 'isVersionControlled' => 0
@@ -190,7 +190,7 @@ class InstructorTasksCest
                 'name' => 'Created',
                 'softDeadLine' => date('Y-m-d H:i:s', strtotime('+1 day')),
                 'hardDeadline' => date('Y-m-d H:i:s', strtotime('+2 day')),
-                'groupID' => 11,
+                'groupID' => 2010,
                 'category' => 'Smaller tasks',
                 'description' => 'Description',
                 'isVersionControlled' => 0
@@ -211,7 +211,7 @@ class InstructorTasksCest
             'name' => 'Created',
             'softDeadLine' => date(\DateTime::ATOM, strtotime('+1 day')),
             'hardDeadline' => date(\DateTime::ATOM, strtotime('+2 day')),
-            'groupID' => 1,
+            'groupID' => 2000,
             'category' => 'Smaller tasks',
             'description' => 'Description',
             'isVersionControlled' => 0,
@@ -237,7 +237,7 @@ class InstructorTasksCest
                 'autoTest' => null,
                 'isVersionControlled' => $data['isVersionControlled'],
                 'groupID' => $data['groupID'],
-                'semesterID' => 2,
+                'semesterID' => 3001,
                 'creatorName' => 'Teacher Two',
             ]
         );
@@ -255,7 +255,7 @@ class InstructorTasksCest
 
     public function updateWithoutPermission(ApiTester $I)
     {
-        $I->sendPatch('/instructor/tasks/5');
+        $I->sendPatch('/instructor/tasks/5004');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
         $I->seeEmailIsSent(0);
     }
@@ -263,7 +263,7 @@ class InstructorTasksCest
     public function updatePreviousSemester(ApiTester $I)
     {
         $I->sendPatch(
-            '/instructor/tasks/6',
+            '/instructor/tasks/5005',
             [
                 'name' => 'Updated',
             ]
@@ -281,7 +281,7 @@ class InstructorTasksCest
     public function updateTaskFromCanvasCourse(ApiTester $I)
     {
         $I->sendPatch(
-            '/instructor/tasks/7',
+            '/instructor/tasks/5006',
             [
                 'name' => 'Updated'
             ]
@@ -292,13 +292,13 @@ class InstructorTasksCest
                 'message' => 'This operation cannot be performed on a canvas synchronized course!'
             ]
         );
-        $I->seeRecord(Task::class, ['id' => 7, 'name' => 'Task 7']);
+        $I->seeRecord(Task::class, ['id' => 5006, 'name' => 'Task 7']);
     }
 
     public function updateInvalid(ApiTester $I)
     {
         $I->sendPatch(
-            '/instructor/tasks/1',
+            '/instructor/tasks/5000',
             [
                 'hardDeadline' => '',
             ]
@@ -312,7 +312,7 @@ class InstructorTasksCest
     public function updateValidDoesntChangeDeadline(ApiTester $I)
     {
         $I->sendPatch(
-            '/instructor/tasks/1',
+            '/instructor/tasks/5000',
             [
                 'name' => 'Updated',
             ]
@@ -322,7 +322,7 @@ class InstructorTasksCest
 
         $I->seeResponseContainsJson(
             [
-                'id' => 1,
+                'id' => 5000,
                 'name' => 'Updated',
                 'category' => 'Larger tasks',
                 'translatedCategory' => 'Larger tasks',
@@ -332,8 +332,8 @@ class InstructorTasksCest
                 'available' => null,
                 'autoTest' => 0,
                 'isVersionControlled' => 0,
-                'groupID' => 1,
-                'semesterID' => 2,
+                'groupID' => 2000,
+                'semesterID' => 3001,
                 'creatorName' => 'Teacher Two',
             ]
         );
@@ -346,7 +346,7 @@ class InstructorTasksCest
     {
         $date = date('Y-m-d H:i:s', strtotime('+7 day'));
         $I->sendPatch(
-            '/instructor/tasks/1',
+            '/instructor/tasks/5000',
             [
                 'name' => 'Updated',
                 'hardDeadline' => $date
@@ -362,7 +362,7 @@ class InstructorTasksCest
     {
         $date = date('Y-m-d H:i:s', strtotime('+7 day'));
         $I->sendPatch(
-            '/instructor/tasks/1',
+            '/instructor/tasks/5000',
             [
                 'name' => 'Updated',
                 'softDeadline' => $date
@@ -378,7 +378,7 @@ class InstructorTasksCest
     {
         $date = date('Y-m-d H:i:s', strtotime('+7 day'));
         $I->sendPatch(
-            '/instructor/tasks/1',
+            '/instructor/tasks/5000',
             [
                 'name' => 'Updated',
                 'available' => $date
@@ -398,41 +398,41 @@ class InstructorTasksCest
 
     public function deleteWithoutPermission(ApiTester $I)
     {
-        $I->sendDelete('/instructor/tasks/5');
+        $I->sendDelete('/instructor/tasks/5004');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
-        $I->seeRecord(Task::class, ['id' => 5]);
+        $I->seeRecord(Task::class, ['id' => 5004]);
     }
 
     public function deleteFromPreviousSemester(ApiTester $I)
     {
-        $I->sendDelete('/instructor/tasks/6');
+        $I->sendDelete('/instructor/tasks/5005');
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
         $I->seeResponseContainsJson(
             [
                 'message' => "You can't modify a task from a previous semester!"
             ]
         );
-        $I->seeRecord(Task::class, ['id' => 6]);
+        $I->seeRecord(Task::class, ['id' => 5005]);
     }
 
     public function deleteFromCanvasCourse(ApiTester $I)
     {
-        $I->sendDelete('/instructor/tasks/7');
+        $I->sendDelete('/instructor/tasks/5006');
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
         $I->seeResponseContainsJson(
             [
                 'message' => 'This operation cannot be performed on a canvas synchronized course!'
             ]
         );
-        $I->seeRecord(Task::class, ['id' => 7]);
+        $I->seeRecord(Task::class, ['id' => 5006]);
     }
 
 
     public function delete(ApiTester $I)
     {
-        $I->sendDelete('/instructor/tasks/1');
+        $I->sendDelete('/instructor/tasks/5000');
         $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
-        $I->cantSeeRecord(Task::class, ['id' => 1]);
+        $I->cantSeeRecord(Task::class, ['id' => 5000]);
 
         // Delete test cases
         $I->cantSeeRecord(TestCase::class, ['id' => 1]);
@@ -453,48 +453,48 @@ class InstructorTasksCest
 
     public function toggleAutoTesterWithoutPermission(ApiTester $I)
     {
-        $I->sendPatch("/instructor/tasks/5/toggle-auto-tester");
+        $I->sendPatch("/instructor/tasks/5004/toggle-auto-tester");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function toggleAutoTestPreviousSemester(ApiTester $I)
     {
-        $I->sendPatch("/instructor/tasks/6/toggle-auto-tester");
+        $I->sendPatch("/instructor/tasks/5005/toggle-auto-tester");
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
     }
 
     public function toggleAutoTester(ApiTester $I)
     {
         // Turn on
-        $I->sendPatch("/instructor/tasks/toggle-auto-tester?id=1");
+        $I->sendPatch("/instructor/tasks/toggle-auto-tester?id=5000");
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseContainsJson(
             [
-                'id' => 1,
+                'id' => 5000,
                 'autoTest' => 1
             ]
         );
         $I->seeRecord(
             Task::class,
             [
-                'id' => 1,
+                'id' => 5000,
                 'autoTest' => 1
             ]
         );
 
         // Turn off
-        $I->sendPatch("/instructor/tasks/toggle-auto-tester?id=1");
+        $I->sendPatch("/instructor/tasks/toggle-auto-tester?id=5000");
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseContainsJson(
             [
-                'id' => 1,
+                'id' => 5000,
                 'autoTest' => 0
             ]
         );
         $I->seeRecord(
             Task::class,
             [
-                'id' => 1,
+                'id' => 5000,
                 'autoTest' => 0
             ]
         );
@@ -505,17 +505,17 @@ class InstructorTasksCest
         $I->sendPost(
             "/instructor/tasks/list-users",
             [
-                "ids" => [1, 5]
+                "ids" => [5000, 5004]
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::USER_SCHEMA, '$.[*]');
-        $I->seeResponseContainsJson([['id' => 2]]);
-        $I->seeResponseContainsJson([['id' => 3]]);
-        $I->seeResponseContainsJson([['id' => 4]]);
+        $I->seeResponseContainsJson([['id' => 1001]]);
+        $I->seeResponseContainsJson([['id' => 1002]]);
+        $I->seeResponseContainsJson([['id' => 1003]]);
 
-        $I->cantSeeResponseContainsJson([['id' => 5]]);
-        $I->cantSeeResponseContainsJson([['id' => 6]]);
+        $I->cantSeeResponseContainsJson([['id' => 1004]]);
+        $I->cantSeeResponseContainsJson([['id' => 1005]]);
     }
 
     public function listUsersTaskNotFound(ApiTester $I)
@@ -534,22 +534,22 @@ class InstructorTasksCest
         $I->sendGet(
             "/instructor/tasks/list-for-course",
             [
-                "courseID" => 1,
+                "courseID" => 4000,
                 "myTasks" => true,
-                "semesterFromID" => 1,
-                "semesterToID" => 2
+                "semesterFromID" => 3000,
+                "semesterToID" => 3001
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA, "$.[*]");
-        $I->seeResponseContainsJson(['id' => 1]);
-        $I->seeResponseContainsJson(['id' => 2]);
-        $I->seeResponseContainsJson(['id' => 3]);
-        $I->seeResponseContainsJson(['id' => 4]);
-        $I->seeResponseContainsJson(['id' => 7]);
+        $I->seeResponseContainsJson(['id' => 5000]);
+        $I->seeResponseContainsJson(['id' => 5001]);
+        $I->seeResponseContainsJson(['id' => 5002]);
+        $I->seeResponseContainsJson(['id' => 5003]);
+        $I->seeResponseContainsJson(['id' => 5006]);
 
-        $I->cantSeeResponseContainsJson(['id' => 5]);
-        $I->cantSeeResponseContainsJson(['id' => 6]);
-        $I->cantSeeResponseContainsJson(['id' => 8]);
+        $I->cantSeeResponseContainsJson(['id' => 5004]);
+        $I->cantSeeResponseContainsJson(['id' => 5005]);
+        $I->cantSeeResponseContainsJson(['id' => 5007]);
     }
 }

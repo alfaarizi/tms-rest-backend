@@ -65,19 +65,19 @@ class StudentInstructorFilesCest
 
     public function indexWithoutPermission(ApiTester $I)
     {
-        $I->sendGet('/student/instructor-files', ['taskID' => 8]);
+        $I->sendGet('/student/instructor-files', ['taskID' => 5007]);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function indexNotAvailable(ApiTester $I)
     {
-        $I->sendGet('/student/instructor-files', ['taskID' => 4]);
+        $I->sendGet('/student/instructor-files', ['taskID' => 5003]);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function index(ApiTester $I)
     {
-        $I->sendGet('/student/instructor-files', ['taskID' => 1]);
+        $I->sendGet('/student/instructor-files', ['taskID' => 5000]);
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::INSTRUCTOR_FILE_SCHEMA, '$.[*]');
 
@@ -129,7 +129,7 @@ class StudentInstructorFilesCest
     {
         $I->sendGet("/student/instructor-files/1/download");
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->openFile(Yii::$app->params['data_dir'] . "/uploadedfiles/1/file1.txt");
+        $I->openFile(Yii::$app->params['data_dir'] . "/uploadedfiles/5000/file1.txt");
         $I->seeFileContentsEqual($I->grabResponse());
     }
 }

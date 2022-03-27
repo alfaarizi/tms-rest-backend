@@ -82,7 +82,7 @@ class InstructorExamQuestionSetCest
                     'id' => 1,
                     'name' => 'Question set',
                     'course' => [
-                        'id' => 1,
+                        'id' => 4000,
                         'name' => 'Java',
                         'code' => '1'
                     ]
@@ -91,7 +91,7 @@ class InstructorExamQuestionSetCest
                     'id' => 2,
                     'name' => 'Question set 2',
                     'course' => [
-                        'id' => 1,
+                        'id' => 4000,
                         'name' => 'Java',
                         'code' => '1'
                     ]
@@ -100,7 +100,7 @@ class InstructorExamQuestionSetCest
                     'id' => 3,
                     'name' => 'Question set 3',
                     'course' => [
-                        'id' => 1,
+                        'id' => 4000,
                         'name' => 'Java',
                         'code' => '1'
                     ]
@@ -135,7 +135,7 @@ class InstructorExamQuestionSetCest
                 'id' => 1,
                 'name' => 'Question set',
                 'course' => [
-                    'id' => 1,
+                    'id' => 4000,
                     'name' => 'Java',
                     'code' => '1'
                 ]
@@ -161,7 +161,7 @@ class InstructorExamQuestionSetCest
             "/instructor/exam-question-sets",
             [
                 'name' => 'Created Test',
-                'courseID' => 3,
+                'courseID' => 4002,
             ]
         );
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
@@ -173,7 +173,7 @@ class InstructorExamQuestionSetCest
             "/instructor/exam-question-sets",
             [
                 'name' => 'Created Test',
-                'courseID' => 1,
+                'courseID' => 4000,
             ]
         );
         $I->seeResponseCodeIs(HttpCode::CREATED);
@@ -182,7 +182,7 @@ class InstructorExamQuestionSetCest
             [
                 'name' => 'Created Test',
                 'course' => [
-                    'id' => 1,
+                    'id' => 4000,
                     'name' => 'Java',
                     'code' => '1'
                 ]
@@ -193,7 +193,7 @@ class InstructorExamQuestionSetCest
             ExamQuestionSet::class,
             [
                 'name' => 'Created Test',
-                'courseID' => 1,
+                'courseID' => 4000,
             ]
         );
     }
@@ -204,7 +204,7 @@ class InstructorExamQuestionSetCest
             "/instructor/exam-question-sets/1",
             [
                 'name' => 'Updated Test',
-                'courseID' => 1,
+                'courseID' => 4000,
             ]
         );
         $I->seeResponseCodeIs(HttpCode::CONFLICT);
@@ -214,7 +214,7 @@ class InstructorExamQuestionSetCest
             [
                 'id' => 1,
                 'name' => 'Question set',
-                'courseID' => 1,
+                'courseID' => 4000,
             ]
         );
     }
@@ -237,7 +237,7 @@ class InstructorExamQuestionSetCest
             "/instructor/exam-question-sets/4",
             [
                 'name' => 'Updated Test',
-                'courseID' => 3,
+                'courseID' => 4002,
             ]
         );
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
@@ -247,7 +247,7 @@ class InstructorExamQuestionSetCest
             [
                 'id' => 4,
                 'name' => 'Question set 4',
-                'courseID' => 3,
+                'courseID' => 4002,
             ]
         );
     }
@@ -258,7 +258,7 @@ class InstructorExamQuestionSetCest
             "/instructor/exam-question-sets/3",
             [
                 'name' => 'Updated Test',
-                'courseID' => 1,
+                'courseID' => 4000,
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -268,7 +268,7 @@ class InstructorExamQuestionSetCest
                 'id' => 3,
                 'name' => 'Updated Test',
                 'course' => [
-                    'id' => 1,
+                    'id' => 4000,
                     'name' => 'Java',
                     'code' => '1'
                 ]
@@ -280,7 +280,7 @@ class InstructorExamQuestionSetCest
             [
                 'id' => 3,
                 'name' => 'Updated Test',
-                'courseID' => 1,
+                'courseID' => 4000,
             ]
         );
     }

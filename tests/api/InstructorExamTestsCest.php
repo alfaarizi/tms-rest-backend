@@ -75,7 +75,7 @@ class InstructorExamTestsCest
     // tests
     public function index(ApiTester $I)
     {
-        $I->sendGet('/instructor/exam-tests/index?semesterID=2');
+        $I->sendGet('/instructor/exam-tests/index?semesterID=3001');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TEST_SCHEMA, '$.[*]');
         $I->seeResponseContainsJson(
@@ -128,11 +128,11 @@ class InstructorExamTestsCest
                 'availableuntil' => "2021-02-01T11:00:00+01:00",
                 'courseName' => 'Java',
                 'groupNumber' => 1,
-                'courseID' => 1,
-                'groupID' => 1,
+                'courseID' => 4000,
+                'groupID' => 2000,
                 'questionsetID' => 1,
                 'timezone' => 'Europe/Budapest',
-                'semesterID' => 2,
+                'semesterID' => 3001,
             ]
         );
     }
@@ -163,7 +163,7 @@ class InstructorExamTestsCest
                 'availablefrom' => date('Y-m-d H:i:s'),
                 'availableuntil' => date('Y-m-d H:i:s', strtotime('+1 day')),
                 'questionsetID' => 4,
-                'groupID' => 2,
+                'groupID' => 2001,
             ]
         );
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
@@ -183,7 +183,7 @@ class InstructorExamTestsCest
                 'availablefrom' => date('Y-m-d H:i:s'),
                 'availableuntil' => date('Y-m-d H:i:s', strtotime('+1 day')),
                 'questionsetID' => 1,
-                'groupID' => 3,
+                'groupID' => 2002,
             ]
         );
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
@@ -205,7 +205,7 @@ class InstructorExamTestsCest
                 'availablefrom' => $from,
                 'availableuntil' => $until,
                 'questionsetID' => 1,
-                'groupID' => 1,
+                'groupID' => 2000,
             ]
         );
         $I->seeResponseCodeIs(HttpCode::CREATED);
@@ -221,11 +221,11 @@ class InstructorExamTestsCest
                 'availableuntil' => $until,
                 'courseName' => 'Java',
                 'groupNumber' => 1,
-                'courseID' => 1,
-                'groupID' => 1,
+                'courseID' => 4000,
+                'groupID' => 2000,
                 'questionsetID' => 1,
                 'timezone' => 'Europe/Budapest',
-                'semesterID' => 2,
+                'semesterID' => 3001,
             ]
         );
 
@@ -240,7 +240,7 @@ class InstructorExamTestsCest
                 'availablefrom' => $from,
                 'availableuntil' => $until,
                 'questionsetID' => 1,
-                'groupID' => 1,
+                'groupID' => 2000,
             ]
         );
     }
@@ -322,11 +322,11 @@ class InstructorExamTestsCest
                 'availableuntil' => $until,
                 'courseName' => 'Java',
                 'groupNumber' => 1,
-                'courseID' => 1,
-                'groupID' => 1,
+                'courseID' => 4000,
+                'groupID' => 2000,
                 'questionsetID' => 1,
                 'timezone' => 'Europe/Budapest',
-                'semesterID' => 2,
+                'semesterID' => 3001,
             ]
         );
 
@@ -399,11 +399,11 @@ class InstructorExamTestsCest
                 'availableuntil' => $test->availableuntil,
                 'courseName' => 'Java',
                 'groupNumber' => 1,
-                'courseID' => 1,
-                'groupID' => 1,
+                'courseID' => 4000,
+                'groupID' => 2000,
                 'questionsetID' => 1,
                 'timezone' => 'Europe/Budapest',
-                'semesterID' => 2,
+                'semesterID' => 3001,
             ]
         );
 
@@ -418,7 +418,7 @@ class InstructorExamTestsCest
                 'availablefrom' => $test->availablefrom,
                 'availableuntil' => $test->availableuntil,
                 'questionsetID' => 1,
-                'groupID' => 1,
+                'groupID' => 2000,
             ]
         );
     }
@@ -466,21 +466,21 @@ class InstructorExamTestsCest
             ExamTestInstance::class,
             [
                 'testID' => 10,
-                'userID' => 2
+                'userID' => 1001
             ]
         );
         $I->seeRecord(
             ExamTestInstance::class,
             [
                 'testID' => 10,
-                'userID' => 3
+                'userID' => 1002
             ]
         );
         $I->seeRecord(
             ExamTestInstance::class,
             [
                 'testID' => 10,
-                'userID' => 4
+                'userID' => 1003
             ]
         );
     }

@@ -71,13 +71,13 @@ class InstructorFilesCest
 
     public function indexWithoutPermission(ApiTester $I)
     {
-        $I->sendGet('/instructor/instructor-files', ['taskID' => 5]);
+        $I->sendGet('/instructor/instructor-files', ['taskID' => 5004]);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function index(ApiTester $I)
     {
-        $I->sendGet('/instructor/instructor-files', ['taskID' => 1]);
+        $I->sendGet('/instructor/instructor-files', ['taskID' => 5000]);
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::INSTRUCTOR_FILE_SCHEMA, '$.[*]');
 
@@ -110,7 +110,7 @@ class InstructorFilesCest
 
     public function indexAll(ApiTester $I)
     {
-        $I->sendGet('/instructor/instructor-files', ['taskID' => 4, 'includeAttachments' => true, 'includeTestFiles' => true]);
+        $I->sendGet('/instructor/instructor-files', ['taskID' => 5003, 'includeAttachments' => true, 'includeTestFiles' => true]);
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::INSTRUCTOR_FILE_SCHEMA, '$.[*]');
 
@@ -139,7 +139,7 @@ class InstructorFilesCest
 
     public function indexAttachments(ApiTester $I)
     {
-        $I->sendGet('/instructor/instructor-files', ['taskID' => 4, 'includeAttachments' => true, 'includeTestFiles' => false]);
+        $I->sendGet('/instructor/instructor-files', ['taskID' => 5003, 'includeAttachments' => true, 'includeTestFiles' => false]);
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::INSTRUCTOR_FILE_SCHEMA, '$.[*]');
 
@@ -164,7 +164,7 @@ class InstructorFilesCest
 
     public function indexTestFiles(ApiTester $I)
     {
-        $I->sendGet('/instructor/instructor-files', ['taskID' => 4, 'includeAttachments' => false, 'includeTestFiles' => true]);
+        $I->sendGet('/instructor/instructor-files', ['taskID' => 5003, 'includeAttachments' => false, 'includeTestFiles' => true]);
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::INSTRUCTOR_FILE_SCHEMA, '$.[*]');
 
@@ -204,7 +204,7 @@ class InstructorFilesCest
         $I->sendGet("/instructor/instructor-files/1/download");
         $I->seeResponseCodeIs(HttpCode::OK);
 
-        $I->openFile(Yii::$app->params['data_dir'] . "/uploadedfiles/1/file1.txt");
+        $I->openFile(Yii::$app->params['data_dir'] . "/uploadedfiles/5000/file1.txt");
         $I->seeFileContentsEqual($I->grabResponse());
     }
 
@@ -213,7 +213,7 @@ class InstructorFilesCest
         $I->sendPost(
             "/instructor/instructor-files",
             [
-                "taskID" => 1,
+                "taskID" => 5000,
             ],
             [
                 "files" => [
@@ -261,7 +261,7 @@ class InstructorFilesCest
         $I->sendPost(
             "/instructor/instructor-files",
             [
-                "taskID" => 5,
+                "taskID" => 5004,
             ],
             [
                 "files" => [
@@ -277,7 +277,7 @@ class InstructorFilesCest
         $I->sendPost(
             "/instructor/instructor-files",
             [
-                "taskID" => 6,
+                "taskID" => 5005,
             ],
             [
                 "files" => [
@@ -315,7 +315,7 @@ class InstructorFilesCest
     {
         $I->sendDelete("/instructor/instructor-files/1");
         $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
-        $I->cantSeeFileFound("file1.txt", Yii::$app->params['data_dir'] . "/uploadedfiles/1");
+        $I->cantSeeFileFound("file1.txt", Yii::$app->params['data_dir'] . "/uploadedfiles/5000");
         $I->cantSeeRecord(InstructorFile::class, ['id' => 1]);
     }
 }

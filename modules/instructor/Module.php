@@ -47,6 +47,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
             // instructor/plagiarism
             "POST <module:{$this->id}>/<controller:plagiarism>/<id>/run-moss" => '<module>/<controller>/run-moss',
 
+            // instructor/plagiarism-basefile
+            "GET <module:{$this->id}>/<controller:plagiarism-basefile>/<id>/download" => '<module>/<controller>/download',
+
             // instructor/student-files
             "GET <module:{$this->id}>/<controller:student-files>/<id>/download" => '<module>/<controller>/download',
             "GET <module:{$this->id}>/<controller:instructor-files>/<id>/download" => '<module>/<controller>/download',

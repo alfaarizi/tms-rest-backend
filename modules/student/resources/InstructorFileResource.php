@@ -39,7 +39,7 @@ class InstructorFileResource extends \app\models\InstructorFile
         );
     }
 
-    public function getTask()
+    public function getTask(): \yii\db\ActiveQuery
     {
         return $this->hasOne(TaskResource::class, ['id' => 'taskID']);
     }

@@ -7,7 +7,7 @@ return [
         'starttime' => date('Y-m-d H:i:s', strtotime('-1 minute')),
         'finishtime' => date('Y-m-d H:i:s', time() + 120),
         'score' => 0,
-        'userID' => 3,
+        'userID' => 1002,
         'testID' => 1,
     ],
     'testinstance2' => [
@@ -16,7 +16,7 @@ return [
         'starttime' => null,
         'finishtime' => null,
         'score' => 0,
-        'userID' => 2,
+        'userID' => 1001,
         'testID' => 1,
     ],
     'testinstance3' => [
@@ -25,7 +25,7 @@ return [
         'starttime' => null,
         'finishtime' => null,
         'score' => 0,
-        'userID' => 3,
+        'userID' => 1002,
         'testID' => 1,
     ],
     'testinstance4' => [
@@ -34,7 +34,7 @@ return [
         'starttime' => null,
         'finishtime' => null,
         'score' => 0,
-        'userID' => 3,
+        'userID' => 1002,
         'testID' => 1,
     ],
     'testinstance5' => [
@@ -43,7 +43,7 @@ return [
         'starttime' => date('Y-m-d H:i:s'),
         'finishtime' => date('Y-m-d H:i:s', time() + 120),
         'score' => 0,
-        'userID' => 3,
+        'userID' => 1002,
         'testID' => 1,
     ],
     'testinstance6' => [
@@ -52,7 +52,7 @@ return [
         'starttime' => date('Y-m-d H:i:s'),
         'finishtime' => date('Y-m-d H:i:s', time() + 120),
         'score' => 0,
-        'userID' => 3,
+        'userID' => 1002,
         'testID' => 7,
     ],
     'testinstance7' => [
@@ -61,7 +61,7 @@ return [
         'starttime' => null,
         'finishtime' => null,
         'score' => 0,
-        'userID' => 3,
+        'userID' => 1002,
         'testID' => 7,
     ],
     'testinstance8' => [
@@ -70,7 +70,7 @@ return [
         'starttime' => date('Y-m-d H:i:s', strtotime('-1 day')),
         'finishtime' => null,
         'score' => 0,
-        'userID' => 3,
+        'userID' => 1002,
         'testID' => 8,
     ],
     'testinstance9' => [
@@ -79,7 +79,7 @@ return [
         'starttime' => date('Y-m-d H:i:s', strtotime('-1 minute')),
         'finishtime' => null,
         'score' => 0,
-        'userID' => 3,
+        'userID' => 1002,
         'testID' => 1,
     ],
     'testinstance10' => [
@@ -88,7 +88,7 @@ return [
         'starttime' => date('Y-m-d H:i:s', time() + 240),
         'finishtime' => null,
         'score' => 0,
-        'userID' => 3,
+        'userID' => 1002,
         'testID' => 13,
     ],
 ];

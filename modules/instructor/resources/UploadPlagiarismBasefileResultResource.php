@@ -1,0 +1,33 @@
+<?php
+
+namespace app\modules\instructor\resources;
+
+use app\components\openapi\generators\OAItems;
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
+use app\models\Model;
+
+class UploadPlagiarismBasefileResultResource extends Model implements IOpenApiFieldTypes
+{
+    /** @var PlagiarismBasefileResource[] */
+    public array $uploaded = [];
+    /** @var UploadFailedResource[] */
+    public array $failed = [];
+
+    public function fieldTypes(): array
+    {
+        return [
+            'uploaded' => new OAProperty(
+                [
+                    'type' => 'array',
+                    new OAItems(['ref' => '#/components/schemas/Instructor_PlagiarismBasefileResource_Read']),
+                ]),
+            'failed' => new OAProperty(
+                [
+                    'type' => 'array',
+                    new OAItems(['ref' => '#/components/schemas/Instructor_UploadFailedResource_Read'])
+                ],
+            ),
+        ];
+    }
+}

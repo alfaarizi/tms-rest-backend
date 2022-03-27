@@ -42,7 +42,7 @@ class InstructorTestCasesCest
 
     public function index(ApiTester $I)
     {
-        $I->sendGet("/instructor/test-cases?taskID=1");
+        $I->sendGet("/instructor/test-cases?taskID=5000");
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TEST_CASE_SCHEMA, '$.[*]');
         $I->seeResponseContainsJson(
@@ -52,14 +52,14 @@ class InstructorTestCasesCest
                     'input' => '1',
                     'output' => '1',
                     'arguments' => '1',
-                    'taskID' => 1
+                    'taskID' => 5000
                 ],
                 [
                     'id' => 2,
                     'input' => '2',
                     'output' => '4',
                     'arguments' => '8',
-                    'taskID' => 1
+                    'taskID' => 5000
                 ],
             ]
         );
@@ -69,7 +69,7 @@ class InstructorTestCasesCest
 
     public function indexWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/test-cases?taskID=5");
+        $I->sendGet("/instructor/test-cases?taskID=5004");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
@@ -82,7 +82,7 @@ class InstructorTestCasesCest
     public function createValid(ApiTester $I)
     {
         $data = [
-            'taskID' => 1,
+            'taskID' => 5000,
             'arguments' => 'Created arguments',
             'input' => 'Created input',
             'output' => 'Created output'
@@ -116,7 +116,7 @@ class InstructorTestCasesCest
     public function createValidEmptyInput(ApiTester $I)
     {
         $data = [
-            'taskID' => 1,
+            'taskID' => 5000,
             'arguments' => '',
             'input' => '',
             'output' => 'Created output'
@@ -133,7 +133,7 @@ class InstructorTestCasesCest
     public function createInvalidEmptyOutput(ApiTester $I)
     {
         $data = [
-            'taskID' => 1,
+            'taskID' => 5000,
             'arguments' => 'Created arguments',
             'input' => 'Created input',
             'output' => ''
@@ -150,7 +150,7 @@ class InstructorTestCasesCest
     public function createPreviousSemester(ApiTester $I)
     {
         $data = [
-            'taskID' => 6,
+            'taskID' => 5005,
             'arguments' => 'Created arguments',
             'input' => 'Created input',
             'output' => 'Created output'
@@ -171,7 +171,7 @@ class InstructorTestCasesCest
     public function createWithoutPermission(ApiTester $I)
     {
         $data = [
-            'taskID' => 5,
+            'taskID' => 5004,
             'arguments' => 'Created arguments',
             'input' => 'Created input',
             'output' => 'Created output'
@@ -190,14 +190,14 @@ class InstructorTestCasesCest
             'arguments' => 'Updated arguments',
             'input' => 'Updated input',
             'output' => 'Updated output',
-            'taskID' => 2 // cant update taskID
+            'taskID' => 5001 // can’t update taskID
         ];
         $expectedData = [
             'id' => 1,
             'arguments' => 'Updated arguments',
             'input' => 'Updated input',
             'output' => 'Updated output',
-            'taskID' => 1 // cant update taskID
+            'taskID' => 5000 // can’t update taskID
         ];
         $I->sendPatch(
             "/instructor/test-cases/1",

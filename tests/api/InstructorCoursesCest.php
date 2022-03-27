@@ -51,12 +51,12 @@ class InstructorCoursesCest
         $I->seeResponseContainsJson(
             [
                 [
-                    'id' => 2,
+                    'id' => 4001,
                     'name' => 'C++',
                     'code' => 2,
                 ],
                 [
-                    'id' => 3,
+                    'id' => 4002,
                     'name' => 'C#',
                     'code' => 3,
                 ],
@@ -65,7 +65,7 @@ class InstructorCoursesCest
 
         $I->cantSeeResponseContainsJson(
             [
-                'id' => 1,
+                'id' => 4000,
             ]
         );
     }
@@ -78,12 +78,12 @@ class InstructorCoursesCest
         $I->seeResponseContainsJson(
             [
                 [
-                    'id' => 1,
+                    'id' => 4000,
                     'name' => 'Java',
                     'code' => 1,
                 ],
                 [
-                    'id' => 3,
+                    'id' => 4002,
                     'name' => 'C#',
                     'code' => 3,
                 ],
@@ -92,7 +92,7 @@ class InstructorCoursesCest
 
         $I->cantSeeResponseContainsJson(
             [
-                'id' => 2,
+                'id' => 4001,
             ]
         );
     }
@@ -105,17 +105,17 @@ class InstructorCoursesCest
         $I->seeResponseContainsJson(
             [
                 [
-                    'id' => 1,
+                    'id' => 4000,
                     'name' => 'Java',
                     'code' => 1,
                 ],
                 [
-                    'id' => 2,
+                    'id' => 4001,
                     'name' => 'C++',
                     'code' => 2,
                 ],
                 [
-                    'id' => 3,
+                    'id' => 4002,
                     'name' => 'C#',
                     'code' => 3,
                 ],

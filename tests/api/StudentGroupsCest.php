@@ -47,7 +47,7 @@ class StudentGroupsCest
 
     public function index(ApiTester $I)
     {
-        $I->sendGet('/student/groups?semesterID=2');
+        $I->sendGet('/student/groups?semesterID=3001');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::GROUP_SCHEMA, '$.[*]');
         $I->seeResponseMatchesJsonType(['string'], '$.[*].instructorNames');
@@ -55,10 +55,10 @@ class StudentGroupsCest
         $I->seeResponseContainsJson(
             [
                 [
-                    "id" => 1,
+                    "id" => 2000,
                     "number" => 1,
                     "course" => [
-                        "id" => 1,
+                        "id" => 4000,
                         "name" => "Java",
                         "code" => "1"
                     ],
@@ -67,10 +67,10 @@ class StudentGroupsCest
                     ]
                 ],
                 [
-                    "id" => 2,
+                    "id" => 2001,
                     "number" => 2,
                     "course" => [
-                        "id" => 3,
+                        "id" => 4002,
                         "name" => "C#",
                         "code" => "3"
                     ],
@@ -79,10 +79,10 @@ class StudentGroupsCest
                     ]
                 ],
                 [
-                    "id" => 6,
+                    "id" => 2005,
                     "number" => 6,
                     "course" => [
-                        "id" => 1,
+                        "id" => 4000,
                         "name" => "Java",
                         "code" => "1"
                     ],
@@ -94,14 +94,14 @@ class StudentGroupsCest
             ]
         );
 
-        $I->cantSeeResponseContainsJson(['id' => 3]);
-        $I->cantSeeResponseContainsJson(['id' => 4]);
-        $I->cantSeeResponseContainsJson(['id' => 5]);
-        $I->cantSeeResponseContainsJson(['id' => 7]);
-        $I->cantSeeResponseContainsJson(['id' => 8]);
-        $I->cantSeeResponseContainsJson(['id' => 9]);
-        $I->cantSeeResponseContainsJson(['id' => 10]);
-        $I->cantSeeResponseContainsJson(['id' => 11]);
+        $I->cantSeeResponseContainsJson(['id' => 2002]);
+        $I->cantSeeResponseContainsJson(['id' => 2003]);
+        $I->cantSeeResponseContainsJson(['id' => 2004]);
+        $I->cantSeeResponseContainsJson(['id' => 2006]);
+        $I->cantSeeResponseContainsJson(['id' => 2007]);
+        $I->cantSeeResponseContainsJson(['id' => 2008]);
+        $I->cantSeeResponseContainsJson(['id' => 2009]);
+        $I->cantSeeResponseContainsJson(['id' => 2010]);
     }
 
     public function viewNotFound(ApiTester $I)
@@ -112,23 +112,23 @@ class StudentGroupsCest
 
     public function viewWithoutPermission(ApiTester $I)
     {
-        $I->sendGet('/student/groups/8');
+        $I->sendGet('/student/groups/2007');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function view(ApiTester $I)
     {
-        $I->sendGet('/student/groups/1');
+        $I->sendGet('/student/groups/2000');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::GROUP_SCHEMA);
         $I->seeResponseMatchesJsonType(['string'], '$.instructorNames');
 
         $I->seeResponseContainsJson(
             [
-                "id" => 1,
+                "id" => 2000,
                 "number" => 1,
                 "course" => [
-                    "id" => 1,
+                    "id" => 4000,
                     "name" => "Java",
                     "code" => "1"
                 ],

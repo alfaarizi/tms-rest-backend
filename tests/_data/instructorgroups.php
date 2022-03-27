@@ -2,51 +2,51 @@
 
 return [
     'instructorgroup1' => [
-        'userID' => 8,
-        'groupID' => 1,
+        'userID' => 1007,
+        'groupID' => 2000,
     ],
     'instructorgroup2' => [
-        'userID' => 8,
-        'groupID' => 7,
+        'userID' => 1007,
+        'groupID' => 2006,
     ],
     'instructorgroup3' => [
-        'userID' => 8,
-        'groupID' => 11,
+        'userID' => 1007,
+        'groupID' => 2010,
     ],
     'instructorgroup4' => [
-        'userID' => 7,
-        'groupID' => 2,
+        'userID' => 1006,
+        'groupID' => 2001,
     ],
     'instructorgroup5' => [
-        'userID' => 7,
-        'groupID' => 3,
+        'userID' => 1006,
+        'groupID' => 2002,
     ],
     'instructorgroup6' => [
-        'userID' => 9,
-        'groupID' => 7,
+        'userID' => 1008,
+        'groupID' => 2006,
     ],
     'instructorgroup7' => [
-        'userID' => 10,
-        'groupID' => 7,
+        'userID' => 1009,
+        'groupID' => 2006,
     ],
     'instructorgroup8' => [
-        'userID' => 10,
-        'groupID' => 8,
+        'userID' => 1009,
+        'groupID' => 2007,
     ],
     'instructorgroup9' => [
-        'userID' => 8,
-        'groupID' => 6,
+        'userID' => 1007,
+        'groupID' => 2005,
     ],
     'instructorgroup10' => [
-        'userID' => 10,
-        'groupID' => 6,
+        'userID' => 1009,
+        'groupID' => 2005,
     ],
     'instructorgroup11' => [
-        'userID' => 9,
-        'groupID' => 5,
+        'userID' => 1008,
+        'groupID' => 2004,
     ],
     'instructorgroup12' => [
-        'userID' => 10,
-        'groupID' => 5,
+        'userID' => 1009,
+        'groupID' => 2004,
     ],
 ];

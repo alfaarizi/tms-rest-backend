@@ -17,13 +17,11 @@ use Yii;
  * @property string $uploadTime
  * @property integer $taskID
  * @property string $category
- * @property-read string $path
  * @property-read boolean $isAttachment
  * @property-read boolean $isTestFile
- *
- * @property Task $task
+ * @property-read Task $task
  */
-class InstructorFile extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
+class InstructorFile extends File implements IOpenApiFieldTypes
 {
     /**
      * Attachment category for files to be shared with students.
@@ -133,27 +131,12 @@ class InstructorFile extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     /**
      * @inheritdoc
      */
-    public function beforeDelete()
-    {
-        if (!parent::beforeDelete()) {
-            return false;
-        }
-
-        return unlink($this->path);
-    }
-
-    /**
-     * @return string Absolute path.
-     */
-    public function getPath()
+    public function getPath(): string
     {
         return Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $this->taskID . '/' . $this->name;
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTask()
+    public function getTask(): \yii\db\ActiveQuery
     {
         return $this->hasOne(Task::class, ['id' => 'taskID']);
     }

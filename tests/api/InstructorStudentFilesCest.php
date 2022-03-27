@@ -73,13 +73,13 @@ class InstructorStudentFilesCest
 
     public function listForTaskWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-task", ['taskID' => 5]);
+        $I->sendGet("/instructor/student-files/list-for-task", ['taskID' => 5004]);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function listForTask(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-task", ['taskID' => 2]);
+        $I->sendGet("/instructor/student-files/list-for-task", ['taskID' => 5001]);
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA, "$.[*]");
 
@@ -102,25 +102,25 @@ class InstructorStudentFilesCest
 
     public function exportSpreadsheettWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 5, 'format' => 'csv']);
+        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 5004, 'format' => 'csv']);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function exportSpreadsheetInvalidFormat(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 2, 'format' => 'invalid']);
+        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 5001, 'format' => 'invalid']);
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
     }
 
     public function exportSpreadsheetXls(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 2, 'format' => 'xls']);
+        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 5001, 'format' => 'xls']);
         $I->seeResponseCodeIs(HttpCode::OK);
     }
 
     public function exportSpreadsheetCsv(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 2, 'format' => 'csv']);
+        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 5001, 'format' => 'csv']);
         $I->seeResponseCodeIs(HttpCode::OK);
         // Contains headers
         $I->seeResponseContains('"Name","NEPTUN","Upload Time","Is Accepted","Grade","Grade","Notes","Graded By"');
@@ -134,25 +134,25 @@ class InstructorStudentFilesCest
 
     public function listForStudentStudentNotFound(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-student", ['groupID' => 0, 'uploaderID' => 2]);
+        $I->sendGet("/instructor/student-files/list-for-student", ['groupID' => 0, 'uploaderID' => 1001]);
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function listForStudentTaskNotFound(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-student", ['groupID' => 1, 'uploaderID' => 0]);
+        $I->sendGet("/instructor/student-files/list-for-student", ['groupID' => 2000, 'uploaderID' => 0]);
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function listForStudentWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-student", ['groupID' => 8, 'uploaderID' => 2]);
+        $I->sendGet("/instructor/student-files/list-for-student", ['groupID' => 2007, 'uploaderID' => 1001]);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function listForStudent(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-student", ['groupID' => 1, 'uploaderID' => 2]);
+        $I->sendGet("/instructor/student-files/list-for-student", ['groupID' => 2000, 'uploaderID' => 1001]);
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA, "$.[*]");
 
@@ -195,9 +195,9 @@ class InstructorStudentFilesCest
                 'isVersionControlled' => '0',
                 'graderName' => 'Teacher Two',
                 'errorMsg' => 'FULL_ERROR_MESSAGE',
-                'taskID' => 2,
-                'groupID' => '1',
-                'uploaderID' => '2',
+                'taskID' => 5001,
+                'groupID' => 2000,
+                'uploaderID' => 1001,
                 'gitRepo' => null
             ]
         );
@@ -312,7 +312,7 @@ class InstructorStudentFilesCest
         $I->sendGet("/instructor/student-files/1/download");
         $I->seeResponseCodeIs(HttpCode::OK);
 
-        $I->openFile(Yii::$app->params['data_dir'] . "/uploadedfiles/2/stud01/stud01.zip");
+        $I->openFile(Yii::$app->params['data_dir'] . "/uploadedfiles/5001/stud01/stud01.zip");
         $I->seeFileContentsEqual($I->grabResponse());
     }
 
@@ -324,13 +324,13 @@ class InstructorStudentFilesCest
 
     public function downloadAllFilesWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5, 'onlyUngraded' => false]);
+        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5004, 'onlyUngraded' => false]);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function downloadAllFiles(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 2, 'onlyUngraded' => false]);
+        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5001, 'onlyUngraded' => false]);
         $I->seeResponseCodeIs(HttpCode::OK);
 
         $zipPath = Yii::$app->params["data_dir"] . "/tmp/";
@@ -350,7 +350,7 @@ class InstructorStudentFilesCest
 
     public function downloadAllFilesOnlyUngraded(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 2, 'onlyUngraded' => true]);
+        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5001, 'onlyUngraded' => true]);
         $I->seeResponseCodeIs(HttpCode::OK);
 
         $zipPath = Yii::$app->params["data_dir"] . "/tmp/";
@@ -370,7 +370,7 @@ class InstructorStudentFilesCest
 
     public function downloadAllEmpty(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 4, 'onlyUngraded' => false]);
+        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5003, 'onlyUngraded' => false]);
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
     }
 }

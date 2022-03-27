@@ -11,7 +11,7 @@ return [
         'availablefrom' => date('Y-m-d H:i:s', strtotime('-1 day')),
         'availableuntil' => date('Y-m-d H:i:s', strtotime('+1 day')),
         'questionsetID' => 1,
-        'groupID' => 1,
+        'groupID' => 2000,
     ],
     'invalid1' => [
         'id' => 2,
@@ -23,7 +23,7 @@ return [
         'availablefrom' => date('Y-m-d H:i:s', strtotime('+1 day')),
         'availableuntil' => date('Y-m-d H:i:s', strtotime('-1 day')),
         'questionsetID' => 1,
-        'groupID' => 1,
+        'groupID' => 2000,
     ],
     'invalid3' => [
         'id' => 4,
@@ -35,7 +35,7 @@ return [
         'availablefrom' => date('Y-m-d H:i:s', strtotime('-1 day')),
         'availableuntil' => date('Y-m-d H:i:s', strtotime('+1 day')),
         'questionsetID' => 1,
-        'groupID' => 1,
+        'groupID' => 2000,
     ],
     'invalid4' => [
         'id' => 5,
@@ -47,7 +47,7 @@ return [
         'availablefrom' => date('Y-m-d H:i:s', strtotime('+2 day')),
         'availableuntil' => date('Y-m-d H:i:s', strtotime('+1 day')),
         'questionsetID' => 1,
-        'groupID' => 1,
+        'groupID' => 2000,
     ],
     'invalid5' => [
         'id' => 6,
@@ -59,7 +59,7 @@ return [
         'availablefrom' =>  date('Y-m-d H:i:s', strtotime('-1 hour')),
         'availableuntil' => date('Y-m-d H:i:s', strtotime('+1 day')),
         'questionsetID' => 1,
-        'groupID' => 1,
+        'groupID' => 2000,
     ],
     'testNotAvailable' => [
         'id' => 7,
@@ -71,7 +71,7 @@ return [
         'availablefrom' => date('Y-m-d H:i:s', strtotime('-2 day')),
         'availableuntil' => date('Y-m-d H:i:s', strtotime('-1 day')),
         'questionsetID' => 1,
-        'groupID' => 1,
+        'groupID' => 2000,
     ],
     'testAvailable' => [
         'id' => 8,
@@ -83,7 +83,7 @@ return [
         'availablefrom' => date('Y-m-d H:i:s', strtotime('-2 day')),
         'availableuntil' => date('Y-m-d H:i:s', strtotime('+1 day')),
         'questionsetID' => 1,
-        'groupID' => 1,
+        'groupID' => 2000,
     ],
     'testAvailable1' => [
         'id' => 9,
@@ -95,7 +95,7 @@ return [
         'availablefrom' => date('Y-m-d H:i:s', strtotime('-2 day')),
         'availableuntil' => date('Y-m-d H:i:s', strtotime('+1 day')),
         'questionsetID' => 1,
-        'groupID' => 2,
+        'groupID' => 2001,
     ],
     'testFixed' => [
         'id' => 10,
@@ -107,7 +107,7 @@ return [
         'availablefrom' => "2021-02-01 10:00:00",
         'availableuntil' => "2021-02-01 11:00:00",
         'questionsetID' => 1,
-        'groupID' => 1,
+        'groupID' => 2000,
     ],
     'testWithoutEnoughtQuestions' => [
         'id' => 11,
@@ -119,7 +119,7 @@ return [
         'availablefrom' => date('Y-m-d H:i:s', strtotime('+1 day')),
         'availableuntil' => date('Y-m-d H:i:s', strtotime('+2 day')),
         'questionsetID' => 1,
-        'groupID' => 1,
+        'groupID' => 2000,
     ],
     'testEmptyGroup' => [
         'id' => 12,
@@ -131,7 +131,7 @@ return [
         'availablefrom' => "2021-02-01 10:00:00",
         'availableuntil' => "2021-02-01 11:00:00",
         'questionsetID' => 1,
-        'groupID' => 7,
+        'groupID' => 2006,
     ],
     'testFuture' => [
         'id' => 13,
@@ -143,6 +143,6 @@ return [
         'availablefrom' => date('Y-m-d H:i:s', strtotime('+1 day')),
         'availableuntil' => date('Y-m-d H:i:s', strtotime('+2 day')),
         'questionsetID' => 1,
-        'groupID' => 1,
+        'groupID' => 2000,
     ],
 ];

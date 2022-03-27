@@ -2,7 +2,7 @@
 
 return [
     'users0' => [
-        'id' => 1,
+        'id' => 1000,
         'neptun' => 'BATMAN',
         'name' => 'Bruce Wayne',
         'email' => 'batman@nanana.hu',
@@ -12,7 +12,7 @@ return [
         'notificationTarget' => 'official',
     ],
     'users1' => [
-        'id' => 2,
+        'id' => 1001,
         'neptun' => 'STUD01',
         'name' => 'Student One',
         'email' => 'stud01@elte.hu',
@@ -24,7 +24,7 @@ return [
         'notificationTarget' => 'official',
     ],
     'users2' => [
-        'id' => 3,
+        'id' => 1002,
         'neptun' => 'STUD02',
         'name' => 'Student Two',
         'email' => 'stud02@elte.hu',
@@ -34,7 +34,7 @@ return [
         'notificationTarget' => 'official',
     ],
     'users3' => [
-        'id' => 4,
+        'id' => 1003,
         'neptun' => 'STUD03',
         'name' => 'Student Three',
         'email' => 'stud03@elte.hu',
@@ -44,7 +44,7 @@ return [
         'notificationTarget' => 'custom',
     ],
     'users4' => [
-        'id' => 5,
+        'id' => 1004,
         'neptun' => 'STUD04',
         'name' => 'Student Four',
         'email' => 'stud04@elte.hu',
@@ -54,41 +54,41 @@ return [
         'notificationTarget' => 'none',
     ],
     'users5' => [
-        'id' => 6,
+        'id' => 1005,
         'neptun' => 'STUD05',
         'name' => 'Student Five',
         'email' => 'stud05@elte.hu',
     ],
     'teacher1' => [
-        'id' => 7,
+        'id' => 1006,
         'neptun' => 'TEACH1',
         'name' => 'Teacher One',
         'email' => 'teach1@elte.hu',
         'locale' => 'en-US',
     ],
     'teacher2' => [
-        'id' => 8,
+        'id' => 1007,
         'neptun' => 'TEACH2',
         'name' => 'Teacher Two',
         'email' => 'teach2@elte.hu',
         'locale' => 'en-US',
     ],
     'teacher3' => [
-        'id' => 9,
+        'id' => 1008,
         'neptun' => 'TEACH3',
         'name' => 'Teacher Three',
         'email' => 'teach3@elte.hu',
         'locale' => 'en-US',
     ],
     'teacher4' => [
-        'id' => 10,
+        'id' => 1009,
         'neptun' => 'TEACH4',
         'name' => 'Teacher Four',
         'email' => 'teach4@elte.hu',
         'locale' => 'en-US',
     ],
     'teacher5' => [
-        'id' => 11,
+        'id' => 1010,
         'neptun' => 'TEACH5',
         'name' => 'Teacher Five',
         'email' => 'teach5@elte.hu',
