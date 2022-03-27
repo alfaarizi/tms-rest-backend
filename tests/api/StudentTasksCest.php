@@ -60,25 +60,25 @@ class StudentTasksCest
 
     public function indexWithoutPermission(ApiTester $I)
     {
-        $I->sendGet('/student/tasks?groupID=8');
+        $I->sendGet('/student/tasks?groupID=2007');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function index(ApiTester $I)
     {
-        $I->sendGet('/student/tasks?groupID=1');
+        $I->sendGet('/student/tasks?groupID=2000');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA, '$.[*].[*]');
 
-        $I->seeResponseContainsJson([['id' => 1]]);
-        $I->seeResponseContainsJson([['id' => 2]]);
-        $I->seeResponseContainsJson([['id' => 3]]);
-        $I->seeResponseContainsJson([['id' => 9]]);
+        $I->seeResponseContainsJson([['id' => 5000]]);
+        $I->seeResponseContainsJson([['id' => 5001]]);
+        $I->seeResponseContainsJson([['id' => 5002]]);
+        $I->seeResponseContainsJson([['id' => 5008]]);
 
-        $I->cantSeeResponseContainsJson([['id' => 4]]);
-        $I->cantSeeResponseContainsJson([['id' => 5]]);
-        $I->cantSeeResponseContainsJson([['id' => 6]]);
-        $I->cantSeeResponseContainsJson([['id' => 7]]);
+        $I->cantSeeResponseContainsJson([['id' => 5003]]);
+        $I->cantSeeResponseContainsJson([['id' => 5004]]);
+        $I->cantSeeResponseContainsJson([['id' => 5005]]);
+        $I->cantSeeResponseContainsJson([['id' => 5006]]);
     }
 
     public function viewNotFound(ApiTester $I)
@@ -89,24 +89,24 @@ class StudentTasksCest
 
     public function viewNotAvailable(ApiTester $I)
     {
-        $I->sendGet('/student/tasks/4');
+        $I->sendGet('/student/tasks/5003');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function viewWithoutPermission(ApiTester $I)
     {
-        $I->sendGet('/student/tasks/8');
+        $I->sendGet('/student/tasks/5007');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function view(ApiTester $I)
     {
-        $I->sendGet('/student/tasks/1');
+        $I->sendGet('/student/tasks/5000');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
         $I->seeResponseContainsJson(
             [
-                'id' => 1,
+                'id' => 5000,
                 'name' => 'Task 1',
                 'category' => 'Larger tasks',
                 'translatedCategory' => 'Larger tasks',
@@ -115,7 +115,7 @@ class StudentTasksCest
                 'hardDeadline' => '2021-03-08T10:00:00+01:00',
                 'available' => null,
                 'creatorName' => 'Teacher Two',
-                'semesterID' => 2,
+                'semesterID' => 3001,
             ]
         );
     }

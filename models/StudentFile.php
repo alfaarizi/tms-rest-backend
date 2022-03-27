@@ -33,7 +33,7 @@ use yii\helpers\StringHelper;
  *
  * @property-read string $safeErrorMsg
  */
-class StudentFile extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
+class StudentFile extends File implements IOpenApiFieldTypes
 {
     public const SCENARIO_GRADE = 'grade';
 
@@ -204,18 +204,6 @@ class StudentFile extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     /**
      * @inheritdoc
      */
-    public function beforeDelete()
-    {
-        if (!parent::beforeDelete()) {
-            return false;
-        }
-
-        return unlink($this->path);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function beforeSave($insert)
     {
         if (!parent::beforeSave($insert)) {
@@ -227,9 +215,9 @@ class StudentFile extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     }
 
     /**
-     * @return string Absolute path.
+     * @inheritdoc
      */
-    public function getPath()
+    public function getPath(): string
     {
         return Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' .
             $this->taskID . '/' . strtolower($this->uploader->neptun) . '/' .

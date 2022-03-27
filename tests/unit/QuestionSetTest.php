@@ -37,7 +37,7 @@ class QuestionSetTest extends \Codeception\Test\Unit
     {
         $questionSet = new ExamQuestionSet();
         $questionSet->name = 'Question set';
-        $questionSet->courseID = 1;
+        $questionSet->courseID = 4000;
         $this->assertTrue($questionSet->validate(), "Question set created with correct parameters should be valid.");
     }
 
@@ -59,9 +59,9 @@ class QuestionSetTest extends \Codeception\Test\Unit
 
     public function testGetCourse()
     {
-        $this->assertNotNull(Course::findOne(1));
+        $this->assertNotNull(Course::findOne(4000));
         $questionSet = new ExamQuestionSet();
-        $questionSet->courseID = 1;
+        $questionSet->courseID = 4000;
         $course = $questionSet->getCourse();
         $this->assertNotNull($course, "Related course should be returned");
     }
@@ -77,9 +77,9 @@ class QuestionSetTest extends \Codeception\Test\Unit
 
     public function testDeleteCourse()
     {
-        $this->assertNotEmpty(ExamQuestionSet::find()->where(["courseID" => 1])->all());
+        $this->assertNotEmpty(ExamQuestionSet::find()->where(["courseID" => 4000])->all());
         $this->tester->expectException(\yii\db\IntegrityException::class, function () {
-            Course::findOne(1)->delete();
+            Course::findOne(4000)->delete();
         });
     }
 }

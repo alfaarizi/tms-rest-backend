@@ -48,14 +48,14 @@ class PlagiarismCest
 
     public function index(ApiTester $I)
     {
-        $I->sendGet('/instructor/plagiarism?semesterID=2');
+        $I->sendGet('/instructor/plagiarism?semesterID=3001');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::PLAGIARISM_SCHEMA, '$.[*]');
         $I->seeResponseContainsJson(
             [
                 [
                     'id' => 4,
-                    'semesterID' => 2,
+                    'semesterID' => 3001,
                     'name' => 'plagiarism4',
                     'description' => 'description4',
                     'response' => null,
@@ -63,7 +63,7 @@ class PlagiarismCest
                 ],
                 [
                     'id' => 3,
-                    'semesterID' => 2,
+                    'semesterID' => 3001,
                     'name' => 'plagiarism3',
                     'description' => 'description3',
                     'response' => null,
@@ -83,7 +83,7 @@ class PlagiarismCest
         $I->seeResponseContainsJson(
             [
                 'id' => 3,
-                'semesterID' => 2,
+                'semesterID' => 3001,
                 'name' => 'plagiarism3',
                 'description' => 'description3',
                 'response' => null,
@@ -108,8 +108,30 @@ class PlagiarismCest
     {
         $data = [
             'name' => 'Created',
-            'selectedTasks' => [1, 2],
-            'selectedStudents' => [2, 3],
+            'selectedTasks' => [5000, 5001],
+            'selectedStudents' => [1001, 1002],
+            'ignoreThreshold' => 1,
+            'description' => 'created'
+        ];
+        $expectedData = [
+            'name' => 'Created',
+            'ignoreThreshold' => 1,
+            'description' => 'created'
+        ];
+        $I->sendPost('/instructor/plagiarism', $data);
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeResponseMatchesJsonType(self::PLAGIARISM_SCHEMA);
+        $I->seeResponseContainsJson($expectedData);
+        $I->seeRecord(Plagiarism::class, $expectedData);
+    }
+
+    public function createWithBasefile(ApiTester $I)
+    {
+        $data = [
+            'name' => 'Created',
+            'selectedTasks' => [5000, 5001],
+            'selectedStudents' => [1001, 1002],
+            'selectedBasefiles' => [6000],
             'ignoreThreshold' => 1,
             'description' => 'created'
         ];
@@ -140,16 +162,71 @@ class PlagiarismCest
     {
         $data = [
             'name' => 'Created',
-            'selectedTasks' => [1, 2],
-            'selectedStudents' => [2],
+            'selectedTasks' => [5000, 5001],
+            'selectedStudents' => [1001],
             'ignoreThreshold' => 1,
             'description' => 'created'
         ];
         $I->sendPost('/instructor/plagiarism', $data);
-        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->seeResponseContainsJson(
             [
-                'message' => "Error: Can not validate only one student!"
+                'selectedStudents' => [ 'The Selected Students attribute should have multiple values.' ]
+            ]
+        );
+    }
+
+    public function createInvalidTask(ApiTester $I)
+    {
+        $data = [
+            'name' => 'Created',
+            'selectedTasks' => [0, 5001],
+            'selectedStudents' => [1001, 1002],
+            'ignoreThreshold' => 1,
+            'description' => 'created'
+        ];
+        $I->sendPost('/instructor/plagiarism', $data);
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseContainsJson(
+            [
+                'selectedTasks' => [ 'Selected Tasks is invalid.' ],
+            ]
+        );
+    }
+
+    public function createInvalidUser(ApiTester $I)
+    {
+        $data = [
+            'name' => 'Created',
+            'selectedTasks' => [5000, 5001],
+            'selectedStudents' => [0, 1001],
+            'ignoreThreshold' => 1,
+            'description' => 'created'
+        ];
+        $I->sendPost('/instructor/plagiarism', $data);
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseContainsJson(
+            [
+                'selectedStudents' => [ 'Selected Students is invalid.' ],
+            ]
+        );
+    }
+
+    public function createInvalidBasefile(ApiTester $I)
+    {
+        $data = [
+            'name' => 'Created',
+            'selectedTasks' => [5000, 5001],
+            'selectedStudents' => [1001, 1002],
+            'selectedBasefiles' => [0],
+            'ignoreThreshold' => 1,
+            'description' => 'created'
+        ];
+        $I->sendPost('/instructor/plagiarism', $data);
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseContainsJson(
+            [
+                'selectedBasefiles' => [ 'Selected Basefiles is invalid.' ],
             ]
         );
     }
@@ -158,8 +235,8 @@ class PlagiarismCest
     {
         $data = [
             'name' => 'Created',
-            'selectedTasks' => [1, 2],
-            'selectedStudents' => [2, 3],
+            'selectedTasks' => [5000, 5001],
+            'selectedStudents' => [1001, 1002],
             'ignoreThreshold' => 5,
             'description' => 'created'
         ];
@@ -171,7 +248,7 @@ class PlagiarismCest
         $I->seeResponseContainsJson(
             [
                 'id' => 3,
-                'semesterID' => 2,
+                'semesterID' => 3001,
                 'name' => 'plagiarism3',
                 'description' => 'description3',
                 'response' => null,
@@ -204,7 +281,7 @@ class PlagiarismCest
         $I->seeResponseContainsJson(
             [
                 'id' => 3,
-                'semesterID' => 2,
+                'semesterID' => 3001,
                 'name' => 'Updated',
                 'description' => 'description3',
                 'response' => null,

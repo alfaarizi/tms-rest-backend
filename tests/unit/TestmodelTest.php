@@ -35,7 +35,7 @@ class TestmodelTest extends \Codeception\Test\Unit
         $test->availablefrom = date('Y-m-d H:i:s', strtotime('+1 day', time()));
         $test->availableuntil = date('Y-m-d H:i:s', strtotime('+2 day', time()));
         $test->questionsetID = 1;
-        $test->groupID = 1;
+        $test->groupID = 2000;
         $this->assertTrue($test->validate(), "Test created with correct parameters should be valid.");
     }
 
@@ -76,9 +76,9 @@ class TestmodelTest extends \Codeception\Test\Unit
 
     public function testGetGroup()
     {
-        $this->assertNotNull(Group::findOne(1));
+        $this->assertNotNull(Group::findOne(2000));
         $test = new ExamTest();
-        $test->groupID = 1;
+        $test->groupID = 2000;
         $group = $test->getGroup();
         $this->assertNotNull($group, "Related group should be returned");
     }

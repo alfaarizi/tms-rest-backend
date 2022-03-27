@@ -144,7 +144,7 @@ class StudentFilesCest
         $I->sendGet("/student/student-files/1/download");
         $I->seeResponseCodeIs(HttpCode::OK);
 
-        $I->openFile(Yii::$app->params['data_dir'] . "/uploadedfiles/2/stud01/stud01.zip");
+        $I->openFile(Yii::$app->params['data_dir'] . "/uploadedfiles/5001/stud01/stud01.zip");
         $I->seeFileContentsEqual($I->grabResponse());
     }
 
@@ -163,7 +163,7 @@ class StudentFilesCest
     {
         $I->sendPost(
             "/student/student-files/upload",
-            ['taskID' => 4],
+            ['taskID' => 5003],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
@@ -173,7 +173,7 @@ class StudentFilesCest
     {
         $I->sendPost(
             "/student/student-files/upload",
-            ['taskID' => 8],
+            ['taskID' => 5007],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
@@ -183,7 +183,7 @@ class StudentFilesCest
     {
         $I->sendPost(
             "/student/student-files/upload",
-            ['taskID' => 1],
+            ['taskID' => 5000],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
@@ -193,7 +193,7 @@ class StudentFilesCest
     {
         $I->sendPost(
             "/student/student-files/upload",
-            ['taskID' => 5],
+            ['taskID' => 5004],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -218,15 +218,15 @@ class StudentFilesCest
                 "isAccepted" => StudentFile::IS_ACCEPTED_UPDATED,
             ]
         );
-        $I->cantSeeFileFound("stud01.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5/stud01/");
-        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5/stud01/");
+        $I->cantSeeFileFound("stud01.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5004/stud01/");
+        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5004/stud01/");
     }
 
     public function uploadAccepted(ApiTester $I)
     {
         $I->sendPost(
             "/student/student-files/upload",
-            ['taskID' => 3],
+            ['taskID' => 5002],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
@@ -241,7 +241,7 @@ class StudentFilesCest
     {
         $I->sendPost(
             "/student/student-files/upload",
-            ['taskID' => 2],
+            ['taskID' => 5001],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -267,15 +267,15 @@ class StudentFilesCest
                 "grade" => 4
             ]
         );
-        $I->cantSeeFileFound("stud01.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/2/stud01/");
-        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/2/stud01/");
+        $I->cantSeeFileFound("stud01.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5001/stud01/");
+        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5001/stud01/");
     }
 
     public function uploadNew(ApiTester $I)
     {
         $I->sendPost(
             "/student/student-files/upload",
-            ['taskID' => 9],
+            ['taskID' => 5008],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -295,11 +295,11 @@ class StudentFilesCest
         $I->seeRecord(
             StudentFile::class,
             [
-                "taskID" => 9,
+                "taskID" => 5008,
                 "name" => "stud01_upload_test.zip",
                 "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
             ]
         );
-        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/9/stud01/");
+        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5008/stud01/");
     }
 }

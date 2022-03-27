@@ -20,7 +20,7 @@
     <file>./tests/</file>
     <file>./web/</file>
 
-    <exclude-pattern>*/components/Moss.php</exclude-pattern>
+    <exclude-pattern>*/components/plagiarism/Moss.php</exclude-pattern>
     <exclude-pattern>*/components/LdapAuthenticator.php</exclude-pattern>
     <exclude-pattern>*/tests/_output/*</exclude-pattern>
     <exclude-pattern>*/tests/_support/*</exclude-pattern>

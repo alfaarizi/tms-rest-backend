@@ -46,7 +46,7 @@ class StudentExamTestInstanceCest
 
     public function indexSubmitted(ApiTester $I)
     {
-        $I->sendGet("/student/exam-test-instances?semesterID=2&submitted=true&future=false");
+        $I->sendGet("/student/exam-test-instances?semesterID=3001&submitted=true&future=false");
         $I->seeResponseCodeIs(HttpCode::OK); // 200
 
         $I->seeResponseIsJson();
@@ -95,7 +95,7 @@ class StudentExamTestInstanceCest
 
     public function indexNotSubmitted(ApiTester $I)
     {
-        $I->sendGet("/student/exam-test-instances?semesterID=2&submitted=false&future=false");
+        $I->sendGet("/student/exam-test-instances?semesterID=3001&submitted=false&future=false");
         $I->seeResponseCodeIs(HttpCode::OK); // 200
 
         $I->seeResponseIsJson();
@@ -140,7 +140,7 @@ class StudentExamTestInstanceCest
 
     public function indexFuture(ApiTester $I)
     {
-        $I->sendGet("/student/exam-test-instances?semesterID=2&submitted=false&future=true");
+        $I->sendGet("/student/exam-test-instances?semesterID=3001&submitted=false&future=true");
         $I->seeResponseCodeIs(HttpCode::OK); // 200
 
         $I->seeResponseIsJson();

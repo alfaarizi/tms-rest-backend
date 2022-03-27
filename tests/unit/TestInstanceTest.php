@@ -31,7 +31,7 @@ class TestInstanceTest extends \Codeception\Test\Unit
     public function testValidateCorrectModel()
     {
         $testinstance = new ExamTestInstance();
-        $testinstance->userID = 1;
+        $testinstance->userID = 1000;
         $testinstance->testID = 1;
         $this->assertTrue($testinstance->validate(), "Test instance created with correct parameters should be valid.");
     }
@@ -47,9 +47,9 @@ class TestInstanceTest extends \Codeception\Test\Unit
 
     public function testGetUser()
     {
-        $this->assertNotNull(User::findOne(1));
+        $this->assertNotNull(User::findOne(1000));
         $testInstance = new ExamTestInstance();
-        $testInstance->userID = 1;
+        $testInstance->userID = 1000;
         $user = $testInstance->getUser();
         $this->assertNotNull($user, "Related user should be returned");
     }
@@ -59,7 +59,7 @@ class TestInstanceTest extends \Codeception\Test\Unit
         $this->assertNotNull(ExamTest::findOne(1));
         $test = new ExamTestInstance();
         $test->testID = 1;
-        $test->userID = 1;
+        $test->userID = 1000;
         $test->save();
         $this->tester->expectException(\yii\db\IntegrityException::class, function () {
             ExamTest::findOne(1)->delete();
@@ -71,10 +71,10 @@ class TestInstanceTest extends \Codeception\Test\Unit
         $this->assertNotNull(ExamTest::findOne(1));
         $test = new ExamTestInstance();
         $test->testID = 1;
-        $test->userID = 1;
+        $test->userID = 1000;
         $test->save();
         $this->tester->expectException(\yii\db\IntegrityException::class, function () {
-            User::findOne(1)->delete();
+            User::findOne(1000)->delete();
         });
     }
 }

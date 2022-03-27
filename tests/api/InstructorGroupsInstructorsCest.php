@@ -55,13 +55,13 @@ class InstructorGroupsInstructorsCest
 
     public function listInstructorsWithoutPermission(ApiTester $I)
     {
-        $I->sendGet('/instructor/groups/8/instructors');
+        $I->sendGet('/instructor/groups/2007/instructors');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function listInstructors(ApiTester $I)
     {
-        $I->sendGet('/instructor/groups/7/instructors');
+        $I->sendGet('/instructor/groups/2006/instructors');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::USER_SCHEMA, '$.[*]');
         $I->seeResponseContainsJson(
@@ -103,7 +103,7 @@ class InstructorGroupsInstructorsCest
 
     public function deleteInstructorFromPreviousSemester(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/11/instructors/8');
+        $I->sendDelete('/instructor/groups/2010/instructors/1007');
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
         $I->seeResponseContainsJson(
             [
@@ -113,28 +113,28 @@ class InstructorGroupsInstructorsCest
         $I->seeRecord(
             InstructorGroup::class,
             [
-                'groupID' => 11,
-                'userID' => 8
+                'groupID' => 2010,
+                'userID' => 1007
             ]
         );
     }
 
     public function deleteInstructorsWithoutPermission(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/8/instructors/10');
+        $I->sendDelete('/instructor/groups/2007/instructors/1009');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
         $I->seeRecord(
             InstructorGroup::class,
             [
-                'groupID' => 8,
-                'userID' => 10
+                'groupID' => 2007,
+                'userID' => 1009
             ]
         );
     }
 
     public function deleteLastInstructor(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/1/instructors/8');
+        $I->sendDelete('/instructor/groups/2000/instructors/1007');
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
         $I->seeResponseContainsJson(
             [
@@ -144,21 +144,21 @@ class InstructorGroupsInstructorsCest
         $I->seeRecord(
             InstructorGroup::class,
             [
-                'groupID' => 1,
-                'userID' => 8
+                'groupID' => 2000,
+                'userID' => 1007
             ]
         );
     }
 
     public function deleteInstructor(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/5/instructors/10');
+        $I->sendDelete('/instructor/groups/2004/instructors/1009');
         $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
         $I->cantSeeRecord(
             InstructorGroup::class,
             [
-                'groupID' => 5,
-                'userID' => 10
+                'groupID' => 2004,
+                'userID' => 1009
             ]
         );
     }
@@ -195,7 +195,7 @@ class InstructorGroupsInstructorsCest
     public function addInstructorsWithoutPermission(ApiTester $I)
     {
         $I->sendPost(
-            '/instructor/groups/8/instructors',
+            '/instructor/groups/2007/instructors',
             [
                 'neptunCodes' => ['TEACH02']
             ]
@@ -206,7 +206,7 @@ class InstructorGroupsInstructorsCest
     public function addInstructorsPreviousSemester(ApiTester $I)
     {
         $I->sendPost(
-            '/instructor/groups/11/instructors',
+            '/instructor/groups/2010/instructors',
             [
                 'neptunCodes' => ['TEACH02']
             ]
@@ -222,7 +222,7 @@ class InstructorGroupsInstructorsCest
     public function addInstructorInvalid(ApiTester $I)
     {
         $I->sendPost(
-            '/instructor/groups/1/instructors',
+            '/instructor/groups/2000/instructors',
             []
         );
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
@@ -232,16 +232,16 @@ class InstructorGroupsInstructorsCest
     public function addInstructorValid(ApiTester $I)
     {
         $I->sendPost(
-            '/instructor/groups/1/instructors',
+            '/instructor/groups/2000/instructors',
             [
                 'neptunCodes' => ['TEACH0', 'TEACH1', 'TEACH2', 'TEACH3']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::MULTI_STATUS);
 
-        $I->seeRecord(InstructorGroup::class, ['userID' => 7, 'groupID' => 1]);
-        $I->seeRecord(InstructorGroup::class, ['userID' => 8, 'groupID' => 1]);
-        $I->seeRecord(InstructorGroup::class, ['userID' => 9, 'groupID' => 1]);
+        $I->seeRecord(InstructorGroup::class, ['userID' => 1006, 'groupID' => 2000]);
+        $I->seeRecord(InstructorGroup::class, ['userID' => 1007, 'groupID' => 2000]);
+        $I->seeRecord(InstructorGroup::class, ['userID' => 1008, 'groupID' => 2000]);
 
         $I->seeResponseContainsJson(
             [

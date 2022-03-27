@@ -9,6 +9,8 @@ Project Members
 | Zsolt Bögre     | Task analytics, RBAC |
 | Máté Cserép     | Project lead, architect, CI |
 | Éva Hartung     | Version controlled submissions (Git integration) |
+| Tamás J. Tóth   | User settings, Plagiarism check (basefiles, Moss persistence) |
+| Kristóf Károlyi | Plagiarism check (MOSS persistence) |
 | Péter Kaszab    | React-based frontend, REST API |
 | Balázs Kübler   | Administrator panel, RBAC |
 | Dávid Nagy      | Canvas integration and synchronization |

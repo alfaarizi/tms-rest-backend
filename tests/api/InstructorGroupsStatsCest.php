@@ -60,13 +60,13 @@ class InstructorGroupsStatsCest
 
     public function groupStatsWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/groups/8/stats");
+        $I->sendGet("/instructor/groups/2007/stats");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function groupsStats(ApiTester $I)
     {
-        $I->sendGet("/instructor/groups/1/stats");
+        $I->sendGet("/instructor/groups/2000/stats");
         $I->seeResponseCodeIs(HttpCode::OK);
 
         $I->seeResponseMatchesJsonType(
@@ -90,7 +90,7 @@ class InstructorGroupsStatsCest
         $I->seeResponseContainsJson(
             [
                 [
-                    'taskID' => 1,
+                    'taskID' => 5000,
                     'name' => 'Task 1',
                     'points' => [],
                     'submitted' =>
@@ -101,7 +101,7 @@ class InstructorGroupsStatsCest
                         ],
                 ],
                 [
-                    'taskID' => 2,
+                    'taskID' => 5001,
                     'name' => 'Task 2',
                     'points' => [4],
                     'submitted' =>
@@ -112,7 +112,7 @@ class InstructorGroupsStatsCest
                         ],
                 ],
                 [
-                    'taskID' => 3,
+                    'taskID' => 5002,
                     'name' => 'Task 3',
                     'points' => [5, 1],
                     'submitted' =>
@@ -123,7 +123,7 @@ class InstructorGroupsStatsCest
                         ],
                 ],
                 [
-                    'taskID' => 4,
+                    'taskID' => 5003,
                     'name' => 'Task 4',
                     'points' => [],
                     'submitted' =>
@@ -139,25 +139,25 @@ class InstructorGroupsStatsCest
 
     public function studentStatsGroupNotFound(ApiTester $I)
     {
-        $I->sendGet("/instructor/groups/0/students/1/stats");
+        $I->sendGet("/instructor/groups/0/students/1000/stats");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function studentStatsStudentNotFound(ApiTester $I)
     {
-        $I->sendGet("/instructor/groups/1/students/0/stats");
+        $I->sendGet("/instructor/groups/2000/students/0/stats");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function studentStatsWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/groups/8/students/1/stats");
+        $I->sendGet("/instructor/groups/2007/students/1000/stats");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function studentStats(ApiTester $I)
     {
-        $I->sendGet("/instructor/groups/1/students/2/stats");
+        $I->sendGet("/instructor/groups/2000/students/1001/stats");
         $I->seeResponseCodeIs(HttpCode::OK);
 
         $I->seeResponseMatchesJsonType(
@@ -177,7 +177,7 @@ class InstructorGroupsStatsCest
         $I->seeResponseContainsJson(
             $data = [
                 [
-                    'taskID' => 1,
+                    'taskID' => 5000,
                     'name' => 'Task 1',
                     'submittingTime' => null,
                     'softDeadLine' => null,
@@ -186,21 +186,21 @@ class InstructorGroupsStatsCest
                     'group' => [],
                 ],
                 [
-                    'taskID' => 2,
+                    'taskID' => 5001,
                     'name' => 'Task 2',
                     'user' => 4,
                     'username' => 'Student One',
                     'group' => [4],
                 ],
                 [
-                    'taskID' => 3,
+                    'taskID' => 5002,
                     'name' => 'Task 3',
                     'user' => 5,
                     'username' => 'Student One',
                     'group' => [5, 1],
                 ],
                 [
-                    'taskID' => 4,
+                    'taskID' => 5003,
                     'name' => 'Task 4',
                     'submittingTime' => null,
                     'softDeadLine' => null,

@@ -41,6 +41,7 @@ return [
     'Create Course' => 'Kurzus létrehozása',
     'Create Semester' => 'Szemeszter felvétele',
     'Custom email address' => 'Egyedi e-mail-cím',
+    'Database error' => 'Adatbázishiba',
     'Description' => 'Leírás',
     'Deadline' => 'Határidő',
     'Soft deadline' => 'Pótolható határidő',
@@ -55,7 +56,6 @@ return [
     'Duplicate' => 'Duplikálás',
     'ELTE Faculty of Informatics' => 'ELTE Informatikai Kar',
     'Embedded images' => 'Beágyazott képek',
-    'Error: Can not validate only one student!' => 'Hiba: csak egyetlen hallgató került kiválasztásra, nincs mivel összevetni!',
     'Exam Group' => 'Vizsgacsoport',
     'Exams' => 'Vizsgafeladatok',
     'Examinations' => 'Vizsgák',
@@ -79,9 +79,7 @@ return [
         'Vizsgacsoportok esetén a csoport szám, valamint az oktatók és értékelők személye rejtett a hallgatók elől.',
     'Graded By' => 'Értékelte',
     'Group Code' => 'Csoport Kód',
-    'Ignore threshold' => 'Egyezéskorlát',
     'Request not found' => 'A kérelem nem található',
-    'Submissions contain none supported file formats.' => 'A beküldött megoldások nem tartalmaznak támogatott fájlformátumokat.',
     'Is Accepted' => 'Státusz',
     'Information' => 'Részletek',
     'Instructor' => 'Gyakorlatvezető',
@@ -123,7 +121,6 @@ return [
     'Reject' => 'Elutasít',
     'Rejected' => 'Elutasítva',
     'Remove' => 'Eltávolítás',
-    'Response' => 'Eredmény',
     'Re-Send' => 'Újra küldés',
     'Semesters from-to' => 'Félévek tól-ig',
     'Send' => 'Küldés',
@@ -156,6 +153,10 @@ return [
     'The email confirmation failed. Either you provided a wrong confirmation code, or the code has expired.' =>
         'Az e-mail-cím megerősítése nem sikerült, mert hibás megerősítési kódot adtál meg vagy a kód lejárt.',
     'The logon server is not available!' => 'Az authentikációs szerver nem elérhető!',
+    'The plagiarism check does not exist or belongs to another user.' =>
+        'A plágiumellenőrzés nem létezik vagy más felhasználóhoz tartozik.',
+    'The plagiarism check does not exist, or the authorization token is incorrect.' =>
+        'A plágiumellenőrzés nem létezik, vagy a hozzáférési token helytelen.',
     'There is already an uploaded file: ' => 'Már van feltöltve fálj: ',
     'There is a submitted solution for this task' => 'A feladathoz már van beküldött megoldás.',
     'The changes will be saved' => 'A változtatások mentésre kerülnek.',
@@ -203,6 +204,8 @@ return [
     'The deadline expired' => 'Lejárt a határidő',
     'You are not a lecturer of this course!' => 'Nem vagy ennek a kurzusnak az előadója!',
     'You are not an instructor of this group!' => 'Nem vagy ennek a csoportnak az oktatója!',
+    'You must be an instructor of the course to perform this action!' => 'Ezen művelet végrehajtásához a kurzus gyakorlatvezetőjének vagy előadójának kell lenned!',
+    'You must be an incumbent instructor of the course to perform this action!' => 'Ezen művelet végrehajtásához a kurzus jelenlegi gyakorlatvezetőjének vagy előadójának kell lenned!',
     'You must be an instructor of the group to perform this action!' => 'Ezen művelet végrehajtásához a csoport gyakorlatvezetőjének vagy előadójának kell lenned!',
     'You must be a lecturer of the course to perform this action!' => 'Ezen művelet végrehajtásához a kurzus előadójának kell lenned!',
     'Enter task deadline ...' => 'Határidő megadása ...',
@@ -230,6 +233,8 @@ return [
     "Failed to load post data" => "A post adatok betöltése sikertelen volt",
     "A database error occurred" => "Hiba történt az adatbázisban",
     "The selected locale is not supported" => "A kiválaszott nyelvi beállítás nem támogatott",
+    "The basefile does not exist." => "Az alapfájl nem létezik.",
+    "You must be a lecturer of the course to delete a basefile of another user!" => "Más felhasználó alapfájljának törléséhez a kurzus előadójának kell lenned!",
 
     //Automatic testing
     'Automatic Testing' => 'Automatikus Tesztelés',
@@ -281,6 +286,7 @@ return [
     'Test case not found' => 'A keresett teszteset nem található',
     'File with the same name already exists for this task' => 'Már létezik fájl a megadott névvel ehhez a feladathoz',
     'The current values of evaluatorStatus and isAccepted are not valid' => 'Az evaluatorStatus és isAccepted mezők jelenlegi értékei érvénytelenek',
+    'Failed to remove BaseFile' => 'Alapfájl törlése sikertelen',
 
     //Examination module translations
     "An answer with the same text already exists for that question" => "Ezzel a szöveggel létezik már válasz a kérdéshez",

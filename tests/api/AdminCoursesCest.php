@@ -52,17 +52,17 @@ class AdminCoursesCest
         $I->seeResponseContainsJson(
             [
                 [
-                    'id' => 1,
+                    'id' => 4000,
                     'name' => 'Java',
                     'code' => 1,
                 ],
                 [
-                    'id' => 2,
+                    'id' => 4001,
                     'name' => 'C++',
                     'code' => 2,
                 ],
                 [
-                    'id' => 3,
+                    'id' => 4002,
                     'name' => 'C#',
                     'code' => 3,
                 ],
@@ -72,12 +72,12 @@ class AdminCoursesCest
 
     public function view(ApiTester $I)
     {
-        $I->sendGet('/admin/courses/1');
+        $I->sendGet('/admin/courses/4000');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::COURSE_SCHEMA);
         $I->seeResponseContainsJson(
             [
-                'id' => 1,
+                'id' => 4000,
                 'name' => 'Java',
                 'code' => 1,
             ]
@@ -144,7 +144,7 @@ class AdminCoursesCest
     public function updateInvalid(ApiTester $I)
     {
         $I->sendPatch(
-            '/admin/courses/1',
+            '/admin/courses/4000',
             [
                 'name' => '',
                 'code' => '10'
@@ -154,7 +154,7 @@ class AdminCoursesCest
         $I->seeRecord(
             Course::class,
             [
-                'id' => 1,
+                'id' => 4000,
                 'name' => 'Java',
                 'code' => 1
             ]
@@ -164,7 +164,7 @@ class AdminCoursesCest
     public function updateValid(ApiTester $I)
     {
         $I->sendPatch(
-            '/admin/courses/1',
+            '/admin/courses/4000',
             [
                 'name' => 'Updated',
                 'code' => 'Updated'
@@ -173,7 +173,7 @@ class AdminCoursesCest
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseContainsJson(
             [
-                'id' => 1,
+                'id' => 4000,
                 'name' => 'Updated',
                 'code' => 'Updated'
             ]
@@ -181,7 +181,7 @@ class AdminCoursesCest
         $I->seeRecord(
             Course::class,
             [
-                'id' => 1,
+                'id' => 4000,
                 'name' => 'Updated',
                 'code' => 'Updated'
             ]
@@ -196,18 +196,18 @@ class AdminCoursesCest
 
     public function listLecturers(ApiTester $I)
     {
-        $I->sendGet('admin/courses/3/lecturers');
+        $I->sendGet('admin/courses/4002/lecturers');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::USER_SCHEMA, '$.[*]');
         $I->seeResponseContainsJson(
             [
                 [
-                    'id' => 7,
+                    'id' => 1006,
                     'neptun' => 'TEACH1',
                     'name' => 'Teacher One',
                 ],
                 [
-                    'id' => 8,
+                    'id' => 1007,
                     'neptun' => 'TEACH2',
                     'name' => 'Teacher Two',
                 ],
@@ -223,19 +223,19 @@ class AdminCoursesCest
 
     public function deleteLecturerNotFoundForCourse(ApiTester $I)
     {
-        $I->sendDelete('/admin/courses/1/lecturers/7');
+        $I->sendDelete('/admin/courses/4000/lecturers/1006');
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function deleteLecturer(ApiTester $I)
     {
-        $I->sendDelete('/admin/courses/1/lecturers/8');
+        $I->sendDelete('/admin/courses/4000/lecturers/1007');
         $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
         $I->cantSeeRecord(
             InstructorCourse::class,
             [
-                'userID' => 8,
-                'courseID' => 1,
+                'userID' => 1007,
+                'courseID' => 4000,
             ]
         );
     }
@@ -248,7 +248,7 @@ class AdminCoursesCest
 
     public function addLecturerInvalidBody(ApiTester $I)
     {
-        $I->sendPost('/admin/courses/1/lecturers', []);
+        $I->sendPost('/admin/courses/4000/lecturers', []);
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->seeResponseMatchesJsonType(['string'], '$.[*]');
     }
@@ -256,16 +256,16 @@ class AdminCoursesCest
     public function addLecturer(ApiTester $I)
     {
         $I->sendPost(
-            '/admin/courses/1/lecturers',
+            '/admin/courses/4000/lecturers',
             [
                 'neptunCodes' => ['TEACH0', 'TEACH1', 'TEACH2', 'TEACH3']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::MULTI_STATUS);
 
-        $I->seeRecord(InstructorCourse::class, ['userID' => 7, 'courseID' => 1]);
-        $I->seeRecord(InstructorCourse::class, ['userID' => 8, 'courseID' => 1]);
-        $I->seeRecord(InstructorCourse::class, ['userID' => 9, 'courseID' => 1]);
+        $I->seeRecord(InstructorCourse::class, ['userID' => 1006, 'courseID' => 4000]);
+        $I->seeRecord(InstructorCourse::class, ['userID' => 1007, 'courseID' => 4000]);
+        $I->seeRecord(InstructorCourse::class, ['userID' => 1008, 'courseID' => 4000]);
 
         $I->seeResponseContainsJson(
             [

@@ -112,14 +112,14 @@ class CommonAuthCest
         $I->seeResponseContainsJson(
             [
                 'userInfo' => [
-                    'id' => 1,
+                    'id' => 1000,
                     'neptun' => 'BATMAN',
                     'locale' => 'en-US',
                     'isStudent' => true,
                     'isFaculty' => true,
                     'isAdmin' => true,
                     'actualSemester' => [
-                        'id' => 2,
+                        'id' => 3001,
                         'name' => '2018/19/2',
                         'actual' => 1,
                     ],
@@ -129,7 +129,7 @@ class CommonAuthCest
                 ]
             ]
         );
-        $I->seeRecord(User::class, ["id" => 1, "email" => "updated@nanana.hu"]);
+        $I->seeRecord(User::class, ["id" => 1000, "email" => "updated@nanana.hu"]);
     }
 
     public function mockLoginNewUser(ApiTester $I)
@@ -159,7 +159,7 @@ class CommonAuthCest
                     'isFaculty' => false,
                     'isAdmin' => false,
                     'actualSemester' => [
-                        'id' => 2,
+                        'id' => 3001,
                         'name' => '2018/19/2',
                         'actual' => 1,
                     ],
@@ -196,7 +196,7 @@ class CommonAuthCest
         $I->seeRecord(
             AccessToken::class,
             [
-                'userID' => 6
+                'userID' => 1005
             ]
         );
     }
@@ -207,14 +207,14 @@ class CommonAuthCest
         $I->sendGet("/common/auth/user-info");
         $I->seeResponseContainsJson(
             [
-                'id' => 1,
+                'id' => 1000,
                 'neptun' => 'BATMAN',
                 'locale' => 'en-US',
                 'isStudent' => false,
                 'isFaculty' => false,
                 'isAdmin' => true,
                 'actualSemester' => [
-                    'id' => 2,
+                    'id' => 3001,
                     'name' => '2018/19/2',
                     'actual' => 1,
                 ],

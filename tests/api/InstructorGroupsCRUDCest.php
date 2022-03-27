@@ -80,32 +80,32 @@ class InstructorGroupsCRUDCest
 
     public function index(ApiTester $I)
     {
-        $I->sendGet('/instructor/groups?semesterID=2');
+        $I->sendGet('/instructor/groups?semesterID=3001');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::GROUP_SCHEMA, '$.[*]');
 
         // Groups via InstructorGroups (semesterID=2)
         $I->seeResponseContainsJson(
             [
-                ['id' => 7]
+                ['id' => 2006]
             ]
         );
 
         // Groups via InstructorCourses (semesterID=2)
         $I->seeResponseContainsJson(
             [
-                ['id' => 1],
-                ['id' => 2],
-                ['id' => 3],
-                ['id' => 4],
-                ['id' => 6],
+                ['id' => 2000],
+                ['id' => 2001],
+                ['id' => 2002],
+                ['id' => 2003],
+                ['id' => 2005],
             ]
         );
 
-        $I->cantSeeResponseContainsJson([['id' => 8]]);
-        $I->cantSeeResponseContainsJson([['id' => 9]]);
-        $I->cantSeeResponseContainsJson([['id' => 10]]);
-        $I->cantSeeResponseContainsJson([['id' => 11]]);
+        $I->cantSeeResponseContainsJson([['id' => 2007]]);
+        $I->cantSeeResponseContainsJson([['id' => 2008]]);
+        $I->cantSeeResponseContainsJson([['id' => 2009]]);
+        $I->cantSeeResponseContainsJson([['id' => 2010]]);
     }
 
     public function viewNotFound(ApiTester $I)
@@ -116,27 +116,27 @@ class InstructorGroupsCRUDCest
 
     public function viewWithoutPermission(ApiTester $I)
     {
-        $I->sendGet('/instructor/groups/8');
+        $I->sendGet('/instructor/groups/2007');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function view(ApiTester $I)
     {
-        $I->sendGet('/instructor/groups/1');
+        $I->sendGet('/instructor/groups/2000');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::GROUP_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
-                'id' => '1',
+                'id' => 2000,
                 'number' => '1',
                 'course' => [
-                    'id' => '1',
+                    'id' => 4000,
                     'name' => 'Java',
                     'code' => '1'
                 ],
                 'isExamGroup' => '0',
-                'semesterID' => '2'
+                'semesterID' => 3001
             ]
         );
     }
@@ -147,7 +147,7 @@ class InstructorGroupsCRUDCest
             '/instructor/groups',
             [
                 'number' => 100,
-                'courseID' => 2,
+                'courseID' => 4001,
                 'isExamGroup' => '1',
                 'timezone' => 'Europe/Budapest',
             ]
@@ -161,7 +161,7 @@ class InstructorGroupsCRUDCest
             '/instructor/groups',
             [
                 'number' => 'One',
-                'courseID' => 1,
+                'courseID' => 4000,
                 'isExamGroup' => '1',
             ]
         );
@@ -175,7 +175,7 @@ class InstructorGroupsCRUDCest
             '/instructor/groups',
             [
                 'number' => 100,
-                'courseID' => 1,
+                'courseID' => 4000,
                 'isExamGroup' => '1',
                 'timezone' => 'Europe/Budapest',
             ]
@@ -183,24 +183,24 @@ class InstructorGroupsCRUDCest
 
         $I->seeResponseContainsJson(
             [
-                'id' => 12,
+                'id' => 2011,
                 'number' => '100',
                 'course' => [
-                    'id' => '1',
+                    'id' => 4000,
                     'name' => 'Java',
                     'code' => '1'
                 ],
                 'isExamGroup' => '1',
-                'semesterID' => '2'
+                'semesterID' => 3001
             ]
         );
 
         $I->seeRecord(
             Group::class,
             [
-                'id' => 12,
+                'id' => 2011,
                 'number' => 100,
-                'courseID' => 1,
+                'courseID' => 4000,
                 'isExamGroup' => '1',
             ]
         );
@@ -208,8 +208,8 @@ class InstructorGroupsCRUDCest
         $I->seeRecord(
             InstructorGroup::class,
             [
-                'userID' => 8,
-                'groupID' => 12
+                'userID' => 1007,
+                'groupID' => 2011
             ]
         );
     }
@@ -222,14 +222,14 @@ class InstructorGroupsCRUDCest
 
     public function updateWithoutPermission(ApiTester $I)
     {
-        $I->sendPatch('/instructor/groups/8');
+        $I->sendPatch('/instructor/groups/2007');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function updateInvalid(ApiTester $I)
     {
         $I->sendPatch(
-            '/instructor/groups/1',
+            '/instructor/groups/2000',
             [
                 'number' => 'One',
                 'isExamGroup' => '1',
@@ -242,7 +242,7 @@ class InstructorGroupsCRUDCest
     public function updateFromPreviousSemester(ApiTester $I)
     {
         $I->sendPatch(
-            '/instructor/groups/11',
+            '/instructor/groups/2010',
             [
                 'number' => 111,
             ]
@@ -252,7 +252,7 @@ class InstructorGroupsCRUDCest
         $I->seeRecord(
             Group::class,
             [
-                'id' => 11,
+                'id' => 2010,
                 'number' => 11,
             ]
         );
@@ -282,7 +282,7 @@ class InstructorGroupsCRUDCest
     public function updateValid(ApiTester $I)
     {
         $I->sendPatch(
-            '/instructor/groups/1',
+            '/instructor/groups/2000',
             [
                 'number' => 111,
                 'isExamGroup' => '1',
@@ -292,15 +292,15 @@ class InstructorGroupsCRUDCest
 
         $I->seeResponseContainsJson(
             [
-                'id' => 1,
+                'id' => 2000,
                 'number' => 111,
                 'course' => [
-                    'id' => '1',
+                    'id' => '4000',
                     'name' => 'Java',
                     'code' => '1'
                 ],
                 'isExamGroup' => '1',
-                'semesterID' => '2',
+                'semesterID' => '3001',
                 'timezone' => 'Europe/Budapest'
             ]
         );
@@ -309,9 +309,9 @@ class InstructorGroupsCRUDCest
         $I->seeRecord(
             Group::class,
             [
-                'id' => 1,
+                'id' => 2000,
                 'number' => 111,
-                'courseID' => 1,
+                'courseID' => 4000,
                 'isExamGroup' => 1,
                 'timezone' => 'Europe/Budapest'
             ]
@@ -326,26 +326,26 @@ class InstructorGroupsCRUDCest
 
     public function deleteWithoutPermission(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/8');
+        $I->sendDelete('/instructor/groups/2007');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
 
         $I->seeRecord(
             Group::class,
             [
-                'id' => 8,
+                'id' => 2007,
             ]
         );
     }
 
     public function deleteFromPreviousSemester(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/11');
+        $I->sendDelete('/instructor/groups/2010');
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
 
         $I->seeRecord(
             Group::class,
             [
-                'id' => 11,
+                'id' => 2010,
                 'number' => 11,
             ]
         );
@@ -353,37 +353,37 @@ class InstructorGroupsCRUDCest
 
     public function deleteCanvasCourse(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/6');
+        $I->sendDelete('/instructor/groups/2005');
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
 
         $I->seeRecord(
             Group::class,
             [
-                'id' => 6,
+                'id' => 2005,
             ]
         );
     }
 
     public function delete(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/5');
+        $I->sendDelete('/instructor/groups/2004');
         $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
         $I->cantSeeRecord(
             Group::class,
             [
-                'id' => 5,
+                'id' => 2004,
             ]
         );
     }
 
     public function deleteWithTasks(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/1');
+        $I->sendDelete('/instructor/groups/2000');
         $I->seeResponseCodeIs(HttpCode::CONFLICT);
         $I->seeRecord(
             Group::class,
             [
-                'id' => 1,
+                'id' => 2000,
             ]
         );
     }
@@ -397,22 +397,22 @@ class InstructorGroupsCRUDCest
 
     public function duplicateWithoutPermission(ApiTester $I)
     {
-        $I->sendPost('/instructor/groups/8/duplicate');
+        $I->sendPost('/instructor/groups/2007/duplicate');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function duplicateCanvasCourse(ApiTester $I)
     {
-        $I->sendPost('/instructor/groups/6/duplicate');
+        $I->sendPost('/instructor/groups/2005/duplicate');
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
     }
 
     public function duplicate(ApiTester $I)
     {
-        $I->sendPost('/instructor/groups/1/duplicate');
+        $I->sendPost('/instructor/groups/2000/duplicate');
         $I->seeResponseCodeIs(HttpCode::CREATED);
         $I->seeResponseMatchesJsonType(self::GROUP_SCHEMA);
 
-        $original = $I->grabRecord(Group::class, ['id' => 1]);
+        $original = $I->grabRecord(Group::class, ['id' => 2000]);
     }
 }

@@ -116,6 +116,7 @@ The reusable definitions are placed in the `components/openapi/definitions` dire
 
 - `apiInfo`: API and server information. It reads information from global constants.
 - `intId`: number format for all ids. Usage: `@OA\Schema(ref="#/components/schemas/int_id")`
+- `intIdList`: number format for comma-separated lists of IDs. Usage: `@OA\Schema(ref="#/components/schemas/int_id_list")`
 - `responses`: the most common responses with status codes.
 Usage: `@OA\Response(response=<code>, ref="#/components/responses/<code>")`
 - `security`: security schemes
@@ -152,5 +153,3 @@ Currently, the following prefixes are used:
 
 The schemas can be used in documentation via refs:
 `#/components/schemas/schema_name`
-
-
