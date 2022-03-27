@@ -18,17 +18,21 @@ class SetupAutoTesterResource extends Model implements IOpenApiFieldTypes
     public $showFullErrorMsg;
     public $reevaluateAutoTest;
     public $files;
+    public $appType;
+    public $port;
 
     public function rules()
     {
         return [
-            [['testOS'], 'required'],
+            [['testOS', 'appType'], 'required'],
             [['testOS'], 'string'],
             [['imageName'], 'string', 'max' => 255],
             [['compileInstructions', 'runInstructions'], 'string'],
             [['showFullErrorMsg'], 'boolean'],
             [['reevaluateAutoTest'], 'boolean'],
-            [['files'], 'file', 'skipOnEmpty' => true, 'maxFiles' => 20]
+            [['files'], 'file', 'skipOnEmpty' => true, 'maxFiles' => 20],
+            [['appType'], 'string'],
+            [['port'], 'integer']
         ];
     }
 
@@ -42,6 +46,8 @@ class SetupAutoTesterResource extends Model implements IOpenApiFieldTypes
             'showFullErrorMsg' => new OAProperty(['type' => 'integer']),
             'reevaluateAutoTest' => new OAProperty(['type' => 'integer']),
             'files' => new OAProperty(['type' => 'array', new OAItems(['type' => 'string', 'format' => 'binary'])]),
+            'appType' => new OAProperty(['type' => 'string', 'enum' => new OAList(Task::APP_TYPES)]),
+            'port' => new OAProperty(['type' => 'integer']),
         ];
     }
 }

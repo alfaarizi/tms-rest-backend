@@ -99,4 +99,10 @@ return [
         ],
     ],
     'params' => $params,
+    'container' => [
+        'definitions' => [
+            Docker\Docker::class => app\tests\doubles\DockerStub::class,
+            \app\components\SubmissionRunner::class => \app\components\SubmissionRunner::class,
+        ],
+    ]
 ];

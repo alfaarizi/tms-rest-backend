@@ -108,6 +108,20 @@ $config = [
             'migrationNamespaces' => [],
         ],
     ],
+    'container' => [
+        'definitions' => [
+            \Docker\Docker::class => function ($container, $params, $config) {
+                return Docker\Docker::create(
+                    Docker\DockerClientFactory::create(
+                        [
+                            'remote_socket' => Yii::$app->params['evaluator'][$params['os']]
+                        ]
+                    )
+                );
+            },
+            \app\components\SubmissionRunner::class => \app\components\SubmissionRunner::class,
+        ]
+    ],
 ];
 
 if (YII_ENV_DEV) {

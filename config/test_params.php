@@ -37,6 +37,26 @@ return [
         'compileTimeout' => '60',
         // seconds allowed to run a test case
         'testTimeout' => '5',
+        //web app execution configuration
+        'webApp' => [
+            // ttl of remote web applications
+            'maxWebAppRunTime' => '60',
+            //web app access reverse proxy configuration
+            'gateway' => [
+                //gateway configured
+                'enabled' => false,
+                //gateway url
+                'url' => ''
+            ],
+            'linux' => [
+                //reserved ports for on linux docker host
+                'reservedPorts'  => ['8080', '8089']
+            ],
+            'windows' => [
+                //reserved ports for on linux docker host
+                'reservedPorts' => ['9090', 9091]
+            ]
+        ],
         // preconfigured templates
         'templates' => [],
     ],

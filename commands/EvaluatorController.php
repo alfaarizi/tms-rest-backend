@@ -5,7 +5,13 @@ namespace app\commands;
 use app\components\AssignmentTester;
 use app\components\CanvasIntegration;
 use app\models\StudentFile;
-use app\models\TestCase;
+use app\models\WebAppExecution;
+use app\modules\instructor\components\WebAppExecutor;
+use app\modules\instructor\resources\WebAppExecutionResource;
+use Exception;
+use Yii;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Console;
 use yii\console\ExitCode;
 use yii\console\widgets\Table;
 use yii\helpers\ArrayHelper;
@@ -173,6 +179,87 @@ class EvaluatorController extends BaseController
 
             Yii::$app->language = $origLanguage;
             return ExitCode::OK;
+        }
+    }
+
+    /**
+     * Runs the automatic synchronization with canvas
+     * @param null $groupId Group to synchronize (empty for all)
+     */
+    public function actionCanvasSynchronization($groupId = null)
+    {
+        $groupQuery = Group::find()
+            ->alias('g')
+            ->joinWith('semester s')
+            ->where(['IS NOT', 'canvasCourseID', null])
+            ->andWhere(['actual' => true])
+            ->orderBy('synchronizerID');
+
+        if ($groupId) {
+            $groupQuery = $groupQuery->andWhere(['g.id' => $groupId]);
+        }
+
+        $canvasGroups = $groupQuery->all();
+        $this->stdout("Synchronizing " . count($canvasGroups) . " group(s)." . PHP_EOL);
+
+        $synchronizer = null;
+        $hasToken = false;
+        foreach ($canvasGroups as $group) {
+            $canvas = new CanvasIntegration();
+            if ($synchronizer !== $group->synchronizerID) {
+                $this->stdout("Fetching token for user {$group->synchronizer->neptun} (ID: #{$group->synchronizer->id})" . PHP_EOL);
+                $hasToken = $canvas->refreshCanvasToken($group->synchronizer);
+                $synchronizer = $group->synchronizerID;
+            }
+
+            if ($hasToken) {
+                $this->stdout("Synchronizing group #{$group->id}" . PHP_EOL);
+                $canvas->synchronizeGroupData($group);
+                sleep(10);
+            } else {
+                $this->stderr("Failed to synchronize group #{$group->id} for user {$group->synchronizer->neptun} (ID: #{$group->synchronizer->id})" . PHP_EOL, Console::FG_RED);
+            }
+        }
+        return ExitCode::OK;
+    }
+
+    /**
+     * Deletes expired access tokens from the database
+     * @return int
+     */
+    public function actionClearExpiredAccessTokens()
+    {
+        $count = AccessToken::deleteAll('validUntil < NOW()');
+
+        // Log
+        Yii::info(
+            "Successfully deleted $count expired access tokens from database",
+            __METHOD__
+        );
+
+        return ExitCode::OK;
+    }
+
+    public function actionShutDownExpiredWebAppExecutions()
+    {
+        $expiredExecutions = WebAppExecution::find()->expired()->all();
+
+        if (empty($expiredExecutions)) {
+            Yii::info("No expired web app executions found", __METHOD__);
+            return;
+        }
+
+        $webAppExecutor = new WebAppExecutor();
+        foreach ($expiredExecutions as $execution) {
+            try {
+                $webAppExecutor->stopWebApplication($execution);
+                Yii::debug("Web app execution [" . $execution->id . "] shut down", __METHOD__);
+            } catch (Exception $e) {
+                Yii::error(
+                    "Can't terminate web app execution [" . $execution->id . "]:" . $e->getMessage() . " " . $e->getTraceAsString(),
+                    __METHOD__
+                );
+            }
         }
     }
 }
