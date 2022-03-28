@@ -4,6 +4,21 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.5.0](https://gitlab.com/tms-elte/backend-core/compare/v2.4.2...v2.5.0) (2022-03-28)
+### Features
+
+* Add support for image update from remote docker repository ([bae58f](https://gitlab.com/tms-elte/backend-core/commit/bae58fda3b8be9788c3356ea87b8b3da28780bcf))
+* Plagiarism basefiles and results download ([c3010a](https://gitlab.com/tms-elte/backend-core/commit/c3010a07e9a4b46b937343c0871597e16dffc078))
+
+### Bug Fixes
+
+* Always store detailed compile or runtime error messages for the evaluator ([f4fe04](https://gitlab.com/tms-elte/backend-core/commit/f4fe048231c5a012e506f49e133930c71bdc0bf8))
+* Remove FL_NOCASE flag when opening ZIP ([527990](https://gitlab.com/tms-elte/backend-core/commit/52799035709f62f6e0ab32e378973d5b9cb9e7ad))
+* Return display name with LDAP-based auth properly. ([1d702a](https://gitlab.com/tms-elte/backend-core/commit/1d702ad4b0690f11c90b0e56389ba0d52a818c7a))
+
+
+---
+
 ## [2.4.2](https://gitlab.com/tms-elte/backend-core/compare/v2.4.1...v2.4.2) (2022-03-26)
 ### Bug Fixes
 
