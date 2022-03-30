@@ -24,7 +24,7 @@ class SetupAutoTesterResource extends Model implements IOpenApiFieldTypes
             [['testOS'], 'required'],
             [['testOS'], 'string'],
             [['imageName'], 'string', 'max' => 255],
-            [['compileInstructions', 'runInstructions'], 'string', 'max' => 1000],
+            [['compileInstructions', 'runInstructions'], 'string'],
             [['showFullErrorMsg'], 'boolean'],
             [['files'], 'file', 'skipOnEmpty' => true, 'maxFiles' => 20]
         ];

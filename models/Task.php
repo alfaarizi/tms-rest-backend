@@ -176,7 +176,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             ],
             [['autoTest', 'showFullErrorMsg'], 'boolean'],
             [['imageName'], 'string', 'max' => 255],
-            [['compileInstructions', 'runInstructions'], 'string', 'max' => 1000],
+            [['compileInstructions', 'runInstructions'], 'string'],
         ];
     }
 
