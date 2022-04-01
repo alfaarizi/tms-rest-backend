@@ -373,7 +373,8 @@ class AssignmentTester
             mkdir($path, 0755, true);
         }
 
-        $testFiles = InstructorFile::find(['taskID' => $this->studentFile->taskID])
+        $testFiles = InstructorFile::find()
+            ->where(['taskID' => $this->studentFile->taskID])
             ->onlyTestFiles()
             ->all();
 
