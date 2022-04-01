@@ -4,6 +4,14 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.5.2](https://gitlab.com/tms-elte/backend-core/compare/v2.5.1...v2.5.2) (2022-04-01)
+### Bug Fixes
+
+* Copy only the test files of the selected task into the docker container in the automated tester. ([23b098](https://gitlab.com/tms-elte/backend-core/commit/23b098c3d17cbe874c72f6609d2554a8163d9697))
+
+
+---
+
 ## [2.5.1](https://gitlab.com/tms-elte/backend-core/compare/v2.5.0...v2.5.1) (2022-03-30)
 ### Bug Fixes
 
