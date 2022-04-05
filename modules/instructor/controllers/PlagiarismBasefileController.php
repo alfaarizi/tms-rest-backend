@@ -130,7 +130,7 @@ class PlagiarismBasefileController extends BaseInstructorRestController
         return new ActiveDataProvider([
             'query' => PlagiarismBasefileResource::find()
                 ->joinWith('groups g')
-                ->innerJoin(['t' => Task::find()->where(['id' => $resource->ids]), 't.groupID = g.id']),
+                ->innerJoin(['t' => Task::find()->where(['id' => $resource->ids])], 't.groupID = g.id'),
             'pagination' => false,
         ]);
     }
