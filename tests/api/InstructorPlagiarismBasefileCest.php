@@ -76,6 +76,24 @@ class InstructorPlagiarismBasefileCest
         $I->cantSeeResponseContainsJson(['id' => 6001]);
     }
 
+    public function listByTasks(ApiTester $I)
+    {
+        $I->sendPost('/instructor/plagiarism-basefile/by-tasks', ['ids' => [5000, 5001, 5005]]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::BASEFILE_SCHEMA, '$.[*]');
+
+        $I->seeResponseContainsJson(
+            [
+                [
+                    'id' => 6000,
+                    'name' => 'DelegateCommand.cs',
+                ],
+            ]
+        );
+
+        $I->cantSeeResponseContainsJson(['id' => 6001]);
+    }
+
     public function downloadNotFound(ApiTester $I)
     {
         $I->sendGet('/instructor/plagiarism-basefile/0/download');
