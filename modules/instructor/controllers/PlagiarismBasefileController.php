@@ -315,7 +315,7 @@ class PlagiarismBasefileController extends BaseInstructorRestController
         }
 
         // Authorization check
-        if ($file->uploaderID != Yii::$app->user->id && !Yii::$app->user->can('manageCourse', ['courseID' => $file->courseID])) {
+        if (!$file->deletable) {
             throw new ForbiddenHttpException(Yii::t('app', 'You must be a lecturer of the course to delete a basefile of another user!'));
         }
 
