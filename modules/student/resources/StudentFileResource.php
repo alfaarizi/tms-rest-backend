@@ -20,6 +20,7 @@ class StudentFileResource extends \app\models\StudentFile
             'name',
             'uploadTime',
             'isAccepted',
+            'uploadCount',
             'translatedIsAccepted',
             'grade',
             'notes',

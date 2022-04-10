@@ -88,8 +88,14 @@ class GitController extends BaseRestController
             $studentfile->notes = "";
             $studentfile->uploadTime = date('Y-m-d H:i:s');
             $studentfile->isVersionControlled = 1;
+            $studentfile->uploadCount = 1;
             // Save it to the db.
             if ($studentfile->save()) {
+                Yii::info(
+                    "A new solution has been uploaded for " .
+                    "{$studentfile->task->name} ($studentfile->taskID)",
+                    __METHOD__
+                );
                 $this->response->statusCode = 201;
                 return Yii::t('app', 'Upload completed.');
             } elseif ($studentfile->hasErrors()) {
@@ -111,10 +117,16 @@ class GitController extends BaseRestController
             // Set details
             $studentfile->name = strtolower($student->neptun) . '.zip';
             $studentfile->uploadTime = date('Y-m-d H:i:s');
-            $studentfile->isAccepted = StudentFile::IS_ACCEPTED_UPDATED;
+            $studentfile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
             $studentfile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
+            $studentfile->uploadCount++;
             // Save it to the db.
             if ($studentfile->save()) {
+                Yii::info(
+                    "A new solution has been uploaded for " .
+                    "{$studentfile->task->name} ($studentfile->taskID)",
+                    __METHOD__
+                );
                 $this->response->statusCode = 200;
                 return Yii::t('app', 'Upload completed.');
             } elseif ($studentfile->hasErrors()) {

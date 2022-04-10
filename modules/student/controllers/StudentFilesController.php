@@ -263,12 +263,14 @@ class StudentFilesController extends BaseStudentRestController
             $studentFile->name = basename($newFile->name);
             $studentFile->uploadTime = date('Y-m-d H:i:s');
             $studentFile->isVersionControlled = $versionControlled ? 1 : 0;
+            $studentFile->uploadCount = 1;
         } else {
             $studentFile = $prevStudentFile;
             $studentFile->name = basename($newFile->name);
             $studentFile->uploadTime = date('Y-m-d H:i:s');
-            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPDATED;
+            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
             $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
+            $studentFile->uploadCount++;
         }
 
         if ($studentFile->save()) {

@@ -26,6 +26,7 @@ use yii\helpers\StringHelper;
  * @property string $evaluatorStatus
  * @property string $errorMsg
  * @property integer $canvasID
+ * @property integer $uploadCount
  *
  * @property Task $task
  * @property User $uploader
@@ -54,7 +55,6 @@ class StudentFile extends File implements IOpenApiFieldTypes
     ];
 
     public const IS_ACCEPTED_UPLOADED = 'Uploaded';
-    public const IS_ACCEPTED_UPDATED = 'Updated';
     public const IS_ACCEPTED_ACCEPTED = 'Accepted';
     public const IS_ACCEPTED_REJECTED = 'Rejected';
     public const IS_ACCEPTED_LATE_SUBMISSION = 'Late Submission';
@@ -62,6 +62,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public const IS_ACCEPTED_FAILED = 'Failed';
 
     public const IS_ACCEPTED_VALUES = [
+        self::IS_ACCEPTED_UPLOADED,
         self::IS_ACCEPTED_ACCEPTED,
         self::IS_ACCEPTED_REJECTED,
         self::IS_ACCEPTED_LATE_SUBMISSION,
@@ -141,7 +142,8 @@ class StudentFile extends File implements IOpenApiFieldTypes
             'graderID' => Yii::t('app', 'Graded By'),
             'errorMsg' => Yii::t('app', 'Error Message'),
             'canvasID' => Yii::t('app', 'Canvas id'),
-            'evaluatorStatus' => Yii::t('app', 'Evaluator status')
+            'evaluatorStatus' => Yii::t('app', 'Evaluator status'),
+            'uploadCount' => Yii::t('app', 'Upload Count'),
         ];
     }
 
@@ -164,6 +166,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
             'errorMsg' => new OAProperty(['type' => 'string']),
             'canvasID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'groupID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'uploadCount' => new OAProperty(['type' => 'number', 'format' => 'integer']),
         ];
     }
 

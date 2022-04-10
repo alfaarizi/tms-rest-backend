@@ -90,7 +90,6 @@ class Subscription extends \yii\db\ActiveRecord
                 [
                     'isAccepted' => [
                         StudentFile::IS_ACCEPTED_UPLOADED,
-                        StudentFile::IS_ACCEPTED_UPDATED,
                         StudentFile::IS_ACCEPTED_PASSED,
                         StudentFile::IS_ACCEPTED_FAILED,
                     ]
