@@ -16,6 +16,7 @@ class SetupAutoTesterResource extends Model implements IOpenApiFieldTypes
     public $compileInstructions;
     public $runInstructions;
     public $showFullErrorMsg;
+    public $reevaluateAutoTest;
     public $files;
 
     public function rules()
@@ -26,6 +27,7 @@ class SetupAutoTesterResource extends Model implements IOpenApiFieldTypes
             [['imageName'], 'string', 'max' => 255],
             [['compileInstructions', 'runInstructions'], 'string'],
             [['showFullErrorMsg'], 'boolean'],
+            [['reevaluateAutoTest'], 'boolean'],
             [['files'], 'file', 'skipOnEmpty' => true, 'maxFiles' => 20]
         ];
     }
@@ -38,6 +40,7 @@ class SetupAutoTesterResource extends Model implements IOpenApiFieldTypes
             'compileInstructions' => new OAProperty(['type' => 'string']),
             'runInstructions' => new OAProperty(['type' => 'string']),
             'showFullErrorMsg' => new OAProperty(['type' => 'integer']),
+            'reevaluateAutoTest' => new OAProperty(['type' => 'integer']),
             'files' => new OAProperty(['type' => 'array', new OAItems(['type' => 'string', 'format' => 'binary'])]),
         ];
     }
