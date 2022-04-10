@@ -14,6 +14,7 @@ return [
         'graderID' => 1007,
         'errorMsg' => 'FULL_ERROR_MESSAGE',
         'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED,
+        'uploadCount' => 1,
     ],
     'file2' => [
         'id' => 2,
@@ -27,6 +28,7 @@ return [
         'notes' => '',
         'errorMsg' => null,
         'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_NOT_TESTED,
+        'uploadCount' => 1,
     ],
     'file3' => [
         'id' => 3,
@@ -41,6 +43,7 @@ return [
         'graderID' => 1007,
         'errorMsg' => 'FULL_ERROR_MESSAGE',
         'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED,
+        'uploadCount' => 1,
     ],
     'file4' => [
         'id' => 4,
@@ -54,6 +57,7 @@ return [
         'notes' => '',
         'errorMsg' => null,
         'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_NOT_TESTED,
+        'uploadCount' => 1,
     ],
     'file5' => [
         'id' => 5,
@@ -67,6 +71,7 @@ return [
         'notes' => '',
         'errorMsg' => null,
         'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_NOT_TESTED,
+        'uploadCount' => 1,
     ],
     'file6' => [
         'id' => 6,
@@ -80,6 +85,7 @@ return [
         'notes' => '',
         'errorMsg' => null,
         'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_NOT_TESTED,
+        'uploadCount' => 1,
     ],
     'file7' => [
         'id' => 7,
@@ -93,6 +99,7 @@ return [
         'notes' => '',
         'errorMsg' => null,
         'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_NOT_TESTED,
+        'uploadCount' => 1,
     ],
     'file8' => [
         'id' => 8,
@@ -106,6 +113,7 @@ return [
         'notes' => '',
         'errorMsg' => null,
         'evaluatorStatus' => \app\models\StudentFile::EVALUATOR_STATUS_NOT_TESTED,
+        'uploadCount' => 1,
     ],
     'file9' => [
         'id' => 9,
@@ -113,11 +121,12 @@ return [
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
         'taskID' => 5009,
         'uploaderID' => 1001,
-        'isAccepted' => 'Uploaded',
+        'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_UPLOADED,
         'isVersionControlled' => 0,
         'grade' => '',
         'notes' => '',
-        'errorMsg' => ''
+        'errorMsg' => '',
+        'uploadCount' => 1,
     ],
     'file10' => [
         'id' => 10,
@@ -125,11 +134,12 @@ return [
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
         'taskID' => 5009,
         'uploaderID' => 1002,
-        'isAccepted' => 'Uploaded',
+        'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_UPLOADED,
         'isVersionControlled' => 0,
         'grade' => '',
         'notes' => '',
-        'errorMsg' => ''
+        'errorMsg' => '',
+        'uploadCount' => 1,
     ],
     'file11' => [
         'id' => 11,
@@ -137,10 +147,11 @@ return [
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
         'taskID' => 5009,
         'uploaderID' => 1003,
-        'isAccepted' => 'Uploaded',
+        'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_UPLOADED,
         'isVersionControlled' => 0,
         'grade' => '',
         'notes' => '',
-        'errorMsg' => ''
+        'errorMsg' => '',
+        'uploadCount' => 1,
     ],
 ];

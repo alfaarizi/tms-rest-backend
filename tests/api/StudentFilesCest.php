@@ -18,6 +18,7 @@ class StudentFilesCest
         'id' => 'integer',
         'name' => 'string',
         'uploadTime' => 'string',
+        'uploadCount' => 'integer',
         'isAccepted' => 'string|null',
         'translatedIsAccepted' => 'string',
         'grade' => 'integer|null',
@@ -96,6 +97,7 @@ class StudentFilesCest
                 'notes' => '',
                 'graderName' => 'Teacher Two',
                 'errorMsg' => 'The solution didn\'t compile',
+                'uploadCount' => 1,
             ]
         );
     }
@@ -116,7 +118,8 @@ class StudentFilesCest
                 'grade' => '5',
                 'notes' => '',
                 'graderName' => 'Teacher Two',
-                'errorMsg' => 'FULL_ERROR_MESSAGE'
+                'errorMsg' => 'FULL_ERROR_MESSAGE',
+                'uploadCount' => 1,
             ]
         );
     }
@@ -201,13 +204,14 @@ class StudentFilesCest
         $I->seeResponseContainsJson(
             [
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPDATED,
-                "translatedIsAccepted" => "Updated",
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "translatedIsAccepted" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
                 "graderName" => "",
-                "errorMsg" => null
+                "errorMsg" => null,
+                "uploadCount" => 2,
             ]
         );
         $I->seeRecord(
@@ -215,7 +219,8 @@ class StudentFilesCest
             [
                 "id" => 6,
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPDATED,
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "uploadCount" => 2,
             ]
         );
         $I->cantSeeFileFound("stud01.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5004/stud01/");
@@ -249,13 +254,14 @@ class StudentFilesCest
         $I->seeResponseContainsJson(
             [
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPDATED,
-                "translatedIsAccepted" => "Updated",
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "translatedIsAccepted" => "Uploaded",
                 "grade" => 4,
                 "notes" => "",
                 "isVersionControlled" => 0,
                 "graderName" => "Teacher Two",
-                "errorMsg" => null
+                "errorMsg" => null,
+                "uploadCount" => 2,
             ]
         );
         $I->seeRecord(
@@ -263,8 +269,9 @@ class StudentFilesCest
             [
                 "id" => 1,
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPDATED,
-                "grade" => 4
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "grade" => 4,
+                "uploadCount" => 2,
             ]
         );
         $I->cantSeeFileFound("stud01.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5001/stud01/");
@@ -289,7 +296,8 @@ class StudentFilesCest
                 "notes" => "",
                 "isVersionControlled" => 0,
                 "graderName" => '',
-                "errorMsg" => null
+                "errorMsg" => null,
+                "uploadCount" => 1,
             ]
         );
         $I->seeRecord(

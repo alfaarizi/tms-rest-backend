@@ -18,6 +18,7 @@ class InstructorStudentFilesCest
         'id' => 'integer',
         'name' => 'string',
         'uploadTime' => 'string',
+        'uploadCount' => 'integer',
         'isAccepted' => 'string',
         'grade' => 'integer|string|null',
         'notes' => 'string |null',
@@ -198,7 +199,8 @@ class InstructorStudentFilesCest
                 'taskID' => 5001,
                 'groupID' => 2000,
                 'uploaderID' => 1001,
-                'gitRepo' => null
+                'gitRepo' => null,
+                'uploadCount' => 1,
             ]
         );
     }
@@ -278,6 +280,7 @@ class InstructorStudentFilesCest
                 'graderName' => 'Teacher Two',
                 'gitRepo' => null,
                 'errorMsg' => 'FULL_ERROR_MESSAGE',
+                'uploadCount' => 1,
             ]
         );
 

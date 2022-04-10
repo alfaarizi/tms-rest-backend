@@ -32,6 +32,7 @@ class StudentFileResource extends StudentFile
             'uploaderID',
             'uploadTime',
             'delay',
+            'uploadCount',
         ];
     }
 

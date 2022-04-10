@@ -177,7 +177,7 @@ return [
     'Upload completed.' => 'Feltöltés sikeres.',
     'Upload Solution' => 'Megoldás Feltöltése',
     'Upload Time' => 'Feltöltés Ideje',
-    'Updated' => 'Frissítve',
+    'Upload Count' => 'Feltöltések Száma',
     'Update Task' => 'Beadandó Frissítése',
     'Not version controlled' => 'A feladat nem verziókezelt',
     'Version control is disabled. Contact the administrator for more information.' => 'A verziókezelés nincs engedélyezve. Lépjen kapcsolatba az adminisztrátorral további információért.',
