@@ -896,6 +896,16 @@ class TasksController extends BaseInstructorRestController
         }
 
         if ($task->save(false)) {
+            if($setupData->reevaluateAutoTest){
+                StudentFile::updateAll(
+                    ['isAccepted' => StudentFile::IS_ACCEPTED_UPDATED],
+                    [
+                        'and',
+                        ['in', 'isAccepted', [StudentFile::IS_ACCEPTED_PASSED, StudentFile::IS_ACCEPTED_FAILED]],
+                        ['=', 'taskID', $task->id],
+                    ]
+                );
+            }
             return $task;
         } else {
             throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
