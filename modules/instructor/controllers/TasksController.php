@@ -898,7 +898,7 @@ class TasksController extends BaseInstructorRestController
         if ($task->save(false)) {
             if($setupData->reevaluateAutoTest){
                 StudentFile::updateAll(
-                    ['isAccepted' => StudentFile::IS_ACCEPTED_UPDATED],
+                    ['isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED],
                     [
                         'and',
                         ['in', 'isAccepted', [StudentFile::IS_ACCEPTED_PASSED, StudentFile::IS_ACCEPTED_FAILED]],
