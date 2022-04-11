@@ -271,23 +271,13 @@ class StudentFile extends File implements IOpenApiFieldTypes
             !empty($softDeadline) &&
             strtotime($uploadTime) > strtotime($softDeadline)
         ) {
-            $timeSwitchHourDelay = 0;
-
-            $softDeadlineInTime = strtotime($softDeadline);
-            $softDeadlineInDaylight = date('I', $softDeadlineInTime);
-
-            $uploadTimeInTime = strtotime($uploadTime);
-            $uploadTimeInDaylight = date('I', $uploadTimeInTime);
-
-            if ($softDeadlineInDaylight == 0 && $uploadTimeInDaylight == 1) { //$softDeadlineInDaylight in winter time && $uploadTimeInDaylight in summer time
-                $timeSwitchHourDelay -= 1;
-            } elseif ($softDeadlineInDaylight == 1 && $uploadTimeInDaylight == 0) { //$softDeadlineInDaylight in summer time && $uploadTimeInDaylight in winter time
-                $timeSwitchHourDelay += 1;
-            }
-
-            $delay = ceil(
-                (((float)($uploadTimeInTime - $softDeadlineInTime) / 3600) + $timeSwitchHourDelay) / 24
-            );
+            $timezone = new \DateTimeZone($this->task->group->timezone);
+            $softDeadlineInTime = new \DateTime($softDeadline);
+            $softDeadlineInTime->setTimezone($timezone);
+            $uploadTimeInTime = new \DateTime($uploadTime);
+            $uploadTimeInTime->setTimezone($timezone);
+            $diff = $softDeadlineInTime->diff($uploadTimeInTime);
+            $delay = $diff->days + ($diff->h || $diff->i || $diff->s || $diff->f ? 1 : 0);
 
             return Yii::t(
                 'app',
