@@ -2,6 +2,7 @@
 
 namespace app\modules\instructor\controllers;
 
+use app\models\Task;
 use app\modules\instructor\resources\TaskResource;
 use app\modules\instructor\resources\TestCaseResource;
 use app\resources\SemesterResource;
@@ -9,8 +10,10 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
+use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
+use yii\web\UnsupportedMediaTypeHttpException;
 
 /**
  * This class provides access to test cases for instructors
@@ -103,6 +106,7 @@ class TestCasesController extends BaseInstructorRestController
      * @throws BadRequestHttpException
      * @throws ServerErrorHttpException
      * @throws BadRequestHttpException
+     * @throws HttpException
      *
      * @OA\Post(
      *     path="/instructor/test-cases",
@@ -147,6 +151,10 @@ class TestCasesController extends BaseInstructorRestController
         }
 
         $task = TaskResource::findOne($model->taskID);
+
+        if ($task->appType == Task::APP_TYPE_WEB) {
+            throw new HttpException(501, Yii::t('app', 'Automated testing for web apps is not supported!'));
+        }
 
         // Check semester
         if ($task->semesterID !== SemesterResource::getActualID()) {

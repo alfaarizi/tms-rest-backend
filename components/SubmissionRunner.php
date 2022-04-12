@@ -6,6 +6,7 @@ use app\components\docker\DockerContainerBuilder;
 use app\exceptions\SubmissionRunnerException;
 use app\models\InstructorFile;
 use app\models\StudentFile;
+use app\models\Task;
 use Yii;
 use yii\helpers\FileHelper;
 
@@ -154,7 +155,7 @@ class SubmissionRunner
         if (empty($builder)) {
             $builder = DockerContainerBuilder::forTask($this->studentFile->task);
         };
-        if ($this->studentFile->task->appType == 'Web' && !empty($hostPort)) {
+        if ($this->studentFile->task->appType == Task::APP_TYPE_WEB && !empty($hostPort)) {
             $builder->withHostPort($hostPort);
         }
         return $builder->build($containerName);
@@ -245,7 +246,7 @@ class SubmissionRunner
             $this->execCompile($dockerContainer);
 
             if (
-                $this->studentFile->task->appType == 'Web'
+                $this->studentFile->task->appType == Task::APP_TYPE_WEB
                 && !empty($this->studentFile->task->runInstructions)
             ) {
                 $this->execRun($dockerContainer);

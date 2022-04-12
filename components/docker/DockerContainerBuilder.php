@@ -44,7 +44,7 @@ class DockerContainerBuilder
         bool $setDefaultWorkingDir = true,
         bool $setDefaultCommand = true
     ): DockerContainerBuilder {
-        if ($task->appType == 'Web') {
+        if ($task->appType == Task::APP_TYPE_WEB) {
             $builder = new DockerContainerBuilder($task->testOS, $task->imageName, $task->port);
         } else {
             $builder = new DockerContainerBuilder($task->testOS, $task->imageName);

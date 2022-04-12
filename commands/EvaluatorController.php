@@ -4,6 +4,10 @@ namespace app\commands;
 
 use app\components\AssignmentTester;
 use app\components\CanvasIntegration;
+use app\models\AccessToken;
+use app\models\Group;
+use app\models\Task;
+use app\models\TestCase;
 use app\models\StudentFile;
 use app\models\WebAppExecution;
 use app\modules\instructor\components\WebAppExecutor;
@@ -39,6 +43,7 @@ class EvaluatorController extends BaseController
                 ->where(['autoTest' => 1])
                 ->andWhere(['not', ['imageName' => null]])
                 ->andWhere(['not', ['compileInstructions' => null]])
+                ->andWhere(['not', ['appType' => Task::APP_TYPE_WEB]])
                 ->indexBy('id')
                 ->all()
         );

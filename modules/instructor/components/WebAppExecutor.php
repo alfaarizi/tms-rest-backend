@@ -6,6 +6,7 @@ use app\components\docker\DockerContainer;
 use app\components\SubmissionRunner;
 use app\exceptions\SubmissionRunnerException;
 use app\models\StudentFile;
+use app\models\Task;
 use app\models\WebAppExecution;
 use app\modules\instructor\components\exception\WebAppExecutionException;
 use app\modules\instructor\resources\SetupWebAppExecutionResource;
@@ -156,7 +157,7 @@ class WebAppExecutor
             throw new WebAppExecutionException('An instance is already running or scheduled', WebAppExecutionException::$PREPARATION_FAILURE);
         }
 
-        if ($studentFile->task->appType != 'Web') {
+        if ($studentFile->task->appType != Task::APP_TYPE_WEB) {
             Yii::error(
                 "Only [Web] Task types are executable studentFile [$studentFile->id] is og type [$studentFile->task->appType]");
             throw new WebAppExecutionException('Only Web application task types are executable.', WebAppExecutionException::$PREPARATION_FAILURE);

@@ -102,10 +102,13 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         'windows',
     ];
 
+    public const APP_TYPE_WEB = 'Web';
+    public const APP_TYPE_CONSOLE = 'Console';
+
     //Supported application archetypes
     public const APP_TYPES = [
-        'Console',
-        'Web'
+        self::APP_TYPE_CONSOLE,
+        self::APP_TYPE_WEB
     ];
 
     /**
@@ -197,7 +200,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             [['port'], 'integer', 'min' => 1, 'max' => 65353],
             [['appType'], 'string'],
             [['port'], 'required', 'when' => function ($model) {
-                return $model->appType == 'Web';
+                return $model->appType == Task::APP_TYPE_WEB;
             }],
             [['appType'], 'in', 'range' => self::APP_TYPES],
             [['appType'], 'required', 'when' => function ($model) {
