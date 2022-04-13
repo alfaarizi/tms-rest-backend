@@ -59,8 +59,6 @@ class ExamTestsController extends BaseInstructorRestController
 
     /**
      * List tests from the given semester
-     * @param $semesterID
-     * @return ActiveDataProvider
      *
      * @OA\Get(
      *     path="/instructor/exam-tests",
@@ -87,7 +85,7 @@ class ExamTestsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex($semesterID)
+    public function actionIndex(int $semesterID): ActiveDataProvider
     {
         // Groups the current user lectures or instructs in this semester.
         $userGroups = GroupResource::find()

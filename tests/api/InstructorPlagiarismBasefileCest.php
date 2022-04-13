@@ -50,17 +50,9 @@ class InstructorPlagiarismBasefileCest
         $I->deleteDir(Yii::$app->params['data_dir']);
     }
 
-    public function indexTaskWrongSemester(ApiTester $I)
-    {
-        $I->sendGet('/instructor/plagiarism-basefile', ['semesterID' => 0]);
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseIsJson();
-        $I->seeResponseEquals('[]');
-    }
-
     public function index(ApiTester $I)
     {
-        $I->sendGet('/instructor/plagiarism-basefile', ['semesterID' => 3001]);
+        $I->sendGet('/instructor/plagiarism-basefile');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::BASEFILE_SCHEMA, '$.[*]');
 

@@ -41,7 +41,7 @@ class GroupQuery extends ActiveQuery
             );
     }
 
-    public function instructorAccessibleGroups($userID, $semesterID, $courseID = null)
+    public function instructorAccessibleGroups(int $userID, ?int $semesterID = null, ?int $courseID = null): self
     {
         // Collect the instructor/lecturer courses.
         $query = $this
@@ -54,8 +54,11 @@ class GroupQuery extends ActiveQuery
                     ['ig.userID' => $userID],
                     ['ic.userID' => $userID]
                 ]
-            )
-            ->andWhere(['semesterID' => $semesterID]);
+            );
+
+        if (!is_null($semesterID)) {
+            $query->andWhere(['semesterID' => $semesterID]);
+        }
 
         // Filter courses if courseID is not null
         if (!is_null($courseID)) {
