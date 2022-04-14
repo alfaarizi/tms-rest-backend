@@ -4,11 +4,24 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.6.0](https://gitlab.com/tms-elte/backend-core/compare/v2.5.2...v2.6.0) (2022-04-14)
+### Features
+
+* Add deletable property to basefile resources ([d6b8a3](https://gitlab.com/tms-elte/backend-core/commit/d6b8a33957e4f2cb2b572558c27c1aa7d8c7b430))
+* Added option to reevaluate ungraded submissions upon configuration change of automated testing ([f0eae2](https://gitlab.com/tms-elte/backend-core/commit/f0eae26c79fefe0133b302d352930f76443edef8))
+* Store upload count for student submissions ([0f2b75](https://gitlab.com/tms-elte/backend-core/commit/0f2b75cd2644ed789a150c392f6ec9cddcca8c44))
+
+### Bug Fixes
+
+* Fixed daylight savings time being correctly counted towards submission delay ([3e46fc](https://gitlab.com/tms-elte/backend-core/commit/3e46fc2562192311a8170f66ddfae2ed48ee1b39))
+* Return only basefiles for the selected tasks ([8b007c](https://gitlab.com/tms-elte/backend-core/commit/8b007c36bdb5d245c208da8adf66b6127635f45f))
+
+---
+
 ## [2.5.2](https://gitlab.com/tms-elte/backend-core/compare/v2.5.1...v2.5.2) (2022-04-01)
 ### Bug Fixes
 
 * Copy only the test files of the selected task into the docker container in the automated tester. ([23b098](https://gitlab.com/tms-elte/backend-core/commit/23b098c3d17cbe874c72f6609d2554a8163d9697))
-
 
 ---
 
