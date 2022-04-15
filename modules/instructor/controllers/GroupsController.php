@@ -96,9 +96,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * List groups for a course and a semester
-     * @param int $semesterID
-     * @param int|null $courseID
-     * @return ActiveDataProvider
      *
      * @OA\Get(
      *     path="/instructor/groups",
@@ -133,7 +130,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex($semesterID, $courseID = null)
+    public function actionIndex(int $semesterID, ?int $courseID = null): ActiveDataProvider
     {
         $userID = Yii::$app->user->id;
 

@@ -49,7 +49,7 @@ class PlagiarismBasefileController extends BaseInstructorRestController
     }
 
     /**
-     * List base files from the given semester
+     * List base files connected to the current user’s courses
      *
      * @OA\Get(
      *     path="/instructor/plagiarism-basefile",
@@ -58,14 +58,6 @@ class PlagiarismBasefileController extends BaseInstructorRestController
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
      *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
-     *     @OA\Parameter(
-     *         name="semesterID",
-     *         in="query",
-     *         required=true,
-     *         description="ID of the semester",
-     *         explode=true,
-     *         @OA\Schema(ref="#/components/schemas/int_id")
-     *     ),
      *     @OA\Response(
      *        response=200,
      *        description="successful operation",
@@ -75,11 +67,11 @@ class PlagiarismBasefileController extends BaseInstructorRestController
      *     @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex(int $semesterID): ActiveDataProvider
+    public function actionIndex(): ActiveDataProvider
     {
         $courses = array_map(
             static fn (Group $group): int => $group->courseID,
-            Group::find()->instructorAccessibleGroups(Yii::$app->user->id, $semesterID)->all()
+            Group::find()->instructorAccessibleGroups(Yii::$app->user->id)->all()
         );
         return new ActiveDataProvider([
             'query' => PlagiarismBasefileResource::find()->where(['courseID' => $courses]),
