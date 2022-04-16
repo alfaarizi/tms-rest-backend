@@ -831,16 +831,16 @@ class TasksController extends BaseInstructorRestController
         $setupData->load(Yii::$app->request->post(), '');
         $setupData->files = UploadedFile::getInstancesByName('files');
 
-        if (!$setupData->validate()) {
-            $this->response->statusCode = 422;
-            return $setupData->errors;
-        }
-
         $task->testOS = $setupData->testOS;
         $task->imageName = $setupData->imageName;
         $task->compileInstructions = $setupData->compileInstructions;
         $task->runInstructions = $setupData->runInstructions;
         $task->showFullErrorMsg = $setupData->showFullErrorMsg;
+
+        if (!$task->validate()) {
+            $this->response->statusCode = 422;
+            return $setupData->errors;
+        }
 
         $sourcedir = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] .
             '/tmp/instructor/' . $task->groupID . '/' . $task->id . '/autotest/';
