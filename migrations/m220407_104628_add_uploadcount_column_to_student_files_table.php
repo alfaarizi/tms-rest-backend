@@ -89,12 +89,17 @@ class m220407_104628_add_uploadcount_column_to_student_files_table extends Migra
                 $dirs = FileHelper::findDirectories($basePath, ['recursive' => false]);
                 rsort($dirs);
                 $repoPath = $basePath . basename($dirs[0]) . '/';
-
                 $repo = new GitRepository("$repoPath.git");
-                $result = $repo->execute(['rev-list', '--count', 'HEAD']);
 
-                $file->uploadCount = intval($result[0], 10);
-                $file->save();
+                // check if for some reason there is no commit in the repository
+                $lastCommit = $repo->execute(['rev-list', '-n', '1', '--all']);
+                if (!empty($lastCommit)) {
+                    // get commit count
+                    $result = $repo->execute(['rev-list', '--count', 'HEAD']);
+
+                    $file->uploadCount = intval($result[0], 10);
+                    $file->save();
+                }
             }
         }
     }
@@ -125,7 +130,9 @@ class m220407_104628_add_uploadcount_column_to_student_files_table extends Migra
 
                 $user = User::findOne(['neptun' => $neptun]);
                 $file = StudentFile::findOne(['uploaderID' => $user->id, 'taskID' => $taskID]);
-                if (!$file->isVersionControlled) {
+
+                // $file should exist, but is could be missing in case of manual deletion
+                if (!is_null($file) && !$file->isVersionControlled) {
                     $file->uploadCount++;
                     $file->save();
                 }

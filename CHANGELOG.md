@@ -4,6 +4,13 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.6.1](https://gitlab.com/tms-elte/backend-core/compare/v2.6.0...v2.6.1) (2022-04-16)
+### Bug Fixes
+
+* Ensure to append the missing latest tag to the Docker image name in the automated testing configuration ([4ad544](https://gitlab.com/tms-elte/backend-core/commit/4ad544636c6f31aa02f3ce59db7cd3ef0615cbb9))
+
+---
+
 ## [2.6.0](https://gitlab.com/tms-elte/backend-core/compare/v2.5.2...v2.6.0) (2022-04-14)
 ### Features
 
