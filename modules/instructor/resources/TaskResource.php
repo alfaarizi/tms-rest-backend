@@ -34,6 +34,7 @@ class TaskResource extends \app\models\Task
             'imageName',
             'compileInstructions',
             'runInstructions',
+            'canvasUrl',
         ];
     }
 

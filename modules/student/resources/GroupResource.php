@@ -24,6 +24,7 @@ class GroupResource extends Group
             },
             'course',
             'instructorNames',
+            'canvasUrl',
         ];
     }
 
