@@ -25,6 +25,6 @@ class TaskTest extends \Codeception\Test\Unit
     public function testCanvasURLIsCanvasGroup()
     {
         $task = Task::findOne(5006);
-        $this->assertEquals('https://canvas.example.com//courses/1/assignments/2', $task->canvasUrl);
+        $this->assertEquals('https://canvas.example.com/courses/1/assignments/2', $task->canvasUrl);
     }
 }

@@ -25,6 +25,6 @@ class GroupTest extends \Codeception\Test\Unit
     public function testCanvasURLIsCanvasGroup()
     {
         $group = Group::findOne(2005);
-        $this->assertEquals('https://canvas.example.com//courses/1', $group->canvasUrl);
+        $this->assertEquals('https://canvas.example.com/courses/1', $group->canvasUrl);
     }
 }
