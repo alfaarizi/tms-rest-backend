@@ -19,10 +19,10 @@ use Yii;
  * @property integer $canvasSectionID
  * @property integer $canvasCourseID
  * @property boolean $isExamGroup
- * @property string timezone
- * @property-read boolean isCanvasCourse
- * @property-read boolean canvasCanBeSynchronized
- * @property-read string canvasUrl
+ * @property string $timezone
+ * @property-read boolean $isCanvasCourse
+ * @property-read boolean $canvasCanBeSynchronized
+ * @property-read ?string $canvasUrl
  *
  * @property Semester $semester
  * @property Course $course

@@ -39,8 +39,8 @@ use yii\helpers\FileHelper;
  * @property Semester $semester
  * @property User $creator
  *
- * @property-read string canvasUrl
- * @property-read string timezone
+ * @property-read ?string $canvasUrl
+ * @property-read string $timezone
  * @property-read string $localImageName
  * @property-read string $isLocalImage
  * @property-read string $containerName
