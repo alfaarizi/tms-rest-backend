@@ -35,7 +35,12 @@ class GitManager
             if (!is_dir($repopath . '.git')) {
                 $repo = GitRepository::init($repopath);
                 // Create a symlink for instructors
-                symlink($randstring, $reposym);
+                if (PHP_OS_FAMILY === "Windows") {
+                    // relative paths on windows are not supported for symlinks
+                    symlink($repopath, $reposym);
+                } else {
+                    symlink($randstring, $reposym);
+                }
                 // Create the appropriate settings for the repo
                 $repo->execute(array('config', 'receive.denyNonFastForwards', 'true'));
                 $repo->execute(array('config', 'receive.denyDeletes', 'true'));
