@@ -76,7 +76,9 @@ codecept_7.4:
       - tests/_output/coverage.xml
       - tests/_output/cobertura.xml
     reports:
-      cobertura: tests/_output/cobertura.xml
+      coverage_report:
+          coverage_format: cobertura
+          path: tests/_output/cobertura.xml
 
 
 # Generates OpenApi docs in yaml and json format then packages it with swagger-ui
