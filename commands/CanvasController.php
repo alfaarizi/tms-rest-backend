@@ -13,7 +13,7 @@ class CanvasController extends BaseController
      * Runs the automatic synchronization with canvas
      * @param null $groupId Group to synchronize (empty for all)
      */
-    public function actionCanvasSynchronization($groupId = null)
+    public function actionSynchronize($groupId = null)
     {
         $groupQuery = Group::find()
             ->alias('g')

@@ -4,6 +4,7 @@ namespace app\commands;
 
 use app\models\AccessToken;
 use yii\console\ExitCode;
+use Yii;
 
 class SystemController extends BaseController
 {
