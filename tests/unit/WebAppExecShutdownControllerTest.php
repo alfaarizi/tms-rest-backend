@@ -2,12 +2,11 @@
 
 namespace app\tests\unit;
 
-use app\commands\CronController;
+use app\commands\WebAppExecShutdownController;
 use app\models\WebAppExecution;
 use app\tests\unit\fixtures\WebAppExecutionFixture;
-use Yii;
 
-class CronControllerTest extends \Codeception\Test\Unit
+class WebAppExecShutdownControllerTest extends \Codeception\Test\Unit
 {
     use \Codeception\Specify;
 
@@ -25,12 +24,12 @@ class CronControllerTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    private CronController $cronController;
+    private WebAppExecShutdownController $controller;
 
 
     protected function _before()
     {
-        $this->cronController = new CronController(null, null);
+        $this->controller = new WebAppExecShutdownController(null, null);
     }
 
     // tests
@@ -40,7 +39,7 @@ class CronControllerTest extends \Codeception\Test\Unit
             $this->tester->seeRecord(WebAppExecution::class, ['id' => 1]);
             $this->tester->canSeeRecord(WebAppExecution::class, ['id' => 2]);
 
-            $this->cronController->actionShutDownExpiredWebAppExecutions();
+            $this->controller->actionShutDownExpiredWebAppExecutions();
 
             $this->tester->cantSeeRecord(WebAppExecution::class, ['id' => 1]);
             $this->tester->canSeeRecord(WebAppExecution::class, ['id' => 2]);
