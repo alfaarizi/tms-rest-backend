@@ -3,6 +3,7 @@
 namespace app\modules\instructor\controllers;
 
 use app\components\AssignmentTester;
+use app\components\CodeCompassHelper;
 use app\components\GitManager;
 use app\models\Group;
 use app\models\InstructorFile;
@@ -12,17 +13,19 @@ use app\models\Task;
 use app\models\TestCase;
 use app\modules\instructor\resources\GroupResource;
 use app\modules\instructor\resources\SetupAutoTesterResource;
+use app\modules\instructor\resources\SetupCodeCompassParserResource;
 use app\modules\instructor\resources\TaskResource;
 use app\modules\instructor\resources\TesterFormDataResource;
 use app\resources\SemesterResource;
 use app\resources\UserResource;
-use Http\Client\Socket\Exception\InvalidRequestException;
+use Docker\API\Exception\ImageDeleteConflictException;
 use Yii;
 use yii\base\ErrorException;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\helpers\FileHelper;
 use yii\web\BadRequestHttpException;
+use yii\web\ConflictHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
@@ -65,7 +68,8 @@ class TasksController extends BaseInstructorRestController
                 'toggle-auto-tester' => ['PATCH'],
                 'setup-auto-tester' => ['POST'],
                 'tester-form-data' => ['GET'],
-                'update-docker-image' => ['PATCH']
+                'update-docker-image' => ['PATCH'],
+                'setup-code-compass-parser' => ['POST']
             ]
         );
     }
@@ -230,7 +234,9 @@ class TasksController extends BaseInstructorRestController
         }
 
         if ($task->isVersionControlled && !Yii::$app->params['versionControl']['enabled']) {
-            throw new BadRequestHttpException(Yii::t('app', 'Version control is disabled. Contact the administrator for more information.'));
+            throw new BadRequestHttpException(
+                Yii::t('app', 'Version control is disabled. Contact the administrator for more information.')
+            );
         }
 
         $task->semesterID = $task->group->semesterID;
@@ -723,7 +729,9 @@ class TasksController extends BaseInstructorRestController
     public function actionToggleAutoTester($id)
     {
         if (!Yii::$app->params['evaluator']['enabled']) {
-            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
+            throw new BadRequestHttpException(
+                Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.')
+            );
         }
 
         $task = TaskResource::findOne($id);
@@ -804,7 +812,9 @@ class TasksController extends BaseInstructorRestController
     public function actionSetupAutoTester($id)
     {
         if (!Yii::$app->params['evaluator']['enabled']) {
-            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
+            throw new BadRequestHttpException(
+                Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.')
+            );
         }
 
         $task = TaskResource::findOne($id);
@@ -859,7 +869,9 @@ class TasksController extends BaseInstructorRestController
                         "Failed to save file to the disc ($file->name), error code: $file->error",
                         __METHOD__
                     );
-                    throw new ServerErrorHttpException(Yii::t("app", "Failed to save file. Error logged.") . " ($file->name)");
+                    throw new ServerErrorHttpException(
+                        Yii::t("app", "Failed to save file. Error logged.") . " ($file->name)"
+                    );
                 }
             }
         }
@@ -949,7 +961,9 @@ class TasksController extends BaseInstructorRestController
     public function actionTesterFormData($id)
     {
         if (!Yii::$app->params['evaluator']['enabled']) {
-            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
+            throw new BadRequestHttpException(
+                Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.')
+            );
         }
 
         $task = TaskResource::findOne($id);
@@ -977,7 +991,10 @@ class TasksController extends BaseInstructorRestController
         $response = new TesterFormDataResource();
         $response->templates = $templates;
         $response->osMap = $osMap;
-        $response->imageSuccessfullyBuilt = AssignmentTester::alreadyBuilt($task->imageName, Yii::$app->params['evaluator'][$task->testOS]);
+        $response->imageSuccessfullyBuilt = AssignmentTester::alreadyBuilt(
+            $task->imageName,
+            Yii::$app->params['evaluator'][$task->testOS]
+        );
         if ($response->imageSuccessfullyBuilt) {
             $response->imageCreationDate = AssignmentTester::inspectImage(
                 $task->imageName,
@@ -1023,7 +1040,9 @@ class TasksController extends BaseInstructorRestController
     public function actionUpdateDockerImage($id)
     {
         if (!Yii::$app->params['evaluator']['enabled']) {
-            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
+            throw new BadRequestHttpException(
+                Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.')
+            );
         }
 
         $task = TaskResource::findOne($id);
@@ -1046,5 +1065,92 @@ class TasksController extends BaseInstructorRestController
         }
 
         return $task;
+    }
+
+    /**
+     * Updates CodeCompass parser properties for a task
+     *
+     * @param int $id the id of the task
+     * @return TaskResource
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     * @throws ConflictHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/tasks/{id}/setup-code-compass-parser",
+     *     operationId="instructor::TasksController::actionSetupCodeCompassParser",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the task",
+     *          @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="Code compass parser properties",
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_SetupCodeCompassParserResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="updated Code compass parser properties",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TaskResource_Read"),
+     *     ),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=409, ref="#/components/responses/409"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     */
+    public function actionSetupCodeCompassParser(int $id): TaskResource
+    {
+        if (!CodeCompassHelper::isCodeCompassIntegrationEnabled()) {
+            throw new ForbiddenHttpException(
+                Yii::t('app', 'CodeCompass is not enabled.')
+            );
+        }
+
+        $task = TaskResource::findOne($id);
+        if (is_null($task)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Task not found.'));
+        }
+
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $task->groupID])) {
+            throw new ForbiddenHttpException(
+                Yii::t('app', 'You must be an instructor of the group to perform this action!')
+            );
+        }
+
+        $setupData = new SetupCodeCompassParserResource();
+        $setupData->load(Yii::$app->request->post(), '');
+
+        $packagesChanged = $setupData->codeCompassPackagesInstallInstructions != $task->codeCompassPackagesInstallInstructions;
+
+        $task->codeCompassCompileInstructions = $setupData->codeCompassCompileInstructions;
+        $task->codeCompassPackagesInstallInstructions = $setupData->codeCompassPackagesInstallInstructions;
+
+        if ($packagesChanged) {
+            try {
+                CodeCompassHelper::deleteCachedImageForTask($id, CodeCompassHelper::createDockerClient());
+            } catch (ImageDeleteConflictException $ex) {
+                throw new ConflictHttpException(Yii::t(
+                    'app',
+                    'Cannot change package installing script while CodeCompass is running!')
+                );
+            }
+        }
+
+        if ($task->save(false)) {
+            return $task;
+        } else {
+            throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
+        }
     }
 }

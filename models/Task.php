@@ -30,6 +30,8 @@ use yii\helpers\FileHelper;
  * @property string $imageName
  * @property string $compileInstructions
  * @property string $runInstructions
+ * @property string $codeCompassCompileInstructions
+ * @property string $codeCompassPackagesInstallInstructions
  * @property integer $canvasID
  *
  * @property InstructorFile[] $instructorFiles
@@ -176,7 +178,8 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             ],
             [['autoTest', 'showFullErrorMsg'], 'boolean'],
             [['imageName'], 'string', 'max' => 255],
-            [['compileInstructions', 'runInstructions'], 'string'],
+            [['codeCompassPackagesInstallInstructions'], 'string', 'max' => 500],
+            [['compileInstructions', 'runInstructions', 'codeCompassCompileInstructions'], 'string']
         ];
     }
 
@@ -203,7 +206,9 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'imageName' => Yii::t('app', 'Docker Image'),
             'compileInstructions' => Yii::t('app', 'Compile Instructions'),
             'runInstructions' => Yii::t('app', 'Run Instructions'),
-            'canvasID' => Yii::t('app', 'Canvas id')
+            'canvasID' => Yii::t('app', 'Canvas id'),
+            'codeCompassCompileInstructions' => Yii::t('app', 'CodeCompass Compile Instructions'),
+            'codeCompassPackagesInstallInstructions' => Yii::t('app', 'CodeCompass Packages'),
         ];
     }
 
@@ -390,6 +395,8 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'imageName' => new OAProperty(['type' => 'string']),
             'compileInstructions' => new OAProperty(['type' => 'string']),
             'runInstructions' => new OAProperty(['type' => 'string']),
+            'codeCompassCompileInstructions' => new OAProperty(['type' => 'string']),
+            'codeCompassPackagesInstallInstructions' => new OAProperty(['type' => 'string']),
         ];
     }
 }

@@ -43,8 +43,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
             "POST <module:{$this->id}>/<controller:tasks>/<id>/setup-auto-tester" => '<module>/<controller>/setup-auto-tester',
             "GET <module:{$this->id}>/<controller:tasks>/<id>/tester-form-data" => '<module>/<controller>/tester-form-data',
             "PATCH <module:{$this->id}>/<controller:tasks>/<id>/update-docker-image" => '<module>/<controller>/update-docker-image',
+            "POST <module:{$this->id}>/<controller:tasks>/<id>/setup-code-compass-parser" => '<module>/<controller>/setup-code-compass-parser',
 
-            // instructor/plagiarism
+                                            // instructor/plagiarism
             "POST <module:{$this->id}>/<controller:plagiarism>/<id>/run-moss" => '<module>/<controller>/run-moss',
 
             // instructor/plagiarism-basefile
@@ -52,6 +53,8 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
             // instructor/student-files
             "GET <module:{$this->id}>/<controller:student-files>/<id>/download" => '<module>/<controller>/download',
+            "POST <module:{$this->id}>/<controller:student-files>/<id>/start-code-compass" => '<module>/<controller>/start-code-compass',
+            "POST <module:{$this->id}>/<controller:student-files>/<id>/stop-code-compass" => '<module>/<controller>/stop-code-compass',
             "GET <module:{$this->id}>/<controller:instructor-files>/<id>/download" => '<module>/<controller>/download',
 
             // instructor/exam-question-sets

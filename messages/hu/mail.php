@@ -68,4 +68,9 @@ return [
     'Task deadline change' => 'Feladat határidő változás',
     'The deadline of task {task} for the course {course} (group: {group}) was modified.' => 'Megváltozott a {course} (csoport: {group}) kurzushoz tartozó {task} feladat határideje.',
     'The deadline of task {task} for the course {course} was modified.' => 'Megváltozott a {course} kurzushoz tartozó {task} feladat határideje.',
+    'Link to your CodeCompass instance: ' => 'A CodeCompass szerver elérhető itt: ',
+    'Your username: {username}' => 'A felhasználóneved: {username}',
+    'Your password: {password}' => 'A jelszavad: {password}',
+    'CodeCompass started' => 'CodeCompass elindult',
+    'Your requested CodeCompass instance has now been started for the solution of {name} course: {course}.' => 'A korábban kért CodeCompass szerver elindult. Hallgató: {name}, kurzus: {course}.'
 ];

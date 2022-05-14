@@ -245,6 +245,7 @@ class AuthController extends BaseRestController
         $userInfo->isAutoTestEnabled = Yii::$app->params['evaluator']['enabled'];
         $userInfo->isVersionControlEnabled = Yii::$app->params['versionControl']['enabled'];
         $userInfo->isCanvasEnabled = Yii::$app->params['canvas']['enabled'];
+        $userInfo->isCodeCompassEnabled = Yii::$app->params['codeCompass']['enabled'];
 
         return $userInfo;
     }

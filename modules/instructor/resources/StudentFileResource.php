@@ -33,6 +33,7 @@ class StudentFileResource extends StudentFile
             'uploadTime',
             'delay',
             'uploadCount',
+            'codeCompassID'
         ];
     }
 
@@ -44,7 +45,8 @@ class StudentFileResource extends StudentFile
         return [
             'uploader',
             'grader',
-            'task'
+            'task',
+            'codeCompass'
         ];
     }
 
@@ -59,6 +61,8 @@ class StudentFileResource extends StudentFile
                 'uploader' => new OAProperty(['ref' => '#/components/schemas/Common_UserResource_Read']),
                 'grader' => new OAProperty(['ref' => '#/components/schemas/Common_UserResource_Read']),
                 'task' => new OAProperty(['ref' => '#/components/schemas/Instructor_TaskResource_Read']),
+                'codeCompass' => new OAProperty(['ref' => '#/components/schemas/Instructor_CodeCompassInstanceResource_Read']),
+                'codeCompassID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             ]
         );
     }
@@ -121,5 +125,20 @@ class StudentFileResource extends StudentFile
         rsort($dirs);
         $path = Yii::$app->params['versionControl']['basePath'] . '/' . $this->taskID . '/' . strtolower($this->uploader->neptun) . '/' . basename($dirs[1]);
         return Yii::$app->request->hostInfo . $path;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCodeCompass()
+    {
+        return $this->hasOne(CodeCompassInstanceResource::class, ['studentFileId' => 'id']);
+    }
+
+    public function getCodeCompassID()
+    {
+        return $this->hasOne(CodeCompassInstanceResource::class, ['studentFileId' => 'id'])
+            ->one()
+            ->id ?? null;
     }
 }

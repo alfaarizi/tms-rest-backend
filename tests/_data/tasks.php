@@ -13,6 +13,8 @@ return [
         'isVersionControlled' => 0,
         'autoTest' => 0,
         'showFullErrorMsg' => 0,
+        'codeCompassCompileInstructions' => 'sudo magic compile command',
+        'codeCompassPackagesInstallInstructions' => 'apt-get install qt5 wireshark -y'
     ],
     'task2' => [
         'id' => 5001,

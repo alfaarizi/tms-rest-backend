@@ -10,6 +10,7 @@ use app\tests\unit\fixtures\StudentFilesFixture;
 use app\tests\unit\fixtures\SubscriptionFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use app\tests\unit\fixtures\UserFixture;
+use app\tests\unit\fixtures\CodeCompassInstanceFixture;
 use Codeception\Util\HttpCode;
 
 class InstructorStudentFilesCest
@@ -29,7 +30,8 @@ class InstructorStudentFilesCest
         'taskID' => 'integer',
         'groupID' => 'integer',
         'gitRepo' => 'string|null',
-        'uploaderID' => 'integer'
+        'uploaderID' => 'integer',
+        'codeCompassID' => 'integer|null'
     ];
 
     public function _fixtures()
@@ -50,6 +52,9 @@ class InstructorStudentFilesCest
             'subscriptions' => [
                 'class' => SubscriptionFixture::class
             ],
+            'codecompassinstances' => [
+                'class' => CodeCompassInstanceFixture::class
+            ]
         ];
     }
 
@@ -191,9 +196,9 @@ class InstructorStudentFilesCest
                 'name' => 'stud01.zip',
                 'isAccepted' => StudentFile::IS_ACCEPTED_LATE_SUBMISSION,
                 'translatedIsAccepted' => 'Late Submission',
-                'grade' => '4',
+                'grade' => 4,
                 'notes' => '',
-                'isVersionControlled' => '0',
+                'isVersionControlled' => 0,
                 'graderName' => 'Teacher Two',
                 'errorMsg' => 'FULL_ERROR_MESSAGE',
                 'taskID' => 5001,
@@ -201,6 +206,7 @@ class InstructorStudentFilesCest
                 'uploaderID' => 1001,
                 'gitRepo' => null,
                 'uploadCount' => 1,
+                'codeCompassID' => 1
             ]
         );
     }
@@ -375,5 +381,53 @@ class InstructorStudentFilesCest
     {
         $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5003, 'onlyUngraded' => false]);
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+    }
+
+    public function startCodeCompassNotFound(ApiTester $I)
+    {
+        $I->sendPost("/instructor/student-files/0/start-code-compass");
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function startCodeCompassWithoutPermission(ApiTester $I)
+    {
+        $I->sendPost("/instructor/student-files/6/start-code-compass");
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function startCodeCompassAlreadyStarted(ApiTester $I)
+    {
+        $I->sendPost("/instructor/student-files/1/start-code-compass");
+        $I->seeResponseCodeIs(HttpCode::CONFLICT);
+    }
+
+    public function startCodeCompassCurrentlyStarting(ApiTester $I)
+    {
+        $I->sendPost("/instructor/student-files/2/start-code-compass");
+        $I->seeResponseCodeIs(HttpCode::CONFLICT);
+    }
+
+    public function stopCodeCompassNotFound(ApiTester $I)
+    {
+        $I->sendPost("/instructor/student-files/0/stop-code-compass");
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function stopCodeCompassWithoutPermission(ApiTester $I)
+    {
+        $I->sendPost("/instructor/student-files/5/start-code-compass");
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function stopCodeCompassCurrentlyStarting(ApiTester $I)
+    {
+        $I->sendPost("/instructor/student-files/2/stop-code-compass");
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function stopCodeCompassNotRunning(ApiTester $I)
+    {
+        $I->sendPost("/instructor/student-files/3/stop-code-compass");
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 }
