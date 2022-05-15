@@ -66,7 +66,7 @@ return [
             ],
             'windows' => [
                 //reserved ports for on linux docker host
-                'reservedPorts' => ['9090', 9091]
+                'reservedPorts' => ['9090', '9091']
             ]
         ],
         // preconfigured templates
