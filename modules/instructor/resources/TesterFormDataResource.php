@@ -13,6 +13,7 @@ class TesterFormDataResource extends Model implements IOpenApiFieldTypes
 {
     public $templates;
     public $osMap;
+    public $appTypes;
     public $imageSuccessfullyBuilt;
     public $imageCreationDate;
 
@@ -26,6 +27,7 @@ class TesterFormDataResource extends Model implements IOpenApiFieldTypes
                 ]
             ),
             'osMap' => new OAProperty(['type' => 'string', 'enum' => new OAList(Task::TEST_OS)]),
+            'appTypes' => new OAProperty(['type' => 'string', 'enum' => new OAList(Task::APP_TYPES)]),
             'imageSuccessfullyBuilt' => new OAProperty(['type' => 'boolean']),
             'imageCreationDate' => new OAProperty(['type' => 'string'])
         ];

@@ -19,6 +19,8 @@ use Codeception\Util\HttpCode;
 use League\Uri\Http;
 use Yii;
 
+use function Clue\StreamFilter\fun;
+
 class InstructorTasksCest
 {
     public const TASK_SCHEMA = [
@@ -36,6 +38,8 @@ class InstructorTasksCest
         'groupID' => 'integer|string',
         'semesterID' => 'integer|string',
         'creatorName' => 'string',
+        'appType' => 'string|null',
+        'port' => 'integer|string|null',
         'codeCompassCompileInstructions' => 'string|null',
         'codeCompassPackagesInstallInstructions' => 'string|null'
     ];
@@ -105,6 +109,7 @@ class InstructorTasksCest
     {
         $I->sendGet('/instructor/tasks?groupID=2000');
         $I->seeResponseCodeIs(HttpCode::OK);
+
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA, '$.[*].[*]');
 
         $I->seeResponseContainsJson([['id' => 5000]]);
@@ -682,5 +687,19 @@ class InstructorTasksCest
                 'codeCompassPackagesInstallInstructions' => 'apt-get install qt5 wireshark -y',
             ]
         );
+    }
+
+    public function autoTesterWithoutTaskType(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/tasks/5000/setup-auto-tester',
+            [
+                'testOS' => 'linux',
+                'imageName' => 'busybox',
+                'showFullErrorMsg' => true
+            ]
+        );
+
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
     }
 }

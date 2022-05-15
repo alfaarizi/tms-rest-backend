@@ -217,6 +217,10 @@ return [
     'You must be a lecturer of the course to perform this action!' => 'Ezen művelet végrehajtásához a kurzus előadójának kell lenned!',
     'Enter task deadline ...' => 'Határidő megadása ...',
     'Enter available from ...' => 'Kezdő időpont megadása ...',
+    'Application type' => 'Alkalmazás típus',
+    'Console' => 'Konzol',
+    'Web' => 'Web',
+    'Port' => 'Port',
 
     "Task not found." => "A feladat nem található.",
     "Group not found." => "A csoport nem található.",
@@ -401,4 +405,21 @@ return [
     "Failed to add course." => "Kurzus hozzáadása sikertelen.",
     'The combination of  Course ID and User ID has already been taken.' => "Ez a kurzuskód, felhasználó kombináció már foglalt.",
     'This user and course combination not found' => 'Ez a felhasználó és kurzus kombináció nem található',
+
+    //Web App Execution
+    "Web app execution time must be in range: {min} - {max} min." => "Megengedett futtatási idő {min} - {max} perc között lehet.",
+    "Failed to shut down web application." => "Webalkalmazás leállítása sikertelen.",
+    "Running web app not found." => "Nem található futó webalkalmazás.",
+    "Failed to start web application." => "Webalkalmazás indítása sikertelen.",
+    "Student file not found." => "Hallgatói állomány nem található.",
+    "An instance is already running or scheduled." => "A webalkalmazás egy példánya már fut, vagy ütemezve van.",
+    "Only Web application task types are executable." => "Csak Web típusú feladatok futtathatóak.",
+    "All ports reserved at the moment." => "Jelenleg minden port foglalt.",
+    "User not allowed to shut down this instance." => "A felhasználónak nincs joga leállítani az alkalamazást.",
+    "Container start failed with unknown reason." => "Konténer inditása ismeretlen okból nem sikerült.",
+    "Container started failed while executing run instructions." => "Konténer inditása sikertelen: hiba a futtatási parancs végrehajtása során.",
+    "Container started failed while compiling student submission." => "Konténer indítása sikertelen: hiba a fordítás során.",
+    "Container start failed while processing files." => "Konténer indítása sikertelen: hiba a fájlok feldolgozása során.",
+    "The latest submission failed to compile." => "A hallgató legutóbbi beadandójának fordítása sikertelen.",
+    "Automated testing for web apps is not supported!" => "Webalkalmazások esetén a teszt automatizálás nem lehetséges!"
 ];

@@ -270,6 +270,16 @@ class StudentFile extends File implements IOpenApiFieldTypes
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getExecution()
+    {
+        return $this
+            ->hasOne(WebAppExecution::class, ['studentFileID' => 'id'])
+            ->onCondition(['instructorID' => Yii::$app->user->id]);
+    }
+
+    /**
      * @return string|null
      */
     public function getDelay()

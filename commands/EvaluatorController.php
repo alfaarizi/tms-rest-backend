@@ -4,13 +4,14 @@ namespace app\commands;
 
 use app\components\AssignmentTester;
 use app\components\CanvasIntegration;
-use app\models\StudentFile;
+use app\models\Task;
 use app\models\TestCase;
-use yii\console\ExitCode;
-use yii\console\widgets\Table;
+use app\models\StudentFile;
+use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
-use Yii;
+use yii\console\ExitCode;
+use yii\console\widgets\Table;
 
 class EvaluatorController extends BaseController
 {
@@ -34,6 +35,7 @@ class EvaluatorController extends BaseController
                 ->where(['autoTest' => 1])
                 ->andWhere(['not', ['imageName' => null]])
                 ->andWhere(['not', ['compileInstructions' => null]])
+                ->andWhere(['not', ['appType' => Task::APP_TYPE_WEB]])
                 ->indexBy('id')
                 ->all()
         );

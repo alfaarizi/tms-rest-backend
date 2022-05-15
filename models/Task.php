@@ -33,6 +33,8 @@ use yii\helpers\FileHelper;
  * @property string $codeCompassCompileInstructions
  * @property string $codeCompassPackagesInstallInstructions
  * @property integer $canvasID
+ * @property integer $port
+ * @property string $appType
  * @property string $password
  *
  * @property InstructorFile[] $instructorFiles
@@ -98,6 +100,15 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public const TEST_OS = [
         'linux',
         'windows',
+    ];
+
+    public const APP_TYPE_WEB = 'Web';
+    public const APP_TYPE_CONSOLE = 'Console';
+
+    //Supported application archetypes
+    public const APP_TYPES = [
+        self::APP_TYPE_CONSOLE,
+        self::APP_TYPE_WEB
     ];
 
     /**
@@ -185,7 +196,16 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             [['imageName', 'password'], 'string', 'max' => 255],
             [['compileInstructions', 'runInstructions'], 'string'],
             [['codeCompassPackagesInstallInstructions'], 'string', 'max' => 500],
-            [['compileInstructions', 'runInstructions', 'codeCompassCompileInstructions'], 'string']
+            [['compileInstructions', 'runInstructions', 'codeCompassCompileInstructions'], 'string'],
+            [['port'], 'integer', 'min' => 1, 'max' => 65353],
+            [['appType'], 'string'],
+            [['port'], 'required', 'when' => function ($model) {
+                return $model->appType == Task::APP_TYPE_WEB;
+            }],
+            [['appType'], 'in', 'range' => self::APP_TYPES],
+            [['appType'], 'required', 'when' => function ($model) {
+                return $model->imageName != null;
+            }]
         ];
     }
 
@@ -214,6 +234,8 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'runInstructions' => Yii::t('app', 'Run Instructions'),
             'canvasID' => Yii::t('app', 'Canvas id'),
             'password' => Yii::t('app', 'Password'),
+            'port' => Yii::t('app', 'Port'),
+            'appType' => Yii::t('app', 'Application type'),
             'codeCompassCompileInstructions' => Yii::t('app', 'CodeCompass Compile Instructions'),
             'codeCompassPackagesInstallInstructions' => Yii::t('app', 'CodeCompass Packages'),
         ];
@@ -423,11 +445,13 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'imageName' => new OAProperty(['type' => 'string']),
             'compileInstructions' => new OAProperty(['type' => 'string']),
             'runInstructions' => new OAProperty(['type' => 'string']),
-            'password' => new OAProperty(['type' => 'string']),
-            'passwordProtected' => new OAProperty(['type' => 'boolean']),
             'canvasUrl' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
             'codeCompassCompileInstructions' => new OAProperty(['type' => 'string']),
             'codeCompassPackagesInstallInstructions' => new OAProperty(['type' => 'string']),
+            'passwordProtected' => new OAProperty(['type' => 'boolean']),
+            'password' => new OAProperty(['type' => 'string']),
+            'port' => new OAProperty(['type' => 'integer']),
+            'appType' => new OAProperty(['type' => 'string', 'enum' => new OAList(self::APP_TYPES)]),
         ];
     }
 }

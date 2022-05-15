@@ -8,10 +8,15 @@ use DateTime;
 
 class TaskTest extends \Codeception\Test\Unit
 {
+    use \Codeception\Specify;
+
     /**
      * @var \UnitTester
      */
     protected $tester;
+
+    /** @specify  */
+    private Task $task;
 
     public function _fixtures()
     {
@@ -81,5 +86,55 @@ class TaskTest extends \Codeception\Test\Unit
     {
         $task = Task::findOne(5006);
         $this->assertEquals('https://canvas.example.com/courses/1/assignments/2', $task->canvasUrl);
+    }
+
+    public function testValidation()
+    {
+        $this->task = new Task();
+        $this->task->createrID = 1;
+        $this->task->imageName = 'foo';
+        $this->task->appType = 'Web';
+        $this->task->port = 8080;
+
+        $this->specify("App type must be in [Web, Console] when image set", function () {
+            $this->assertTrue(
+                $this->task->validate('appType'),
+                'Web type should be allowed'
+            );
+
+            $this->task->appType = 'Console';
+            $this->assertTrue(
+                $this->task->validate('appType'),
+                'Console type should be allowed'
+            );
+
+            $this->task->appType = null;
+            $this->assertFalse(
+                $this->task->validate('appType'),
+                'Port ust be set'
+            );
+
+            $this->task->imageName = null;
+            $this->assertTrue(
+                $this->task->validate('appType'),
+                'Null should be allowed'
+            );
+        });
+
+        $this->specify("Port must be set when app type is Web", function () {
+            $this->assertTrue($this->task->validate('port'), 'port must be set');
+            $this->task->port = null;
+            $this->assertFalse($this->task->validate('port'), 'null port shouldn\'t be allowed');
+            $this->task->appType = 'Console';
+            $this->assertTrue($this->task->validate('port'), 'null port should be allowed');
+        });
+
+        $this->specify("Port must be in valid range", function () {
+            $this->assertTrue($this->task->validate('port'), 'port must be set');
+            $this->task->port = -1;
+            $this->assertFalse($this->task->validate('port'), 'port must be >= 0');
+            $this->task->appType = 99999;
+            $this->assertFalse($this->task->validate('port'), 'port must be <= 65353');
+        });
     }
 }

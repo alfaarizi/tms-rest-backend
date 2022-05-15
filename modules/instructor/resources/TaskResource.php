@@ -4,7 +4,6 @@ namespace app\modules\instructor\resources;
 
 use app\components\openapi\generators\OAItems;
 use app\components\openapi\generators\OAProperty;
-use app\components\openapi\IOpenApiFieldTypes;
 use app\resources\SemesterResource;
 use yii\helpers\ArrayHelper;
 
@@ -34,7 +33,10 @@ class TaskResource extends \app\models\Task
             'imageName',
             'compileInstructions',
             'runInstructions',
+            'port',
+            'appType',
             'password',
+            'passwordProtected',
             'canvasUrl',
             'codeCompassCompileInstructions',
             'codeCompassPackagesInstallInstructions'

@@ -47,6 +47,7 @@ class StudentFileResource extends StudentFile
             'uploader',
             'grader',
             'task',
+            'execution',
             'codeCompass'
         ];
     }
@@ -62,6 +63,7 @@ class StudentFileResource extends StudentFile
                 'uploader' => new OAProperty(['ref' => '#/components/schemas/Common_UserResource_Read']),
                 'grader' => new OAProperty(['ref' => '#/components/schemas/Common_UserResource_Read']),
                 'task' => new OAProperty(['ref' => '#/components/schemas/Instructor_TaskResource_Read']),
+                'execution' => new OAProperty(['ref' => '#/components/schemas/Instructor_WebAppExecutionResource_Read']),
                 'codeCompass' => new OAProperty(['ref' => '#/components/schemas/Instructor_CodeCompassInstanceResource_Read']),
                 'codeCompassID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             ]
@@ -106,6 +108,16 @@ class StudentFileResource extends StudentFile
     public function getTask()
     {
         return $this->hasOne(TaskResource::class, ['id' => 'taskID']);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getExecution()
+    {
+        return $this
+            ->hasOne(WebAppExecutionResource::class, ['studentFileID' => 'id'])
+            ->onCondition(['instructorID' => Yii::$app->user->id]);
     }
 
     /**

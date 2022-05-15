@@ -132,6 +132,20 @@ $config = [
         ],
     ],
     'params' => $params,
+    'container' => [
+        'definitions' => [
+            'Docker\Docker' => function ($container, $params, $config) {
+                return Docker\Docker::create(
+                    Docker\DockerClientFactory::create(
+                        [
+                            'remote_socket' => Yii::$app->params['evaluator'][$params['os']]
+                        ]
+                    )
+                );
+            },
+            \app\components\SubmissionRunner::class => \app\components\SubmissionRunner::class,
+        ]
+    ],
 ];
 
 if (YII_ENV_PROD && isset($_SERVER['HOME'])) {

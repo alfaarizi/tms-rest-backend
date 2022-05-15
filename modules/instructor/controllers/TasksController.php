@@ -841,11 +841,18 @@ class TasksController extends BaseInstructorRestController
         $setupData->load(Yii::$app->request->post(), '');
         $setupData->files = UploadedFile::getInstancesByName('files');
 
+        if (!$setupData->validate()) {
+            $this->response->statusCode = 422;
+            return $setupData->errors;
+        }
+
         $task->testOS = $setupData->testOS;
         $task->imageName = $setupData->imageName;
         $task->compileInstructions = $setupData->compileInstructions;
         $task->runInstructions = $setupData->runInstructions;
         $task->showFullErrorMsg = $setupData->showFullErrorMsg;
+        $task->appType = $setupData->appType;
+        $task->port = $setupData->port;
 
         if (!$task->validate()) {
             $this->response->statusCode = 422;
@@ -991,6 +998,7 @@ class TasksController extends BaseInstructorRestController
         $response = new TesterFormDataResource();
         $response->templates = $templates;
         $response->osMap = $osMap;
+        $response->appTypes = Task::APP_TYPES;
         $response->imageSuccessfullyBuilt = AssignmentTester::alreadyBuilt(
             $task->imageName,
             Yii::$app->params['evaluator'][$task->testOS]
