@@ -125,7 +125,7 @@ class CommonAuthCest
                     ],
                     'isAutoTestEnabled' => true,
                     'isVersionControlEnabled' => false,
-                    'isCanvasEnabled' => false
+                    'isCanvasEnabled' => true
                 ]
             ]
         );
@@ -165,7 +165,7 @@ class CommonAuthCest
                     ],
                     'isAutoTestEnabled' => true,
                     'isVersionControlEnabled' => false,
-                    'isCanvasEnabled' => false
+                    'isCanvasEnabled' => true
                 ]
             ]
         );
@@ -220,7 +220,7 @@ class CommonAuthCest
                 ],
                 'isAutoTestEnabled' => true,
                 'isVersionControlEnabled' => false,
-                'isCanvasEnabled' => false
+                'isCanvasEnabled' => true
             ]
         );
     }

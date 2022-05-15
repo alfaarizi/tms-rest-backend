@@ -29,6 +29,7 @@ class GroupResource extends \app\models\Group
             'canvasCanBeSynchronized',
             'isCanvasCourse',
             'timezone',
+            'canvasUrl',
         ];
     }
 

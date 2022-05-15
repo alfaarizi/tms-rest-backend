@@ -29,7 +29,8 @@ class TaskResource extends Task
             'creatorName',
             'semesterID',
             'gitInfo',
-            'autoTest'
+            'autoTest',
+            'canvasUrl',
         ];
     }
 

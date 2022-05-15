@@ -41,7 +41,8 @@ use yii\helpers\FileHelper;
  * @property Semester $semester
  * @property User $creator
  *
- * @property-read string timezone
+ * @property-read ?string $canvasUrl
+ * @property-read string $timezone
  * @property-read string $localImageName
  * @property-read string $isLocalImage
  * @property-read string $containerName
@@ -374,6 +375,14 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         return $this->creator->name;
     }
 
+    public function getCanvasUrl(): ?string
+    {
+        $canvasParams = Yii::$app->params['canvas'];
+        return ($canvasParams['enabled'] && $this->category === 'Canvas tasks')
+            ? rtrim($canvasParams['url'], '/') . '/courses/' . $this->group->canvasCourseID . '/assignments/' . $this->canvasID
+            : null;
+    }
+
     public function fieldTypes(): array
     {
         return [
@@ -395,6 +404,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'imageName' => new OAProperty(['type' => 'string']),
             'compileInstructions' => new OAProperty(['type' => 'string']),
             'runInstructions' => new OAProperty(['type' => 'string']),
+            'canvasUrl' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
             'codeCompassCompileInstructions' => new OAProperty(['type' => 'string']),
             'codeCompassPackagesInstallInstructions' => new OAProperty(['type' => 'string']),
         ];

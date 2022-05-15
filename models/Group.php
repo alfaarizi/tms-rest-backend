@@ -19,9 +19,10 @@ use Yii;
  * @property integer $canvasSectionID
  * @property integer $canvasCourseID
  * @property boolean $isExamGroup
- * @property string timezone
- * @property-read boolean isCanvasCourse
- * @property-read boolean canvasCanBeSynchronized
+ * @property string $timezone
+ * @property-read boolean $isCanvasCourse
+ * @property-read boolean $canvasCanBeSynchronized
+ * @property-read ?string $canvasUrl
  *
  * @property Semester $semester
  * @property Course $course
@@ -143,6 +144,7 @@ class Group extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'isCanvasCourse' => new OAProperty(['type' => 'boolean']),
             'isExamGroup' => new OAProperty(['type' => 'boolean']),
             'timezone' => new OAProperty(['type' => 'string', 'example' => 'Europe/Budapest']),
+            'canvasUrl' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
         ];
     }
 
@@ -248,5 +250,14 @@ class Group extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public function getIsCanvasCourse()
     {
         return !is_null($this->canvasCourseID);
+    }
+
+
+    public function getCanvasUrl(): ?string
+    {
+        $canvasParams = Yii::$app->params['canvas'];
+        return ($canvasParams['enabled'] && !is_null($this->canvasCourseID))
+            ? rtrim($canvasParams['url'], '/') . '/courses/' . $this->canvasCourseID
+            : null;
     }
 }

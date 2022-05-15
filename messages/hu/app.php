@@ -29,6 +29,7 @@ return [
     'Canvas Course' => 'Canvas kurzus',
     'Canvas Section' => 'Canvas kurzusszekció',
     'Canvas tasks' => 'Canvas beadandók',
+    'Canvas URL' => 'Canvas URL',
     'Classwork tasks' => 'Órai munkák',
     'Code' => 'Kód',
     'Course' => 'Kurzus',

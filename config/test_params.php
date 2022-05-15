@@ -42,7 +42,11 @@ return [
     ],
     // Canvas synchronization configuration
     'canvas' => [
-        'enabled' => false,
+        'enabled' => true,
+        'url' => 'https://canvas.example.com/',
+        'clientID' => '1',
+        'secretKey' => 'key',
+        'redirectUri' => 'http://localhost:3000/instructor/task-mamager/canvas/oauth2-response'
     ],
     // CodeCompass integration configuration
     'codeCompass' => [
