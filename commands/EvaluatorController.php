@@ -20,7 +20,7 @@ class EvaluatorController extends BaseController
      * @param int $count Number of studentfiles to evaluate.
      * @return int Error code.
      */
-    public function actionCheckSubmission($count = 1)
+    public function actionCheck($count = 1)
     {
         if (!Yii::$app->params['evaluator']['enabled']) {
             $this->stderr('Automatic evaluator is disabled in configuration.' . PHP_EOL, Console::FG_RED);

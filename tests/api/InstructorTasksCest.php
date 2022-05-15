@@ -39,7 +39,7 @@ class InstructorTasksCest
         'semesterID' => 'integer|string',
         'creatorName' => 'string',
         'appType' => 'string|null',
-        'port' => 'integer|string|null'
+        'port' => 'integer|string|null',
         'codeCompassCompileInstructions' => 'string|null',
         'codeCompassPackagesInstallInstructions' => 'string|null'
     ];

@@ -8,7 +8,6 @@ use DateTime;
 
 class TaskTest extends \Codeception\Test\Unit
 {
-
     use \Codeception\Specify;
 
     /**
