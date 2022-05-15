@@ -374,7 +374,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     {
         $canvasParams = Yii::$app->params['canvas'];
         return ($canvasParams['enabled'] && $this->category === 'Canvas tasks')
-            ? $canvasParams['url'] . 'courses/' . $this->group->canvasCourseID . '/assignments/' . $this->canvasID
+            ? rtrim($canvasParams['url'], '/') . '/courses/' . $this->group->canvasCourseID . '/assignments/' . $this->canvasID
             : null;
     }
 

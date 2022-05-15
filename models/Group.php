@@ -257,7 +257,7 @@ class Group extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     {
         $canvasParams = Yii::$app->params['canvas'];
         return ($canvasParams['enabled'] && !is_null($this->canvasCourseID))
-            ? $canvasParams['url'] . 'courses/' . $this->canvasCourseID
+            ? rtrim($canvasParams['url'], '/') . '/courses/' . $this->canvasCourseID
             : null;
     }
 }

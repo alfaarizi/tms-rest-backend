@@ -71,7 +71,7 @@ class CanvasIntegration
         $currentToken->canvasOAuth2State = Yii::$app->getSecurity()->generateRandomString(10);
         $currentToken->save();
 
-        return Yii::$app->params['canvas']['url'] . 'login/oauth2/auth' .
+        return rtrim(Yii::$app->params['canvas']['url'], '/') . '/login/oauth2/auth' .
             '?client_id=' . Yii::$app->params['canvas']['clientID'] .
             '&response_type=code' .
             '&purpose=TMS-Canvas synchronization' .
