@@ -3,7 +3,7 @@
 use yii\db\Migration;
 
 /**
- * Class m220327_132854_add_task_app_type_and_port_property
+ * Add fields for evaluation type and web application port for the Tasks table.
  */
 class m220327_132854_add_task_app_type_and_port_property extends Migration
 {

@@ -3,7 +3,7 @@
 use yii\db\Migration;
 
 /**
- * Class m220327_201850_create_remote_execution
+ * Add table for web application executions.
  */
 class m220327_201850_create_remote_execution extends Migration
 {
