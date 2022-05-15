@@ -448,6 +448,10 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'canvasUrl' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
             'codeCompassCompileInstructions' => new OAProperty(['type' => 'string']),
             'codeCompassPackagesInstallInstructions' => new OAProperty(['type' => 'string']),
+            'passwordProtected' => new OAProperty(['type' => 'boolean']),
+            'password' => new OAProperty(['type' => 'string']),
+            'port' => new OAProperty(['type' => 'integer']),
+            'appType' => new OAProperty(['type' => 'string', 'enum' => new OAList(self::APP_TYPES)]),
         ];
     }
 }

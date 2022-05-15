@@ -36,6 +36,7 @@ class TaskResource extends \app\models\Task
             'port',
             'appType',
             'password',
+            'passwordProtected',
             'canvasUrl',
             'codeCompassCompileInstructions',
             'codeCompassPackagesInstallInstructions'
