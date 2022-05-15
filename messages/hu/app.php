@@ -421,5 +421,8 @@ return [
     "Container started failed while compiling student submission." => "Konténer indítása sikertelen: hiba a fordítás során.",
     "Container start failed while processing files." => "Konténer indítása sikertelen: hiba a fájlok feldolgozása során.",
     "The latest submission failed to compile." => "A hallgató legutóbbi beadandójának fordítása sikertelen.",
-    "Automated testing for web apps is not supported!" => "Webalkalmazások esetén a teszt automatizálás nem lehetséges!"
+    "Automated testing for web apps is not supported!" => "Webalkalmazások esetén a teszt automatizálás nem lehetséges!",
+    'Platform not supported for web application testing.' => 'A platform nem támogatott webalkalmazás tesztelésre.',
+
+
 ];

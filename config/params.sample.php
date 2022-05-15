@@ -65,7 +65,7 @@ return [
                 'reservedPorts'  => ['8080', '8089']
             ],
             'windows' => [
-                //reserved ports for on linux docker host
+                //reserved ports for on windows docker host
                 'reservedPorts' => ['9090', '9091']
             ]
         ],
