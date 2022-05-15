@@ -702,30 +702,4 @@ class InstructorTasksCest
 
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
     }
-
-
-    /**
-     * Ignore this test until docker mocking is complete
-     * @param ApiTester $I
-     * @return void
-     */
-    public function autoTesterWithTaskTypeWebAndPort(ApiTester $I)
-    {
-        /*
-        $I->sendPost(
-            '/instructor/tasks/5000/setup-auto-tester',
-            [
-                'testOS' => 'linux',
-                'imageName' => 'busybox',
-                'showFullErrorMsg' => true,
-                'appType' => 'Web',
-                'port' => 8080
-            ]
-        );
-
-        $I->seeResponseCodeIs(HttpCode::OK);
-        echo $I->seeResponseContainsJson(['port' => 8080]);
-        echo $I->seeResponseContainsJson(['appType' => 'Web']);
-        */
-    }
 }
