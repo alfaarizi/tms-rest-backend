@@ -376,6 +376,19 @@ return [
     "Test instances are unique: you must provide an userID!" => "A tesztpéldányok egyediek: a userID megadása kötelező!",
     "The selected group is empty. Please add at least one student!" => "A kiválaszott csoport üres. Adjon hozzá legalább egy hallgatót!",
 
+    // CodeCompass integration
+    "CodeCompass is not enabled." => "A CodeCompass funkció nincs bekapcsolva.",
+    "CodeCompass is not running for this solution." => "Ennek a megoldásnak nincs futó CodeCompass példánya.",
+    "An error occurred while stopping CodeCompass." => "Hiba történt a CodeCompass leállítása során.",
+    "An error occurred while starting CodeCompass." => "Hiba történt a CodeCompass elindítása során.",
+    "There is no port available to run the CodeCompass on!" => "Pillanatnyilag nincs szabad port a CodeCompass elindításához.",
+    "CodeCompass is already starting." => "A CodeCompass elindítása már folyamatban van.",
+    "CodeCompass is already running." => "Már van futó CodeCompass példány a feltöltött megoldásra.",
+    "CodeCompass Compile Instructions" => "CodeCompass fordítási utasítások",
+    "CodeCompass Packages" => "CodeCompass Csomagok",
+    "CodeCompass Image Name" => "CodeCompass Image Neve",
+    "Cannot change package installing script while CodeCompass is running!" => "A telepítési script nem változtatható, amíg a CodeCompass fut!",
+
     // Admin
     "Couldn't save new semester." => "Új szemeszter felvétele sikertelen.",
     "Semester already exists." => "A szemeszter már létezik.",

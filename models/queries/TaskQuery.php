@@ -60,6 +60,49 @@ class TaskQuery extends ActiveQuery
     }
 
     /**
+     * Fetch students assigned to the task
+     * @param bool $acceptedOnly only retrieve students who accepted course submission
+     * @return TaskQuery
+     */
+    public function withStudents(bool $acceptedOnly): TaskQuery
+    {
+        return $this->joinWith(
+            [
+                'group.subscriptions' => function (ActiveQuery $query) use ($acceptedOnly) {
+                    if ($acceptedOnly) {
+                        $query->andOnCondition(['isAccepted' => 1]);
+                    }
+                    $query->joinWith('user');
+                }
+            ]
+        );
+    }
+
+    /**
+
+     * Fetch available tasks with oncoming deadline
+     *
+     * @param int $daysToDeadline days to deadline
+     * @return TaskQuery
+     */
+    public function oncomingDeadline(int $daysToDeadline): TaskQuery
+    {
+        return $this
+            ->findAvailable()
+            ->andWhere(
+                [
+                    'between',
+                    'hardDeadline',
+                    new Expression('NOW()'),
+                    new Expression(
+                        'NOW() + INTERVAL :daysToDeadline DAY',
+                        [':daysToDeadline' => $daysToDeadline]
+                    )
+                ]
+            );
+    }
+
+    /**
      * Filter tasks by semesters
      * @param int $semesterFromID
      * @param int $semesterToID

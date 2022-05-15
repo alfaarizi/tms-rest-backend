@@ -33,6 +33,8 @@ class InstructorTasksCest
         'groupID' => 'integer|string',
         'semesterID' => 'integer|string',
         'creatorName' => 'string',
+        'codeCompassCompileInstructions' => 'string|null',
+        'codeCompassPackagesInstallInstructions' => 'string|null'
     ];
 
     public const USER_SCHEMA = [
@@ -143,6 +145,8 @@ class InstructorTasksCest
                 'groupID' => 2000,
                 'semesterID' => 3001,
                 'creatorName' => 'Teacher Two',
+                'codeCompassCompileInstructions' => 'sudo magic compile command',
+                'codeCompassPackagesInstallInstructions' => 'apt-get install qt5 wireshark -y',
             ]
         );
     }
@@ -551,5 +555,63 @@ class InstructorTasksCest
         $I->cantSeeResponseContainsJson(['id' => 5004]);
         $I->cantSeeResponseContainsJson(['id' => 5005]);
         $I->cantSeeResponseContainsJson(['id' => 5007]);
+    }
+
+    public function setupCodeCompassParserNotFound(ApiTester $I)
+    {
+        $I->sendPost(
+            "/instructor/tasks/0/setup-code-compass-parser",
+            [
+                'codeCompassCompileInstructions' => 'sudo magic',
+                'codeCompassPackagesInstallInstructions' => 'apt-get install wpf qt etc -y'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function setupCodeCompassParserWithoutPermission(ApiTester $I)
+    {
+        $I->sendPost(
+            "/instructor/tasks/5004/setup-code-compass-parser",
+            [
+                'codeCompassCompileInstructions' => 'sudo magic',
+                'codeCompassPackagesInstallInstructions' => 'apt-get install wpf qt etc -y'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function setupCodeCompassParserWithoutPackageChange(ApiTester $I)
+    {
+        $I->sendPost(
+            "/instructor/tasks/5000/setup-code-compass-parser",
+            [
+                'codeCompassCompileInstructions' => 'sudo compile program',
+                'codeCompassPackagesInstallInstructions' => 'apt-get install qt5 wireshark -y'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                'id' => 5000,
+                'name' => 'Task 1',
+                'category' => 'Larger tasks',
+                'translatedCategory' => 'Larger tasks',
+                'description' => 'Description',
+                'hardDeadline' => '2021-03-08T10:00:00+01:00',
+                'softDeadline' => null,
+                'available' => null,
+                'autoTest' => 0,
+                'showFullErrorMsg' => 0,
+                'isVersionControlled' => 0,
+                'groupID' => 2000,
+                'semesterID' => 3001,
+                'creatorName' => 'Teacher Two',
+                'codeCompassCompileInstructions' => 'sudo compile program',
+                'codeCompassPackagesInstallInstructions' => 'apt-get install qt5 wireshark -y',
+            ]
+        );
     }
 }

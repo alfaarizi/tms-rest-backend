@@ -90,4 +90,16 @@ return [
         'secretKey' => '',
         'redirectUri' => ''
     ],
+    // CodeCompass integration configuration
+    'codeCompass' => [
+        'enabled' => true,
+        'socket' => 'unix:///var/run/docker.sock',
+        'imageName' => 'modelcpp/codecompass:runtime-sqlite',
+        'maxContainerNum' => 10,
+        'containerExpireMinutes' => 30,
+        'portRange' => [6200, 6300],
+        'username' => 'compass',
+        'passwordLength' => 6,
+        'isImageCachingEnabled' => true
+    ]
 ];

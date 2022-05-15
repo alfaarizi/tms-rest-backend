@@ -48,4 +48,16 @@ return [
         'secretKey' => 'key',
         'redirectUri' => 'http://localhost:3000/instructor/task-mamager/canvas/oauth2-response'
     ],
+    // CodeCompass integration configuration
+    'codeCompass' => [
+        'enabled' => true,
+        'socket' => 'unix:///var/run/docker.sock',
+        'imageName' => 'modelcpp/codecompass:runtime-sqlite',
+        'maxContainerNum' => 3,
+        'containerExpireMinutes' => 61,
+        'portRange' => [25565, 25568],
+        'username' => 'compass',
+        'passwordLength' => 6,
+        'isImageCachingEnabled' => true
+    ]
 ];

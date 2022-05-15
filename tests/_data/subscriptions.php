@@ -49,5 +49,12 @@ return [
         'isAccepted' => 1,
         'groupID' => 2010,
         'semesterID' => 3000
+    ],
+    'subscription8' => [
+        'id' => 8,
+        'userID' => 4,
+        'isAccepted' => 0,
+        'groupID' => 11,
+        'semesterID' => 1
     ]
 ];

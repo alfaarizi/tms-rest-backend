@@ -68,4 +68,14 @@ return [
     'Task deadline change' => 'Feladat határidő változás',
     'The deadline of task {task} for the course {course} (group: {group}) was modified.' => 'Megváltozott a {course} (csoport: {group}) kurzushoz tartozó {task} feladat határideje.',
     'The deadline of task {task} for the course {course} was modified.' => 'Megváltozott a {course} kurzushoz tartozó {task} feladat határideje.',
+    'Oncoming submission deadlines' => 'Közelgő beadandó-határidők',
+    'You have due submissions with deadline in the next {days} days:' => 'A következő {days} napban az alábbi, még nem teljesített beadandóid járnak le:',
+    'Solution last submitted at' => 'Utolsó próbálkozás ideje',
+    'Status of latest submission' => 'Utolsó próbálkozás eredménye',
+    'The table does not contain submissions you have already successfully completed.' => 'A sikeresen teljesített beadandókat a táblázat nem tartalmazza.',
+    'Link to your CodeCompass instance: ' => 'A CodeCompass szerver elérhető itt: ',
+    'Your username: {username}' => 'A felhasználóneved: {username}',
+    'Your password: {password}' => 'A jelszavad: {password}',
+    'CodeCompass started' => 'CodeCompass elindult',
+    'Your requested CodeCompass instance has now been started for the solution of {name} course: {course}.' => 'A korábban kért CodeCompass szerver elindult. Hallgató: {name}, kurzus: {course}.'
 ];

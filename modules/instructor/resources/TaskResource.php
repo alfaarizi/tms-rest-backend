@@ -35,6 +35,8 @@ class TaskResource extends \app\models\Task
             'compileInstructions',
             'runInstructions',
             'canvasUrl',
+            'codeCompassCompileInstructions',
+            'codeCompassPackagesInstallInstructions'
         ];
     }
 

@@ -3,9 +3,13 @@
 namespace app\modules\instructor\controllers;
 
 use app\components\CanvasIntegration;
+use app\components\CodeCompass;
+use app\components\CodeCompassHelper;
 use app\components\GitManager;
+use app\models\CodeCompassInstance;
 use app\models\StudentFile;
 use app\models\User;
+use app\modules\instructor\resources\CodeCompassInstanceResource;
 use app\modules\instructor\resources\GroupResource;
 use app\resources\SemesterResource;
 use Yii;
@@ -14,10 +18,13 @@ use app\modules\instructor\resources\TaskResource;
 use app\resources\UserResource;
 use yii\data\ActiveDataProvider;
 use yii\data\BaseDataProvider;
+use yii\db\StaleObjectException;
 use yii\web\BadRequestHttpException;
+use yii\web\ConflictHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
+use yii\web\UnauthorizedHttpException;
 use yii2tech\spreadsheet\Spreadsheet;
 use yii2tech\csvgrid\CsvGrid;
 
@@ -37,7 +44,9 @@ class StudentFilesController extends BaseInstructorRestController
             'view' => ['GET'],
             'update' => ['PATCH'],
             'download' => ['GET'],
-            'download-all-files' => ['GET']
+            'download-all-files' => ['GET'],
+            'start-code-compass' => ['POST'],
+            'stop-code-compass' => ['POST']
         ]);
     }
 
@@ -642,5 +651,206 @@ class StudentFilesController extends BaseInstructorRestController
         Yii::$app->response->sendFile($zipPath, $task->name . '-' . $task->groupID . '.zip')->on(\yii\web\Response::EVENT_AFTER_SEND, function ($event) {
            unlink($event->data);
         }, $zipPath);
+    }
+
+    /**
+     * Start a CodeCompass container
+     *
+     * @param int $id
+     * @return StudentFileResource
+     * @throws ConflictHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     * @throws StaleObjectException
+     *
+     * @OA\POST(
+     *     path="/instructor/student-files/{id}/start-code-compass",
+     *     operationId="instructor::StudentFilesController::actionStartCodeCompass",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the file",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="successful creation of start request",
+     *     ),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=409, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionStartCodeCompass(int $id): StudentFileResource
+    {
+        if(!CodeCompassHelper::isCodeCompassIntegrationEnabled()) {
+            throw new ForbiddenHttpException(
+                Yii::t('app', 'CodeCompass is not enabled.'));
+        }
+
+        $studentFile = StudentFileResource::findOne($id);
+        if (is_null($studentFile)) {
+            throw new NotFoundHttpException(
+                Yii::t('app', 'File not found.'));
+        }
+
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $studentFile->task->groupID])) {
+            throw new ForbiddenHttpException(
+                Yii::t('app', 'You must be an instructor of the group to perform this action!'));
+        }
+
+        if(CodeCompassHelper::isTooManyContainersRunning()) {
+            Yii::$app->response->statusCode = 201;
+            $codeCompassInstance = new CodeCompassInstanceResource();
+            $codeCompassInstance->studentFileId = $id;
+            $codeCompassInstance->instanceStarterUserId = Yii::$app->user->id;
+            $codeCompassInstance->status = CodeCompassInstance::STATUS_WAITING;
+            $codeCompassInstance->creationTime = date('Y-m-d H:i:s');
+            $codeCompassInstance->save(false);
+
+            return $studentFile;
+        }
+
+        if(CodeCompassHelper::isContainerAlreadyRunning($id)) {
+            throw new ConflictHttpException(
+                Yii::t('app', 'CodeCompass is already running.'));
+        }
+
+        if(CodeCompassHelper::isContainerCurrentlyStarting($id)) {
+            throw new ConflictHttpException(
+                Yii::t('app', 'CodeCompass is already starting.'));
+        }
+
+        $selectedPort = CodeCompassHelper::selectFirstAvailablePort();
+        if(is_null($selectedPort)) {
+            throw new ConflictHttpException(
+                Yii::t('app', 'There is no port available to run the CodeCompass on!'));
+        }
+
+        $docker = CodeCompassHelper::createDockerClient();
+        $taskId = $studentFile->taskID;
+
+        $codeCompass = new CodeCompass(
+            $studentFile,
+            $docker,
+            $selectedPort,
+            CodeCompassHelper::getCachedImageNameForTask($taskId, $docker)
+        );
+
+        $codeCompassInstance = new CodeCompassInstanceResource();
+        $codeCompassInstance->studentFileId = $id;
+        $codeCompassInstance->containerId = $codeCompass->containerId;
+        $codeCompassInstance->status = CodeCompassInstance::STATUS_STARTING;
+        $codeCompassInstance->port = $selectedPort;
+        $codeCompassInstance->instanceStarterUserId = Yii::$app->user->id;
+        $codeCompassInstance->creationTime = date('Y-m-d H:i:s');
+        $codeCompassInstance->save(false);
+
+        try {
+            $codeCompass->start();
+        } catch (\Exception $ex) {
+            $codeCompassInstance->delete();
+            throw new ServerErrorHttpException(
+                Yii::t('app', 'An error occurred while starting CodeCompass.'));
+        }
+
+        $codeCompassInstance->status = CodeCompassInstance::STATUS_RUNNING;
+        $codeCompassInstance->errorLogs = $codeCompass->errorLogs;
+        $codeCompassInstance->username = $codeCompass->codeCompassUsername;
+        $codeCompassInstance->password = $codeCompass->codeCompassPassword;
+        $studentFile->task->save(false);
+        $codeCompassInstance->save(false);
+
+        return $studentFile;
+    }
+
+    /**
+     * Stops a CodeCompass container
+     *
+     * @param int $id
+     * @return StudentFileResource
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     * @throws UnauthorizedHttpException
+     *
+     * @OA\POST(
+     *     path="/instructor/student-files/{id}/stop-code-compass",
+     *     operationId="instructor::StudentFilesController::actionStopCodeCompass",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the file",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionStopCodeCompass(int $id): StudentFileResource
+    {
+        if(!CodeCompassHelper::isCodeCompassIntegrationEnabled()) {
+            throw new ForbiddenHttpException(
+                Yii::t('app', 'CodeCompass is not enabled.'));
+        }
+
+        $studentFile = StudentFileResource::findOne($id);
+        if (is_null($studentFile)) {
+            throw new NotFoundHttpException(
+                Yii::t('app', 'File not found.'));
+        }
+
+        $codeCompassInstance = CodeCompassInstance::find()->findRunningForStudentFileId($id)->one();
+        if (is_null($codeCompassInstance)) {
+            throw new NotFoundHttpException(
+                Yii::t('app', 'CodeCompass is not running for this solution.'));
+        }
+
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $studentFile->task->groupID])) {
+            throw new UnauthorizedHttpException(
+                Yii::t('app', 'You must be an instructor of the group to perform this action!'));
+        }
+
+        $codeCompass = new CodeCompass(
+                $studentFile,
+                CodeCompassHelper::createDockerClient(),
+                $codeCompassInstance->port
+        );
+
+        try {
+            $codeCompass->stop();
+        } catch (\Exception $ex) {
+            throw new ServerErrorHttpException(
+                Yii::t('app', 'An error occurred while stopping CodeCompass.'));
+        }
+
+        try {
+            $codeCompassInstance->delete();
+            return $studentFile;
+        } catch (\Exception $e) {
+            throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
+        }
     }
 }

@@ -20,6 +20,7 @@ use app\models\Model;
  * @property bool $isAutoTestEnabled;
  * @property bool $isVersionControlEnabled;
  * @property bool $isCanvasEnabled;
+ * @property bool $isCodeCompassEnabled
  */
 class UserInfoResource extends Model implements IOpenApiFieldTypes
 {
@@ -33,6 +34,7 @@ class UserInfoResource extends Model implements IOpenApiFieldTypes
     public $isAutoTestEnabled;
     public $isVersionControlEnabled;
     public $isCanvasEnabled;
+    public $isCodeCompassEnabled;
 
     /**
      * @return string[]
@@ -50,6 +52,7 @@ class UserInfoResource extends Model implements IOpenApiFieldTypes
             'isAutoTestEnabled',
             'isVersionControlEnabled',
             'isCanvasEnabled',
+            'isCodeCompassEnabled'
         ];
     }
 
@@ -74,6 +77,7 @@ class UserInfoResource extends Model implements IOpenApiFieldTypes
             'isAutoTestEnabled' => new OAProperty(['type' => 'boolean']),
             'isVersionControlEnabled' => new OAProperty(['type' => 'boolean']),
             'isCanvasEnabled' => new OAProperty(['type' => 'boolean']),
+            'isCodeCompassEnabled' => new OAProperty(['type' => 'boolean']),
         ];
     }
 }
