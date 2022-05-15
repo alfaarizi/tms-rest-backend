@@ -123,7 +123,7 @@ class InstructorGroupsStudentsCest
 
     public function deleteStudentWithoutPermission(ApiTester $I)
     {
-        $I->sendDelete('/instructor/groups/2007/students/1000');
+        $I->sendDelete('/instructor/groups/2007/students/1002');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
         $I->seeRecord(
             Subscription::class,

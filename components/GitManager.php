@@ -19,12 +19,12 @@ class GitManager
 {
     /**
      * Create a repository for each student who are assigned to the task
-     * @param int $id is the id of the task
+     * @param Task $task is the task
      * @param User $student is the student
-     * @param string $hardDeadline is the deadline of the task
      */
-    public static function createRepositories($id, $student, $hardDeadline)
+    public static function createRepositories($task, $student)
     {
+        $id = $task->id;
         $neptun = strtolower($student->neptun);
         if (!is_dir(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $id . '/' . $neptun . '/')) {
             // Set uniqe string to prevent students to clone other repositories
@@ -53,7 +53,7 @@ class GitManager
                 Yii::$app->language = $student->locale;
                 if ($a) {
                     $prerecievehook = fopen($repopath . '.git/hooks/pre-receive', 'w');
-                    self::writePreRecieveGitHook($prerecievehook, $hardDeadline);
+                    self::writePreRecieveGitHook($prerecievehook, $task->hardDeadline, $task->passwordProtected);
                     fclose($prerecievehook);
                 }
                 // Create pre-receive git hook
@@ -81,12 +81,13 @@ curl --request GET --url \"" . Url::base(true) . Yii::$app->params['versionContr
     }
 
     /**
-     * Write git pre-receive git hook to prevent creating new branches on repo and to prevent pushing solutions after the deadline
+     * Write git pre-receive git hook to prevent creating new branches on repo and to prevent pushing solutions after the deadline or to password protected tasks
      * @param resource $prerecievehook is the githook file
      * @param string $hardDeadline is the deadline of the task
+     * @param bool $isPasswordProtected is the task password protected
      * @param bool $isAccepted is the status of the student submission
      */
-    public static function writePreRecieveGitHook($prerecievehook, $hardDeadline, $isAccepted = false)
+    public static function writePreRecieveGitHook($prerecievehook, $hardDeadline, $isPasswordProtected = false, $isAccepted = false)
     {
         $hook = Yii::$app->params['versionControl']['shell'] . "
 rc=0
@@ -102,9 +103,13 @@ done";
             $hook .= "
 echo \"" . Yii::t('app', 'Your solution was accepted!') . "\"
 exit 1";
+        } elseif ($isPasswordProtected) {
+            $hook .= "
+echo \"" . Yii::t('app', "You cannot use 'git push' command for password protected tasks. Use the web interface to upload new solution!") . "\"
+exit 1";
         } else {
             $hook .= "
- currTime=`date +\"%Y-%m-%d %H:%m:%M\"`
+currTime=`date +\"%Y-%m-%d %H:%m:%M\"`
 harddeadline='" . $hardDeadline . "'
 if [[ \"\$currTime\" > \"\$harddeadline\" ]]; then
      rc=1
@@ -128,7 +133,7 @@ exit \$rc";
         $repopath = $repopath . basename($dirs[0]) . '/';
         $hookfile = fopen($repopath . '.git/hooks/pre-receive', "w");
         $studentFile = StudentFile::findOne(['taskID' => $task->id, 'uploaderID' => $subscription->userID]);
-        self::writePreRecieveGitHook($hookfile, $task->hardDeadline, $studentFile != null && $studentFile->isAccepted == StudentFile::IS_ACCEPTED_ACCEPTED);
+        self::writePreRecieveGitHook($hookfile, $task->hardDeadline, $task->passwordProtected, $studentFile != null && $studentFile->isAccepted == StudentFile::IS_ACCEPTED_ACCEPTED);
         fclose($hookfile);
     }
 
@@ -142,7 +147,7 @@ exit \$rc";
         rsort($dirs);
         $repopath = $repopath . basename($dirs[0]) . '/';
         $hookfile = fopen($repopath . '.git/hooks/pre-receive', "w");
-        self::writePreRecieveGitHook($hookfile, $studentFile->task->hardDeadline, $studentFile->isAccepted == StudentFile::IS_ACCEPTED_ACCEPTED);
+        self::writePreRecieveGitHook($hookfile, $studentFile->task->hardDeadline, $studentFile->task->passwordProtected, $studentFile->isAccepted == StudentFile::IS_ACCEPTED_ACCEPTED);
         fclose($hookfile);
     }
 

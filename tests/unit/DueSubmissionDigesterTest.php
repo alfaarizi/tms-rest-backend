@@ -37,7 +37,7 @@ class DueSubmissionDigesterTest extends \Codeception\Test\Unit
 
         $sentEmails = $this->tester->grabSentEmails();
 
-        self::assertEquals(4, count($sentEmails), "4 emails are expected to be sent");
+        self::assertEquals(3, count($sentEmails), "3 emails are expected to be sent");
 
         $recipients = [];
         foreach ($sentEmails as $sentEmail) {
@@ -60,10 +60,10 @@ class DueSubmissionDigesterTest extends \Codeception\Test\Unit
         $mailData = $dueSubmissionDigester->digestOncomingTaskDeadlines();
 
         self::assertEquals(0, count($this->tester->grabSentEmails()), "No mails should have sent");
-        self::assertEquals(4, count($mailData), "For student has due task with oncoming deadline");
+        self::assertEquals(3, count($mailData), "For student has due task with oncoming deadline");
 
         $student = $mailData['STUD01'];
         self::assertEquals('STUD01', $student['user']->neptun, "array key must match student neptun code");
-        self::assertEquals(6, count($student['data']), "STUD01 should receive 6 emails");
+        self::assertEquals(11, count($student['data']), "STUD01 should receive 6 emails");
     }
 }

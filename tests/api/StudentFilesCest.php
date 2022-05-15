@@ -3,6 +3,7 @@
 namespace tests\api;
 
 use ApiTester;
+use app\tests\unit\fixtures\LogFixture;
 use Yii;
 use app\models\StudentFile;
 use app\tests\unit\fixtures\AccessTokenFixture;
@@ -25,7 +26,8 @@ class StudentFilesCest
         'notes' => 'string|null',
         'isVersionControlled' => 'integer',
         'graderName' => 'string|null',
-        'errorMsg' => 'string|null'
+        'errorMsg' => 'string|null',
+        'taskID' => 'integer',
     ];
 
     public function _fixtures()
@@ -45,6 +47,9 @@ class StudentFilesCest
             ],
             'subscriptions' => [
                 'class' => SubscriptionFixture::class
+            ],
+            'logs' => [
+                'class' => LogFixture::class
             ],
         ];
     }
@@ -74,12 +79,6 @@ class StudentFilesCest
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
-    public function viewStudentRemovedFromGroup(ApiTester $I)
-    {
-        $I->sendGet("/student/student-files/5");
-        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
-    }
-
     public function viewWithoutFullErrorMessage(ApiTester $I)
     {
         $I->sendGet("/student/student-files/1");
@@ -93,11 +92,12 @@ class StudentFilesCest
                 'isAccepted' => StudentFile::IS_ACCEPTED_LATE_SUBMISSION,
                 'translatedIsAccepted' => 'Late Submission',
                 'isVersionControlled' => 0,
-                'grade' => '4',
+                'grade' => 4,
                 'notes' => '',
                 'graderName' => 'Teacher Two',
                 'errorMsg' => 'The solution didn\'t compile',
                 'uploadCount' => 1,
+                'verified' => true,
             ]
         );
     }
@@ -120,6 +120,7 @@ class StudentFilesCest
                 'graderName' => 'Teacher Two',
                 'errorMsg' => 'FULL_ERROR_MESSAGE',
                 'uploadCount' => 1,
+                'verified' => true,
             ]
         );
     }
@@ -212,6 +213,7 @@ class StudentFilesCest
                 "graderName" => "",
                 "errorMsg" => null,
                 "uploadCount" => 2,
+                "verified" => true,
             ]
         );
         $I->seeRecord(
@@ -262,6 +264,7 @@ class StudentFilesCest
                 "graderName" => "Teacher Two",
                 "errorMsg" => null,
                 "uploadCount" => 2,
+                'verified' => true,
             ]
         );
         $I->seeRecord(
@@ -298,6 +301,7 @@ class StudentFilesCest
                 "graderName" => '',
                 "errorMsg" => null,
                 "uploadCount" => 1,
+                "verified" => true,
             ]
         );
         $I->seeRecord(
@@ -309,5 +313,321 @@ class StudentFilesCest
             ]
         );
         $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5008/stud01/");
+    }
+
+    public function uploadToPasswordProtectedTask(ApiTester $I)
+    {
+        $I->sendPost(
+            "/student/student-files/upload",
+            ['taskID' => 5010],
+            ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                "name" => "stud01_upload_test.zip",
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "translatedIsAccepted" => "Uploaded",
+                "grade" => null,
+                "notes" => "",
+                "isVersionControlled" => 0,
+                "graderName" => "",
+                "errorMsg" => null,
+                "uploadCount" => 1,
+                'verified' => false
+            ]
+        );
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                "taskID" => 5010,
+                "name" => "stud01_upload_test.zip",
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "uploadCount" => 1,
+            ]
+        );
+        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5010/stud01/");
+    }
+
+    public function reuploadUnverifiedSolution(ApiTester $I)
+    {
+        $I->sendPost(
+            "/student/student-files/upload",
+            ['taskID' => 5011],
+            ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                "name" => "stud01_upload_test.zip",
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "translatedIsAccepted" => "Uploaded",
+                "grade" => null,
+                "notes" => "",
+                "isVersionControlled" => 0,
+                "graderName" => "",
+                "errorMsg" => null,
+                "uploadCount" => 2,
+                "verified" => false,
+            ]
+        );
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                "id" => 12,
+                "taskID" => 5011,
+                "name" => "stud01_upload_test.zip",
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "uploadCount" => 2,
+                "verified" => false,
+            ]
+        );
+        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5011/stud01/");
+    }
+
+    public function reuploadVerifiedSolution(ApiTester $I)
+    {
+        $I->sendPost(
+            "/student/student-files/upload",
+            ['taskID' => 5012],
+            ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                "name" => "stud01_upload_test.zip",
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "translatedIsAccepted" => "Uploaded",
+                "grade" => null,
+                "notes" => "",
+                "isVersionControlled" => 0,
+                "graderName" => "",
+                "errorMsg" => null,
+                "uploadCount" => 2,
+                "verified" => false,
+            ]
+        );
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                "id" => 13,
+                "taskID" => 5012,
+                "name" => "stud01_upload_test.zip",
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "uploadCount" => 2,
+                "verified" => false,
+            ]
+        );
+        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5012/stud01/");
+    }
+
+    public function verifySolution(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/student-files/verify',
+            [
+                'id' => 12,
+                'password' => 'password',
+                'disableIpCheck' => false,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                "id" => 12,
+                "name" => "stud01.zip",
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "translatedIsAccepted" => "Uploaded",
+                "grade" => null,
+                "notes" => "",
+                "isVersionControlled" => 0,
+                "graderName" => "",
+                "errorMsg" => null,
+                "uploadCount" => 1,
+                "verified" => true,
+            ]
+        );
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                "id" => 12,
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "verified" => true,
+            ]
+        );
+    }
+
+    public function verifySolutionAlreadyVerified(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/student-files/verify',
+            [
+                'id' => 13,
+                'password' => 'password',
+                'disableIpCheck' => false,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+    }
+
+    public function verifySolutionInvalidRequest(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/student-files/verify',
+            [
+                'password' => 'password'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+    }
+
+    public function verifySolutionWrongPassword(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/student-files/verify',
+            [
+                'id' => 12,
+                'password' => 'wrong',
+                'disableIpCheck' => false,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+    }
+
+    public function verifyWithoutPermission(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/student-files/verify',
+            [
+                'id' => 2,
+                'password' => 'password',
+                'disableIpCheck' => false,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function verifyFileNotFound(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/student-files/verify',
+            [
+                'id' => 0,
+                'password' => 'password',
+                'disableIpCheck' => false,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+
+    public function verifyDifferentIp(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/student-files/verify',
+            [
+                'id' => 15,
+                'password' => 'password',
+                'disableIpCheck' => false,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+    }
+
+    public function verifyDifferentIpDisableCheck(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/student-files/verify',
+            [
+                'id' => 15,
+                'password' => 'password',
+                'disableIpCheck' => true,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                "id" => 15,
+                "name" => "stud01.zip",
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "translatedIsAccepted" => "Uploaded",
+                "grade" => null,
+                "notes" => "",
+                "isVersionControlled" => 0,
+                "graderName" => "",
+                "errorMsg" => null,
+                "uploadCount" => 1,
+                "verified" => true,
+            ]
+        );
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                "id" => 15,
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "verified" => true,
+            ]
+        );
+    }
+
+    public function verifyMultipleIpAddresses(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/student-files/verify',
+            [
+                'id' => 16,
+                'password' => 'password',
+                'disableIpCheck' => false,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+    }
+
+    public function verifyMultipleIpAddressesDisableCheck(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/student-files/verify',
+            [
+                'id' => 16,
+                'password' => 'password',
+                'disableIpCheck' => true,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                "id" => 16,
+                "name" => "stud01.zip",
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "translatedIsAccepted" => "Uploaded",
+                "grade" => null,
+                "notes" => "",
+                "isVersionControlled" => 0,
+                "graderName" => "",
+                "errorMsg" => null,
+                "uploadCount" => 1,
+                "verified" => true,
+            ]
+        );
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                "id" => 16,
+                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "verified" => true,
+            ]
+        );
     }
 }

@@ -120,6 +120,7 @@ class GitController extends BaseRestController
             $studentfile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
             $studentfile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
             $studentfile->uploadCount++;
+            $studentfile->verified = true;
             // Save it to the db.
             if ($studentfile->save()) {
                 Yii::info(

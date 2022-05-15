@@ -4,16 +4,19 @@ namespace tests\api;
 
 use ApiTester;
 use app\models\InstructorFile;
+use app\models\StudentFile;
 use app\models\Task;
 use app\models\TestCase;
 use app\tests\unit\fixtures\AccessTokenFixture;
 use app\tests\unit\fixtures\GroupFixture;
 use app\tests\unit\fixtures\InstructorFilesFixture;
+use app\tests\unit\fixtures\StudentFilesFixture;
 use app\tests\unit\fixtures\SubscriptionFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use app\tests\unit\fixtures\TestCaseFixture;
 use app\tests\unit\fixtures\UserFixture;
 use Codeception\Util\HttpCode;
+use League\Uri\Http;
 use Yii;
 
 class InstructorTasksCest
@@ -66,6 +69,9 @@ class InstructorTasksCest
             ],
             'instructorfiles' => [
                 'class' => InstructorFilesFixture::class
+            ],
+            'studentfiles' => [
+                'class' => StudentFilesFixture::class
             ]
         ];
     }
@@ -106,6 +112,11 @@ class InstructorTasksCest
         $I->seeResponseContainsJson([['id' => 5002]]);
         $I->seeResponseContainsJson([['id' => 5003]]);
         $I->seeResponseContainsJson([['id' => 5008]]);
+        $I->seeResponseContainsJson([['id' => 5010]]);
+        $I->seeResponseContainsJson([['id' => 5011]]);
+        $I->seeResponseContainsJson([['id' => 5012]]);
+        $I->seeResponseContainsJson([['id' => 5013]]);
+        $I->seeResponseContainsJson([['id' => 5014]]);
 
         $I->cantSeeResponseContainsJson([['id' => 5004]]);
         $I->cantSeeResponseContainsJson([['id' => 5005]]);
@@ -551,10 +562,68 @@ class InstructorTasksCest
         $I->seeResponseContainsJson(['id' => 5002]);
         $I->seeResponseContainsJson(['id' => 5003]);
         $I->seeResponseContainsJson(['id' => 5006]);
+        $I->seeResponseContainsJson([['id' => 5010]]);
+        $I->seeResponseContainsJson([['id' => 5011]]);
+        $I->seeResponseContainsJson([['id' => 5012]]);
+        $I->seeResponseContainsJson([['id' => 5013]]);
+        $I->seeResponseContainsJson([['id' => 5014]]);
 
         $I->cantSeeResponseContainsJson(['id' => 5004]);
         $I->cantSeeResponseContainsJson(['id' => 5005]);
         $I->cantSeeResponseContainsJson(['id' => 5007]);
+    }
+
+    /**
+     * Check if the statuses of the student files has been updated after the password has been removed
+     * @param ApiTester $I
+     * @return void
+     */
+    public function removePasswordFromTask(ApiTester $I)
+    {
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                'id' => 12,
+                'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
+                'verified' => false
+            ]
+        );
+
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                'id' => 14,
+                'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_ACCEPTED,
+                'verified' => true
+            ]
+        );
+
+        $I->sendPatch(
+            '/instructor/tasks/5011',
+            ['password' => '']
+        );
+
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+        $I->seeResponseContainsJson(['password' => '']);
+
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                'id' => 12,
+                'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
+                'verified' => true
+            ]
+        );
+
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                'id' => 14,
+                'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_ACCEPTED,
+                'verified' => true
+            ]
+        );
     }
 
     public function setupCodeCompassParserNotFound(ApiTester $I)

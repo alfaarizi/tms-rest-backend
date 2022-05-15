@@ -30,6 +30,7 @@ class TaskResource extends Task
             'semesterID',
             'gitInfo',
             'autoTest',
+            'passwordProtected',
             'canvasUrl',
         ];
     }

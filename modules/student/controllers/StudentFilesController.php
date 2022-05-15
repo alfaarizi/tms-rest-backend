@@ -3,9 +3,11 @@
 namespace app\modules\student\controllers;
 
 use app\components\GitManager;
+use app\models\Log;
 use app\models\StudentFile;
 use app\models\User;
 use app\modules\student\resources\StudentFileUploadResource;
+use app\modules\student\resources\VerifyItemResource;
 use Yii;
 use app\modules\student\resources\TaskResource;
 use app\modules\student\helpers\PermissionHelpers;
@@ -30,7 +32,8 @@ class StudentFilesController extends BaseStudentRestController
         return array_merge(parent::verbs(), [
             'view' => ['GET'],
             'download' => ['GET'],
-            'upload' => ['POST']
+            'upload' => ['POST'],
+            'verify' => ['POST'],
         ]);
     }
 
@@ -117,7 +120,6 @@ class StudentFilesController extends BaseStudentRestController
             throw new NotFoundHttpException(Yii::t('app', 'Student File not found.'));
         }
 
-        PermissionHelpers::isItMyTask($file->taskID);
         PermissionHelpers::isItMyStudentFile($file);
 
         Yii::$app->response->sendFile($file->path, basename($file->path));
@@ -255,23 +257,21 @@ class StudentFilesController extends BaseStudentRestController
             $studentFile = new StudentFileResource();
             //Set details
             $studentFile->taskID = $taskID;
-            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
-            $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
             $studentFile->grade = null;
             $studentFile->notes = "";
             $studentFile->uploaderID = $uploader->id;
-            $studentFile->name = basename($newFile->name);
-            $studentFile->uploadTime = date('Y-m-d H:i:s');
             $studentFile->isVersionControlled = $versionControlled ? 1 : 0;
             $studentFile->uploadCount = 1;
         } else {
             $studentFile = $prevStudentFile;
-            $studentFile->name = basename($newFile->name);
-            $studentFile->uploadTime = date('Y-m-d H:i:s');
-            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
-            $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
             $studentFile->uploadCount++;
         }
+
+        $studentFile->name = basename($newFile->name);
+        $studentFile->uploadTime = date('Y-m-d H:i:s');
+        $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
+        $studentFile->verified = !$studentFile->task->passwordProtected;
+        $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
 
         if ($studentFile->save()) {
             Yii::info(
@@ -280,6 +280,97 @@ class StudentFilesController extends BaseStudentRestController
                 __METHOD__
             );
             return $studentFile;
+        } else {
+            throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
+        }
+    }
+
+    /**
+     *
+     * @OA\Post(
+     *     path="/student/student-files/verify",
+     *     operationId="student::StudentFilesController::actionVerify",
+     *     tags={"Student Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         description="student file id and password to verify file",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Student_VerifyItemResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="verified",
+     *         @OA\JsonContent(ref="#/components/schemas/Student_StudentFileResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     */
+    public function actionVerify()
+    {
+        $verifyResource = new VerifyItemResource();
+        $verifyResource->load(Yii::$app->request->post(), '');
+
+        if (!$verifyResource->validate()) {
+            $this->response->statusCode = 422;
+            return $verifyResource->errors;
+        }
+
+        $file = StudentFileResource::findOne($verifyResource->id);
+
+        if (is_null($file)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Student File not found.'));
+        }
+
+        PermissionHelpers::isItMyStudentFile($file);
+
+        if ($file->verified) {
+            throw new BadRequestHttpException(Yii::t('app', 'Student file is already verified'));
+        }
+
+        $currentIp = $this->request->userIP;
+        $uploadAddresses = $file->ipAddresses;
+        $uploadAddressesStringList = implode(", ", $uploadAddresses);
+        if (!$verifyResource->disableIpCheck) {
+            if (count($uploadAddresses) > 1 || $uploadAddresses[0] !== $currentIp) {
+                $verifyResource->addError(
+                    'disableIpCheck',
+                    Yii::t(
+                        'app',
+                        'The current IP address and the IP address used for the file upload do not match. Current address: {currentIp}. Addresses of uploads: {uploadAddresses}.',
+                        [
+                            'currentIp' => $currentIp,
+                            'uploadAddresses' => $uploadAddressesStringList
+                        ]
+                    )
+                );
+            }
+        }
+
+        if ($verifyResource->password !== $file->task->password) {
+            $verifyResource->addError('password', Yii::t('app', 'Invalid password'));
+        }
+
+        if ($verifyResource->hasErrors()) {
+            $this->response->statusCode = 422;
+            return $verifyResource->errors;
+        }
+
+        $file->verified = true;
+        if ($file->save()) {
+            Yii::info("A student file (#$file->id) has been verified. Upload IP addresses: $uploadAddressesStringList.", __METHOD__);
+            return $file;
         } else {
             throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
         }

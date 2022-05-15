@@ -33,6 +33,7 @@ use yii\helpers\FileHelper;
  * @property string $codeCompassCompileInstructions
  * @property string $codeCompassPackagesInstallInstructions
  * @property integer $canvasID
+ * @property string $password
  *
  * @property InstructorFile[] $instructorFiles
  * @property StudentFile[] $studentFiles
@@ -41,8 +42,9 @@ use yii\helpers\FileHelper;
  * @property Semester $semester
  * @property User $creator
  *
- * @property-read ?string $canvasUrl
  * @property-read string $timezone
+ * @property-read boolean $passwordProtected
+ * @property-read ?string $canvasUrl
  * @property-read string $localImageName
  * @property-read string $isLocalImage
  * @property-read string $containerName
@@ -65,6 +67,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'available',
             'isVersionControlled',
             'groupID',
+            'password',
         ];
         $scenarios[self::SCENARIO_UPDATE] = [
             'name',
@@ -72,7 +75,8 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'description',
             'softDeadline',
             'hardDeadline',
-            'available'
+            'available',
+            'password',
         ];
 
         return $scenarios;
@@ -178,7 +182,8 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
                 'targetAttribute' => ['semesterID' => 'id']
             ],
             [['autoTest', 'showFullErrorMsg'], 'boolean'],
-            [['imageName'], 'string', 'max' => 255],
+            [['imageName', 'password'], 'string', 'max' => 255],
+            [['compileInstructions', 'runInstructions'], 'string'],
             [['codeCompassPackagesInstallInstructions'], 'string', 'max' => 500],
             [['compileInstructions', 'runInstructions', 'codeCompassCompileInstructions'], 'string']
         ];
@@ -208,6 +213,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'compileInstructions' => Yii::t('app', 'Compile Instructions'),
             'runInstructions' => Yii::t('app', 'Run Instructions'),
             'canvasID' => Yii::t('app', 'Canvas id'),
+            'password' => Yii::t('app', 'Password'),
             'codeCompassCompileInstructions' => Yii::t('app', 'CodeCompass Compile Instructions'),
             'codeCompassPackagesInstallInstructions' => Yii::t('app', 'CodeCompass Packages'),
         ];
@@ -260,6 +266,14 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 
         $this->compileInstructions = str_replace("\r\n", "\n", $this->compileInstructions);
         $this->runInstructions = str_replace("\r\n", "\n", $this->runInstructions);
+
+        // Remove unverified status from files after removing password
+        if (!$insert && array_key_exists('password', $this->dirtyAttributes) && empty($this->password)) {
+            StudentFile::updateAll(
+                ['verified' => true],
+                ['=', 'taskID', $this->id],
+            );
+        }
         return true;
     }
 
@@ -383,6 +397,11 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             : null;
     }
 
+    public function getPasswordProtected()
+    {
+        return !empty($this->password);
+    }
+
     public function fieldTypes(): array
     {
         return [
@@ -404,6 +423,8 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'imageName' => new OAProperty(['type' => 'string']),
             'compileInstructions' => new OAProperty(['type' => 'string']),
             'runInstructions' => new OAProperty(['type' => 'string']),
+            'password' => new OAProperty(['type' => 'string']),
+            'passwordProtected' => new OAProperty(['type' => 'boolean']),
             'canvasUrl' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
             'codeCompassCompileInstructions' => new OAProperty(['type' => 'string']),
             'codeCompassPackagesInstallInstructions' => new OAProperty(['type' => 'string']),

@@ -973,7 +973,7 @@ class GroupsController extends BaseInstructorRestController
                 // Create repository for student for all version controlled tasks
                 $tasks = Task::findAll(['groupID' => $group->id, 'isVersionControlled' => '1']);
                 foreach ($tasks as $task) {
-                    GitManager::createRepositories($task->id, $user, $task->hardDeadline);
+                    GitManager::createRepositories($task, $user);
                 }
 
 

@@ -27,11 +27,12 @@ use yii\helpers\StringHelper;
  * @property string $errorMsg
  * @property integer $canvasID
  * @property integer $uploadCount
- *
+ * @property boolean $verified
  * @property Task $task
  * @property User $uploader
  * @property User $grader
  *
+ * @property-read array $ipAddresses
  * @property-read string $safeErrorMsg
  */
 class StudentFile extends File implements IOpenApiFieldTypes
@@ -108,14 +109,14 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public function rules()
     {
         return [
-            [['name', 'path', 'taskID', 'uploaderID', 'isAccepted', 'evaluatorStatus'], 'required'],
+            [['name', 'path', 'taskID', 'uploaderID', 'isAccepted', 'evaluatorStatus', 'verified'], 'required'],
             [['uploadTime'], 'safe'],
             [['taskID', 'uploaderID', 'graderID'], 'integer'],
             [['isAccepted'], 'string'],
             [['name'], 'string', 'max' => 200],
             [['grade'], 'number'],
             [['notes'], 'string'],
-            [['isVersionControlled'], 'boolean'],
+            [['isVersionControlled', 'verified'], 'boolean'],
             [['errorMsg'], 'string'],
             ['isAccepted', 'in', 'range' => self::IS_ACCEPTED_VALUES, 'on' => self::SCENARIO_GRADE],
             ['evaluatorStatus', 'in', 'range' => self::EVALUATOR_STATUS_VALUES],
@@ -144,6 +145,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
             'canvasID' => Yii::t('app', 'Canvas id'),
             'evaluatorStatus' => Yii::t('app', 'Evaluator status'),
             'uploadCount' => Yii::t('app', 'Upload Count'),
+            'verified' => Yii::t('app', 'Verified'),
         ];
     }
 
@@ -167,7 +169,18 @@ class StudentFile extends File implements IOpenApiFieldTypes
             'canvasID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'groupID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'uploadCount' => new OAProperty(['type' => 'number', 'format' => 'integer']),
+            'verified' => new OAProperty(['type' => 'boolean']),
         ];
+    }
+
+    /**
+     * @inheritdocs
+     */
+    public function afterFind()
+    {
+        parent::afterFind();
+        // Convert integer (0 or 1) values to boolean values for consistency
+        $this->verified = ($this->verified == 1);
     }
 
     /**
@@ -287,6 +300,28 @@ class StudentFile extends File implements IOpenApiFieldTypes
         }
 
         return null;
+    }
+
+    /**
+     * Lists unique upload ip addresses for the current file from the log messages
+     * @return array
+     */
+    public function getIpAddresses(): array
+    {
+        $logs = Log::find()
+            ->select(['prefix'])
+            ->andWhere(['category' => 'app\modules\student\controllers\StudentFilesController::saveFile'])
+            ->andWhere(['level' => 4])
+            ->andWhere(['like', 'prefix', "({$this->uploader->neptun})"])
+            ->andWhere(['like', 'message', 'A new solution has been uploaded for%', false])
+            ->andWhere(['like', 'message', "%({$this->taskID})", false])
+            ->distinct()
+            ->all();
+
+        return array_map(function (Log $log) {
+            preg_match_all('/\[([^]]*)]/', $log->prefix, $prefixSections, PREG_SET_ORDER);
+            return $prefixSections[0][1];
+        }, $logs);
     }
 
     /**

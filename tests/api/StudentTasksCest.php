@@ -74,6 +74,11 @@ class StudentTasksCest
         $I->seeResponseContainsJson([['id' => 5001]]);
         $I->seeResponseContainsJson([['id' => 5002]]);
         $I->seeResponseContainsJson([['id' => 5008]]);
+        $I->seeResponseContainsJson([['id' => 5010]]);
+        $I->seeResponseContainsJson([['id' => 5011]]);
+        $I->seeResponseContainsJson([['id' => 5012]]);
+        $I->seeResponseContainsJson([['id' => 5013]]);
+        $I->seeResponseContainsJson([['id' => 5014]]);
 
         $I->cantSeeResponseContainsJson([['id' => 5003]]);
         $I->cantSeeResponseContainsJson([['id' => 5004]]);
