@@ -2,6 +2,7 @@
 
 namespace app\commands;
 
+use app\components\DueSubmissionDigester;
 use app\models\StudentFile;
 use yii\console\ExitCode;
 use yii\console\widgets\Table;
@@ -122,6 +123,34 @@ class NotificationController extends BaseController
                 // Send mass email notifications
                 $sentCount = Yii::$app->mailer->sendMultiple($messages);
                 $this->stdout("$sentCount email(s) has been sent." . PHP_EOL, Console::FG_GREEN);
+            }
+        }
+        return ExitCode::OK;
+    }
+
+    /**
+     * Sends notification of oncoming task deadlines to concerned students
+     * @param $daysToDeadline int interval in days from now to check. Default 5.
+     * @return int
+     */
+    public function actionDigestOncomingTaskDeadlines($daysToDeadline = 5)
+    {
+        $sendEmails = true;
+        if ($this->interactive) {
+            $sendEmails = $this->promptBoolean('Send digest email notifications now?');
+        }
+        if (!$sendEmails) {
+            $this->stdout("Email sending turned off" . PHP_EOL);
+        }
+
+        $digester = new DueSubmissionDigester($daysToDeadline, $sendEmails);
+        $result = $digester->digestOncomingTaskDeadlines();
+
+        if (!$sendEmails) {
+            $this->stdout("The following student(s) has oncoming deadline(s):" .  PHP_EOL, Console::FG_GREEN);
+            foreach ($result as $neptun => $mailContent) {
+                $count = count($mailContent['data']);
+                $this->stdout("Student $neptun has $count oncoming deadline(s)." .  PHP_EOL, Console::FG_GREEN);
             }
         }
         return ExitCode::OK;
