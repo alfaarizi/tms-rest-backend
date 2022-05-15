@@ -681,6 +681,7 @@ class CanvasIntegration
                 'taskID' => $task->id,
                 'uploaderID' => $user->id,
                 'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
+                'verified' => true,
                 'notes' => '',
                 'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_NOT_TESTED,
                 'uploadCount' => 1,

@@ -264,7 +264,7 @@ class TasksController extends BaseInstructorRestController
         // Create remote repository for everybody in the group if the task is version controlled
         if (Yii::$app->params['versionControl']['enabled'] && $task->isVersionControlled) {
             foreach ($task->group->subscriptions as $subcription) {
-                GitManager::createRepositories($task->id, $subcription->user, $task->hardDeadline);
+                GitManager::createRepositories($task, $subcription->user);
             }
         }
 

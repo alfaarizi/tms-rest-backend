@@ -24,7 +24,7 @@ return [
     ],
     'subscription4' => [
         'id' => 4,
-        'userID' => 1000,
+        'userID' => 1002,
         'isAccepted' => 1,
         'groupID' => 2007,
         'semesterID' => 3001

@@ -29,6 +29,8 @@ class StudentFileResource extends \app\models\StudentFile
             'errorMsg' => function($model) {
                 return $model->safeErrorMsg;
             },
+            'taskID',
+            'verified',
         ];
     }
 

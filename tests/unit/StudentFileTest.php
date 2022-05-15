@@ -3,6 +3,7 @@
 namespace app\tests\unit;
 
 use app\models\StudentFile;
+use app\tests\unit\fixtures\LogFixture;
 use app\tests\unit\fixtures\StudentFilesFixture;
 use app\tests\unit\fixtures\TaskFixture;
 
@@ -27,6 +28,9 @@ class StudentFileTest extends \Codeception\Test\Unit
             'studentfiles' => [
                 'class' => StudentFilesFixture::class,
             ],
+            'logs' => [
+                'class' => LogFixture::class,
+            ],
         ];
     }
 
@@ -48,6 +52,7 @@ class StudentFileTest extends \Codeception\Test\Unit
                 'notes' => '',
                 'graderID' => 1000,
                 'errorMsg' => self::FULL_ERROR_MSG,
+                'verified' => true,
             ]
         );
 
@@ -91,6 +96,7 @@ class StudentFileTest extends \Codeception\Test\Unit
             'notes' => '',
             'graderID' => 1000,
             'errorMsg' => self::FULL_ERROR_MSG,
+            'verified' => true,
         ]);
 
         $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
@@ -131,6 +137,7 @@ class StudentFileTest extends \Codeception\Test\Unit
                 'notes' => '',
                 'graderID' => 1000,
                 'errorMsg' => self::FULL_ERROR_MSG,
+                'verified' => true,
             ]
         );
         // Test valid case
@@ -165,6 +172,7 @@ class StudentFileTest extends \Codeception\Test\Unit
                 'notes' => '',
                 'graderID' => 1000,
                 'errorMsg' => self::FULL_ERROR_MSG,
+                'verified' => true,
             ]
         );
 
@@ -191,5 +199,20 @@ class StudentFileTest extends \Codeception\Test\Unit
             $file->evaluatorStatus = $value;
             $this->assertFalse($file->validate());
         }
+    }
+
+    /**
+     * Tests is getIpAddresses getter.
+     * @return void
+     */
+    public function testGetIpAddresses()
+    {
+        $file = StudentFile::findOne(16);
+        $ipAddresses = $file->ipAddresses;
+        // It should return all addresses only once
+        $this->assertcount(3, $ipAddresses);
+        $this->assertContains('192.168.1.1', $ipAddresses);
+        $this->assertContains('192.168.1.2', $ipAddresses);
+        $this->assertContains('192.168.1.3', $ipAddresses);
     }
 }

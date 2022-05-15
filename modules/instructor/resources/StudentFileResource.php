@@ -33,6 +33,7 @@ class StudentFileResource extends StudentFile
             'uploadTime',
             'delay',
             'uploadCount',
+            'verified',
             'codeCompassID'
         ];
     }
