@@ -4,6 +4,23 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.7.0](https://gitlab.com/tms-elte/backend-core/compare/v2.6.1...v2.7.0) (2022-05-16)
+### Features
+
+* Add mail digest for due submissions ([5f00bb](https://gitlab.com/tms-elte/backend-core/commit/5f00bbe71a11b1e7d7c35223a2d94bfa698124f6))
+* CodeCompass integration ([269036](https://gitlab.com/tms-elte/backend-core/commit/269036b5e3334aef78dc33523f32a935846e738e))
+* Enable remote execution for web applications ([2410c6](https://gitlab.com/tms-elte/backend-core/commit/2410c622b97ff45d1956559912349fa3de5a6807))
+* List plagiarism basefiles without a semester ([3a08f0](https://gitlab.com/tms-elte/backend-core/commit/3a08f032e42b56df2a4bedc1d48c4fa07e45f550))
+* Password protected tasks ([d5858e](https://gitlab.com/tms-elte/backend-core/commit/d5858e91d5624aeab66ed15bdf5d1edd18f26912))
+* Publish Canvas url for groups and tasks ([d4f65e](https://gitlab.com/tms-elte/backend-core/commit/d4f65ee3ef34771f6d9dfad9b47775e7a16a4af7))
+
+### Bug Fixes
+
+* Relative paths on windows are not supported for symlinks (version control support). ([5ab405](https://gitlab.com/tms-elte/backend-core/commit/5ab405a83638e0b5af274de70a5dbbcc01610106))
+
+
+---
+
 ## [2.6.1](https://gitlab.com/tms-elte/backend-core/compare/v2.6.0...v2.6.1) (2022-04-16)
 ### Bug Fixes
 
