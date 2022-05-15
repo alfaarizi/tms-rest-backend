@@ -69,19 +69,4 @@ class m220327_201850_create_remote_execution extends Migration
         $this->dropIndex('{{%webAppExecutions_ind_1}}', '{{%web_app_executions}}');
         $this->dropTable('{{%web_app_executions}}');
     }
-
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m220327_201850_create_remote_execution cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }
