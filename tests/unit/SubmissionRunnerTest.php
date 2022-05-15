@@ -38,10 +38,10 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
         $this->submissionRunner = new SubmissionRunner();
         $this->studentfile = $this->tester->grabRecord(StudentFile::class, ['id' => 5]);
 
-        $from = Yii::$app->basePath . '/tests/_data/appdata_samples/uploadedfiles/5007/stud01/stud01.zip';
+        $from = Yii::$app->basePath . '/tests/_data/appdata_samples/uploadedfiles/5007/stud02/stud02.zip';
 
-        mkdir(Yii::$app->basePath . '/appdata_test/uploadedfiles/5007/stud01/', 0777, true);
-        $to = Yii::$app->basePath . '/appdata_test/uploadedfiles/5007/stud01/stud01.zip';
+        mkdir(Yii::$app->basePath . '/appdata_test/uploadedfiles/5007/stud02/', 0777, true);
+        $to = Yii::$app->basePath . '/appdata_test/uploadedfiles/5007/stud02/stud02.zip';
         copy($from, $to);
     }
 
