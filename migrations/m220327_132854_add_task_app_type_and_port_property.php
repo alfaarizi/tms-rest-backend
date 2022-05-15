@@ -30,7 +30,20 @@ class m220327_132854_add_task_app_type_and_port_property extends Migration
             "ENUM('Console','Web')"
         );
 
+        /*
+        * Update existing images
+        */
         $this->update('{{%tasks}}', ['appType' => 'Console'], ['not', ['imageName' => null]]);
+
+
+        /*
+         * Enforce default enum value
+         */
+        $this->alterColumn(
+            '{{%tasks}}',
+            'appType',
+            "ENUM('Console','Web') DEFAULT 'Console'"
+        );
     }
 
     /**
