@@ -86,14 +86,14 @@ class WebAppExecutor
         } catch (SubmissionRunnerException $e) {
             $remoteExecution->delete();
             switch ($e->getCode()) {
-                case SubmissionRunnerException::$PREPARE_FAILURE:
+                case SubmissionRunnerException::PREPARE_FAILURE:
                     $errorMsg = 'Container start failed while processing files.';
                     break;
-                case SubmissionRunnerException::$COMPILE_FAILURE:
+                case SubmissionRunnerException::COMPILE_FAILURE:
                     $this->processCompileFailure($studentFile, $e);
                     $errorMsg = 'Container started failed while compiling student submission.';
                     break;
-                case SubmissionRunnerException::$RUN_FAILURE:
+                case SubmissionRunnerException::RUN_FAILURE:
                     $errorMsg = 'Container started failed while executing run instructions.';
                     break;
                 default:

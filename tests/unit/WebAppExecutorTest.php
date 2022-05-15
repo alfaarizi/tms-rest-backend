@@ -117,7 +117,7 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
                 ->willThrowException(
                     new SubmissionRunnerException(
                         '',
-                        SubmissionRunnerException::$COMPILE_FAILURE,
+                        SubmissionRunnerException::COMPILE_FAILURE,
                         $errors
                     )
                 );

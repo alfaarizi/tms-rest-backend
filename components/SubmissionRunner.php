@@ -50,7 +50,7 @@ class SubmissionRunner
             } else {
                 throw new SubmissionRunnerException(
                     'File prepare failed',
-                    SubmissionRunnerException::$PREPARE_FAILURE
+                    SubmissionRunnerException::PREPARE_FAILURE
                 );
             }
         } finally {
@@ -196,7 +196,7 @@ class SubmissionRunner
                 Yii::info("Failed to compile student file [" . $this->studentFile->id . "]: " . $err, __METHOD__);
                 throw new SubmissionRunnerException(
                     'Compile failed',
-                    SubmissionRunnerException::$COMPILE_FAILURE,
+                    SubmissionRunnerException::COMPILE_FAILURE,
                     $compileResult
                 );
             }
@@ -221,7 +221,7 @@ class SubmissionRunner
 
                 throw new SubmissionRunnerException(
                     'Run failed',
-                    SubmissionRunnerException::$RUN_FAILURE,
+                    SubmissionRunnerException::RUN_FAILURE,
                     $runResult
                 );
             }

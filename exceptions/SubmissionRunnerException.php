@@ -4,9 +4,9 @@ namespace app\exceptions;
 
 class SubmissionRunnerException extends \Exception
 {
-    public static int $PREPARE_FAILURE = 1;
-    public static int $COMPILE_FAILURE = 2;
-    public static int $RUN_FAILURE = 3;
+    public const PREPARE_FAILURE = 1;
+    public const COMPILE_FAILURE = 2;
+    public const RUN_FAILURE = 3;
 
     private ?int $exitCode;
     private ?string $stdout;
