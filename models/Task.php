@@ -234,7 +234,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'runInstructions' => Yii::t('app', 'Run Instructions'),
             'canvasID' => Yii::t('app', 'Canvas id'),
             'password' => Yii::t('app', 'Password'),
-            //'port' => Yii::t('app', 'port'),
+            'port' => Yii::t('app', 'port'),
             'appType' => Yii::t('app', 'Application type'),
             'codeCompassCompileInstructions' => Yii::t('app', 'CodeCompass Compile Instructions'),
             'codeCompassPackagesInstallInstructions' => Yii::t('app', 'CodeCompass Packages'),
