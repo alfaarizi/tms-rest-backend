@@ -841,6 +841,14 @@ class TasksController extends BaseInstructorRestController
         $setupData->load(Yii::$app->request->post(), '');
         $setupData->files = UploadedFile::getInstancesByName('files');
 
+        // Check platform support
+        if ($setupData->appType == Task::APP_TYPE_WEB &&
+            empty(Yii::$app->params['evaluator']['webApp'][$setupData->testOS]['reservedPorts'])) {
+            throw new BadRequestHttpException(
+                Yii::t('app', 'Platform not supported for web application testing.')
+            );
+        }
+
         if (!$setupData->validate()) {
             $this->response->statusCode = 422;
             return $setupData->errors;
@@ -856,7 +864,7 @@ class TasksController extends BaseInstructorRestController
 
         if (!$task->validate()) {
             $this->response->statusCode = 422;
-            return $setupData->errors;
+            return $task->errors;
         }
 
         $sourcedir = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] .
