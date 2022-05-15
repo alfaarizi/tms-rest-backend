@@ -219,6 +219,8 @@ return [
     'Enter available from ...' => 'Kezdő időpont megadása ...',
     'Application type' => 'Alkalmazás típus',
     'Console' => 'Konzol',
+    'Web' => 'Web',
+    'Port' => 'Port',
 
     "Task not found." => "A feladat nem található.",
     "Group not found." => "A csoport nem található.",
