@@ -206,10 +206,10 @@ class SubmissionRunner
     /**
      * @throws SubmissionRunnerException
      */
-    private function execRun(docker\DockerContainer $dockerContainer)
+    private function execWebAppRun(docker\DockerContainer $dockerContainer)
     {
         if (!empty($this->studentFile->task->runInstructions)) {
-            //TODO: should there be a time out on launching web applications? Wouldn't the web server start command hang?
+            //No time out since web app can run for indefinite time
             $runCommand = ['/bin/bash', '-c', '/test/run.sh'];
             if ($this->studentFile->task->testOS == 'windows') {
                 $runCommand = ['powershell C:\\test\\run.ps1'];
@@ -249,7 +249,7 @@ class SubmissionRunner
                 $this->studentFile->task->appType == Task::APP_TYPE_WEB
                 && !empty($this->studentFile->task->runInstructions)
             ) {
-                $this->execRun($dockerContainer);
+                $this->execWebAppRun($dockerContainer);
             }
         } catch (\Exception $e) {
             $dockerContainer->stopContainer();
