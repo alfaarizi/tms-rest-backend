@@ -38,15 +38,16 @@ class m220327_132854_add_task_app_type_and_port_property extends Migration
      */
     public function safeDown()
     {
-        $this->update('{{%tasks}}',
-                      [
+        $this->update(
+            '{{%tasks}}',
+            [
                           'autoTest' => 0,
                           'showFullErrorMsg' => 0,
                           'imageName' => null,
                           'compileInstructions' => null,
                           'runInstructions' => null
                       ],
-                      [
+            [
                           'appType' => 'Web'
                       ]
         );
