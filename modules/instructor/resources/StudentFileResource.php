@@ -48,7 +48,6 @@ class StudentFileResource extends StudentFile
             'grader',
             'task',
             'execution',
-            'task',
             'codeCompass'
         ];
     }
