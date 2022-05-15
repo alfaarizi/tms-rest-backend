@@ -38,8 +38,19 @@ class m220327_132854_add_task_app_type_and_port_property extends Migration
      */
     public function safeDown()
     {
-        echo "m220327_132854_add_task_app_type_and_port_property cannot be reverted, defined port and appType can't be inferred\n";
-
-        return false;
+        $this->update('{{%tasks}}',
+                      [
+                          'autoTest' => 0,
+                          'showFullErrorMsg' => 0,
+                          'imageName' => null,
+                          'compileInstructions' => null,
+                          'runInstructions' => null
+                      ],
+                      [
+                          'appType' => 'Web'
+                      ]
+        );
+        $this->dropColumn('{{%tasks}}', 'port');
+        $this->dropColumn('{{%tasks}}', 'appType');
     }
 }
