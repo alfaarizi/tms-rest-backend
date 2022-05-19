@@ -130,7 +130,7 @@ class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
                 $href
             );
             $href = preg_replace('/.-1/', '1', $href);
-            $href = preg_replace('/.-0/', '1', $href);
+            $href = preg_replace('/.-0/', '0', $href);
             $href = preg_replace('/\.html/', '', $href);
         }
         return $href;
