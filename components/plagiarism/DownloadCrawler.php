@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use Yii;
 use yii\base\ErrorException;
+use yii\helpers\Url;
 
 class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
 {
@@ -20,6 +21,7 @@ class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
     private const STANFORD_LINK_BASE_REGEX = 'http://moss.stanford.edu/results/.*/match';
     private const STANFORD_LINK_BASE_REGEX_ABSOLUTE = '~^' . DownloadCrawler::STANFORD_LINK_BASE_REGEX . '~';
     private const STANFORD_LINK_BASE_REGEX_BOTH = '~^(' . DownloadCrawler::STANFORD_LINK_BASE_REGEX . '|match)~';
+    private const STANFORD_LINK_BITMAP_REGEX = '~http://moss.stanford.edu/bitmaps/(tm_\d+_\d+.gif)~';
 
     public function __construct(int $id, string $token, string $dirPath)
     {
@@ -95,6 +97,15 @@ class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
             $anchor->setAttribute('href', $href);
         }
 
+        if (!$isBase) {
+            /** @var DOMElement $image */
+            foreach ($dom->getElementsByTagName('img') as $image) {
+                $src = $image->getAttribute('src');
+                $src = $this->refactorThermometerImage($src);
+                $image->setAttribute('src', $src);
+            }
+        }
+
         $dom->saveHTMLFile($this->dirPath . '/' . $fileName . $linkPostfix);
     }
 
@@ -134,6 +145,23 @@ class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
             $href = preg_replace('/\.html/', '', $href);
         }
         return $href;
+    }
+
+    /**
+     * Fix a thermometer image’s (`<img>` element’s) src attribute on a non-index page.
+     * @param string $src The src attribute to fix
+     * @return string The fixed src attribute
+     */
+    private function refactorThermometerImage(string $src): string
+    {
+        if (preg_match(DownloadCrawler::STANFORD_LINK_BITMAP_REGEX, $src)) {
+            $src = preg_replace(
+                DownloadCrawler::STANFORD_LINK_BITMAP_REGEX,
+                Url::base() . "/api/moss/$1",
+                $src
+            );
+        }
+        return $src;
     }
 
     /**
