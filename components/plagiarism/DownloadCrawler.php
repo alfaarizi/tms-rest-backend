@@ -129,8 +129,8 @@ class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
                 "./frame{$this->ids}&number={$this->count}&side=",
                 $href
             );
-            $href = preg_replace('/.-1/', '1', $href);
-            $href = preg_replace('/.-0/', '0', $href);
+            $href = preg_replace('/&side=.-1/', '&side=1', $href);
+            $href = preg_replace('/&side=.-0/', '&side=0', $href);
             $href = preg_replace('/\.html/', '', $href);
         }
         return $href;
