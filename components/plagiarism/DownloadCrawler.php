@@ -157,7 +157,7 @@ class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
         if (preg_match(DownloadCrawler::STANFORD_LINK_BITMAP_REGEX, $src)) {
             $src = preg_replace(
                 DownloadCrawler::STANFORD_LINK_BITMAP_REGEX,
-                Url::base() . "/api/moss/$1",
+                Url::base() . "/moss/$1",
                 $src
             );
         }
