@@ -4,6 +4,14 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.7.1](https://gitlab.com/tms-elte/backend-core/compare/v2.7.0...v2.7.1) (2022-05-21)
+### Bug Fixes
+
+* Correctly display the sides of the comparison table of the downloaded MOSS results ([e4c24e](https://gitlab.com/tms-elte/backend-core/commit/e4c24e1144e8bdedbf55adc9790e1f175c7d3e3d))
+* Display MOSS thermometer icons locally ([600958](https://gitlab.com/tms-elte/backend-core/commit/600958983a95f231d9ef05d2b733a3bf8b32ffa0))
+
+---
+
 ## [2.7.0](https://gitlab.com/tms-elte/backend-core/compare/v2.6.1...v2.7.0) (2022-05-16)
 ### Features
 
@@ -17,7 +25,6 @@ All notable changes to this project will be documented in this file.
 ### Bug Fixes
 
 * Relative paths on windows are not supported for symlinks (version control support). ([5ab405](https://gitlab.com/tms-elte/backend-core/commit/5ab405a83638e0b5af274de70a5dbbcc01610106))
-
 
 ---
 
