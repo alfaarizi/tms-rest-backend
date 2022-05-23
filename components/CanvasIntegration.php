@@ -702,7 +702,7 @@ class CanvasIntegration
             if (!empty($submission['submission_comments'])) {
                 foreach (array_reverse($submission['submission_comments']) as $comment) {
                     if ($comment['author_id'] == $submission['grader_id'] && strpos($comment['comment'], 'TMS auto') !== 0) {
-                        $studentFile->notes = $comment['comment'];
+                        $studentFile->notes = Encoding::fixUTF8($comment['comment']);
                         break;
                     }
                 }
