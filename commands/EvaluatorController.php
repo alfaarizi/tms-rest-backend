@@ -175,7 +175,7 @@ class EvaluatorController extends BaseController
             echo $table->run();
 
             Yii::$app->language = $origLanguage;
-            return ExitCode::OK;
         }
+        return ExitCode::OK;
     }
 }
