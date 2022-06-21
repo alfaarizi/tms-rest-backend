@@ -136,7 +136,7 @@ class AssignmentTester
         $container = $this->docker->containerInspect($containerName);
 
         // send student solution to docker container as TAR stream
-        $tarPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/test.tar';
+        $tarPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/test_' .  $this->studentFile->id . '.tar';
         $phar = new \PharData($tarPath);
         $phar->buildFromDirectory(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/');
         $this->docker->putContainerArchive(
