@@ -561,8 +561,8 @@ class CanvasIntegration
                 'autoTest' => false
             ]);
         }
-        $task->name = Encoding::fixUTF8(mb_substr($assignment['name'], 0, 40));
-        $task->description = Encoding::fixUTF8(strip_tags($assignment['description']));
+        $task->name = Encoding::toUTF8(mb_substr($assignment['name'], 0, 40));
+        $task->description = Encoding::toUTF8(strip_tags($assignment['description']));
         $task->semesterID = $group->semesterID;
         $task->groupID = $group->id;
         $task->createrID = $group->synchronizerID;
@@ -701,8 +701,10 @@ class CanvasIntegration
             $studentFile->graderID = $grader->id ?? null;
             if (!empty($submission['submission_comments'])) {
                 foreach (array_reverse($submission['submission_comments']) as $comment) {
-                    if ($comment['author_id'] == $submission['grader_id'] && strpos($comment['comment'], 'TMS auto') !== 0) {
-                        $studentFile->notes = Encoding::fixUTF8($comment['comment']);
+                    if ($comment['author_id'] == $submission['grader_id'] &&
+                        strpos($comment['comment'], 'TMS auto') !== 0 &&
+                        strpos($comment['comment'], 'A TMS auto') !== 0) {
+                        $studentFile->notes = Encoding::toUTF8($comment['comment']);
                         break;
                     }
                 }
