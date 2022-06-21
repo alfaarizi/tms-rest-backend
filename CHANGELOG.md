@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.7.2](https://gitlab.com/tms-elte/backend-core/compare/v2.7.1...v2.7.2) (2022-06-22)
+### Bug Fixes
+
+* Correctly process multiple submissions upon each evaluator/check call ([baad92](https://gitlab.com/tms-elte/backend-core/commit/baad920011c7c1a13af5d934e9f38272949e1729))
+* Enforce UTF8 charset restriction on submission comments from Canvas ([05c030](https://gitlab.com/tms-elte/backend-core/commit/05c03063f55223f9c04cd602fd3a7270506af71f))
+* Improve non UTF-8 character removal on Canvas synchronization ([03373a](https://gitlab.com/tms-elte/backend-core/commit/03373a54e9937ad6caff0c19fb741dde5d56a572))
+
+---
+
 ## [2.7.1](https://gitlab.com/tms-elte/backend-core/compare/v2.7.0...v2.7.1) (2022-05-21)
 ### Bug Fixes
 
