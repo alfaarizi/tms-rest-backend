@@ -701,9 +701,11 @@ class CanvasIntegration
             $studentFile->graderID = $grader->id ?? null;
             if (!empty($submission['submission_comments'])) {
                 foreach (array_reverse($submission['submission_comments']) as $comment) {
-                    if ($comment['author_id'] == $submission['grader_id'] &&
+                    if (
+                        $comment['author_id'] == $submission['grader_id'] &&
                         strpos($comment['comment'], 'TMS auto') !== 0 &&
-                        strpos($comment['comment'], 'A TMS auto') !== 0) {
+                        strpos($comment['comment'], 'A TMS auto') !== 0
+                    ) {
                         $studentFile->notes = Encoding::toUTF8($comment['comment']);
                         break;
                     }
