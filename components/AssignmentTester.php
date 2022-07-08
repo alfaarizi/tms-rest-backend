@@ -148,6 +148,9 @@ class AssignmentTester
         );
 
         // compile the student solution
+        if ($task->testOS != 'windows') {
+            $this->executeCommand(['chmod', '0755', '/test/compile.sh'], $container);
+        }
         $compileCommand = [
             'timeout',
             Yii::$app->params['evaluator']['compileTimeout'],
@@ -176,6 +179,9 @@ class AssignmentTester
         $this->results['errorMsg'] = '';
         $testCaseNr = 1;
         // run the test cases on the solution
+        if ($task->testOS != 'windows') {
+            $this->executeCommand(['chmod', '0755', '/test/run.sh'], $container);
+        }
         foreach ($this->testCases as $testCase) {
             $result = $this->runTestCase($testCaseNr, $testCase, $container);
             if (!$this->checkResult($result, $testCaseNr, $testCase)) {
@@ -323,14 +329,12 @@ class AssignmentTester
         $compileFile = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/compile.' .
             ($this->studentFile->task->testOS == 'windows' ? 'ps1' : 'sh');
         file_put_contents($compileFile, $task->compileInstructions);
-        chmod($compileFile, 0755);
 
         // add run command file
         if (!empty($task->runInstructions)) {
             $runFile = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/run.' .
                 ($this->studentFile->task->testOS == 'windows' ? 'ps1' : 'sh');
             file_put_contents($runFile, $task->runInstructions);
-            chmod($runFile, 0755);
         }
 
         return $containerCreateResult;
@@ -392,7 +396,7 @@ class AssignmentTester
     {
         $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/';
         if (is_dir($path)) {
-            FileHelper::removeDirectory($path);
+            $this->deleteFolderContents($path);
         }
     }
 
@@ -552,5 +556,15 @@ class AssignmentTester
             'stderr' => Encoding::toUTF8($stderrFull),
             'exitCode' => $exitCode
         ];
+    }
+
+    private function deleteFolderContents(string $path): void
+    {
+        if (file_exists($path)) {
+            $fileSystemIterator = new \FilesystemIterator($path);
+            foreach ($fileSystemIterator as $file) {
+                $file->isDir() ? FileHelper::removeDirectory($file) : FileHelper::unlink($file);
+            }
+        }
     }
 }
