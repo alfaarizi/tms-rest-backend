@@ -57,7 +57,7 @@ class EvaluatorController extends BaseController
                             'taskID' => $IDs
                         ]
                     )
-                    ->orderBy('uploadTime')
+                    ->orderBy(['uploadCount' => SORT_ASC, 'uploadTime' => SORT_ASC])
                     ->one();
 
                 // If no files to test then return.
