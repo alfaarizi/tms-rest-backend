@@ -99,6 +99,7 @@ class CanvasIntegration
         if ($response->isOk) {
             $responseJson = Json::decode($response->content);
             $user->canvasToken = $responseJson['access_token'];
+            $user->canvasTokenExpiry = date('Y/m/d H:i:s', time() + intval($responseJson['expires_in']));
             $user->save();
 
             if (Yii::$app->id == 'tms-console' && $response->headers->has('X-Rate-Limit-Remaining')) {
