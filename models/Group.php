@@ -18,6 +18,7 @@ use Yii;
  * @property integer $synchronizerID
  * @property integer $canvasSectionID
  * @property integer $canvasCourseID
+ * @property string $lastSyncTime
  * @property boolean $isExamGroup
  * @property string $timezone
  * @property-read boolean $isCanvasCourse

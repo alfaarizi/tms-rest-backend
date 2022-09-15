@@ -4,13 +4,14 @@ namespace app\commands;
 
 use app\components\CanvasIntegration;
 use app\models\Group;
+use app\models\queries\GroupQuery;
 use yii\console\ExitCode;
 use yii\helpers\Console;
 
 class CanvasController extends BaseController
 {
     /**
-     * Runs the automatic synchronization with canvas
+     * Runs the automatic synchronization with Canvas
      * @param null $groupId Group to synchronize (empty for all)
      */
     public function actionSynchronize($groupId = null)
@@ -26,6 +27,37 @@ class CanvasController extends BaseController
             $groupQuery = $groupQuery->andWhere(['g.id' => $groupId]);
         }
 
+        $this->synchronize($groupQuery);
+        return ExitCode::OK;
+    }
+
+    /**
+     * Runs the automatic synchronization with Canvas, prioritizing groups not synchronized for the longest time
+     * @param null $count Number of groups to synchronize (zero for all)
+     */
+    public function actionSynchronizePrioritized($count = 1)
+    {
+        $groupQuery = Group::find()
+            ->alias('g')
+            ->joinWith('semester s')
+            ->where(['IS NOT', 'canvasCourseID', null])
+            ->andWhere(['actual' => true])
+            ->orderBy('lastSyncTime');
+
+        if ($count > 0) {
+            $groupQuery = $groupQuery->limit($count);
+        }
+
+        $this->synchronize($groupQuery);
+        return ExitCode::OK;
+    }
+
+    /**
+     * Performs the synchronization
+     * @param GroupQuery $groupQuery
+     */
+    private function synchronize(GroupQuery $groupQuery)
+    {
         $canvasGroups = $groupQuery->all();
         $this->stdout("Synchronizing " . count($canvasGroups) . " group(s)." . PHP_EOL);
 
@@ -47,6 +79,5 @@ class CanvasController extends BaseController
                 $this->stderr("Failed to synchronize group #{$group->id} for user {$group->synchronizer->neptun} (ID: #{$group->synchronizer->id})" . PHP_EOL, Console::FG_RED);
             }
         }
-        return ExitCode::OK;
     }
 }
