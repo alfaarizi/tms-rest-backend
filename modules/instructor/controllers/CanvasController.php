@@ -422,12 +422,9 @@ class CanvasController extends BaseInstructorRestController
             return;
         }
 
-        /*
-         * Usually called after actionCourses, so refresh is not necessary
         if (!$this->canvas->refreshCanvasToken($user)) {
             throw new ServerErrorHttpException(Yii::t('app', 'Failed to refresh Canvas Token.'));
         }
-        */
 
         $sections = $this->canvas->findCanvasSections($courseID);
         $out = [];

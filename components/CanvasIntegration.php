@@ -83,10 +83,14 @@ class CanvasIntegration
     /**
      * Get the new canvas token from the canvas and save in the database.
      * @param User $user the actual user
+     * @param int $timeLimit number of seconds before the token expiration while renewal is not required
      * @return bool true if refreshing the token was successful, otherwise false
      */
-    public function refreshCanvasToken($user)
+    public function refreshCanvasToken($user, $timeLimit = 900)
     {
+        if (strtotime($user->canvasTokenExpiry) > time() + $timeLimit)
+            return true;
+
         $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
         $response = $client->createRequest()
             ->setMethod('POST')
