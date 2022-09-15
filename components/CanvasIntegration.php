@@ -88,8 +88,9 @@ class CanvasIntegration
      */
     public function refreshCanvasToken($user, $timeLimit = 900)
     {
-        if (strtotime($user->canvasTokenExpiry) > time() + $timeLimit)
+        if (strtotime($user->canvasTokenExpiry) > time() + $timeLimit) {
             return true;
+        }
 
         $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
         $response = $client->createRequest()
@@ -586,8 +587,7 @@ class CanvasIntegration
                     "Message: " . VarDumper::dumpAsString($task->firstErrors), __METHOD__);
                 return null;
             }
-        }
-        catch (\yii\db\Exception $ex) {
+        } catch (\yii\db\Exception $ex) {
             $task->name = Encoding::fixUTF8($task->name);
             $task->description = Encoding::fixUTF8($task->description);
             $task->save();
@@ -736,8 +736,7 @@ class CanvasIntegration
                 );
                 return null;
             }
-        }
-        catch(\yii\db\Exception $ex) {
+        } catch (\yii\db\Exception $ex) {
             $studentFile->notes = Encoding::fixUTF8($studentFile->notes);
             $studentFile->save();
         }
