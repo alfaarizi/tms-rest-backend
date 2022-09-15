@@ -4,6 +4,19 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.8.0](https://gitlab.com/tms-elte/backend-core/compare/v2.7.2...v2.8.0) (2022-09-16)
+### Features
+
+* Incorporate upload count prioritization in student submission evaluation ([708d1a](https://gitlab.com/tms-elte/backend-core/commit/708d1affe9bd556c50d580203676c9c31768d5fd))
+* Support continuous Canvas synchronization with prioritizing groups not synchronized for the longest time ([c0e39d](https://gitlab.com/tms-elte/backend-core/commit/c0e39d5e4ef4b8838f6925a168ef4064908bb262))
+
+### Bug Fixes
+
+* Improve non UTF-8 character removal on Canvas synchronization ([d66ac1](https://gitlab.com/tms-elte/backend-core/commit/d66ac154b2803930562966469c6391dbeb799bba))
+* Permission fixes when the evaluator is running on a Windows host machine ([3d1d75](https://gitlab.com/tms-elte/backend-core/commit/3d1d7511887c7d68cc65a7e5b4b337e07232cb58))
+
+---
+
 ## [2.7.2](https://gitlab.com/tms-elte/backend-core/compare/v2.7.1...v2.7.2) (2022-06-22)
 ### Bug Fixes
 
