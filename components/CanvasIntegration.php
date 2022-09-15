@@ -574,8 +574,18 @@ class CanvasIntegration
         }
         $task->hardDeadline = date('Y-m-d H:i:s', strtotime($assignment['lock_at']));
         $task->category = "Canvas tasks";
-        if (!$task->save()) {
-            return null;
+
+        try {
+            if (!$task->save()) {
+                Yii::error("Saving task for Group #{$group->id} failed." .
+                    "Message: " . VarDumper::dumpAsString($task->firstErrors), __METHOD__);
+                return null;
+            }
+        }
+        catch (\yii\db\Exception $ex) {
+            $task->name = Encoding::fixUTF8($task->name);
+            $task->description = Encoding::fixUTF8($task->description);
+            $task->save();
         }
         return $task->id;
     }
@@ -712,11 +722,21 @@ class CanvasIntegration
                 }
             }
         }
-        if (!$studentFile->save()) {
-            Yii::error("Saving solution for user {$user->neptun} (ID: #{$user->id}) on Task #{$task->id} failed." .
-                       "Message: " . VarDumper::dumpAsString($studentFile->firstErrors), __METHOD__);
-            return null;
+        try {
+            if (!$studentFile->save()) {
+                Yii::error(
+                    "Saving solution for user {$user->neptun} (ID: #{$user->id}) on Task #{$task->id} failed." .
+                    "Message: " . VarDumper::dumpAsString($studentFile->firstErrors),
+                    __METHOD__
+                );
+                return null;
+            }
         }
+        catch(\yii\db\Exception $ex) {
+            $studentFile->notes = Encoding::fixUTF8($studentFile->notes);
+            $studentFile->save();
+        }
+
         Yii::info(
             "A new solution has been uploaded for " .
             "{$studentFile->task->name} ($studentFile->taskID)",
