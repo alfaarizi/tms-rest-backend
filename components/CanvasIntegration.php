@@ -258,6 +258,9 @@ class CanvasIntegration
     public function synchronizeGroupData($group)
     {
         if (!empty($group->canvasCourseID)) {
+            $group->lastSyncTime = date('Y-m-d H:i:s');
+            $group->save(); // Update last sync time, so in case of error the queue won't get stuck
+
             $this->saveCanvasStudentsToGroup($group);
             $this->saveCanvasTeachersToGroup($group);
             $this->saveTasksToCourse($group);
