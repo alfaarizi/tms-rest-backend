@@ -25,6 +25,7 @@ use yii\web\IdentityInterface;
  * @property integer $canvasID
  * @property string $canvasToken
  * @property string $refreshToken
+ * @property string $canvasTokenExpiry
  * @property boolean $customEmailConfirmed
  * @property string $customEmailConfirmationCode
  * @property string $customEmailConfirmationExpiry

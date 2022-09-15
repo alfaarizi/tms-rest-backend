@@ -83,10 +83,15 @@ class CanvasIntegration
     /**
      * Get the new canvas token from the canvas and save in the database.
      * @param User $user the actual user
+     * @param int $timeLimit number of seconds before the token expiration while renewal is not required
      * @return bool true if refreshing the token was successful, otherwise false
      */
-    public function refreshCanvasToken($user)
+    public function refreshCanvasToken($user, $timeLimit = 900)
     {
+        if (strtotime($user->canvasTokenExpiry) > time() + $timeLimit) {
+            return true;
+        }
+
         $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
         $response = $client->createRequest()
             ->setMethod('POST')
@@ -99,6 +104,7 @@ class CanvasIntegration
         if ($response->isOk) {
             $responseJson = Json::decode($response->content);
             $user->canvasToken = $responseJson['access_token'];
+            $user->canvasTokenExpiry = date('Y/m/d H:i:s', time() + intval($responseJson['expires_in']));
             $user->save();
 
             if (Yii::$app->id == 'tms-console' && $response->headers->has('X-Rate-Limit-Remaining')) {
@@ -581,8 +587,7 @@ class CanvasIntegration
                     "Message: " . VarDumper::dumpAsString($task->firstErrors), __METHOD__);
                 return null;
             }
-        }
-        catch (\yii\db\Exception $ex) {
+        } catch (\yii\db\Exception $ex) {
             $task->name = Encoding::fixUTF8($task->name);
             $task->description = Encoding::fixUTF8($task->description);
             $task->save();
@@ -731,8 +736,7 @@ class CanvasIntegration
                 );
                 return null;
             }
-        }
-        catch(\yii\db\Exception $ex) {
+        } catch (\yii\db\Exception $ex) {
             $studentFile->notes = Encoding::fixUTF8($studentFile->notes);
             $studentFile->save();
         }
