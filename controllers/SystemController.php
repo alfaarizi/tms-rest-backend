@@ -2,9 +2,11 @@
 
 namespace app\controllers;
 
+use app\resources\PrivateSystemInfoResource;
 use app\resources\PublicSystemInfoResource;
 use Yii;
 use yii\helpers\ArrayHelper;
+use app\components\UnitConverterHelper;
 
 /**
  * This class controls the system information actions
@@ -57,6 +59,29 @@ class SystemController extends BaseRestController
 
         $resource = new PublicSystemInfoResource();
         $resource->version = $composerContent['version'];
+        return $resource;
+    }
+
+    /**
+     * Get private server information
+     * @OA\Get (
+     *     path="/common/system/private-info",
+     *     tags={"Common System"},
+     *     security={{"bearerAuth":{}}},
+     *     operationId="common::SystemController::actionPrivateInfo",
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_PrivateSystemInfoResource_Read"),
+     *     ),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     */
+    public function actionPrivateInfo(): PrivateSystemInfoResource
+    {
+        $resource = new PrivateSystemInfoResource();
+        $resource->uploadMaxFilesize = UnitConverterHelper::phpFilesizeToBytes(ini_get('upload_max_filesize'));
+        $resource->postMaxSize = UnitConverterHelper::phpFilesizeToBytes(ini_get('post_max_size'));
         return $resource;
     }
 }
