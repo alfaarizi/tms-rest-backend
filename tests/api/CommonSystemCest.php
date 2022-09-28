@@ -3,6 +3,7 @@
 namespace tests\api;
 
 use ApiTester;
+use app\tests\unit\fixtures\AccessTokenFixture;
 use Codeception\Util\HttpCode;
 use Yii;
 
@@ -15,9 +16,18 @@ class CommonSystemCest
         'version' => 'string',
     ];
 
+    public const PRIVATE_SETTINGS_SCHEMA = [
+        'uploadMaxFilesize' => 'integer',
+        'postMaxSize' => 'integer',
+    ];
+
     public function _fixtures(): array
     {
-        return [];
+        return [
+            'accesstokens' => [
+                'class' => AccessTokenFixture::class,
+            ],
+        ];
     }
 
     public function testPublicInfo(ApiTester $I): void
@@ -37,5 +47,13 @@ class CommonSystemCest
                 'version' => $expectedVersion
             ]
         );
+    }
+
+    public function testPrivateInfo(ApiTester $I): void
+    {
+        $I->amBearerAuthenticated("TEACH2;VALID");
+        $I->sendGet('/common/system/private-info');
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::PRIVATE_SETTINGS_SCHEMA);
     }
 }
