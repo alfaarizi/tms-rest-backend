@@ -102,6 +102,7 @@ return [
     'No files found for upload.' => 'Nem került fájl feltöltésre kiválasztásra.',
     'Files not found' => 'Nem találhatóak fájlok.',
     'Moss is disabled. Contact the administrator for more information.' => 'A Moss eszköz nincs engedélyezve. Lépjen kapcsolatba az adminisztrátorral további információért.',
+    'Moss server currently unavailable' => 'A Moss szerver jelenleg nem érhető el',
     'No plagiarism check has been carried out yet.' => 'Még nincs lefuttatva másolás ellenőrzés.',
     'no remarks' => 'nincs megjegyzés',
     'no notes' => 'nincs megjegyzés',

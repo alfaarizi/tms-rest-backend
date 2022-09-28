@@ -3,6 +3,7 @@
 namespace app\modules\instructor\controllers;
 
 use app\components\plagiarism\MossPlagiarismFinder;
+use app\exceptions\PlagiarismServiceException;
 use app\models\Semester;
 use app\modules\instructor\resources\CreatePlagiarismResource;
 use app\modules\instructor\resources\PlagiarismResource;
@@ -13,6 +14,7 @@ use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
+use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 use ZIPARCHIVE;
@@ -415,7 +417,11 @@ class PlagiarismController extends BaseInstructorRestController
         set_time_limit(1800);
         ini_set('default_socket_timeout', 900);
 
-        (new MossPlagiarismFinder($id))->start();
+        try {
+            (new MossPlagiarismFinder($id))->start();
+        } catch (PlagiarismServiceException $e) {
+            throw new HttpException(502, $e->getMessage(), 0, $e);
+        }
 
         return $plagiarism;
     }

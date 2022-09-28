@@ -25,7 +25,9 @@ SOFTWARE.
 
 namespace app\components\plagiarism;
 
+use app\exceptions\PlagiarismServiceException;
 use \Exception;
+use Yii;
 
 /**
  * @author Philipp Helo Rehs <P.Rehs@gmx.net>
@@ -274,7 +276,13 @@ class Moss {
      * @return string
      */
     public function send(){
-        $socket = fsockopen($this->server,$this->port, $errno, $errstr);
+        try {
+            $socket = fsockopen($this->server,$this->port, $errno, $errstr);
+        } catch (\ErrorException $e) {
+            Yii::error($e->getMessage(), __METHOD__);
+            throw new PlagiarismServiceException(Yii::t('app','Moss server currently unavailable'));
+        }
+
         if(!$socket){
             throw new Exception("Socket-Error: ".$errstr." (".$errno.")", 8);
         }
