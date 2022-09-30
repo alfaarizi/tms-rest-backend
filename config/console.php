@@ -4,6 +4,12 @@ $db = require(__DIR__ . '/db.php');
 $mailer = require(__DIR__ . '/mailer.php');
 $params = require(__DIR__ . '/params.php');
 
+$params['backendUrl'] = rtrim($params['backendUrl'], '/');
+$params['frontendUrl'] = rtrim($params['frontendUrl'], '/');
+if ($params['versionControl']['enabled']) {
+    $params['versionControl']['basePath'] = rtrim($params['versionControl']['basePath'], '/');
+}
+
 $config = [
     'id' => 'tms-console',
     'language' => 'en-US',
