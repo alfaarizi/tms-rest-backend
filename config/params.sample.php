@@ -124,5 +124,27 @@ return [
         'username' => 'compass',
         'passwordLength' => 6,
         'isImageCachingEnabled' => true
-    ]
+    ],
+    // Cronjob scheduling configuration
+    'scheduling' => [
+        'periods' => [ // in minutes
+            'canvasSynchronize' => 420,
+            'canvasSynchronizePrioritized' => 5,
+            'systemClearExpiredAccessTokens' => 7, // in days
+            'evaluatorCheck' => 420,
+            'ccClearCachedImages' => 30, // in days
+            'ccStartWaitingContainer' => 10,
+            'ccStopExpiredContainers' => 10,
+            'waShutDownExpiredExecutions' => 10,
+        ],
+        'dates' => [ // 0:00 - 23:59
+            'nDigestInstructors' => '7:00',
+            'nDigestOncomingTaskDeadlines' => '7:00',
+        ],
+        'params' => [
+            'evaluatorCheckTasksNumber' => null,
+            'canvasSynchronizePrioritizedNumber' => 5,
+        ],
+    ],
+
 ];

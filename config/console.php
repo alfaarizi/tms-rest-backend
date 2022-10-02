@@ -21,6 +21,7 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
         '@tests' => '@app/tests',
+        '@config' => '@app/config',
     ],
     'components' => [
         'db' => $db,
