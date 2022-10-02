@@ -125,6 +125,14 @@ In order to check whether you web server environment fulfills all requirements b
 http://localhost/backend-core/requirements.php
 ~~~
 
+SCHEDULING CRON JOBS
+------------
+
+Scheduling cron jobs can be done by putting this line into crontab:
+
+~~~
+* * * * * php /path/to/backend-core/yii schedule/run --scheduleFile=@app/config/schedule.php
+~~~
 
 TESTING
 ------------
