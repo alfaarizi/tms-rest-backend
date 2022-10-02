@@ -5,6 +5,12 @@ $mailer = require(__DIR__ . '/mailer.php');
 $params = require(__DIR__ . '/params.php');
 $rules = require(__DIR__ . '/rules.php');
 
+$params['backendUrl'] = rtrim($params['backendUrl'], '/');
+$params['frontendUrl'] = rtrim($params['frontendUrl'], '/');
+if ($params['versionControl']['enabled']) {
+    $params['versionControl']['basePath'] = rtrim($params['versionControl']['basePath'], '/');
+}
+
 $config = [
     'id' => 'tms',
     'language' => 'hu',
