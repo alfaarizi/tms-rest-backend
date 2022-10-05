@@ -127,24 +127,22 @@ return [
     ],
     // Cronjob scheduling configuration
     'scheduling' => [
-        'periods' => [ // in minutes
-            'canvasSynchronize' => 420,
-            'canvasSynchronizePrioritized' => 5,
+        'periods' => [
+            'canvasSynchronizePrioritized' => 5, // in minutes
             'systemClearExpiredAccessTokens' => 7, // in days
-            'evaluatorCheck' => 420,
+            'evaluatorCheck' => 5, // in minutes
             'ccClearCachedImages' => 30, // in days
-            'ccStartWaitingContainer' => 10,
-            'ccStopExpiredContainers' => 10,
-            'waShutDownExpiredExecutions' => 10,
+            'ccStartWaitingContainer' => 10, // in minutes
+            'ccStopExpiredContainers' => 10, // in minutes
+            'waShutDownExpiredExecutions' => 10, // in minutes
         ],
         'dates' => [ // 0:00 - 23:59
             'nDigestInstructors' => '7:00',
             'nDigestOncomingTaskDeadlines' => '7:00',
         ],
         'params' => [
-            'evaluatorCheckTasksNumber' => null,
+            'evaluatorCheckTasksNumber' => 50,
             'canvasSynchronizePrioritizedNumber' => 5,
         ],
     ],
-
 ];

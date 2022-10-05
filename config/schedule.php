@@ -16,12 +16,11 @@ $schedule->command('notification/digest-oncoming-task-deadlines')
          ->dailyAt($schedulingDates['nDigestOncomingTaskDeadlines'])
          ->withoutOverlapping();
 
-// $schedule->command('canvas/synchronize')->everyNMinutes($schedulingPeriods['canvasSynchronize'])->withoutOverlapping();
-$schedule->command('canvas/synchronize-prioritized' . ' ' . $schedulingParams['canvasSynchronizePrioritizedNumber'])
+$schedule->command('canvas/synchronize-prioritized ' . $schedulingParams['canvasSynchronizePrioritizedNumber'])
          ->everyNMinutes($schedulingPeriods['canvasSynchronizePrioritized'])
          ->withoutOverlapping();
 
-$schedule->command('evaluator/check' . ' ' . $schedulingParams['evaluatorCheckTasksNumber'])
+$schedule->command('evaluator/check ' . $schedulingParams['evaluatorCheckTasksNumber'])
          ->everyNMinutes($schedulingPeriods['evaluatorCheck'])
          ->withoutOverlapping();
 

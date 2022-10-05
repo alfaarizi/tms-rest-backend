@@ -125,14 +125,24 @@ In order to check whether you web server environment fulfills all requirements b
 http://localhost/backend-core/requirements.php
 ~~~
 
-SCHEDULING CRON JOBS
+BACKGROUND JOBS
 ------------
 
-Scheduling cron jobs can be done by putting this line into crontab:
+TMS has various background jobs which has to be performed regularly on the server-side to operate the system properly. For the sake of simplicity you may execute the following command to execute them:
+
+~~~
+_yii schedule/run --scheduleFile=@app/config/schedule.php_
+~~~
+
+The interval and the arguments of the background jobs can be configured in the `config/params.php` file.
+
+In case of a (Linux based) production environment you shall add a single cronjob to your crontab file. This way new background jobs introduced in future versions of TMS will be automatically scheduled on your instance.
 
 ~~~
 * * * * * php /path/to/backend-core/yii schedule/run --scheduleFile=@app/config/schedule.php
 ~~~
+
+On Windows you can use the built-in *Task Scheduler* instead.
 
 TESTING
 ------------
