@@ -98,7 +98,7 @@ return [
                 'name' => 'Windows / .NET',
                 'os' => 'windows',
                 'appType' => 'Console',
-                'image' => 'mcserep/elte:dotnet-48',
+                'image' => 'mcserep/elte:dotnet-60',
                 'compileInstructions' => 'C:\\build.ps1' . PHP_EOL .
                     '# Built-in script that looks for .NET Core projects (.sln files) and build them.',
                 'runInstructions' => '',
