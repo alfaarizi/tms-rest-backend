@@ -4,6 +4,14 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.8.1](https://gitlab.com/tms-elte/backend-core/compare/v2.8.0...v2.8.1) (2022-10-12)
+### Bug Fixes
+
+* Correctly save student files after the first commit for version controlled tasks ([915ad3](https://gitlab.com/tms-elte/backend-core/commit/915ad3749be2e87eb3b4a058fe398269e5bf04bb))
+* Fix the callback URL in the post-receive Git hook ([a2cfc9](https://gitlab.com/tms-elte/backend-core/commit/a2cfc910fc3a9a2b0cabbbd14b0e119bb7a237fd))
+
+---
+
 ## [2.8.0](https://gitlab.com/tms-elte/backend-core/compare/v2.7.2...v2.8.0) (2022-09-16)
 ### Features
 
