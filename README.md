@@ -128,15 +128,11 @@ http://localhost/backend-core/requirements.php
 BACKGROUND JOBS
 ------------
 
-TMS has various background jobs which has to be performed regularly on the server-side to operate the system properly. For the sake of simplicity you may execute the following command to execute them:
-
-~~~
-_yii schedule/run --scheduleFile=@app/config/schedule.php_
-~~~
-
+TMS has various background jobs which has to be performed regularly on the server-side to operate the system properly.
 The interval and the arguments of the background jobs can be configured in the `config/params.php` file.
 
-In case of a (Linux based) production environment you shall add a single cronjob to your crontab file. This way new background jobs introduced in future versions of TMS will be automatically scheduled on your instance.
+In case of a (Linux based) production environment you shall add a single cronjob to your crontab file to check for background jobs to execute every minute.
+This way new background jobs introduced in future versions of TMS will be automatically scheduled on your instance.
 
 ~~~
 * * * * * php /path/to/backend-core/yii schedule/run --scheduleFile=@app/config/schedule.php
