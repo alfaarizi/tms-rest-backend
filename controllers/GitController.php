@@ -89,6 +89,7 @@ class GitController extends BaseRestController
             $studentfile->uploadTime = date('Y-m-d H:i:s');
             $studentfile->isVersionControlled = 1;
             $studentfile->uploadCount = 1;
+            $studentfile->verified = true;
             // Save it to the db.
             if ($studentfile->save()) {
                 Yii::info(
