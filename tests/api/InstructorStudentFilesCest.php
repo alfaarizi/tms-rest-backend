@@ -303,6 +303,45 @@ class InstructorStudentFilesCest
         $I->seeEmailIsSent(1);
     }
 
+    public function updateInProgress(ApiTester $I)
+    {
+        $I->sendPatch(
+            "/instructor/student-files/2",
+            [
+                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
+                'grade' => 5,
+                'notes' => 'Note'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+
+        $I->seeResponseContainsJson(
+            [
+                'id' => 2,
+                'name' => 'stud02.zip',
+                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
+                'translatedIsAccepted' => 'Accepted',
+                'isVersionControlled' => 0,
+                'grade' => '5',
+                'notes' => 'Note',
+                'graderName' => 'Teacher Two',
+                'gitRepo' => null,
+                'errorMsg' => null,
+                'uploadCount' => 1,
+            ]
+        );
+
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                'id' => 2,
+                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
+                'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_NOT_TESTED,
+                'grade' => 5,
+                'notes' => 'Note',
+            ]
+        );
+    }
 
     public function downloadNotFound(ApiTester $I)
     {
@@ -373,7 +412,7 @@ class InstructorStudentFilesCest
         $zip->close();
 
         $I->cantSeeFileFound("STUD01.zip", $zipPath);
-        $I->cantSeeFileFound("STUD02.zip", $zipPath);
+        $I->seeFileFound("STUD02.zip", $zipPath);
         $I->seeFileFound("STUD03.zip", $zipPath);
     }
 
