@@ -45,6 +45,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public const EVALUATOR_STATUS_EXECUTION_FAILED = 'Execution Failed';
     public const EVALUATOR_STATUS_TESTS_FAILED = 'Tests Failed';
     public const EVALUATOR_STATUS_PASSED = 'Passed';
+    public const EVALUATOR_STATUS_IN_PROGRESS = 'In Progress';
 
     public const EVALUATOR_STATUS_VALUES = [
         self::EVALUATOR_STATUS_NOT_TESTED,
@@ -53,6 +54,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
         self::EVALUATOR_STATUS_EXECUTION_FAILED,
         self::EVALUATOR_STATUS_TESTS_FAILED,
         self::EVALUATOR_STATUS_PASSED,
+        self::EVALUATOR_STATUS_IN_PROGRESS,
     ];
 
     public const IS_ACCEPTED_UPLOADED = 'Uploaded';
@@ -192,7 +194,10 @@ class StudentFile extends File implements IOpenApiFieldTypes
      */
     public function validateEvaluatorStatus($attribute, $params, $validator)
     {
-        if ($this->isAccepted === self::IS_ACCEPTED_PASSED && $this->evaluatorStatus !== self::EVALUATOR_STATUS_PASSED) {
+        if (
+            $this->isAccepted === self::IS_ACCEPTED_PASSED && $this->evaluatorStatus !== self::EVALUATOR_STATUS_PASSED ||
+            $this->isAccepted !== self::IS_ACCEPTED_UPLOADED && $this->evaluatorStatus === self::EVALUATOR_STATUS_IN_PROGRESS
+        ) {
             $this->addError(
                 'evaluatorStatus',
                 Yii::t('app', 'The current values of evaluatorStatus and isAccepted are not valid'),
@@ -360,6 +365,8 @@ class StudentFile extends File implements IOpenApiFieldTypes
                     : Yii::t('app', 'Your solution failed the tests');
             case self::EVALUATOR_STATUS_PASSED:
                 return Yii::t('app', 'Your solution passed the tests');
+            case self::EVALUATOR_STATUS_IN_PROGRESS:
+                return Yii::t('app', 'Your solution is being tested');
             default:
                 throw new \UnexpectedValueException('Invalid evaluatorStatus');
         }

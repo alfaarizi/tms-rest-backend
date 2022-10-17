@@ -74,6 +74,9 @@ class StudentFileTest extends \Codeception\Test\Unit
         $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_PASSED;
         $this->assertEquals('Your solution passed the tests', $file->safeErrorMsg);
 
+        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_IN_PROGRESS;
+        $this->assertEquals('Your solution is being tested', $file->safeErrorMsg);
+
         $this->expectException(\UnexpectedValueException::class);
         $file->evaluatorStatus = 'Invalid';
         $file->getSafeErrorMsg();
@@ -117,6 +120,9 @@ class StudentFileTest extends \Codeception\Test\Unit
         $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_PASSED;
         $this->assertEquals('Your solution passed the tests', $file->safeErrorMsg);
 
+        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_IN_PROGRESS;
+        $this->assertEquals('Your solution is being tested', $file->safeErrorMsg);
+
         $this->expectException(\UnexpectedValueException::class);
         $file->evaluatorStatus = 'Invalid';
         $file->getSafeErrorMsg();
@@ -150,6 +156,7 @@ class StudentFileTest extends \Codeception\Test\Unit
             StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED,
             StudentFile::EVALUATOR_STATUS_EXECUTION_FAILED,
             StudentFile::EVALUATOR_STATUS_TESTS_FAILED,
+            StudentFile::EVALUATOR_STATUS_IN_PROGRESS,
         ];
 
         foreach ($invalidStatusValues as $value) {
@@ -193,10 +200,48 @@ class StudentFileTest extends \Codeception\Test\Unit
         $invalidStatusValues = [
             StudentFile::EVALUATOR_STATUS_NOT_TESTED,
             StudentFile::EVALUATOR_STATUS_PASSED,
+            StudentFile::EVALUATOR_STATUS_IN_PROGRESS,
         ];
 
         foreach ($invalidStatusValues as $value) {
             $file->evaluatorStatus = $value;
+            $this->assertFalse($file->validate());
+        }
+    }
+
+    public function testValidateEvaluatorStatusInProgress()
+    {
+        $file = new StudentFile(
+            [
+                'name' => 'test.zip',
+                'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
+                'taskID' => 5002,
+                'uploaderID' => 1000,
+                'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
+                'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_IN_PROGRESS,
+                'isVersionControlled' => 0,
+                'grade' => 4,
+                'notes' => '',
+                'graderID' => 1000,
+                'errorMsg' => self::FULL_ERROR_MSG,
+                'verified' => true,
+            ]
+        );
+
+        // Test valid case
+        $this->assertTrue($file->validate());
+
+        // Test invalid cases
+        $invalidStatusValues = [
+            StudentFile::IS_ACCEPTED_ACCEPTED,
+            StudentFile::IS_ACCEPTED_FAILED,
+            StudentFile::IS_ACCEPTED_LATE_SUBMISSION,
+            StudentFile::IS_ACCEPTED_PASSED,
+            StudentFile::IS_ACCEPTED_REJECTED,
+        ];
+
+        foreach ($invalidStatusValues as $value) {
+            $file->isAccepted = $value;
             $this->assertFalse($file->validate());
         }
     }

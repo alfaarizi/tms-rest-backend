@@ -283,6 +283,7 @@ return [
     'Your solution failed on' => 'A megoldás megbukott az alábbi teszteseten',
     'Your solution failed the tests' => 'A megoldás megbukott a teszteken',
     'Your solution passed the tests' => 'A megoldás átment a teszteken',
+    'Your solution is being tested' => 'A megoldás tesztelés alatt áll',
     'Test Results' => 'Tesztelési Eredmények',
     'You have not uploaded a solution yet.' => 'Még nem töltöttél fel megoldást.',
     'Your solution was rejected!' => 'A megoldást nem fogadták el!',

@@ -54,6 +54,7 @@ class EvaluatorController extends BaseController
                     ->where(
                         [
                             'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
+                            'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_NOT_TESTED,
                             'taskID' => $IDs
                         ]
                     )
@@ -80,6 +81,10 @@ class EvaluatorController extends BaseController
                     $jobFound = false;
                 }
             } while (!$jobFound);
+
+            // Mark solution testing as being under execution / in progress
+            $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_IN_PROGRESS;
+            $studentFile->save();
 
             // Set locale based on student preference
             $origLanguage = Yii::$app->language;
