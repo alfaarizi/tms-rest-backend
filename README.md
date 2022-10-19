@@ -11,8 +11,11 @@ Task Management System
 REQUIREMENTS
 ------------
 
-The minimum requirement by this application is that your web server supports PHP 7.4.0.
+The minimum requirement by this application is that your web server supports PHP 7.4.0. PHP 8 is not yet supported.
 
+A web server supporting PHP is the Apache HTTP Server. You have to [enable `mod_rewrite`](https://gitlab.com/tms-elte/backend-core/-/wikis/Setting-up-the-development-environment#apache-modules) on Apache web server. If you choose a server other than Apache, you may have to make extra configuration.
+
+The application requires MySQL or MariaDB (other databases are not supported).
 
 INSTALLATION
 ------------
@@ -90,8 +93,8 @@ TMS communicates with Docker through the [Docker Engine API](https://docs.docker
 - In case Docker was installed on the local Linux machine, this communication can be done through the UNIX socket of Docker, `unix:///var/run/docker.sock`.
 - In case Docker was installed on a different Linux machine, or Windows is being used on either of the computers, the communication can be performed over a TCP channel, e.g. `tcp://10.1.2.3:2375`.  
   Docker by default is not configured to listen to TCP connections, so you must enable it explicitly:
-    - see configuration for [Linux](https://docs.docker.com/engine/reference/commandline/dockerd/);
-    - see configuration for [Docker Desktop for Windows](https://docs.docker.com/desktop/windows/).
+  - see configuration for [Linux](https://docs.docker.com/engine/reference/commandline/dockerd/);
+  - see configuration for [Docker Desktop for Windows](https://docs.docker.com/desktop/windows/).
 
 **NOTE:** if you are enabling TCP connection for Docker, you shall secure it with TLS or protect that machine with strict firewall rules!
 
@@ -101,13 +104,13 @@ TMS communicates with Docker through the [Docker Engine API](https://docs.docker
 TMS has a code-first database model, by performing the database migration, all required tables will be created:
 
 ~~~
-yii migrate
+./yii migrate
 ~~~
 
 You may seed the database with an initial semester and a course, as managing these entities has no GUI yet:
 
 ~~~
-yii setup/seed
+./yii setup/seed
 ~~~
 
 
@@ -119,7 +122,7 @@ Now you should be able to access the application through the following URL, assu
 http://localhost/backend-core/web/
 ~~~
 
-In order to check whether you web server environment fulfills all requirements by Yii, you may visit the following page: 
+In order to check whether you web server environment fulfills all requirements by Yii, you may visit the following page:
 
 ~~~
 http://localhost/backend-core/requirements.php
@@ -176,8 +179,8 @@ For the latest version on the `develop` branch this documentation is available a
 ### OpenAPI
 There are multiple ways to access the OpenAPI documentation for the project:
 
-- For the latest version from the `develop` branch the OpenAPI documentation with `SwaggerUI` is uploaded to 
-[Gitlab Pages](https://tms-elte.gitlab.io/backend-core/swagger-ui/).
+- For the latest version from the `develop` branch the OpenAPI documentation with `SwaggerUI` is uploaded to
+  [Gitlab Pages](https://tms-elte.gitlab.io/backend-core/swagger-ui/).
 - Web interface in a local development server:
   - `<baseurl>/common/open-api/json`: get the latest OpenAPI documentation in `json` format
   - `<baseurl>/common/open-api/swagger-ui`: visualize the latest documentation with `SwaggerUI`
