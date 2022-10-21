@@ -4,6 +4,22 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.9.0](https://gitlab.com/tms-elte/backend-core/compare/v2.8.1...v2.9.0) (2022-10-21)
+### Features
+
+* Added 'In Progress' for student submissions ([395d8f](https://gitlab.com/tms-elte/backend-core/commit/395d8f420d6c1552be1f983504c94323e29836fa))
+* Integrate job scheduler ([eec04d](https://gitlab.com/tms-elte/backend-core/commit/eec04d918573028d6a06b8c1650edf8652d3369d))
+* Publish file and POST request size limits ([515ad3](https://gitlab.com/tms-elte/backend-core/commit/515ad37e805445c23dbfa6c401feaa3d1d8d8632))
+
+### Bug Fixes
+
+* Cannot save student file after the first commit for version controlled tasks ([915ad3](https://gitlab.com/tms-elte/backend-core/commit/915ad3749be2e87eb3b4a058fe398269e5bf04bb))
+* Fix the callback URL in the post-receive Git hook ([a2cfc9](https://gitlab.com/tms-elte/backend-core/commit/a2cfc910fc3a9a2b0cabbbd14b0e119bb7a237fd))
+* Remove possible double slashes from constructed URLs ([320d8d](https://gitlab.com/tms-elte/backend-core/commit/320d8d81007f0a2b2c40901478bb23a446d9fcf2))
+* User friendly error message for MOSS server unavailability ([b4e59b](https://gitlab.com/tms-elte/backend-core/commit/b4e59bae36e32737fe58fdd8f836ba81ea4811d8))
+
+---
+
 ## [2.8.0](https://gitlab.com/tms-elte/backend-core/compare/v2.7.2...v2.8.0) (2022-09-16)
 ### Features
 
