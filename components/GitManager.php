@@ -75,7 +75,7 @@ class GitManager
     public static function writePostRecieveGitHook($postrecievehook, $taskid, $studentid)
     {
         $hook = Yii::$app->params['versionControl']['shell'] . "
-curl --request GET --url \"" . Yii::$app->request->hostInfo . Yii::$app->params['versionControl']['basePath'] . "/git-push?taskid=" . $taskid . "&studentid=" . $studentid . "\" --location";
+curl --request GET --url \"" . Url::toRoute(['/git/git-push', 'taskid' => $taskid, 'studentid' =>  $studentid], true) . "\" --location";
 
         fwrite($postrecievehook, $hook);
     }
