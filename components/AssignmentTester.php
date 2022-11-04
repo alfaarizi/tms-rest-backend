@@ -541,7 +541,7 @@ class AssignmentTester
         $stdoutFull = "";
         $stderrFull = "";
         $stream->onStdout(function ($stdout) use (&$stdoutFull) {
-            if (mb_strlen($stdoutFull) + mb_strlen($stdout) < 65000) { // StudentFile::errorMsg field is 65535 in size
+            if (mb_strlen($stdoutFull) + mb_strlen($stdout) < 1024 * 1024) { // 1 MB should be enough
                 $stdoutFull .= $stdout;
             } else {
                 throw new \OverflowException(Yii::t('app', 'Your solution exceeded the maximum output size.'));
