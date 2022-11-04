@@ -300,6 +300,8 @@ return [
     'File with the same name already exists for this task' => 'Már létezik fájl a megadott névvel ehhez a feladathoz',
     'The current values of evaluatorStatus and isAccepted are not valid' => 'Az evaluatorStatus és isAccepted mezők jelenlegi értékei érvénytelenek',
     'Failed to remove BaseFile' => 'Alapfájl törlése sikertelen',
+    'Your solution exceeded the maximum output size.' => 'A programod standard kimenete (stdout) meghaladta a maximális megengedett méretet.',
+    'Your solution exceeded the maximum error output size.' => 'A programod standard hiba (stderr) kimenete meghaladta a maximális megengedett méretet.',
 
     //Examination module translations
     "An answer with the same text already exists for that question" => "Ezzel a szöveggel létezik már válasz a kérdéshez",

@@ -541,15 +541,28 @@ class AssignmentTester
         $stdoutFull = "";
         $stderrFull = "";
         $stream->onStdout(function ($stdout) use (&$stdoutFull) {
-            $stdoutFull .= $stdout;
+            if (mb_strlen($stdoutFull) + mb_strlen($stdout) < 65000) { // StudentFile::errorMsg field is 65535 in size
+                $stdoutFull .= $stdout;
+            } else {
+                throw new \OverflowException(Yii::t('app', 'Your solution exceeded the maximum output size.'));
+            }
         });
         $stream->onStderr(function ($stderr) use (&$stderrFull) {
-            $stderrFull .= $stderr;
+            if (mb_strlen($stderrFull) + mb_strlen($stderr) < 65000) { // StudentFile::errorMsg field is 65535 in size
+                $stderrFull .= $stderr;
+            } else {
+                throw new \OverflowException(Yii::t('app', 'Your solution exceeded the maximum error output size.'));
+            }
         });
-        $stream->wait();
 
-        $execFindResult = $this->docker->execInspect($execCreateResult->getId());
-        $exitCode = $execFindResult->getExitCode();
+        try {
+            $stream->wait();
+            $execFindResult = $this->docker->execInspect($execCreateResult->getId());
+            $exitCode = $execFindResult->getExitCode();
+        } catch (\OverflowException $ex) {
+            $stderrFull .= $ex->getMessage() . PHP_EOL;
+            $exitCode = -1;
+        }
 
         return [
             'stdout' => Encoding::toUTF8($stdoutFull),
