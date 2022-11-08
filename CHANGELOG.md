@@ -4,6 +4,11 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.9.1](https://gitlab.com/tms-elte/backend-core/compare/v2.9.0...v2.9.1) (2022-11-08)
+### Bug Fixes
+
+* Handle too large stdout and stdin sizes in automated tester ([f8991b](https://gitlab.com/tms-elte/backend-core/commit/f8991bb265e62a7a0a8ff1b4e0a49f9ea40144a3))
+
 ## [2.9.0](https://gitlab.com/tms-elte/backend-core/compare/v2.8.1...v2.9.0) (2022-10-21)
 ### Features
 
