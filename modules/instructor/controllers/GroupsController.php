@@ -12,6 +12,7 @@ use app\models\Task;
 use app\modules\instructor\resources\GroupResource;
 use app\modules\instructor\resources\GroupSubmittedStatsResource;
 use app\modules\instructor\resources\GroupTaskStatsResource;
+use app\modules\instructor\resources\NotesResource;
 use app\modules\instructor\resources\StudentStatsResource;
 use app\resources\AddUsersListResource;
 use app\resources\SemesterResource;
@@ -88,6 +89,8 @@ class GroupsController extends BaseInstructorRestController
             'delete-instructor' => ['DELETE'],
             'delete-student' => ['DELETE'],
             'add-students' => ['POST'],
+            'add-student-notes' => ['PUT'],
+            'student-notes' => ['GET'],
             'add-instructors' => ['POST'],
             'group-stats' => ['GET'],
             'student-stats' => ['GET'],
@@ -1065,7 +1068,7 @@ class GroupsController extends BaseInstructorRestController
 
         // Check if the subscription exists
         if (is_null($subscription)) {
-            throw new NotFoundHttpException('Subscription not found for the given groupID, userID pair.');
+            throw new NotFoundHttpException(Yii::t('app','Subscription not found for the given groupID, userID pair.'));
         }
 
         // Authorization check
@@ -1111,6 +1114,171 @@ class GroupsController extends BaseInstructorRestController
                 Yii::t('app', 'Can not remove student. Message: ')
                 . Yii::t('app', 'A database error occurred'));
         }
+    }
+
+    /**
+     * Adds a note to a student
+     * @param int $groupID
+     * @param int $userID
+     * @return NotesResource|array
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     * @OA\Put(
+     *     path="/instructor/groups/{groupID}/students/{userID}/notes",
+     *     operationId="instructor::GroupsController::actionAddStudentNotes",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *           name="groupID",
+     *           in="path",
+     *           required=true,
+     *           description="ID of the group",
+     *           @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(
+     *          name="userID",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the student",
+     *          @OA\Schema(ref="#/components/schemas/int_id"),
+     *    ),
+     *    @OA\RequestBody(
+     *        description="notes updated on student",
+     *        @OA\MediaType(
+     *            mediaType="application/json",
+     *            @OA\Schema(ref="#/components/schemas/Instructor_NotesResource_ScenarioDefault"),
+     *        ),
+     *    ),
+     *    @OA\Response(
+     *         response=200,
+     *         description="notes updated on student",
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionAddStudentNotes($groupID, $userID)
+    {
+        // Grab the student entry.
+        $subscription = Subscription::findOne(
+            [
+                'groupID' => $groupID,
+                'userID' => $userID
+
+            ]);
+
+        // Check if the subscription exists
+        if (is_null($subscription)) {
+            throw new NotFoundHttpException(Yii::t('app','Subscription not found for the given groupID, userID pair.'));
+        }
+
+        // Authorization check
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $subscription->groupID])) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
+        }
+
+        // Check semester
+        if ($subscription->semesterID !== SemesterResource::getActualID()) {
+            throw new BadRequestHttpException(
+                Yii::t('app', "You can't modify notes from a previous semester!")
+            );
+        }
+
+        $model = new NotesResource();
+
+        $model->load(Yii::$app->request->post(), '');
+
+        if (!$model->validate()) {
+            $this->response->statusCode = 422;
+            return $model->errors;
+        }
+
+        $subscription->notes = $model->notes;
+
+        if ($subscription->save()) {
+            return $model;
+        } elseif ($subscription->hasErrors()) {
+            $this->response->statusCode = 422;
+            return $subscription->errors;
+        } else {
+            throw new ServerErrorHttpException(
+                Yii::t('app', 'Failed to update note on subscription. Message: ')
+                . Yii::t('app', 'A database error occurred'));
+        }
+    }
+
+    /**
+     * Get the notes of a student
+     * @param int $groupID
+     * @param int $userID
+     * @return NotesResource
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/groups/{groupID}/students/{userID}/notes",
+     *     operationId="instructor::GroupsController::actionAddStudentNotes",
+     *     tags={"Instructor Groups"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *           name="groupID",
+     *           in="path",
+     *           required=true,
+     *           description="ID of the group",
+     *           @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(
+     *          name="userID",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the student",
+     *          @OA\Schema(ref="#/components/schemas/int_id"),
+     *    ),
+     *    @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_NotesResource_Read"),
+     *        ),
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionStudentNotes($groupID, $userID)
+    {
+        // Grab the student entry.
+        $subscription = Subscription::findOne(
+            [
+                'groupID' => $groupID,
+                'userID' => $userID
+
+            ]);
+
+        // Check if the subscription exists
+        if (is_null($subscription)) {
+            throw new NotFoundHttpException(Yii::t('app','Subscription not found for the given groupID, userID pair.'));
+        }
+
+        // Authorization check
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $subscription->groupID])) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
+        }
+
+        $model = new NotesResource();
+
+        $model->notes = $subscription->notes;
+
+        return $model;
     }
 
     /**

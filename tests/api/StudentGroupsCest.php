@@ -118,7 +118,7 @@ class StudentGroupsCest
 
     public function view(ApiTester $I)
     {
-        $I->sendGet('/student/groups/2000');
+        $I->sendGet('/student/groups/2000?expand=notes');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::GROUP_SCHEMA);
         $I->seeResponseMatchesJsonType(['string'], '$.instructorNames');
@@ -134,7 +134,9 @@ class StudentGroupsCest
                 ],
                 "instructorNames" => [
                     "Teacher Two"
-                ]
+                ],
+                "canvasUrl" => null,
+                "notes" => "subscription1"
             ]
         );
     }

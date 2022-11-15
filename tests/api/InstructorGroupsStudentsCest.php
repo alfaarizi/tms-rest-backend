@@ -151,6 +151,101 @@ class InstructorGroupsStudentsCest
         );
     }
 
+    public function addStudentNotes(ApiTester $I)
+    {
+        $I->sendPut(
+            '/instructor/groups/2000/students/1003/notes',
+            [
+                'notes' => 'Test'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson(
+            [
+                'notes' => 'Test'
+            ]
+        );
+    }
+
+    public function addStudentNotesNotFound(ApiTester $I)
+    {
+        $I->sendPut(
+            '/instructor/groups/2000/students/1007/notes',
+            [
+                'notes' => 'Test'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function addStudentNotesWithoutPermission(ApiTester $I)
+    {
+        $I->sendPut(
+            '/instructor/groups/2007/students/1002/notes',
+            [
+                'notes' => 'Test'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+        $I->seeRecord(
+            Subscription::class,
+            [
+                'id' => 4
+            ]
+        );
+    }
+
+    public function getStudentNotes(ApiTester $I)
+    {
+        $I->sendGet('/instructor/groups/2000/students/1003/notes');
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson(
+            [
+                'notes' => 'subscription3'
+            ]
+        );
+    }
+
+    public function getStudentNotesNotFound(ApiTester $I)
+    {
+        $I->sendGet('/instructor/groups/2000/students/1007/notes');
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function addStudentNotesToPreviousSemester(ApiTester $I)
+    {
+        $I->sendPut(
+            '/instructor/groups/2010/students/1001/notes',
+            [
+                'notes' => 'Test'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+        $I->seeResponseContainsJson(
+            [
+                'message' => "You can't modify notes from a previous semester!",
+            ]
+        );
+        $I->seeRecord(
+            Subscription::class,
+            [
+                'id' => 7
+            ]
+        );
+    }
+
+    public function getStudentNotesWithoutPermission(ApiTester $I)
+    {
+        $I->sendGet('/instructor/groups/2007/students/1002/notes');
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+        $I->seeRecord(
+            Subscription::class,
+            [
+                'id' => 4
+            ]
+        );
+    }
+
     public function addStudentsGroupNotFound(ApiTester $I)
     {
         $I->sendPost(

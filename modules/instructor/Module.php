@@ -34,6 +34,8 @@ class Module extends \yii\base\Module implements BootstrapInterface
             "DELETE <module:{$this->id}>/<controller:groups>/<groupID>/instructors/<userID>" => '<module>/<controller>/delete-instructor',
             "GET <module:{$this->id}>/<controller:groups>/<groupID>/students" => '<module>/<controller>/list-students',
             "DELETE <module:{$this->id}>/<controller:groups>/<groupID>/students/<userID>" => '<module>/<controller>/delete-student',
+            "PUT <module:{$this->id}>/<controller:groups>/<groupID>/students/<userID>/notes" => '<module>/<controller>/add-student-notes',
+            "GET <module:{$this->id}>/<controller:groups>/<groupID>/students/<userID>/notes" => '<module>/<controller>/student-notes',
             "POST <module:{$this->id}>/<controller:groups>/<groupID>/students" => '<module>/<controller>/add-students',
             "GET <module:{$this->id}>/<controller:groups>/<groupID>/stats" => '<module>/<controller>/group-stats',
             "GET <module:{$this->id}>/<controller:groups>/<groupID>/students/<studentID>/stats" => '<module>/<controller>/student-stats',

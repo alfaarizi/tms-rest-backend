@@ -12,6 +12,7 @@ use Yii;
  * @property integer $groupID
  * @property integer $userID
  * @property integer $isAccepted
+ * @property string $notes
  *
  * @property User $user
  * @property Group $group
@@ -41,7 +42,8 @@ class Subscription extends \yii\db\ActiveRecord
                 'unique',
                 'targetAttribute' => ['semesterID', 'groupID', 'userID'],
                 'message' => Yii::t('app', 'This user has been already added to this group.')
-            ]
+            ],
+            [['notes'], 'string', 'max' => 500]
         ];
     }
 
@@ -56,6 +58,7 @@ class Subscription extends \yii\db\ActiveRecord
             'groupID' => Yii::t('app', 'Group ID'),
             'userID' => Yii::t('app', 'User ID'),
             'isAccepted' => Yii::t('app', 'Is Accepted'),
+            'notes' => Yii::t('app', 'Notes')
         ];
     }
 

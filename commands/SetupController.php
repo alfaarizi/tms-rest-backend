@@ -215,6 +215,7 @@ class SetupController extends BaseController
                     $subscription->groupID = Group::find()->one()->id;
                     $subscription->semesterID = Semester::find()->one()->id;
                     $subscription->isAccepted = 1;
+                    $subscription->notes = "Notes";
                     if ($subscription->save()) {
                         $this->stdout("Successfully inserted initial student course subscription." . PHP_EOL, Console::FG_GREEN);
                     } else {
