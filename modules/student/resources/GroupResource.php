@@ -5,7 +5,9 @@ namespace app\modules\student\resources;
 use app\components\openapi\generators\OAItems;
 use app\components\openapi\generators\OAProperty;
 use app\models\Group;
+use app\models\Subscription;
 use app\resources\CourseResource;
+use Yii;
 
 /**
  * Resource class for module 'Group'
@@ -33,7 +35,9 @@ class GroupResource extends Group
      */
     public function extraFields()
     {
-        return [];
+        return [
+            'notes'
+        ];
     }
 
     public function fieldTypes(): array
@@ -43,6 +47,7 @@ class GroupResource extends Group
         $types['number'] = new OAProperty(['type' => 'integer', 'nullable' => 'true']);
         $types['course'] = new OAProperty(['ref' => '#/components/schemas/Common_CourseResource_Read']);
         $types['instructorNames'] = new OAProperty(['type' => 'array', new OAItems(['type' => 'string'])]);
+        $types['notes'] = new OAProperty(['type' => 'string']);
 
         return $types;
     }
@@ -67,5 +72,19 @@ class GroupResource extends Group
     public function getCourse()
     {
         return $this->hasOne(CourseResource::class, ['id' => 'courseID']);
+    }
+
+    /**
+     * @return string
+     */
+    public function getNotes()
+    {
+        $subscription = Subscription::findOne(
+            [
+                'groupID' => $this->id,
+                'userID' => Yii::$app->user->id
+            ]);
+
+        return $subscription->notes;
     }
 }

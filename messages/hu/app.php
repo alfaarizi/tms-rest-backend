@@ -236,6 +236,10 @@ return [
     => "Beadandó feladat törlése sikertelen. Olyan feladatot nem lehet törölni, amihez már van feltöltött megoldás!",
     "Local Docker images can't be updated from registry." => "Lokális Docker képek nem frissíthetőek a registryből",
 
+    "You can't modify notes from a previous semester!" => "Előző szemeszterből származó megjegyzéseket nem lehet módosítani!",
+    "Failed to update note on subscription. Message:" => "Nem sikerült frissíteni a megyjegyzést a feliratkozáson. Üzenet:",
+    "Subscription not found for the given groupID, userID pair." => "Nem található feliratkotás a megadott groupID, userID párhoz.",
+
     "You don't have permission to view this image" => "Nincs jogosultsága a kép megtekintéséhez",
     "You can't submit multiple answers for the same question" => "Egy kérdéshez nem adható meg több válasz",
     "User not found found." => "A keresett felhasználó nem található.",
