@@ -16,7 +16,6 @@ class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
     private int $plagiarismId;
     private string $ids;
     private string $dirPath;
-    private int $count;
 
     private const STANFORD_LINK_BASE_REGEX = 'http://moss.stanford.edu/results/.*/match';
     private const STANFORD_LINK_BASE_REGEX_ABSOLUTE = '~^' . DownloadCrawler::STANFORD_LINK_BASE_REGEX . '~';
@@ -28,7 +27,6 @@ class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
         $this->plagiarismId = $id;
         $this->ids = "?id=$id&token=$token";
         $this->dirPath = $dirPath;
-        $this->count = 0;
     }
 
     /**
@@ -63,7 +61,6 @@ class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
             $this->downloadPageWithRefactor($fileName, $linkPrefix, $leftPostfix, false);
 
             $this->downloadPageWithRefactor($fileName, $linkPrefix, $rightPostfix, false);
-            $this->count += 1;
         } else {
             $linkPrefix = $linkPrefix . $path;
             $this->downloadPageWithRefactor('index.html', $linkPrefix, '', true);
@@ -137,12 +134,11 @@ class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
         if (preg_match(DownloadCrawler::STANFORD_LINK_BASE_REGEX_BOTH, $href)) {
             $href = preg_replace(
                 DownloadCrawler::STANFORD_LINK_BASE_REGEX_BOTH,
-                "./frame{$this->ids}&number={$this->count}&side=",
+                "./frame{$this->ids}&number=",
                 $href
             );
-            $href = preg_replace('/&side=.-1/', '&side=1', $href);
-            $href = preg_replace('/&side=.-0/', '&side=0', $href);
-            $href = preg_replace('/\.html/', '', $href);
+            $href = preg_replace('/-1\.html/', '&side=1', $href);
+            $href = preg_replace('/-0\.html/', '&side=0', $href);
         }
         return $href;
     }
