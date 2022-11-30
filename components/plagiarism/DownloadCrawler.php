@@ -168,5 +168,7 @@ class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
         RequestException $requestException,
         ?UriInterface $foundOnUrl = null
     ) {
+        Yii::warning('Failed to download MOSS URL: ' . $url->getPath() .
+                     ', reason: ' . $requestException->getMessage(), __CLASS__);
     }
 }
