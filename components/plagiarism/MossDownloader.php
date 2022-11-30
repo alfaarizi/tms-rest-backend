@@ -6,6 +6,8 @@ use Yii;
 use yii\base\ErrorException;
 use yii\helpers\FileHelper;
 use Spatie\Crawler\Crawler;
+use GuzzleHttp\HandlerStack;
+use GuzzleRetry\GuzzleRetryMiddleware;
 
 class MossDownloader
 {
@@ -47,11 +49,24 @@ class MossDownloader
                 $this->plagiarismToken,
                 $this->dirPath,
             );
-            Crawler::create()
+
+            // Retry on connection timeout and for 503 or 429 responses.
+            $stack = HandlerStack::create();
+            $stack->push(
+                GuzzleRetryMiddleware::factory(
+                    [
+                        'retry_on_timeout' => true,
+                        'max_retry_attempts' => 5
+                    ]
+                )
+            );
+
+            Crawler::create(['handler' => $stack])
                 ->setCrawlObserver($observer)
                 ->setCrawlProfile(new MossCrawlFilter())
                 ->acceptNofollowLinks()
                 ->ignoreRobots()
+                ->setDelayBetweenRequests(50)
                 ->startCrawling($this->url);
         } catch (ErrorException $e) {
             return false;
