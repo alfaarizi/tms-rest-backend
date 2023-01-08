@@ -2,9 +2,12 @@
 
 namespace app\models;
 
+use app\components\openapi\generators\OAList;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
-use Yii;
+use app\components\plagiarism\JPlagPlagiarismFinder;
+use app\components\plagiarism\MossPlagiarismFinder;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "plagiarisms".
@@ -20,12 +23,18 @@ use Yii;
  * @property integer $semesterID
  * @property string $name
  * @property string $description
- * @property string $response
- * @property integer $ignoreThreshold
  * @property string $baseFileIDs
+ * @property string|null $generateTime The time the plagiarism check was created (not executed; may be missing for older checks)
+ * @property string $type The service used for this plagiarism check (`moss` or `jplag`)
  *
  * @property-read Semester $semester
  * @property-read User $requester
+ * @property-read MossPlagiarism|null $moss The object containing Moss-specific configuration of the plagiarism check
+ *  (if it is a Moss check)
+ * @property-read JPlagPlagiarism|null $jplag The object containing JPlag-specific configuration of the plagiarism check
+ *  (if it is a JPlag check)
+ * @property-read StudentFile[] $studentFiles The [[StudentFile]] objects connected to this plagiarism check
+ * @property-read bool $hasBaseFiles Whether there are any [[PlagiarismBasefile]] objects connected to this plagiarism check
  * @property-read PlagiarismBasefile[] $baseFiles The [[PlagiarismBasefile]] objects connected to this plagiarism check
  *
  * ToDo:
@@ -34,6 +43,23 @@ use Yii;
 class Plagiarism extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     public const SCENARIO_UPDATE = 'update';
+    public const POSSIBLE_TYPES = [MossPlagiarism::ID, JPlagPlagiarism::ID];
+
+    /**
+     * Get available plagiarism types.
+     * @return string[] Internal names of the available types
+     */
+    public static function getAvailableTypes(): array
+    {
+        $types = [];
+        if (MossPlagiarismFinder::isEnabled()) {
+            $types[] = MossPlagiarism::ID;
+        }
+        if (JPlagPlagiarismFinder::isEnabled()) {
+            $types[] = JPlagPlagiarism::ID;
+        }
+        return $types;
+    }
 
     /**
      * @inheritdoc
@@ -60,15 +86,13 @@ class Plagiarism extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public function rules()
     {
         return [
-            [['requesterID', 'taskIDs', 'userIDs', 'semesterID', 'name', 'ignoreThreshold'], 'required'],
-            [['requesterID', 'semesterID', 'ignoreThreshold'], 'integer'],
+            [['requesterID', 'taskIDs', 'userIDs', 'semesterID', 'name', 'type'], 'required'],
+            [['requesterID', 'semesterID'], 'integer'],
             [['token'], 'string', 'length' => 32],
             [['taskIDs', 'userIDs', 'baseFileIDs'], 'string', 'max' => 65535],
-            [['response'], 'string', 'max' => 300],
             [['name'], 'string', 'max' => 30],
-            [['ignoreThreshold'], 'integer', 'min' => 1, 'max' => 1000],
-            ['ignoreThreshold', 'default', 'value' => 10],
             [['description'], 'string'],
+            [['type'], 'in', 'range' => Plagiarism::POSSIBLE_TYPES],
             [
                 ['semesterID'],
                 'exist',
@@ -100,9 +124,8 @@ class Plagiarism extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'semesterID' => 'Semester ID',
             'name' => 'Name',
             'description' => 'Description',
-            'response' => 'Response',
-            'ignoreThreshold' => 'Ignore threshold',
             'baseFileIDs' => 'Base file IDs',
+            'type' => 'Type',
         ];
     }
 
@@ -117,10 +140,8 @@ class Plagiarism extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'semesterID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'name' => new OAProperty(['type' => 'string']),
             'description' => new OAProperty(['type' => 'string']),
-            'response' => new OAProperty(['type' => 'string', 'deprecated' => 'true']),
-            'url' => new OAProperty(['type' => 'string']),
-            'ignoreThreshold' => new OAProperty(['type' => 'integer']),
             'baseFileIDs' => new OAProperty(['ref' => '#/components/schemas/int_id_list']),
+            'type' => new OAProperty(['type' => 'string', 'enum' => new OAList(Plagiarism::POSSIBLE_TYPES)]),
         ];
     }
 
@@ -134,12 +155,37 @@ class Plagiarism extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         return $this->hasOne(User::class, ['id' => 'requesterID']);
     }
 
+    public function getJplag(): ActiveQuery
+    {
+        return $this->hasOne(JPlagPlagiarism::class, ['plagiarismId' => 'id']);
+    }
+
+    public function getMoss(): ActiveQuery
+    {
+        return $this->hasOne(MossPlagiarism::class, ['plagiarismId' => 'id']);
+    }
+
+    public function getStudentFiles(): ActiveQuery
+    {
+        $query = StudentFile::find()->where([
+            'uploaderID' => explode(',', $this->userIDs),
+            'taskID' => explode(',', $this->taskIDs),
+        ]);
+        $query->multiple = true;
+        return $query;
+    }
+
+    public function getHasBaseFiles(): bool
+    {
+        return (bool)$this->baseFileIDs;
+    }
+
     /**
      * Get the [[PlagiarismBasefile]] objects connected to this plagiarism check.
      * @return \app\models\BaseFile[]
      */
     public function getBaseFiles(): array
     {
-        return PlagiarismBasefile::findAll(explode(',', $this->baseFileIDs));
+        return $this->hasBaseFiles ? PlagiarismBasefile::findAll(explode(',', $this->baseFileIDs)) : [];
     }
 }

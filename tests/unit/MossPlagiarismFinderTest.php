@@ -2,7 +2,10 @@
 
 namespace app\tests\unit;
 
+use app\components\plagiarism\Moss;
+use app\components\plagiarism\MossDownloader;
 use app\components\plagiarism\MossPlagiarismFinder;
+use app\tests\unit\fixtures\MossPlagiarismFixture;
 use app\tests\unit\fixtures\PlagiarismFixture;
 use app\tests\unit\fixtures\StudentFilesFixture;
 use Yii;
@@ -12,19 +15,28 @@ use Yii;
  */
 class MossPlagiarismFinderTest extends \Codeception\Test\Unit
 {
-    /**
-     * @var \UnitTester
-     */
-    protected $tester;
+    protected \UnitTester $tester;
 
     /** @var string[] The arguments Moss::addByWildcard() got */
-    private $byWildcardArgs = [];
+    private array $byWildcardArgs = [];
     /** @var string[] The arguments Moss::addBaseFile() got */
-    private $baseFileArgs = [];
+    private array $baseFileArgs = [];
 
     protected function _before()
     {
         $this->byWildcardArgs = $this->baseFileArgs = [];
+        Yii::$container->set(Moss::class, fn () => $this->makeEmpty(Moss::class, [
+            'getAllowedExtensions' => ['c'],
+            'getExtensionLanguages' => ['c'],
+            'getLanguageExtensions' => ['c'],
+            'addByWildcard' => function ($path) {
+                $this->byWildcardArgs[] = $path;
+            },
+            'addBaseFile' => function ($file) {
+                $this->baseFileArgs[] = $file;
+            },
+        ]));
+        Yii::$container->set(MossDownloader::class, fn () => $this->makeEmpty(MossDownloader::class));
         $this->tester->deleteDir(Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
         $this->tester->copyDir(codecept_data_dir('appdata_samples'), Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
     }
@@ -40,6 +52,9 @@ class MossPlagiarismFinderTest extends \Codeception\Test\Unit
             'plagiarisms' => [
                 'class' => PlagiarismFixture::class,
             ],
+            'plagiarisms_moss' => [
+                'class' => MossPlagiarismFixture::class,
+            ],
             'studentfiles' => [
                 'class' => StudentFilesFixture::class,
             ],
@@ -48,8 +63,8 @@ class MossPlagiarismFinderTest extends \Codeception\Test\Unit
 
     private function getFinder(string $fixtureIndex): MossPlagiarismFinder
     {
-        $plagiarismId = $this->tester->grabFixture('plagiarisms', $fixtureIndex)->id;
-        return new TestableMossPlagiarismFinder($plagiarismId, $this, $this->byWildcardArgs, $this->baseFileArgs);
+        $plagiarism = $this->tester->grabFixture('plagiarisms', $fixtureIndex);
+        return Yii::$container->get(MossPlagiarismFinder::class, [$plagiarism]);
     }
 
     public function testBasic()

@@ -47,12 +47,11 @@ class Module extends \yii\base\Module implements BootstrapInterface
             "PATCH <module:{$this->id}>/<controller:tasks>/<id>/update-docker-image" => '<module>/<controller>/update-docker-image',
             "POST <module:{$this->id}>/<controller:tasks>/<id>/setup-code-compass-parser" => '<module>/<controller>/setup-code-compass-parser',
 
-
             // instructor/tasks/{id}/evaluator
             "<module:{$this->id}>/tasks/<id>/<controller:evaluator>/<action>" => '<module>/<controller>/<action>',
 
             // instructor/plagiarism
-            "POST <module:{$this->id}>/<controller:plagiarism>/<id>/run-moss" => '<module>/<controller>/run-moss',
+            "POST <module:{$this->id}>/<controller:plagiarism>/<id>/run" => '<module>/<controller>/run',
 
             // instructor/plagiarism-basefile
             "GET <module:{$this->id}>/<controller:plagiarism-basefile>/<id>/download" => '<module>/<controller>/download',

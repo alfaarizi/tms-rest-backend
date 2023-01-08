@@ -2,9 +2,12 @@
 
 namespace app\modules\instructor\controllers;
 
-use app\components\plagiarism\MossDownloader;
+use app\components\plagiarism\AbstractPlagiarismFinder;
+use app\models\MossPlagiarism;
 use app\modules\instructor\resources\PlagiarismResource;
 use Yii;
+use yii\filters\Cors;
+use yii\helpers\FileHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -18,6 +21,9 @@ class PlagiarismResultController extends Controller
     {
         $behaviors = parent::behaviors();
         unset($behaviors['authenticator']);
+        $behaviors['corsFilter'] = [
+            'class' => Cors::class,
+        ];
         return $behaviors;
     }
 
@@ -55,8 +61,8 @@ class PlagiarismResultController extends Controller
      */
     public function actionIndex(int $id, string $token)
     {
-        $this->checkPlagiarism($id, $token);
-        return $this->renderPlagiarismFile($id, 'index.html');
+        $plagiarism = $this->checkPlagiarism($id, $token);
+        return $this->renderPlagiarismFile($id, $plagiarism->typeSpecificData->getMainFileName());
     }
 
     /**
@@ -113,7 +119,7 @@ class PlagiarismResultController extends Controller
             case 'top':
             case '0':
             case '1':
-                $this->checkPlagiarism($id, $token);
+                $this->checkPlagiarism($id, $token, MossPlagiarism::ID);
                 return $this->renderPlagiarismFile($id, "match$number-$side.html");
             default:
                 throw new BadRequestHttpException("The 'side' parameter must be 'top', '0' or '1'");
@@ -162,7 +168,7 @@ class PlagiarismResultController extends Controller
      */
     public function actionMatch(int $id, string $token, int $number)
     {
-        $this->checkPlagiarism($id, $token);
+        $this->checkPlagiarism($id, $token, MossPlagiarism::ID);
 
         return $this->renderPartial(
             '//plagiarismResult',
@@ -182,21 +188,32 @@ class PlagiarismResultController extends Controller
      */
     private function renderPlagiarismFile(int $id, string $path)
     {
-        $content = MossDownloader::getPlagiarismDir($id) . "/$path";
+        $content = AbstractPlagiarismFinder::getResultDirectory($id) . "/$path";
         if (!file_exists($content) || !is_readable($content)) {
             throw new NotFoundHttpException('The requested HTML file could not be found.');
         }
-        return $this->renderFile($content);
+        $mime = FileHelper::getMimeType($content);
+        $options = [
+            'inline' => true,
+            'mimeType' => strpos($mime, 'text/') === 0 ? "$mime; charset=UTF-8" : $mime,
+        ];
+        return Yii::$app->response->sendFile($content, null, $options);
     }
 
     /**
      * Find a plagiarism with the given IDs, and finish the request
      * handling immediately with a 404 status code if not found.
+     * @param int $id
+     * @param string $token
+     * @param string|null $type Expected type of the plagiarism, or `null` to disable type check
      * @throws NotFoundHttpException if the plagiarism doesn’t exist, or the secondary ID doesn’t match.
      */
-    private function checkPlagiarism(int $id, string $token): void
+    private function checkPlagiarism(int $id, string $token, ?string $type = null): PlagiarismResource
     {
-        if (!PlagiarismResource::findOne(['id' => $id, 'token' => $token])) {
+        $plagiarism = PlagiarismResource::findOne(['id' => $id, 'token' => $token]);
+        if ($plagiarism !== null && ($type === null || $plagiarism->type === $type)) {
+            return $plagiarism;
+        } else {
             throw new NotFoundHttpException(Yii::t('app', 'The plagiarism check does not exist, or the authorization token is incorrect.'));
         }
     }
