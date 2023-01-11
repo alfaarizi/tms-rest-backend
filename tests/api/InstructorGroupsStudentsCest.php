@@ -165,6 +165,7 @@ class InstructorGroupsStudentsCest
                 'notes' => 'Test'
             ]
         );
+        $I->seeEmailIsSent(1);
     }
 
     public function addStudentNotesNotFound(ApiTester $I)
