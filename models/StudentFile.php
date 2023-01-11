@@ -6,6 +6,7 @@ use app\behaviors\ISODateTimeBehavior;
 use app\components\openapi\generators\OAList;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
+use app\models\queries\StudentFileQuery;
 use Yii;
 use yii\helpers\StringHelper;
 
@@ -183,6 +184,15 @@ class StudentFile extends File implements IOpenApiFieldTypes
         parent::afterFind();
         // Convert integer (0 or 1) values to boolean values for consistency
         $this->verified = ($this->verified == 1);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return StudentFileQuery the active query used by this class.
+     */
+    public static function find()
+    {
+        return new StudentFileQuery(get_called_class());
     }
 
     /**
