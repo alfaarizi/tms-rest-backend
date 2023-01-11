@@ -77,5 +77,8 @@ return [
     'Your username: {username}' => 'A felhasználóneved: {username}',
     'Your password: {password}' => 'A jelszavad: {password}',
     'CodeCompass started' => 'CodeCompass elindult',
-    'Your requested CodeCompass instance has now been started for the solution of {name} course: {course}.' => 'A korábban kért CodeCompass szerver elindult. Hallgató: {name}, kurzus: {course}.'
+    'Your requested CodeCompass instance has now been started for the solution of {name} course: {course}.' => 'A korábban kért CodeCompass szerver elindult. Hallgató: {name}, kurzus: {course}.',
+    'Notes' => 'Megjegyzések',
+    'New notes were added' => 'Új megjegyzések lettek hozzáadva',
+    'New Notes' => 'Új megjegyzések'
 ];

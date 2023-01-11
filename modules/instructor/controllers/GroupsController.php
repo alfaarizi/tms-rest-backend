@@ -1171,7 +1171,6 @@ class GroupsController extends BaseInstructorRestController
                 'userID' => $userID
 
             ]);
-
         // Check if the subscription exists
         if (is_null($subscription)) {
             throw new NotFoundHttpException(Yii::t('app','Subscription not found for the given groupID, userID pair.'));
@@ -1201,6 +1200,19 @@ class GroupsController extends BaseInstructorRestController
         $subscription->notes = $model->notes;
 
         if ($subscription->save()) {
+            // E-mail notification
+            if ($subscription->user->notificationEmail) {
+                $originalLanguage = Yii::$app->language;
+                Yii::$app->language = $subscription->user->locale;
+                Yii::$app->mailer->compose('student/updatedPersonalNotes', [
+                    'subscription' => $subscription,
+                ])
+                    ->setFrom(Yii::$app->params['systemEmail'])
+                    ->setTo($subscription->user->notificationEmail)
+                    ->setSubject(Yii::t('app/mail', 'New notes'))
+                    ->send();
+                Yii::$app->language = $originalLanguage;
+            }
             return $model;
         } elseif ($subscription->hasErrors()) {
             $this->response->statusCode = 422;
