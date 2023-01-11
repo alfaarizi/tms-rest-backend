@@ -225,6 +225,7 @@ return [
 
     "Task not found." => "A feladat nem található.",
     "Group not found." => "A csoport nem található.",
+    "Semester not found." => "A szemeszter nem található.",
     "Instructor File not found." => "Az oktatói állomány nem található.",
     "Instructor File not available." => "Az oktatói állomány nem elérhető.",
     "The combination of Group Number, Course ID and Semester ID has already been taken." => "Ez csoport kód, kurzus, és szemeszter kombináció már foglalt.",

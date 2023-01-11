@@ -26,6 +26,15 @@ class GroupQuery extends ActiveQuery
     }
 
     /**
+     * @param $semesterID
+     * @return GroupQuery
+     */
+    public function findBySemester($semesterID)
+    {
+        return $this->andWhere(['semesterID' => $semesterID]);
+    }
+
+    /**
      * @param $studentID
      * @param $semesterID
      * @return GroupQuery

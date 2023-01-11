@@ -27,6 +27,15 @@ class TaskQuery extends ActiveQuery
     }
 
     /**
+     * @param $semesterID
+     * @return TaskQuery
+     */
+    public function findBySemester($semesterID)
+    {
+        return $this->andWhere(['semesterID' => $semesterID]);
+    }
+
+    /**
      * Include student files for the tasks
      * @param int $userID
      * @return TaskQuery
@@ -122,5 +131,17 @@ class TaskQuery extends ActiveQuery
         }
 
         return $this->andWhere($condition);
+    }
+
+    /**
+     * Find tasks with automatic testing enabled
+     * @return TaskQuery
+     */
+    public function autoTestEnabled()
+    {
+        return $this->andWhere(['autoTest' => 1])
+            ->andWhere(['not', ['imageName' => null]])
+            ->andWhere(['not', ['compileInstructions' => null]])
+            ->andWhere(['not', ['appType' => Task::APP_TYPE_WEB]]);
     }
 }

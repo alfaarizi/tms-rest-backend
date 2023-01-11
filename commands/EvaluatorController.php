@@ -29,13 +29,10 @@ class EvaluatorController extends BaseController
 
         // Get the IDs of tasks with autoTest enabled.
         $IDs = array_keys(
-            (new \yii\db\Query())
+            Task::find()
                 ->select('id')
-                ->from('{{%tasks}}')
-                ->where(['autoTest' => 1])
-                ->andWhere(['not', ['imageName' => null]])
-                ->andWhere(['not', ['compileInstructions' => null]])
-                ->andWhere(['not', ['appType' => Task::APP_TYPE_WEB]])
+                ->autoTestEnabled()
+                ->asArray()
                 ->indexBy('id')
                 ->all()
         );
@@ -51,13 +48,7 @@ class EvaluatorController extends BaseController
 
                 // Find the oldest untested studentFile.
                 $studentFile = StudentFile::find()
-                    ->where(
-                        [
-                            'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
-                            'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_NOT_TESTED,
-                            'taskID' => $IDs
-                        ]
-                    )
+                    ->notTested($IDs)
                     ->orderBy(['uploadCount' => SORT_ASC, 'uploadTime' => SORT_ASC])
                     ->one();
 

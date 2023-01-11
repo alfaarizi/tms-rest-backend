@@ -71,7 +71,9 @@ return [
         'description' => 'Description',
         'createrID' => 1006,
         'isVersionControlled' => 0,
-        'autoTest' => 0,
+        'autoTest' => 1,
+        'imageName' => 'image',
+        'compileInstructions' => 'instructions',
         'showFullErrorMsg' => 0,
     ],
     'task6' => [
