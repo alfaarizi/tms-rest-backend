@@ -24,7 +24,7 @@ use yii\helpers\StringHelper;
  * @property float $grade
  * @property string $notes
  * @property integer $graderID
- * @property string $evaluatorStatus
+ * @property string $autoTesterStatus
  * @property string $errorMsg
  * @property integer $canvasID
  * @property integer $uploadCount
@@ -40,24 +40,24 @@ class StudentFile extends File implements IOpenApiFieldTypes
 {
     public const SCENARIO_GRADE = 'grade';
 
-    public const EVALUATOR_STATUS_NOT_TESTED = 'Not Tested';
-    public const EVALUATOR_STATUS_LEGACY_FAILED = 'Legacy Failed';
-    public const EVALUATOR_STATUS_INITIATION_FAILED = 'Initiation Failed';
-    public const EVALUATOR_STATUS_COMPILATION_FAILED = 'Compilation Failed';
-    public const EVALUATOR_STATUS_EXECUTION_FAILED = 'Execution Failed';
-    public const EVALUATOR_STATUS_TESTS_FAILED = 'Tests Failed';
-    public const EVALUATOR_STATUS_PASSED = 'Passed';
-    public const EVALUATOR_STATUS_IN_PROGRESS = 'In Progress';
+    public const AUTO_TESTER_STATUS_NOT_TESTED = 'Not Tested';
+    public const AUTO_TESTER_STATUS_LEGACY_FAILED = 'Legacy Failed';
+    public const AUTO_TESTER_STATUS_INITIATION_FAILED = 'Initiation Failed';
+    public const AUTO_TESTER_STATUS_COMPILATION_FAILED = 'Compilation Failed';
+    public const AUTO_TESTER_STATUS_EXECUTION_FAILED = 'Execution Failed';
+    public const AUTO_TESTER_STATUS_TESTS_FAILED = 'Tests Failed';
+    public const AUTO_TESTER_STATUS_PASSED = 'Passed';
+    public const AUTO_TESTER_STATUS_IN_PROGRESS = 'In Progress';
 
-    public const EVALUATOR_STATUS_VALUES = [
-        self::EVALUATOR_STATUS_NOT_TESTED,
-        self::EVALUATOR_STATUS_LEGACY_FAILED,
-        self::EVALUATOR_STATUS_INITIATION_FAILED,
-        self::EVALUATOR_STATUS_COMPILATION_FAILED,
-        self::EVALUATOR_STATUS_EXECUTION_FAILED,
-        self::EVALUATOR_STATUS_TESTS_FAILED,
-        self::EVALUATOR_STATUS_PASSED,
-        self::EVALUATOR_STATUS_IN_PROGRESS,
+    public const AUTO_TESTER_STATUS_VALUES = [
+        self::AUTO_TESTER_STATUS_NOT_TESTED,
+        self::AUTO_TESTER_STATUS_LEGACY_FAILED,
+        self::AUTO_TESTER_STATUS_INITIATION_FAILED,
+        self::AUTO_TESTER_STATUS_COMPILATION_FAILED,
+        self::AUTO_TESTER_STATUS_EXECUTION_FAILED,
+        self::AUTO_TESTER_STATUS_TESTS_FAILED,
+        self::AUTO_TESTER_STATUS_PASSED,
+        self::AUTO_TESTER_STATUS_IN_PROGRESS,
     ];
 
     public const IS_ACCEPTED_UPLOADED = 'Uploaded';
@@ -114,7 +114,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public function rules()
     {
         return [
-            [['name', 'path', 'taskID', 'uploaderID', 'isAccepted', 'evaluatorStatus', 'verified'], 'required'],
+            [['name', 'path', 'taskID', 'uploaderID', 'isAccepted', 'autoTesterStatus', 'verified'], 'required'],
             [['uploadTime'], 'safe'],
             [['taskID', 'uploaderID', 'graderID'], 'integer'],
             [['isAccepted'], 'string'],
@@ -124,8 +124,8 @@ class StudentFile extends File implements IOpenApiFieldTypes
             [['isVersionControlled', 'verified'], 'boolean'],
             [['errorMsg'], 'string'],
             ['isAccepted', 'in', 'range' => self::IS_ACCEPTED_VALUES, 'on' => self::SCENARIO_GRADE],
-            ['evaluatorStatus', 'in', 'range' => self::EVALUATOR_STATUS_VALUES],
-            ['evaluatorStatus', 'validateEvaluatorStatus'],
+            ['autoTesterStatus', 'in', 'range' => self::AUTO_TESTER_STATUS_VALUES],
+            ['autoTesterStatus', 'validateAutoTesterStatus'],
         ];
     }
 
@@ -148,7 +148,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
             'graderID' => Yii::t('app', 'Graded By'),
             'errorMsg' => Yii::t('app', 'Error Message'),
             'canvasID' => Yii::t('app', 'Canvas id'),
-            'evaluatorStatus' => Yii::t('app', 'Evaluator status'),
+            'autoTesterStatus' => Yii::t('app', 'Automatic tester status'),
             'uploadCount' => Yii::t('app', 'Upload Count'),
             'verified' => Yii::t('app', 'Verified'),
         ];
@@ -164,7 +164,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
             'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'uploaderID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'isAccepted' => new OAProperty(['type' => 'string',  'enum' => new OAList(self::IS_ACCEPTED_VALUES)]),
-            'evaluatorStatus' => new OAProperty(['type' => 'string',  'enum' => new OAList(self::EVALUATOR_STATUS_VALUES)]),
+            'autoTesterStatus' => new OAProperty(['type' => 'string',  'enum' => new OAList(self::AUTO_TESTER_STATUS_VALUES)]),
             'translatedIsAccepted' => new OAProperty(['type' => 'string']),
             'isVersionControlled' => new OAProperty(['type' => 'string']),
             'grade' => new OAProperty(['type' => 'number', 'format' => 'float']),
@@ -204,31 +204,31 @@ class StudentFile extends File implements IOpenApiFieldTypes
      * @param $validator
      * @return void
      */
-    public function validateEvaluatorStatus($attribute, $params, $validator)
+    public function validateAutoTesterStatus($attribute, $params, $validator)
     {
         if (
-            $this->isAccepted === self::IS_ACCEPTED_PASSED && $this->evaluatorStatus !== self::EVALUATOR_STATUS_PASSED ||
-            $this->isAccepted !== self::IS_ACCEPTED_UPLOADED && $this->evaluatorStatus === self::EVALUATOR_STATUS_IN_PROGRESS
+            $this->isAccepted === self::IS_ACCEPTED_PASSED && $this->autoTesterStatus !== self::AUTO_TESTER_STATUS_PASSED ||
+            $this->isAccepted !== self::IS_ACCEPTED_UPLOADED && $this->autoTesterStatus === self::AUTO_TESTER_STATUS_IN_PROGRESS
         ) {
             $this->addError(
-                'evaluatorStatus',
-                Yii::t('app', 'The current values of evaluatorStatus and isAccepted are not valid'),
+                'autoTesterStatus',
+                Yii::t('app', 'The current values of autoTesterStatus and isAccepted are not valid'),
             );
             return;
         }
 
         if ($this->isAccepted === self::IS_ACCEPTED_FAILED) {
-            switch ($this->evaluatorStatus) {
-                case self::EVALUATOR_STATUS_LEGACY_FAILED:
-                case self::EVALUATOR_STATUS_INITIATION_FAILED:
-                case self::EVALUATOR_STATUS_COMPILATION_FAILED:
-                case self::EVALUATOR_STATUS_EXECUTION_FAILED:
-                case self::EVALUATOR_STATUS_TESTS_FAILED:
+            switch ($this->autoTesterStatus) {
+                case self::AUTO_TESTER_STATUS_LEGACY_FAILED:
+                case self::AUTO_TESTER_STATUS_INITIATION_FAILED:
+                case self::AUTO_TESTER_STATUS_COMPILATION_FAILED:
+                case self::AUTO_TESTER_STATUS_EXECUTION_FAILED:
+                case self::AUTO_TESTER_STATUS_TESTS_FAILED:
                     return;
                 default:
                     $this->addError(
-                        'evaluatorStatus',
-                        Yii::t('app', 'The current values of evaluatorStatus and isAccepted are not valid'),
+                        'autoTesterStatus',
+                        Yii::t('app', 'The current values of autoTesterStatus and isAccepted are not valid'),
                     );
                     return;
             }
@@ -358,34 +358,34 @@ class StudentFile extends File implements IOpenApiFieldTypes
      */
     public function getSafeErrorMsg(): ?string
     {
-        switch ($this->evaluatorStatus) {
-            case self::EVALUATOR_STATUS_NOT_TESTED:
+        switch ($this->autoTesterStatus) {
+            case self::AUTO_TESTER_STATUS_NOT_TESTED:
                 return null;
-            case self::EVALUATOR_STATUS_LEGACY_FAILED:
+            case self::AUTO_TESTER_STATUS_LEGACY_FAILED:
                 // Show errorMsg for old tasks, because it is now always possible to determine the status for them
                 return $this->errorMsg;
-            case self::EVALUATOR_STATUS_INITIATION_FAILED:
+            case self::AUTO_TESTER_STATUS_INITIATION_FAILED:
                 return $this->task->showFullErrorMsg
                     ? $this->errorMsg
                     : Yii::t('app', 'The testing environment could\'t be initialized');
-            case self::EVALUATOR_STATUS_COMPILATION_FAILED:
+            case self::AUTO_TESTER_STATUS_COMPILATION_FAILED:
                 return $this->task->showFullErrorMsg
                     ? $this->errorMsg
                     : Yii::t('app', 'The solution didn\'t compile');
-            case self::EVALUATOR_STATUS_EXECUTION_FAILED:
+            case self::AUTO_TESTER_STATUS_EXECUTION_FAILED:
                 return $this->task->showFullErrorMsg
                     ? $this->errorMsg
                     : Yii::t('app', 'Some error happened executing the program');
-            case self::EVALUATOR_STATUS_TESTS_FAILED:
+            case self::AUTO_TESTER_STATUS_TESTS_FAILED:
                 return $this->task->showFullErrorMsg
                     ? $this->errorMsg
                     : Yii::t('app', 'Your solution failed the tests');
-            case self::EVALUATOR_STATUS_PASSED:
+            case self::AUTO_TESTER_STATUS_PASSED:
                 return Yii::t('app', 'Your solution passed the tests');
-            case self::EVALUATOR_STATUS_IN_PROGRESS:
+            case self::AUTO_TESTER_STATUS_IN_PROGRESS:
                 return Yii::t('app', 'Your solution is being tested');
             default:
-                throw new \UnexpectedValueException('Invalid evaluatorStatus');
+                throw new \UnexpectedValueException('Invalid autoTesterStatus');
         }
     }
 }

@@ -336,7 +336,7 @@ class InstructorStudentFilesCest
             [
                 'id' => 2,
                 'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
-                'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_NOT_TESTED,
+                'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
                 'grade' => 5,
                 'notes' => 'Note',
             ]

@@ -81,7 +81,7 @@ class GitController extends BaseRestController
             // Set details
             $studentfile->taskID = $taskid;
             $studentfile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
-            $studentfile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
+            $studentfile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
             $studentfile->uploaderID = $studentid;
             $studentfile->name = strtolower($student->neptun) . '.zip';
             $studentfile->grade = null;
@@ -119,7 +119,7 @@ class GitController extends BaseRestController
             $studentfile->name = strtolower($student->neptun) . '.zip';
             $studentfile->uploadTime = date('Y-m-d H:i:s');
             $studentfile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
-            $studentfile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
+            $studentfile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
             $studentfile->uploadCount++;
             $studentfile->verified = true;
             // Save it to the db.

@@ -133,7 +133,7 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
             $this->tester->cantSeeRecord(WebAppExecution::class, ['port' => 8009]);
 
             $record = $this->tester->grabRecord(StudentFile::class, ['id' => 4]);
-            self::assertEquals('Compilation Failed', $record->evaluatorStatus);
+            self::assertEquals('Compilation Failed', $record->autoTesterStatus);
             self::assertEquals('Failed', $record->isAccepted);
             self::assertEquals('out' . PHP_EOL . 'err', $record->errorMsg);
         });

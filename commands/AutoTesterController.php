@@ -13,7 +13,7 @@ use yii\helpers\Console;
 use yii\console\ExitCode;
 use yii\console\widgets\Table;
 
-class EvaluatorController extends BaseController
+class AutoTesterController extends BaseController
 {
     /**
      * Runs the automatic tester on the oldest uploaded studentfile.
@@ -23,7 +23,7 @@ class EvaluatorController extends BaseController
     public function actionCheck($count = 1)
     {
         if (!Yii::$app->params['evaluator']['enabled']) {
-            $this->stderr('Automatic evaluator is disabled in configuration.' . PHP_EOL, Console::FG_RED);
+            $this->stderr('Evaluator is disabled in configuration.' . PHP_EOL, Console::FG_RED);
             return ExitCode::CONFIG;
         }
 
@@ -74,7 +74,7 @@ class EvaluatorController extends BaseController
             } while (!$jobFound);
 
             // Mark solution testing as being under execution / in progress
-            $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_IN_PROGRESS;
+            $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS;
             $studentFile->save();
 
             // Set locale based on student preference
@@ -95,19 +95,19 @@ class EvaluatorController extends BaseController
             if (!$result['initialized']) {
                 $errorMsg = $result['initiationError'];
                 $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-                $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_INITIATION_FAILED;
+                $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED;
                 $studentFile->errorMsg = $errorMsg;
                 // If the solution didn't compile
             } elseif (!$result['compiled']) {
                 $errorMsg = $result['compilationError'];
                 $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-                $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED;
+                $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED;
                 $studentFile->errorMsg = $errorMsg;
                 // If there were errors executing the program
             } elseif ($result['error'] && $result['compiled']) {
                 $errorMsg = $result['errorMsg'];
                 $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-                $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_EXECUTION_FAILED;
+                $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED;
                 $studentFile->errorMsg = $errorMsg;
                 // If the solution compiled and there were no errors
             } else {
@@ -115,12 +115,12 @@ class EvaluatorController extends BaseController
                     // If the solution passed
                     if ($result['passed']) {
                         $studentFile->isAccepted = StudentFile::IS_ACCEPTED_PASSED;
-                        $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_PASSED;
+                        $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
                         $studentFile->errorMsg = null;
                     } else {
                         $errorMsg = $result['errorMsg'];
                         $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-                        $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_TESTS_FAILED;
+                        $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED;
                         $studentFile->errorMsg = $errorMsg;
                     }
                 }

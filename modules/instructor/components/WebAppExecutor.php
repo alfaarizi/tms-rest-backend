@@ -164,7 +164,7 @@ class WebAppExecutor
             throw new WebAppExecutionException(Yii::t('app', 'Only Web application task types are executable.'), WebAppExecutionException::$PREPARATION_FAILURE);
         }
 
-        if ($studentFile->evaluatorStatus == StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED) {
+        if ($studentFile->autoTesterStatus == StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED) {
             Yii::info("Won\'t start web for student file [$studentFile->id] because latest compilation failed.");
             throw new WebAppExecutionException(Yii::t('app', 'The latest submission failed to compile.'), WebAppExecutionException::$PREPARATION_FAILURE);
         }
@@ -233,7 +233,7 @@ class WebAppExecutor
     {
         $errorMsg = !is_null($e->getPrevious()) ? $e->getPrevious()->getMessage() : $e->getMessage();
         $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-        $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_INITIATION_FAILED;
+        $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED;
         $studentFile->errorMsg = $errorMsg;
         $studentFile->save();
     }
@@ -250,7 +250,7 @@ class WebAppExecutor
         //TODO: should update conditionally based on previous values
         $errorMsg = (!empty($e->getStdout()) ? $e->getStdout() . PHP_EOL : '') . $e->getStderr();
         $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-        $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED;
+        $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED;
         $studentFile->errorMsg = $errorMsg;
         $studentFile->save();
     }

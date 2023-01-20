@@ -20,8 +20,8 @@ $schedule->command('canvas/synchronize-prioritized ' . $schedulingParams['canvas
          ->everyNMinutes($schedulingPeriods['canvasSynchronizePrioritized'])
          ->withoutOverlapping();
 
-$schedule->command('evaluator/check ' . $schedulingParams['evaluatorCheckTasksNumber'])
-         ->everyNMinutes($schedulingPeriods['evaluatorCheck'])
+$schedule->command('auto-tester/check ' . $schedulingParams['autoTesterCheckTasksNumber'])
+         ->everyNMinutes($schedulingPeriods['autoTesterCheck'])
          ->withoutOverlapping();
 
 $schedule->command('code-compass/clear-cached-images')

@@ -76,6 +76,7 @@ return [
                 'os' => 'linux',
                 'appType' => 'Console',
                 'image' => 'mcserep/elte:ubuntu-2004',
+                'autoTest' => true,
                 'compileInstructions' =>
                     '# Remove spaces from directory and file names' . PHP_EOL .
                     'find -name "* *" -type d | rename \'s/ /_/g\'' . PHP_EOL .
@@ -90,6 +91,7 @@ return [
                 'os' => 'linux',
                 'appType' => 'Console',
                 'image' => 'mcserep/elte:ubuntu-2004-qt5',
+                'autoTest' => true,
                 'compileInstructions' => '/build.sh' . PHP_EOL .
                     '# Built-in script that looks for Qt projects (Qt Creator, CMake) and build them.',
                 'runInstructions' => '',
@@ -99,6 +101,7 @@ return [
                 'os' => 'windows',
                 'appType' => 'Console',
                 'image' => 'mcserep/elte:dotnet-60',
+                'autoTest' => true,
                 'compileInstructions' => 'C:\\build.ps1' . PHP_EOL .
                     '# Built-in script that looks for .NET Core projects (.sln files) and build them.',
                 'runInstructions' => '',
@@ -130,7 +133,7 @@ return [
         'periods' => [
             'canvasSynchronizePrioritized' => 5, // in minutes
             'systemClearExpiredAccessTokens' => 7, // in days
-            'evaluatorCheck' => 5, // in minutes
+            'autoTesterCheck' => 5, // in minutes
             'ccClearCachedImages' => 30, // in days
             'ccStartWaitingContainer' => 10, // in minutes
             'ccStopExpiredContainers' => 10, // in minutes
@@ -141,7 +144,7 @@ return [
             'nDigestOncomingTaskDeadlines' => '7:00',
         ],
         'params' => [
-            'evaluatorCheckTasksNumber' => 50,
+            'autoTesterCheckTasksNumber' => 50,
             'canvasSynchronizePrioritizedNumber' => 5,
         ],
     ],

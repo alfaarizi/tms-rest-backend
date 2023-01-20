@@ -9,7 +9,7 @@ use app\components\openapi\IOpenApiFieldTypes;
 use app\models\Model;
 use app\models\Task;
 
-class TesterFormDataResource extends Model implements IOpenApiFieldTypes
+class EvaluatorAdditionalInformationResource extends Model implements IOpenApiFieldTypes
 {
     public $templates;
     public $osMap;
@@ -23,7 +23,7 @@ class TesterFormDataResource extends Model implements IOpenApiFieldTypes
             'templates' => new OAProperty(
                 [
                     'type' => 'array',
-                    new OAItems(['ref' => '#/components/schemas/Instructor_TesterTemplateResource_Read'])
+                    new OAItems(['ref' => '#/components/schemas/Instructor_EvaluatorTemplateResource_Read'])
                 ]
             ),
             'osMap' => new OAProperty(['type' => 'string', 'enum' => new OAList(Task::TEST_OS)]),

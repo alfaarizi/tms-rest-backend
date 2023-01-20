@@ -13,6 +13,8 @@ return [
         'isVersionControlled' => 0,
         'autoTest' => 0,
         'showFullErrorMsg' => 0,
+        'testOs' => 'linux',
+        'imageName' => 'image:latest',
         'codeCompassCompileInstructions' => 'sudo magic compile command',
         'codeCompassPackagesInstallInstructions' => 'apt-get install qt5 wireshark -y'
     ],
@@ -221,5 +223,22 @@ return [
         'autoTest' => 0,
         'showFullErrorMsg' => 0,
         'password' => 'password'
+    ],
+    'task16_evaluator_settings' => [
+        'id' => 5015,
+        'name' => 'Task 2',
+        'semesterID' => 3001,
+        'groupID' => 2000,
+        'softDeadLine' => date('Y-m-d H:i:s', strtotime('+1 day')),
+        'hardDeadline' => date('Y-m-d H:i:s', strtotime('+2 day')),
+        'available' => date('Y-m-d H:i:s', strtotime('-1 day')),
+        'category' => 'Smaller tasks',
+        'description' => 'Description',
+        'createrID' => 1007,
+        'isVersionControlled' => 0,
+        'testOs' => 'linux',
+        'imageName' => 'image:latest',
+        'autoTest' => 0,
+        'showFullErrorMsg' => 0,
     ],
 ];

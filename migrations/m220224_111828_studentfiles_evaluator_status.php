@@ -51,17 +51,17 @@ class m220224_111828_studentfiles_evaluator_status extends Migration
 
                 if (empty($errorMsg)) {
                     if ($isAccepted === StudentFile::IS_ACCEPTED_PASSED) {
-                        $evaluatorStatus = StudentFile::EVALUATOR_STATUS_PASSED;
+                        $evaluatorStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
                     } elseif ($isAccepted === StudentFile::IS_ACCEPTED_FAILED) {
-                        $evaluatorStatus = StudentFile::EVALUATOR_STATUS_LEGACY_FAILED;
+                        $evaluatorStatus = StudentFile::AUTO_TESTER_STATUS_LEGACY_FAILED;
                     } else {
-                        $evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
+                        $evaluatorStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
                     }
                 } else {
                     if ($errorMsg === 'Your solution passed the tests' || $errorMsg === 'A megoldás átment a teszteken') {
-                        $evaluatorStatus = StudentFile::EVALUATOR_STATUS_PASSED;
+                        $evaluatorStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
                     } else {
-                        $evaluatorStatus = StudentFile::EVALUATOR_STATUS_LEGACY_FAILED;
+                        $evaluatorStatus = StudentFile::AUTO_TESTER_STATUS_LEGACY_FAILED;
                     }
                 }
 

@@ -27,10 +27,10 @@ class StudentFileQuery extends \yii\db\ActiveQuery
     {
         return $this
             ->andWhere(['not in',
-                        'evaluatorStatus',
+                        'autoTesterStatus',
                         [
-                            StudentFile::EVALUATOR_STATUS_IN_PROGRESS,
-                            StudentFile::EVALUATOR_STATUS_NOT_TESTED
+                            StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS,
+                            StudentFile::AUTO_TESTER_STATUS_NOT_TESTED
                         ]
                     ]);
     }
@@ -41,7 +41,7 @@ class StudentFileQuery extends \yii\db\ActiveQuery
      */
     public function findUnderTesting()
     {
-        return $this->andWhere(['evaluatorStatus' => StudentFile::EVALUATOR_STATUS_IN_PROGRESS]);
+        return $this->andWhere(['autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS]);
     }
 
     /**
@@ -54,7 +54,7 @@ class StudentFileQuery extends \yii\db\ActiveQuery
         return $this->andWhere(
             [
                 'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
-                'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_NOT_TESTED,
+                'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
                 'taskID' => $taskIds
             ]
         );

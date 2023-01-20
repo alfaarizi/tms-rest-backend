@@ -452,8 +452,8 @@ class StudentFilesController extends BaseInstructorRestController
             return $studentFile->errors;
         }
 
-        if ($studentFile->evaluatorStatus == StudentFile::EVALUATOR_STATUS_IN_PROGRESS) {
-            $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
+        if ($studentFile->autoTesterStatus == StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS) {
+            $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
         }
 
         // Disable Git push if submission was accepted
