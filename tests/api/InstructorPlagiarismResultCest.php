@@ -56,7 +56,7 @@ class InstructorPlagiarismResultCest
         $I->seeResponseCodeIs(HttpCode::OK);
 
         $I->openFile(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/plagiarism/plagiarism-result/7/index.html');
-        $I->seeFileContentsEqual($I->grabResponse());
+        $I->seeFileContentsEqual(str_replace("\r", '', $I->grabResponse()));
     }
 
     public function frameInvalid(ApiTester $I)
@@ -95,7 +95,7 @@ class InstructorPlagiarismResultCest
         $I->seeResponseCodeIs(HttpCode::OK);
 
         $I->openFile(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/plagiarism/plagiarism-result/7/match0-top.html');
-        $I->seeFileContentsEqual($I->grabResponse());
+        $I->seeFileContentsEqual(str_replace("\r", '', $I->grabResponse()));
     }
 
     public function matchNotFound(ApiTester $I)
