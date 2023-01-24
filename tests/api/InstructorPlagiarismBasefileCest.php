@@ -104,7 +104,7 @@ class InstructorPlagiarismBasefileCest
         $I->seeResponseCodeIs(HttpCode::OK);
 
         $I->openFile(Yii::$app->params['data_dir'] . '/uploadedfiles/basefiles/6000');
-        $I->seeFileContentsEqual($I->grabResponse());
+        $I->seeFileContentsEqual(str_replace("\r", '', $I->grabResponse()));
     }
 
     public function createInvalidCourseID(ApiTester $I)
