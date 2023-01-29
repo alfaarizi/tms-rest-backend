@@ -15,15 +15,15 @@ $group = $studentFile->task->group;
 <h2><?= \Yii::t('app/mail', 'Graded submission') ?></h2>
 <p>
     <?= \Yii::t('app/mail', 'New grade for previous submission has been recorded.') ?><br>
-    <?= \Yii::t('app/mail', 'Course') ?>: <?= $group->course->name ?>
+    <?= \Yii::t('app/mail', 'Course') ?>: <?= Html::encode($group->course->name) ?>
     <?php if (!empty($group->number) && !$group->isExamGroup) : ?>
         (<?= \Yii::t('app/mail', 'group') ?>: <?= $group->number ?>)
     <?php endif; ?>
     <br>
     <?= \Yii::t('app/mail', 'Status') ?>: <?= \Yii::t('app', $studentFile->isAccepted) ?><br>
     <?= \Yii::t('app/mail', 'Grade') ?>: <?= $studentFile->grade ?><br>
-    <?= \Yii::t('app/mail', 'Remark') ?>: <?= nl2br($studentFile->notes, false) ?><br>
+    <?= \Yii::t('app/mail', 'Remark') ?>: <?= Html::encode(nl2br($studentFile->notes, false)) ?><br>
     <?php if (!$group->isExamGroup) : ?>
-        <?= \Yii::t('app/mail', 'Modifier') ?>: <?= $actor->name ?>
+        <?= \Yii::t('app/mail', 'Modifier') ?>: <?= Html::encode($actor->name) ?>
     <?php endif; ?>
 </p>

@@ -17,23 +17,23 @@ use app\components\DateTimeHelpers;
 <p>
     <?php if (!empty($task->group->number) && !$group->isExamGroup) : ?>
         <?= \Yii::t('app/mail', 'The deadline of task {task} for the course {course} (group: {group}) was modified.', [
-        'course' => $task->group->course->name,
+        'course' => Html::encode($task->group->course->name),
         'group' => $task->group->number,
-        'task' => $task->name
+        'task' => Html::encode($task->name)
     ]) ?>
     <?php else : ?>
         <?= \Yii::t('app/mail', 'The deadline of task {task} for the course {course} was modified.', [
-        'course' => $task->group->course->name,
-        'task' => $task->name
+        'course' => Html::encode($task->group->course->name),
+        'task' => Html::encode($task->name)
     ]) ?>
     <?php endif; ?>
     <br>
     <?php if (!$group->isExamGroup) : ?>
-        <?= \Yii::t('app/mail', 'Modifier') ?>: <?= $actor->name ?>
+        <?= \Yii::t('app/mail', 'Modifier') ?>: <?= Html::encode($actor->name) ?>
     <?php endif; ?>
 </p>
 <p>
-    <?= \Yii::t('app/mail', 'Task name') ?>: <?= $task->name ?><br>
+    <?= \Yii::t('app/mail', 'Task name') ?>: <?= Html::encode($task->name) ?><br>
     <?= \Yii::t('app/mail', 'Category') ?>: <?=\Yii::t('app/mail', $task->category)?><br>
     <?php if (!empty($task->available)) : ?>
         <?= \Yii::t('app/mail', 'Available from') ?>: <?= DateTimeHelpers::timeZoneConvert($task->available, $task->group->timezone, true) ?><br>

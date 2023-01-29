@@ -1,6 +1,7 @@
 <?php
 
 use app\models\CodeCompassInstance;
+use yii\helpers\Html;
 use yii\mail\BaseMessage;
 use yii\web\View;
 
@@ -20,8 +21,8 @@ function getCodeCompassUrl($port): string
 <h2><?= Yii::t('app/mail', 'CodeCompass started') ?></h2>
 <p>
     <?= Yii::t('app/mail', 'Your requested CodeCompass instance has now been started for the solution of {name}, course: {course}.', [
-        'name' => $instance->studentFile->uploader->name,
-        'course' => $instance->studentFile->task->group->course->name
+        'name' => Html::encode($instance->studentFile->uploader->name) ,
+        'course' => Html::encode($instance->studentFile->task->group->course->name)
     ]) ?>
 </p>
 <p>
@@ -30,10 +31,10 @@ function getCodeCompassUrl($port): string
 </p>
 <p>
     <?= Yii::t('app/mail', 'Your username: {username}', [
-        'username' => $instance->username
+        'username' => Html::encode($instance->username)
     ]) ?>
     <br>
     <?= Yii::t('app/mail', 'Your password: {password}', [
-        'password' => $instance->password
+        'password' => Html::encode($instance->password)
     ]) ?>
 </p>

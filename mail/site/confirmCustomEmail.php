@@ -13,7 +13,7 @@ use yii\helpers\Html;
 <p><?= \Yii::t(
     'app/mail',
     'Someone, probably you, added this email address to the account of {name} in the Task Management System.',
-    ['name' => $user->name]
+    ['name' => Html::encode($user->name)]
 ) ?></p>
 <p><?= \Yii::t(
     'app/mail',
