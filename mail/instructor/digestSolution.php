@@ -19,13 +19,13 @@ use yii\web\View;
 <ul>
 <?php foreach ($solutions as $solution) : ?>
     <li>
-        <?= Yii::t('app/mail', 'Name') ?>: <?= $solution->uploader->name ?> (<?= $solution->uploader->neptun ?>)<br>
-        <?= Yii::t('app/mail', 'Course') ?>: <?= $solution->task->group->course->name ?>
+        <?= Yii::t('app/mail', 'Name') ?>: <?= Html::encode($solution->uploader->name) ?> (<?= Html::encode($solution->uploader->neptun) ?>)<br>
+        <?= Yii::t('app/mail', 'Course') ?>: <?= Html::encode($solution->task->group->course->name) ?>
         <?php if (!empty($solution->task->group->number)) : ?>
         (<?= Yii::t('app/mail', 'group') ?>: <?= $solution->task->group->number ?>)
         <?php endif; ?>
         <br>
-        <?= Yii::t('app/mail', 'Task name')?>: <?=$solution->task->name ?><br>
+        <?= Yii::t('app/mail', 'Task name')?>: <?= Html::encode($solution->task->name) ?><br>
         <?= Html::a(
             Yii::t('app/mail', 'View solution'),
             Yii::$app->params['frontendUrl'] . '/instructor/task-manager/student-files/' . $solution->id

@@ -16,21 +16,21 @@ use app\components\DateTimeHelpers;
 <p>
     <?php if (!empty($task->group->number) && !$task->group->isExamGroup) : ?>
         <?= \Yii::t('app/mail', 'New task was assigned to the course {course} (group: {group}).', [
-        'course' => $task->group->course->name,
+        'course' => Html::encode($task->group->course->name),
         'group' => $task->group->number
     ]) ?>
     <?php else : ?>
         <?= \Yii::t('app/mail', 'New task was assigned to the course {course}.', [
-        'course' => $task->group->course->name
+        'course' => Html::encode($task->group->course->name)
     ]) ?>
     <?php endif; ?>
     <br>
     <?php if (!$task->group->isExamGroup) : ?>
-        <?= \Yii::t('app/mail', 'Modifier') ?>: <?= $actor->name ?>
+        <?= \Yii::t('app/mail', 'Modifier') ?>: <?= Html::encode($actor->name) ?>
     <?php endif; ?>
 </p>
 <p>
-    <?= \Yii::t('app/mail', 'Task name') ?>: <?= $task->name ?><br>
+    <?= \Yii::t('app/mail', 'Task name') ?>: <?= Html::encode($task->name) ?><br>
     <?= \Yii::t('app/mail', 'Category') ?>: <?=\Yii::t('app/mail', $task->category)?><br>
 <?php if (!empty($task->available)) : ?>
     <?= \Yii::t('app/mail', 'Available from') ?>: <?= DateTimeHelpers::timeZoneConvert($task->available, $task->group->timezone, true) ?><br>

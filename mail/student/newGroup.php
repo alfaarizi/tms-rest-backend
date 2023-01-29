@@ -15,16 +15,16 @@ use yii\helpers\Url;
 <p>
     <?php if (!empty($group->number) && !$group->isExamGroup) : ?>
         <?= \Yii::t('app/mail', 'You have been assigned to the course {course} (group: {group}).', [
-        'course' => $group->course->name,
+        'course' => Html::encode($group->course->name),
         'group' => $group->number
     ]) ?>
     <?php else : ?>
         <?= \Yii::t('app/mail', 'You have been assigned to the course {course}.', [
-        'course' => $group->course->name
+        'course' => Html::encode($group->course->name)
     ]) ?>
     <?php endif; ?>
     <br>
     <?php if (!$group->isExamGroup) : ?>
-        <?= \Yii::t('app/mail', 'Modifier') ?>: <?= $actor->name ?>
+        <?= \Yii::t('app/mail', 'Modifier') ?>: <?= Html::encode($actor->name) ?>
     <?php endif; ?>
 </p>

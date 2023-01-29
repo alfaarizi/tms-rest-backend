@@ -1,7 +1,6 @@
 <?php
 
 use yii\helpers\Html;
-use yii\helpers\Url;
 
 /* @var $this \yii\web\View view component instance */
 /* @var $message \yii\mail\BaseMessage instance of newly created mail message */
@@ -16,18 +15,18 @@ use yii\helpers\Url;
 
 <b>Lekérdezés paraméterei:</b>
 <ul>
-    <li>Kurzusnév minta: %<?= $courseArg ?>%</li>
-    <li>Feladat sorszám: <?= $taskArg ?></li>
-    <li>Szemeszter: <?= $semester->name ?></li>
+    <li>Kurzusnév minta: %<?= Html::encode($courseArg) ?>%</li>
+    <li>Feladat sorszám: <?= Html::encode($taskArg) ?></li>
+    <li>Szemeszter: <?= Html::encode($semester->name) ?></li>
 </ul>
 
 <b>Lekérdezés eredménye:</b>
 <ul>
 <?php foreach ($results as $result) : ?>
     <li>
-        Név: <?= $result['userName'] ?> (<?= $result['neptun'] ?>)<br>
-        Kurzus: <?= $result['courseName'] ?> (<?= $result['courseCode'] ?>/<?= $result['groupNumber'] ?>)<br>
-        Feladat: <?= $result['taskName'] ?><br>
+        Név: <?= Html::encode($result['userName']) ?> (<?= Html::encode($result['neptun']) ?>)<br>
+        Kurzus: <?= Html::encode($result['courseName']) ?> (<?= $result['courseCode'] ?>/<?= $result['groupNumber'] ?>)<br>
+        Feladat: <?= Html::encode($result['taskName']) ?><br>
         Állapot: <?= !empty($result['isAccepted']) ? Yii::t('app', $result['isAccepted'], [], 'hu') : 'Nem beküldött' ?>
     </li>
 <?php endforeach; ?>

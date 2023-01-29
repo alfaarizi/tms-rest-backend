@@ -21,5 +21,5 @@ use yii\helpers\Url;
         <?= \Yii::t('app/mail', 'You have been assigned to a course.') ?>
     <?php endif; ?>
     <br>
-    <?= \Yii::t('app/mail', 'Modifier') ?>: <?= $actor->name ?>
+    <?= \Yii::t('app/mail', 'Modifier') ?>: <?= Html::encode($actor->name) ?>
 </p>
