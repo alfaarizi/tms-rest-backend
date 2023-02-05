@@ -690,6 +690,7 @@ class CanvasIntegration
         }
 
         $studentFile = $task->getStudentFiles()->where(['canvasID' => $submission['id']])->one();
+        $hasNewUpload = false;
         if (empty($studentFile)) {
             $this->saveCanvasFile($task->id, $file['display_name'], $file['url'], $user->neptun);
             $studentFile = new StudentFile([
@@ -704,6 +705,7 @@ class CanvasIntegration
                 'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_NOT_TESTED,
                 'uploadCount' => 1,
             ]);
+            $hasNewUpload = true;
         } else if (strtotime($studentFile->uploadTime) !== strtotime($file['updated_at'])) {
             $this->saveCanvasFile($task->id, $file['display_name'], $file['url'], $user->neptun);
             $studentFile->name = $file['display_name'];
@@ -711,6 +713,7 @@ class CanvasIntegration
             $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
             $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
             $studentFile->uploadCount++;
+            $hasNewUpload = true;
         }
 
         if (!empty($submission['grader_id'])) {
@@ -730,6 +733,7 @@ class CanvasIntegration
                 }
             }
         }
+
         try {
             if (!$studentFile->save()) {
                 Yii::error(
@@ -744,11 +748,13 @@ class CanvasIntegration
             $studentFile->save();
         }
 
-        Yii::info(
-            "A new solution has been uploaded for " .
-            "{$studentFile->task->name} ($studentFile->taskID)",
-            __METHOD__
-        );
+        if ($hasNewUpload) {
+            Yii::info(
+                "A new solution has been uploaded for " .
+                "{$studentFile->task->name} ($studentFile->taskID)",
+                __METHOD__
+            );
+        }
         return $studentFile->id;
     }
 
