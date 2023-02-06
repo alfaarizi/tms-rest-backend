@@ -87,6 +87,7 @@ class WebAppExecutor
             $remoteExecution->delete();
             switch ($e->getCode()) {
                 case SubmissionRunnerException::PREPARE_FAILURE:
+                    $this->processPrepareFailure($studentFile, $e);
                     $errorMsg = Yii::t('app', 'Container start failed while processing files.');
                     break;
                 case SubmissionRunnerException::COMPILE_FAILURE:
@@ -219,6 +220,22 @@ class WebAppExecutor
         }, Transaction::SERIALIZABLE);
 
         return $remoteExecutionResource;
+    }
+
+    /**
+     * Store initialization failure
+     *
+     * @param StudentFile $studentFile
+     * @param SubmissionRunnerException $e
+     * @return void
+     */
+    private function processPrepareFailure(StudentFile $studentFile, SubmissionRunnerException $e)
+    {
+        $errorMsg = !is_null($e->getPrevious()) ? $e->getPrevious()->getMessage() : $e->getMessage();
+        $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
+        $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_INITIATION_FAILED;
+        $studentFile->errorMsg = $errorMsg;
+        $studentFile->save();
     }
 
     /**

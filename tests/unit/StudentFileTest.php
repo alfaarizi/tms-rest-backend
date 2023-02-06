@@ -62,6 +62,9 @@ class StudentFileTest extends \Codeception\Test\Unit
         $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_LEGACY_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
+        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_INITIATION_FAILED;
+        $this->assertEquals('The testing environment could\'t be initialized', $file->safeErrorMsg);
+
         $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED;
         $this->assertEquals('The solution didn\'t compile', $file->safeErrorMsg);
 
@@ -106,6 +109,9 @@ class StudentFileTest extends \Codeception\Test\Unit
         $this->assertNull($file->safeErrorMsg);
 
         $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_LEGACY_FAILED;
+        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
+
+        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_INITIATION_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
         $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED;
@@ -153,6 +159,7 @@ class StudentFileTest extends \Codeception\Test\Unit
         $invalidStatusValues = [
             StudentFile::EVALUATOR_STATUS_NOT_TESTED,
             StudentFile::EVALUATOR_STATUS_LEGACY_FAILED,
+            StudentFile::EVALUATOR_STATUS_INITIATION_FAILED,
             StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED,
             StudentFile::EVALUATOR_STATUS_EXECUTION_FAILED,
             StudentFile::EVALUATOR_STATUS_TESTS_FAILED,
@@ -186,6 +193,7 @@ class StudentFileTest extends \Codeception\Test\Unit
         // Test valid cases
         $validStatusValues = [
             StudentFile::EVALUATOR_STATUS_LEGACY_FAILED,
+            StudentFile::EVALUATOR_STATUS_INITIATION_FAILED,
             StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED,
             StudentFile::EVALUATOR_STATUS_EXECUTION_FAILED,
             StudentFile::EVALUATOR_STATUS_TESTS_FAILED,

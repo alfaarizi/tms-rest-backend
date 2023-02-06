@@ -45,11 +45,20 @@ class SubmissionRunner
             $runInstructionResult = $this->prepareRunInstructions();
 
             if ($studentFilesResult && $instructorFilesResult && $compileInstructionResult && $runInstructionResult) {
-                $dockerContainer = $this->buildContainer($containerName, $hostPort, $builder);
-                $this->tryInitContainer($dockerContainer);
+                try {
+                    $dockerContainer = $this->buildContainer($containerName, $hostPort, $builder);
+                    $this->tryInitContainer($dockerContainer);
+                } catch (\Exception $e) {
+                    throw new SubmissionRunnerException(
+                        Yii::t('app', 'Container initialization failed'),
+                        SubmissionRunnerException::PREPARE_FAILURE,
+                        null,
+                        $e
+                    );
+                }
             } else {
                 throw new SubmissionRunnerException(
-                    'File prepare failed',
+                    Yii::t('app', 'File prepare failed'),
                     SubmissionRunnerException::PREPARE_FAILURE
                 );
             }
