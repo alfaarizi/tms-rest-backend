@@ -284,6 +284,7 @@ return [
     'Expected output' => 'Elvárt kimenet',
     'Actual output' => 'Kapott kimenet',
     'Some error happened executing the program' => 'Valami probléma történt a program futtatásakor',
+    'The testing environment could\'t be initialized' => 'A tesztelési környezet inicializálása sikertelen',
     'The solution didn\'t compile' => 'A megoldás nem fordult le',
     'Your solution failed on' => 'A megoldás megbukott az alábbi teszteseten',
     'Your solution failed the tests' => 'A megoldás megbukott a teszteken',
@@ -432,6 +433,6 @@ return [
     "The latest submission failed to compile." => "A hallgató legutóbbi beadandójának fordítása sikertelen.",
     "Automated testing for web apps is not supported!" => "Webalkalmazások esetén a teszt automatizálás nem lehetséges!",
     'Platform not supported for web application testing.' => 'A platform nem támogatott webalkalmazás tesztelésre.',
-
-
+    'File prepare failed' => 'Fájlok előkészítése sikertelen',
+    'Container initialization failed' => 'Konténer inicializálása sikertelen',
 ];

@@ -91,8 +91,14 @@ class EvaluatorController extends BaseController
             $result = $tester->getResults();
 
             $errorMsg = '';
-            // If the solution didn't compile
-            if (!$result['compiled']) {
+            // If the testing environment couldn't be initialized
+            if (!$result['initialized']) {
+                $errorMsg = $result['initiationError'];
+                $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
+                $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_INITIATION_FAILED;
+                $studentFile->errorMsg = $errorMsg;
+                // If the solution didn't compile
+            } elseif (!$result['compiled']) {
                 $errorMsg = $result['compilationError'];
                 $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
                 $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED;

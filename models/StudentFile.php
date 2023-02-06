@@ -42,6 +42,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
 
     public const EVALUATOR_STATUS_NOT_TESTED = 'Not Tested';
     public const EVALUATOR_STATUS_LEGACY_FAILED = 'Legacy Failed';
+    public const EVALUATOR_STATUS_INITIATION_FAILED = 'Initiation Failed';
     public const EVALUATOR_STATUS_COMPILATION_FAILED = 'Compilation Failed';
     public const EVALUATOR_STATUS_EXECUTION_FAILED = 'Execution Failed';
     public const EVALUATOR_STATUS_TESTS_FAILED = 'Tests Failed';
@@ -51,6 +52,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public const EVALUATOR_STATUS_VALUES = [
         self::EVALUATOR_STATUS_NOT_TESTED,
         self::EVALUATOR_STATUS_LEGACY_FAILED,
+        self::EVALUATOR_STATUS_INITIATION_FAILED,
         self::EVALUATOR_STATUS_COMPILATION_FAILED,
         self::EVALUATOR_STATUS_EXECUTION_FAILED,
         self::EVALUATOR_STATUS_TESTS_FAILED,
@@ -218,6 +220,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
         if ($this->isAccepted === self::IS_ACCEPTED_FAILED) {
             switch ($this->evaluatorStatus) {
                 case self::EVALUATOR_STATUS_LEGACY_FAILED:
+                case self::EVALUATOR_STATUS_INITIATION_FAILED:
                 case self::EVALUATOR_STATUS_COMPILATION_FAILED:
                 case self::EVALUATOR_STATUS_EXECUTION_FAILED:
                 case self::EVALUATOR_STATUS_TESTS_FAILED:
@@ -361,6 +364,10 @@ class StudentFile extends File implements IOpenApiFieldTypes
             case self::EVALUATOR_STATUS_LEGACY_FAILED:
                 // Show errorMsg for old tasks, because it is now always possible to determine the status for them
                 return $this->errorMsg;
+            case self::EVALUATOR_STATUS_INITIATION_FAILED:
+                return $this->task->showFullErrorMsg
+                    ? $this->errorMsg
+                    : Yii::t('app', 'The testing environment could\'t be initialized');
             case self::EVALUATOR_STATUS_COMPILATION_FAILED:
                 return $this->task->showFullErrorMsg
                     ? $this->errorMsg

@@ -136,16 +136,24 @@ class AssignmentTester
         $container = $this->docker->containerInspect($containerName);
 
         // send student solution to docker container as TAR stream
-        $tarPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/test_' .  $this->studentFile->id . '.tar';
-        $phar = new \PharData($tarPath);
-        $phar->buildFromDirectory(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/');
-        $this->docker->putContainerArchive(
-            $containerName,
-            file_get_contents($tarPath),
-            [
-                'path' => $task->testOS == 'windows' ? 'C:\\test' : '/test'
-            ]
-        );
+        try {
+            $tarPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/test_' . $this->studentFile->id . '.tar';
+            $phar = new \PharData($tarPath);
+            $phar->buildFromDirectory(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/');
+            $this->docker->putContainerArchive(
+                $containerName,
+                file_get_contents($tarPath),
+                [
+                    'path' => $task->testOS == 'windows' ? 'C:\\test' : '/test'
+                ]
+            );
+        } catch (\Exception $e) {
+            $this->results['initialized'] = false;
+            $this->results['initiationError'] = $e->getMessage();
+            $this->stopContainer($containerName);
+            return;
+        }
+        $this->results['initialized'] = true;
 
         // compile the student solution
         if ($task->testOS != 'windows') {
