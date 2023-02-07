@@ -4,6 +4,23 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.10.0](https://gitlab.com/tms-elte/backend-core/compare/v2.9.1...v2.10.0) (2023-02-07)
+### Features
+
+* API endpoint to display various statistics for admins ([224ed9](https://gitlab.com/tms-elte/backend-core/commit/224ed93b74121e7b328f5eec5ec79d4ee4893693))
+* email notifications for personal note edits ([3d65eb](https://gitlab.com/tms-elte/backend-core/commit/3d65eb494c5364b3fc6f831bc1ef0d95f84986a5))
+* Personal notes storage ([7b03aa](https://gitlab.com/tms-elte/backend-core/commit/7b03aaa98749a07712a7a8f5a87b10294c48170c))
+
+### Bug Fixes
+
+* Encode user content in emails ([b51c6f](https://gitlab.com/tms-elte/backend-core/commit/b51c6fd087086dc5a800eb521c0129b8d623ce4d))
+* Fixed test cases failing on newline mismatch ([fc0a82](https://gitlab.com/tms-elte/backend-core/commit/fc0a8212473c851a433f0787ffdb336d20ab3c05))
+* Fix incorrect local links in downloaded MOSS results ([ca1be4](https://gitlab.com/tms-elte/backend-core/commit/ca1be48324d0741b326bc927d65337faf7aa90b4))
+* Fix incorrect logging during Canvas synchronization ([ae7fdf](https://gitlab.com/tms-elte/backend-core/commit/ae7fdfcf971f037047afd7addae2d0dd1bafd7f5))
+* Handle exceptions during injecting student submission into Docker container as new Initiation Failed status ([96d7df](https://gitlab.com/tms-elte/backend-core/commit/96d7df9f92f256bbac5099fa416e1a94d0b26ba0))
+* Retry MOSS result download upon timeout or failure, and add a small amount of wait time after each download ([37eebe](https://gitlab.com/tms-elte/backend-core/commit/37eebecad7aa9379f6ff0a0bdcb2b8fc396cdffe))
+* SubmissionRunner tries to copy all test files into the container ([f02d1a](https://gitlab.com/tms-elte/backend-core/commit/f02d1aa4b3f9987a24a446965f78c2851e8e82f5))
+
 ## [2.9.1](https://gitlab.com/tms-elte/backend-core/compare/v2.9.0...v2.9.1) (2022-11-08)
 ### Bug Fixes
 
