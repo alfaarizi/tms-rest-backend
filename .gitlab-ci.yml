@@ -68,17 +68,20 @@ codecept_7.4:
   extends: .test
   image: mcserep/php:7.4
   script:
-    - vendor/bin/codecept run unit,api --no-ansi --coverage --coverage-text --coverage-xml --coverage-cobertura
+    - vendor/bin/codecept run unit,api --no-ansi --xml --coverage --coverage-text --coverage-xml --coverage-cobertura
   coverage: '/^\s*Lines:\s*\d+.\d+\%/'
   artifacts:
     paths:
       - tests/_output/coverage.txt
       - tests/_output/coverage.xml
       - tests/_output/cobertura.xml
+      - tests/_output/report.xml
     reports:
       coverage_report:
           coverage_format: cobertura
           path: tests/_output/cobertura.xml
+      junit:
+          - tests/_output/report.xml
 
 
 # Generates OpenApi docs in yaml and json format then packages it with swagger-ui
