@@ -12,7 +12,7 @@ class SubmissionRunnerException extends \Exception
     private ?string $stdout;
     private ?string $stderr;
 
-    public function __construct($message = "", $code = 0, array $execResult = null, Throwable $previous = null)
+    public function __construct($message = "", $code = 0, array $execResult = null, \Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
         if (!empty($execResult)) {
