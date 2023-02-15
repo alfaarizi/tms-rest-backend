@@ -512,11 +512,10 @@ class GroupsController extends BaseInstructorRestController
                     $task->groupID = $group->id;
                     $task->semesterID = $actualSemester;
 
-                    // If the task can be saved we copy the files as well.
                     if ($task->save()) {
+                        // If the task can be saved we copy the files as well.
                         $filesToDuplicate = InstructorFile::findAll(['taskID' => $taskToDuplicate->id]);
                         $directoryPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $task->id . '/';
-                        mkdir($directoryPath, 0755, true);
                         $directoryPaths[] = $directoryPath;
                         foreach ($filesToDuplicate as $fileToDuplicate) {
                             $file = new InstructorFile($fileToDuplicate);
@@ -976,7 +975,7 @@ class GroupsController extends BaseInstructorRestController
                 // Create repository for student for all version controlled tasks
                 $tasks = Task::findAll(['groupID' => $group->id, 'isVersionControlled' => '1']);
                 foreach ($tasks as $task) {
-                    GitManager::createRepositories($task, $user);
+                    GitManager::createUserRepository($task, $user);
                 }
 
 
@@ -1105,6 +1104,15 @@ class GroupsController extends BaseInstructorRestController
         // Check for uploaded file
         if (!is_null($uploadedFiles)) {
             throw new BadRequestHttpException(Yii::t('app', 'Cannot remove student with uploaded file.'));
+        }
+
+        // Remove user from task repos if the task is version controlled
+        if (Yii::$app->params['versionControl']['enabled']) {
+            foreach ($subscription->group->tasks as $task) {
+                if ($task->isVersionControlled) {
+                    GitManager::removeUserFromTaskRepository($task->id, $subscription->user->neptun);
+                }
+            }
         }
 
         if ($subscription->delete()) {

@@ -2,6 +2,7 @@
 
 namespace app\modules\instructor\resources;
 
+use app\components\GitManager;
 use app\components\openapi\generators\OAProperty;
 use Yii;
 use app\models\StudentFile;
@@ -133,11 +134,8 @@ class StudentFileResource extends StudentFile
         } elseif ($this->uploadTime == null) {
             return Yii::t('app', 'No file uploaded');
         }
-        $repopath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $this->taskID . '/' . strtolower($this->uploader->neptun) . '/';
-        $dirs = FileHelper::findDirectories($repopath, ['recursive' => false]);
-        rsort($dirs);
-        $path = Yii::$app->params['versionControl']['basePath'] . '/' . $this->taskID . '/' . strtolower($this->uploader->neptun) . '/' . basename($dirs[1]);
-        return Yii::$app->request->hostInfo . $path;
+
+        return GitManager::getReadonlyUserRepositoryUrl($this->taskID, $this->uploader->neptun);
     }
 
     /**

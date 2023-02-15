@@ -5,11 +5,13 @@ namespace app\components;
 use app\models\StudentFile;
 use app\models\Subscription;
 use app\models\Task;
-use Yii;
 use app\models\User;
+use Cz\Git\GitException;
+use Cz\Git\GitRepository;
+use Yii;
+use yii\base\ErrorException;
 use yii\helpers\FileHelper;
 use yii\helpers\Url;
-use Cz\Git\GitRepository;
 use ZipArchive;
 
 /**
@@ -21,8 +23,9 @@ class GitManager
      * Create a repository for each student who are assigned to the task
      * @param Task $task is the task
      * @param User $student is the student
+     * @throws GitException
      */
-    public static function createRepositories($task, $student)
+    public static function createUserRepository(Task $task, User $student): void
     {
         $id = $task->id;
         $neptun = strtolower($student->neptun);
@@ -42,11 +45,11 @@ class GitManager
                     symlink($randstring, $reposym);
                 }
                 // Create the appropriate settings for the repo
-                $repo->execute(array('config', 'receive.denyNonFastForwards', 'true'));
-                $repo->execute(array('config', 'receive.denyDeletes', 'true'));
-                $repo->execute(array('config', 'receive.denyCurrentBranch', 'updateInstead'));
-                $repo->execute(array('config', 'user.name', $student->name ?? $student->neptun));
-                $repo->execute(array('config', 'user.email', $student->email ?? '<>'));
+                $repo->execute(['config', 'receive.denyNonFastForwards', 'true']);
+                $repo->execute(['config', 'receive.denyDeletes', 'true']);
+                $repo->execute(['config', 'receive.denyCurrentBranch', 'updateInstead']);
+                $repo->execute(['config', 'user.name', $student->name ?? $student->neptun]);
+                $repo->execute(['config', 'user.email', $student->email ?? '<>']);
                 // Create pre-receive git hook
                 $a = rename($repopath . '.git/hooks/pre-receive.sample', $repopath . '.git/hooks/pre-receive');
                 $originalLanguage = Yii::$app->language;
@@ -61,9 +64,133 @@ class GitManager
                 self::writePostRecieveGitHook($postrecievehook, $id, $student->id);
                 fclose($postrecievehook);
                 chmod($repopath . '.git/hooks/post-receive', 0755);
+
+                // Initial commit (this is required for subrepos)
+                $repo->commit(Yii::t('app', 'Repository created'), ['--allow-empty']);
                 Yii::$app->language = $originalLanguage;
             }
         }
+        self::addUserSubModuleToTaskRepository($id, $neptun);
+    }
+
+    /**
+     * Create a common repository for the given task.
+     * @throws GitException
+     */
+    public static function createTaskLevelRepository(int $taskId): void
+    {
+        $randstring = 'r' . substr(str_shuffle(MD5(microtime())), 0, 25);
+        $repopath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
+            . $taskId . '/all/' . $randstring . '/';
+        mkdir($repopath, 0775, true);
+
+        $repo = GitRepository::init($repopath);
+        // Create the appropriate settings for the repo
+        $repo->execute(['config', 'user.name', 'TMS']);
+        $repo->execute(['config', 'user.email', Yii::$app->params['systemEmail']]);
+        $repo->commit(Yii::t('app', 'Repository created'), ['--allow-empty']);
+    }
+
+    /**
+     * Add the user repository to the common task repository as a git submodule
+     * @throws GitException
+     */
+    private static function addUserSubModuleToTaskRepository(int $taskID, string $neptun): void
+    {
+        $neptun = strtolower($neptun);
+        $taskRepoPath = self::getTaskLevelRepoDirectoryPath($taskID);
+
+        if ($taskRepoPath === null) {
+            return;
+        }
+
+        $taskRepo = new GitRepository($taskRepoPath);
+        $taskRepo->execute(['submodule', 'add', self::getReadonlyUserRepositoryUrl($taskID, $neptun), $neptun]);
+        $taskRepo->addAllChanges();
+        $taskRepo->commit(Yii::t('app', 'Added git submodule: {repoName}', ['repoName' => $neptun]));
+    }
+
+    /**
+     * Remove the user repository submodule from the task repository
+     * @throws GitException
+     * @throws ErrorException thrown when the submodule directory cannot be removed
+     */
+    public static function removeUserFromTaskRepository(int $taskID, string $neptun): void
+    {
+        $neptun = strtolower($neptun);
+        $taskRepoPath = self::getTaskLevelRepoDirectoryPath($taskID);
+
+        if ($taskRepoPath === null) {
+            return;
+        }
+
+        $taskRepo = new GitRepository($taskRepoPath);
+        $taskRepo->execute(['submodule', 'deinit', $neptun]);
+        $taskRepo->execute(['rm', '-f', $neptun]);
+        $taskRepo->addAllChanges();
+        $taskRepo->commit(Yii::t('app', 'Removed git submodule: {repoName}', ['repoName' => $neptun]));
+        FileHelper::removeDirectory(self::getTaskLevelRepoDirectoryPath($taskID) . '/.git/modules/' . $neptun);
+    }
+
+    /**
+     * Get task level repository directory path
+     * Returns null if the task does not have a task-level repository.
+     */
+    private static function getTaskLevelRepoDirectoryPath(int $taskID): ?string
+    {
+        $taskAllDirPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
+            . $taskID . '/all';
+
+        if (!is_dir($taskAllDirPath)) {
+            return null;
+        }
+
+        return FileHelper::findDirectories($taskAllDirPath, ['recursive' => false])[0];
+    }
+
+    /**
+     * Gets read-only task-level repository address for the given task.
+     * Returns null if the task does not have a task-level repository.
+     */
+    public static function getReadonlyTaskLevelRepositoryUrl(int $taskID): ?string
+    {
+        $taskRepoPath = self::getTaskLevelRepoDirectoryPath($taskID);
+        if ($taskRepoPath === null) {
+            return null;
+        }
+
+        return Yii::$app->request->hostInfo . Yii::$app->params['versionControl']['basePath']
+            . '/' . $taskID . '/all/' . basename($taskRepoPath);
+    }
+
+    /**
+     * Get read-only repository address for the given task and user pair
+     */
+    public static function getReadonlyUserRepositoryUrl(int $taskID, string $neptun): string
+    {
+        $neptun = strtolower($neptun);
+        $userRepoPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
+            . $taskID . '/' . strtolower($neptun) . '/';
+        $dirs = FileHelper::findDirectories($userRepoPath, ['recursive' => false]);
+        rsort($dirs);
+        $path = Yii::$app->params['versionControl']['basePath'] . '/' . $taskID . '/'
+            . strtolower($neptun) . '/' . basename($dirs[1]);
+        return Yii::$app->request->hostInfo . $path;
+    }
+
+    /**
+     * Get writeable repository address for the given task and user pair
+     */
+    public static function getWriteableUserRepositoryUrl(int $taskID, string $neptun): string
+    {
+        $neptun = strtolower($neptun);
+        // Search for random string id directory
+        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $taskID
+            . '/' . $neptun . '/';
+        $dirs = FileHelper::findDirectories($path, ['recursive' => false]);
+        rsort($dirs);
+        return Yii::$app->request->hostInfo . Yii::$app->params['versionControl']['basePath'] . '/'
+            . $taskID . '/' . $neptun . '/' . basename($dirs[0]);
     }
 
     /**
@@ -72,7 +199,7 @@ class GitManager
      * @param int $taskid is the id of the task
      * @param int $studentid is the id of the student
      */
-    public static function writePostRecieveGitHook($postrecievehook, $taskid, $studentid)
+    public static function writePostRecieveGitHook($postrecievehook, int $taskid, int $studentid): void
     {
         $hook = Yii::$app->params['versionControl']['shell'] . "
 curl --request GET --url \"" . Url::toRoute(['/git/git-push', 'taskid' => $taskid, 'studentid' =>  $studentid], true) . "\" --location";
@@ -87,7 +214,7 @@ curl --request GET --url \"" . Url::toRoute(['/git/git-push', 'taskid' => $taski
      * @param bool $isPasswordProtected is the task password protected
      * @param bool $isAccepted is the status of the student submission
      */
-    public static function writePreRecieveGitHook($prerecievehook, $hardDeadline, $isPasswordProtected = false, $isAccepted = false)
+    public static function writePreRecieveGitHook($prerecievehook, string $hardDeadline, bool $isPasswordProtected = false, bool $isAccepted = false): void
     {
         $hook = Yii::$app->params['versionControl']['shell'] . "
 rc=0
@@ -122,10 +249,9 @@ exit \$rc";
     }
 
     /**
-     * @param Task $task
-     * @param Subscription $subscription
+     * Modifies pre-receive hooks after task update
      */
-    public static function afterTaskUpdate($task, $subscription)
+    public static function afterTaskUpdate(Task $task, Subscription $subscription): void
     {
         $repopath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $task->id . '/' . strtolower($subscription->user->neptun) . '/';
         $dirs = FileHelper::findDirectories($repopath, ['recursive' => false]);
@@ -133,21 +259,32 @@ exit \$rc";
         $repopath = $repopath . basename($dirs[0]) . '/';
         $hookfile = fopen($repopath . '.git/hooks/pre-receive', "w");
         $studentFile = StudentFile::findOne(['taskID' => $task->id, 'uploaderID' => $subscription->userID]);
-        self::writePreRecieveGitHook($hookfile, $task->hardDeadline, $task->passwordProtected, $studentFile != null && $studentFile->isAccepted == StudentFile::IS_ACCEPTED_ACCEPTED);
+        self::writePreRecieveGitHook(
+            $hookfile,
+            $task->hardDeadline,
+            $task->passwordProtected,
+            $studentFile != null && $studentFile->isAccepted == StudentFile::IS_ACCEPTED_ACCEPTED
+        );
         fclose($hookfile);
     }
 
     /**
-     * @param StudentFile $studentFile
+     * Triggers pre-receive hook update after task update
      */
-    public static function afterStatusUpdate($studentFile)
+    public static function afterStatusUpdate(StudentFile $studentFile): void
     {
-        $repopath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $studentFile->taskID . '/' . strtolower($studentFile->uploader->neptun) . '/';
+        $repopath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
+            . $studentFile->taskID . '/' . strtolower($studentFile->uploader->neptun) . '/';
         $dirs = FileHelper::findDirectories($repopath, ['recursive' => false]);
         rsort($dirs);
         $repopath = $repopath . basename($dirs[0]) . '/';
         $hookfile = fopen($repopath . '.git/hooks/pre-receive', "w");
-        self::writePreRecieveGitHook($hookfile, $studentFile->task->hardDeadline, $studentFile->task->passwordProtected, $studentFile->isAccepted == StudentFile::IS_ACCEPTED_ACCEPTED);
+        self::writePreRecieveGitHook(
+            $hookfile,
+            $studentFile->task->hardDeadline,
+            $studentFile->task->passwordProtected,
+            $studentFile->isAccepted == StudentFile::IS_ACCEPTED_ACCEPTED
+        );
         fclose($hookfile);
     }
 
@@ -156,7 +293,7 @@ exit \$rc";
      * @param int $taskid is the id of the task
      * @param int $studentid is the id of the student
      */
-    public static function createZip($taskid, $studentid)
+    public static function createZip(int $taskid, int $studentid): void
     {
         // Find the unique string
         $student = User::findOne($studentid);
@@ -191,11 +328,9 @@ exit \$rc";
 
     /**
      * Commit new submission
-     * @param string $repopath
-     * @param string $zipPath
-     * @throws \Cz\Git\GitException
+     * @throws GitException
      */
-    public static function uploadToRepo($repopath, $zipPath)
+    public static function uploadToRepo(string $repopath, string $zipPath): void
     {
         $repo = new GitRepository("$repopath.git");
 

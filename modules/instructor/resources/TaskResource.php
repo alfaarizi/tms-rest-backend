@@ -2,17 +2,19 @@
 
 namespace app\modules\instructor\resources;
 
+use app\components\GitManager;
 use app\components\openapi\generators\OAItems;
 use app\components\openapi\generators\OAProperty;
 use app\resources\SemesterResource;
 use yii\helpers\ArrayHelper;
+use \yii\db\ActiveQuery;
 
 /**
  * Resource class for module 'Task'
  */
 class TaskResource extends \app\models\Task
 {
-    public function fields()
+    public function fields(): array
     {
         return [
             'id',
@@ -39,17 +41,18 @@ class TaskResource extends \app\models\Task
             'passwordProtected',
             'canvasUrl',
             'codeCompassCompileInstructions',
-            'codeCompassPackagesInstallInstructions'
+            'codeCompassPackagesInstallInstructions',
         ];
     }
 
-    public function extraFields()
+    public function extraFields(): array
     {
         return [
             'studentFiles',
             'instructorFiles',
             'group',
-            'semester'
+            'semester',
+            'taskLevelGitRepo',
         ];
     }
 
@@ -72,11 +75,20 @@ class TaskResource extends \app\models\Task
                 ),
                 'group' => new OAProperty(['ref' => '#/components/schemas/Instructor_GroupResource_Read']),
                 'semester' => new OAProperty(['ref' => '#/components/schemas/Common_SemesterResource_Read']),
+                'taskLevelGitRepo' => new OAProperty(['type' => 'string']),
             ]
         );
     }
 
-    public function getInstructorFiles()
+    public function getTaskLevelGitRepo(): ?string
+    {
+        if (\Yii::$app->params['versionControl']['enabled'] && $this->isVersionControlled) {
+            return GitManager::getReadonlyTaskLevelRepositoryUrl($this->id);
+        }
+        return null;
+    }
+
+    public function getInstructorFiles(): ActiveQuery
     {
         return InstructorFileResource::find()->where(['taskID' => $this->id])->andOnCondition(
             [
@@ -86,26 +98,17 @@ class TaskResource extends \app\models\Task
         );
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getStudentFiles()
+    public function getStudentFiles(): ActiveQuery
     {
         return $this->hasMany(StudentFileResource::class, ['taskID' => 'id']);
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getGroup()
+    public function getGroup(): ActiveQuery
     {
         return $this->hasOne(GroupResource::class, ['id' => 'groupID']);
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getSemester()
+    public function getSemester(): ActiveQuery
     {
         return $this->hasOne(SemesterResource::class, ['id' => 'semesterID']);
     }

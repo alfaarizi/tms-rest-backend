@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\behaviors\ISODateTimeBehavior;
+use app\components\GitManager;
 use app\components\openapi\generators\OAList;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
@@ -297,6 +298,28 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             );
         }
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if ($insert) {
+            $directoryPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $this->id . '/';
+            mkdir($directoryPath, 0755, true);
+
+            // Create git repositories if a new task has been created and the task is version controlled
+            if (Yii::$app->params['versionControl']['enabled'] && $this->isVersionControlled) {
+                GitManager::createTaskLevelRepository($this->id);
+                // Create remote repository for everybody in the group
+                foreach ($this->group->subscriptions as $subscription) {
+                    GitManager::createUserRepository($this, $subscription->user);
+                }
+            }
+        }
     }
 
     /**
