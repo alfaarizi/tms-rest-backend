@@ -2,20 +2,20 @@
 
 namespace app\modules\student\resources;
 
+use app\components\GitManager;
 use app\components\openapi\generators\OAItems;
 use app\components\openapi\generators\OAProperty;
 use app\models\Task;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
-use yii\helpers\FileHelper;
 
 /**
  * Resource class for module 'Task'
  */
 class TaskResource extends Task
 {
-    public function fields()
+    public function fields(): array
     {
         return [
             'id',
@@ -35,7 +35,7 @@ class TaskResource extends Task
         ];
     }
 
-    public function extraFields()
+    public function extraFields(): array
     {
         return [
             'studentFiles',
@@ -66,44 +66,28 @@ class TaskResource extends Task
         );
     }
 
-    public function getInstructorFiles()
+    public function getInstructorFiles(): ActiveQuery
     {
         return $this->hasMany(InstructorFileResource::class, ['taskID' => 'id'])
             ->andOnCondition(['not', ['name' => 'Dockerfile']])
             ->andOnCondition(['category' => InstructorFileResource::CATEGORY_ATTACHMENT]);
     }
 
-    /**
-     * @return ActiveQuery
-     */
-    public function getStudentFiles()
+    public function getStudentFiles(): ActiveQuery
     {
         return $this->hasMany(StudentFileResource::class, ['taskID' => 'id']);
     }
 
-    /**
-     * @return string
-     */
-    public function getCreatorName()
+    public function getCreatorName(): string
     {
         return $this->group->isExamGroup ? '' : parent::getCreatorName();
     }
 
-    /**
-     * @return array|null
-     */
-    public function getGitInfo()
+    public function getGitInfo(): ?array
     {
         if (Yii::$app->params['versionControl']['enabled'] && $this->isVersionControlled) {
-            // Search for random string id directory
-            $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $this->id . '/' . strtolower(
-                    Yii::$app->user->identity->neptun
-                ) . '/';
-            $dirs = FileHelper::findDirectories($path, ['recursive' => false]);
-            rsort($dirs);
-            $path = Yii::$app->request->hostInfo . Yii::$app->params['versionControl']['basePath'] . '/' . $this->id . '/' . strtolower(
-                    Yii::$app->user->identity->neptun
-                ) . '/' . basename($dirs[0]);
+            $path = GitManager::getWriteableUserRepositoryUrl($this->id, Yii::$app->user->identity->neptun);
+            // TODO: move usage information creation to the frontend. This function should only return the path.
             $usage = 'git clone ' . $path;
 
             return [

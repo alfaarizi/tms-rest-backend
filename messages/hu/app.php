@@ -180,16 +180,12 @@ return [
     'Verified' => 'Hitelesített',
     'Upload completed.' => 'Feltöltés sikeres.',
     'Student file is already verified' => 'A megoldás már hitelesítve van',
-    "You cannot use 'git push' command for password protected tasks. Use the web interface to upload new solution!" => "A 'git push' parancs nem használható jelszóval védett feladatok esetében. Használja a webes felületet új megoldás feltöltéséhez!",
     'The current IP address and the IP address used for the file upload do not match. Current address: {currentIp}. Addresses of uploads: {uploadAddresses}.' => 'Az aktuális IP-cím különbözik a fájl feltöltéséhez használt IP-címtől. Jelenlegi cím: {currentIp}. Feltöltések címei: {uploadAddresses}.',
     'Disable IP address check' => 'IP-cím ellenőrzés kikapcsolása',
     'Upload Solution' => 'Megoldás Feltöltése',
     'Upload Time' => 'Feltöltés Ideje',
     'Upload Count' => 'Feltöltések Száma',
     'Update Task' => 'Beadandó Frissítése',
-    'Not version controlled' => 'A feladat nem verziókezelt',
-    'Version control is disabled. Contact the administrator for more information.' => 'A verziókezelés nincs engedélyezve. Lépjen kapcsolatba az adminisztrátorral további információért.',
-    'Submission from the web user interface' => 'Beküldés a webes felhasználói felületről',
     'Username' => 'Felhasználónév',
     'View' => 'Megtekintés',
     'Points' => 'Pontszámok',
@@ -252,6 +248,15 @@ return [
     "The selected locale is not supported" => "A kiválaszott nyelvi beállítás nem támogatott",
     "The basefile does not exist." => "Az alapfájl nem létezik.",
     "You must be a lecturer of the course to delete a basefile of another user!" => "Más felhasználó alapfájljának törléséhez a kurzus előadójának kell lenned!",
+
+    // Version controlled tasks
+    'Added git submodule: {repoName}' => 'Git-almodul hozzáadva: {repoName}',
+    'Removed git submodule: {repoName}' => 'Git-almodul eltávolítva: {repoName}',
+    'Repository created' => 'Tároló létrehozva',
+    'Not version controlled' => 'A feladat nem verziókezelt',
+    'Version control is disabled. Contact the administrator for more information.' => 'A verziókezelés nincs engedélyezve. Lépjen kapcsolatba az adminisztrátorral további információért.',
+    'Submission from the web user interface' => 'Beküldés a webes felhasználói felületről',
+    "You cannot use 'git push' command for password protected tasks. Use the web interface to upload new solution!" => "A 'git push' parancs nem használható jelszóval védett feladatok esetében. Használja a webes felületet új megoldás feltöltéséhez!",
 
     //Automatic testing
     'Automatic Testing' => 'Automatikus Tesztelés',
