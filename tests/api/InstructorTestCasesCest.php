@@ -36,8 +36,15 @@ class InstructorTestCasesCest
 
     public function _before(ApiTester $I)
     {
+        $I->deleteDir(Yii::$app->params['data_dir']);
+        $I->copyDir(codecept_data_dir("appdata_samples"), Yii::$app->params['data_dir']);
         $I->amBearerAuthenticated("TEACH2;VALID");
         Yii::$app->language = 'en-US';
+    }
+
+    public function _after(ApiTester $I)
+    {
+        $I->deleteDir(Yii::$app->params['data_dir']);
     }
 
     public function index(ApiTester $I)
@@ -289,5 +296,124 @@ class InstructorTestCasesCest
         $I->sendDelete('/instructor/test-cases/3');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
         $I->seeRecord(TestCase::class, ['id' => 3]);
+    }
+
+    public function exportTestCasesTaskNotFound(ApiTester $I)
+    {
+        $I->sendGet("/instructor/test-cases/export-test-cases?taskID=0&format=xls");
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function exportTestCasesWithoutPermission(ApiTester $I)
+    {
+        $I->sendGet("/instructor/test-cases/export-test-cases?taskID=5004&format=xls");
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function exportTestCasesUnsupportedFileFormat(ApiTester $I)
+    {
+        $I->sendGet("/instructor/test-cases/export-test-cases?taskID=5000&format=invalid");
+        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+    }
+
+    public function exportTestCasesXls(ApiTester $I)
+    {
+        $I->sendGet("/instructor/test-cases/export-test-cases?taskID=5000&format=xls");
+        $I->seeResponseCodeIs(HttpCode::OK);
+    }
+
+    public function exportTestCasesCsv(ApiTester $I)
+    {
+        $I->sendGet("/instructor/test-cases/export-test-cases?taskID=5000&format=csv");
+        $I->seeResponseCodeIs(HttpCode::OK);
+    }
+
+    public function importTestCasesTaskNotFound(ApiTester $I)
+    {
+        $I->sendPost(
+            "/instructor/test-cases/import-test-cases?taskID=0",
+            [],
+            ['file' => codecept_data_dir("upload_samples/test.csv")]
+        );
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function importTestCasesWithoutPermission(ApiTester $I)
+    {
+        $I->sendPost(
+            "/instructor/test-cases/import-test-cases?taskID=5004",
+            [],
+            ['file' => codecept_data_dir("upload_samples/test.csv")]
+        );
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function importTestCasesValidationError(ApiTester $I)
+    {
+        $I->sendPost(
+            "/instructor/test-cases/import-test-cases?taskID=5000",
+            [],
+            ['file' => codecept_data_dir("upload_samples/testInvalid.csv")]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+    }
+
+    public function importTestCasesInvalidFileFormat(ApiTester $I)
+    {
+        $I->sendPost(
+            "/instructor/test-cases/import-test-cases?taskID=5000",
+            [],
+            ['file' => codecept_data_dir("upload_samples/testInvalid.xlsx")]
+        );
+        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+    }
+
+    public function importTestCasesXls(ApiTester $I)
+    {
+        $I->sendPost(
+            "/instructor/test-cases/import-test-cases?taskID=5000",
+            [],
+            ['file' => codecept_data_dir("upload_samples/test.xls")]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson(
+            [
+                [
+                    'id' => 5,
+                    'input' => '1',
+                    'output' => '1',
+                    'arguments' => '',
+                    'taskID' => 5000
+                ]
+            ]
+        );
+    }
+
+    public function importTestCasesCsv(ApiTester $I)
+    {
+        $I->sendPost(
+            "/instructor/test-cases/import-test-cases?taskID=5000",
+            [],
+            ['file' => codecept_data_dir("upload_samples/test.csv")]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson(
+            [
+                [
+                    'id' => 5,
+                    'input' => '1',
+                    'output' => '1',
+                    'arguments' => '',
+                    'taskID' => 5000
+                ],
+                [
+                    'id' => 6,
+                    'input' => '2',
+                    'output' => '2',
+                    'arguments' => '',
+                    'taskID' => 5000
+                ],
+            ]
+        );
     }
 }
