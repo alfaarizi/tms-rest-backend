@@ -6,14 +6,21 @@ use app\models\Task;
 use app\modules\instructor\resources\TaskResource;
 use app\modules\instructor\resources\TestCaseResource;
 use app\resources\SemesterResource;
+use PhpOffice\PhpSpreadsheet\Reader\Csv;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\data\BaseDataProvider;
+use yii\db\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 use yii\web\ServerErrorHttpException;
-use yii\web\UnsupportedMediaTypeHttpException;
+use yii\web\UploadedFile;
+use yii2tech\csvgrid\CsvGrid;
+use yii2tech\spreadsheet\Spreadsheet;
 
 /**
  * This class provides access to test cases for instructors
@@ -29,7 +36,9 @@ class TestCasesController extends BaseInstructorRestController
             'index' => ['GET'],
             'create' => ['POST'],
             'update' => ['PUT', 'PATCH'],
-            'delete' => ['DELETE']
+            'delete' => ['DELETE'],
+            'export-test-cases' => ['GET'],
+            'import-test-cases' => ['POST']
         ]);
     }
 
@@ -327,5 +336,256 @@ class TestCasesController extends BaseInstructorRestController
         } catch (yii\base\ErrorException $e) {
             throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
         }
+    }
+
+    /**
+     * Exports the test cases
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/test-cases/export-test-cases",
+     *     operationId="instructor::TestCasesController::actionExportTestCases",
+     *     tags={"Instructor Test Cases"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="taskID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the task",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *      @OA\Parameter(
+     *        name="format",
+     *        in="query",
+     *        required=true,
+     *        description="Format of the spreadsheet",
+     *        @OA\Schema(type="string", enum={"xls", "csv"}),
+     *     ),
+
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionExportTestCases(int $taskID, string $format): Response
+    {
+        if (!Yii::$app->params['evaluator']['enabled']) {
+            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
+        }
+
+        $task = TaskResource::findOne($taskID);
+
+        if (is_null($task)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Task not found.'));
+        }
+
+        // Authorization check
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $task->groupID])) {
+            throw new ForbiddenHttpException(
+                Yii::t('app', 'You must be an instructor of the group to perform this action!')
+            );
+        }
+
+        $dataProvider = new ActiveDataProvider(
+        [
+            'query' => TestCaseResource::find()->where(['taskID' => $taskID]),
+            'pagination' => [
+                // Export batch size
+                // Export is performed via batches
+                // It improves memory usage for large datasets.
+                'pageSize' => 100,
+            ],
+        ]);
+
+        $columns = [
+            [
+                'header' => Yii::t('app', 'Arguments'),
+                'attribute' => 'arguments',
+            ],
+            [
+                'header' => Yii::t('app', 'Input'),
+                'attribute' => 'input',
+            ],
+            [
+                'header' => Yii::t('app', 'Output'),
+                'attribute' => 'output',
+            ],
+        ];
+
+        switch ($format) {
+            case 'xls':
+                return $this->exportToXls($task->name, $dataProvider, $columns);
+            case 'csv':
+                return $this->exportToCsv($task->name, $dataProvider, $columns);
+            default:
+                throw new BadRequestHttpException(Yii::t('app', 'Unsupported file format'));
+        }
+    }
+
+    /**
+     * Imports the test cases
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     * @throws Exception
+     *
+     * @OA\Post(
+     *     path="/instructor/test-cases/import-test-cases",
+     *     operationId="instructor::TestCasesController::actionImportTestCases",
+     *     tags={"Instructor Test Cases"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="taskID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the task",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\RequestBody(
+     *         description="file to upload",
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                  @OA\Property(type="string",format="binary",property="file"),
+     *              )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *        response=200,
+     *        description="successful operation",
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionImportTestCases(int $taskID): array
+    {
+        if (!Yii::$app->params['evaluator']['enabled']) {
+            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
+        }
+
+        $task = TaskResource::findOne($taskID);
+
+        if (is_null($task)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Task not found.'));
+        }
+
+        // Authorization check
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $task->groupID])) {
+            throw new ForbiddenHttpException(
+                Yii::t('app', 'You must be an instructor of the group to perform this action!')
+            );
+        }
+
+        $models = $this->importSpreadsheet($taskID);
+
+        foreach ($models as $model) {
+            if (!$model->validate()) {
+                $this->response->statusCode = 422;
+                return $model->errors;
+            }
+        }
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            TestCaseResource::deleteAll(['taskID' => $taskID]);
+
+            foreach ($models as $model) {
+                if (!$model->save(false)) {
+                    throw new ServerErrorHttpException(Yii::t("app", "A database error occurred"));
+                }
+            }
+            $transaction->commit();
+        } catch (\Throwable $e)
+        {
+            $transaction->rollBack();
+            throw $e;
+        }
+        return $models;
+    }
+
+    /**
+     * Creates an XLS file from the given DataProvider
+     */
+    private function exportToXls(string $name, BaseDataProvider $dataProvider, array $columns): Response
+    {
+        $exporter = new Spreadsheet(
+            [
+                'dataProvider' => $dataProvider,
+                'columns' => $columns
+            ]
+        );
+        return $exporter->send($name . '.xls');
+    }
+
+    /**
+     * Creates a CSV file from the given DataProvider
+     */
+    private function exportToCsv(string $name, BaseDataProvider $dataProvider, array $columns): Response
+    {
+        $exporter = new CsvGrid(
+            [
+                'dataProvider' => $dataProvider,
+                'columns' => $columns,
+            ]
+        );
+        return $exporter->export()->send($name . '.csv');
+    }
+
+    /**
+     * Imports TestCaseResource models from an uploaded Excel/CSV file
+     * @throws BadRequestHttpException
+     */
+    private function importSpreadsheet(int $taskID): array
+    {
+        $models = [];
+
+        $file = UploadedFile::getInstanceByName('file');
+
+        switch ($file->extension) {
+            case 'csv':
+                $reader = new Csv();
+                break;
+            case 'xls':
+                $reader = new Xls();
+                break;
+            default:
+                throw new BadRequestHttpException(Yii::t('app', 'Unsupported file format'));
+        }
+
+        $reader->setReadDataOnly(true);
+
+
+        $sheet = $reader->load($file->tempName)->getActiveSheet();
+
+        $highestRow = $sheet->getHighestRow();
+
+        for ($row = 2; $row <= $highestRow; ++$row) {
+            $data = $sheet->rangeToArray('A' . $row . ':' . 'C' . $row);
+
+            $models[$row - 2] = new TestCaseResource();
+            $models[$row - 2]->scenario = TestCaseResource::SCENARIO_CREATE;
+
+            $models[$row - 2]->taskID = $taskID;
+            $models[$row - 2]->arguments = strval($data[0][0]);
+            $models[$row - 2]->input = strval($data[0][1]);
+            $models[$row - 2]->output = strval($data[0][2]);
+        }
+        return $models;
     }
 }
