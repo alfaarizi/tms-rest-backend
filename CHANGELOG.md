@@ -4,6 +4,18 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.11.0](https://gitlab.com/tms-elte/backend-core/compare/v2.10.0...v2.11.0) (2023-03-06)
+### Features
+
+* Import multiple test cases from csv and xls files ([de01cd](https://gitlab.com/tms-elte/backend-core/commit/de01cda07c38031c27bb34e1e94661edb002b8a6))
+* Task-level git repositories ([013185](https://gitlab.com/tms-elte/backend-core/commit/0131856560aa0754220b1e7b028b173cd51cd05e))
+
+### Bug Fixes
+
+* Exception chaining issue of SubmissionRunnerExceptions in automated evaluator initialization ([4ec5d2](https://gitlab.com/tms-elte/backend-core/commit/4ec5d2765478321130ed38a76e664f8b12359e6f))
+
+---
+
 ## [2.10.0](https://gitlab.com/tms-elte/backend-core/compare/v2.9.1...v2.10.0) (2023-02-07)
 ### Features
 
@@ -21,10 +33,14 @@ All notable changes to this project will be documented in this file.
 * Retry MOSS result download upon timeout or failure, and add a small amount of wait time after each download ([37eebe](https://gitlab.com/tms-elte/backend-core/commit/37eebecad7aa9379f6ff0a0bdcb2b8fc396cdffe))
 * SubmissionRunner tries to copy all test files into the container ([f02d1a](https://gitlab.com/tms-elte/backend-core/commit/f02d1aa4b3f9987a24a446965f78c2851e8e82f5))
 
+---
+
 ## [2.9.1](https://gitlab.com/tms-elte/backend-core/compare/v2.9.0...v2.9.1) (2022-11-08)
 ### Bug Fixes
 
 * Handle too large stdout and stdin sizes in automated tester ([f8991b](https://gitlab.com/tms-elte/backend-core/commit/f8991bb265e62a7a0a8ff1b4e0a49f9ea40144a3))
+
+---
 
 ## [2.9.0](https://gitlab.com/tms-elte/backend-core/compare/v2.8.1...v2.9.0) (2022-10-21)
 ### Features
@@ -234,4 +250,3 @@ All notable changes to this project will be documented in this file.
 Initial public release.
 
 ---
-
