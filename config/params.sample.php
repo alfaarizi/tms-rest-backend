@@ -72,6 +72,20 @@ return [
         // preconfigured templates
         'templates' => [
             [
+                'name' => 'Linux / gcc',
+                'os' => 'linux',
+                'appType' => 'Console',
+                'image' => 'mcserep/elte:ubuntu-2004',
+                'compileInstructions' =>
+                    '# Remove spaces from directory and file names' . PHP_EOL .
+                    'find -name "* *" -type d | rename \'s/ /_/g\'' . PHP_EOL .
+                    'find -name "* *" -type f | rename \'s/ /_/g\'' . PHP_EOL .
+                    '# Build the program' . PHP_EOL .
+                    'CFLAGS="std=c11 -pedantic -W -Wall -Wextra"' . PHP_EOL .
+                    'gcc $CFLAGS $(find . -type f -iname "*.c") -o program.out',
+                'runInstructions' => './program.out "$@"',
+            ],
+            [
                 'name' => 'Linux / g++',
                 'os' => 'linux',
                 'appType' => 'Console',
@@ -95,10 +109,30 @@ return [
                 'runInstructions' => '',
             ],
             [
+                'name' => 'Linux / .NET',
+                'os' => 'linux',
+                'appType' => 'Console',
+                'image' => 'mcserep/elte:dotnet-60',
+                'compileInstructions' => '/build.sh' . PHP_EOL .
+                    '# Built-in script that looks for .NET Core projects (.sln files) and build them.',
+                'runInstructions' => '/execute.sh' . PHP_EOL .
+                    '# Built-in script that looks for executable .NET Core projects and runs the first one.',
+            ],
+            [
                 'name' => 'Windows / .NET',
                 'os' => 'windows',
                 'appType' => 'Console',
                 'image' => 'mcserep/elte:dotnet-60',
+                'compileInstructions' => 'C:\\build.ps1' . PHP_EOL .
+                    '# Built-in script that looks for .NET Core projects (.sln files) and build them.',
+                'runInstructions' => 'C:\\execute.ps1' . PHP_EOL .
+                    '# Built-in script that looks for executable .NET Core projects and runs the first one.',
+            ],
+            [
+                'name' => 'Windows / .NET + MAUI',
+                'os' => 'windows',
+                'appType' => 'Console',
+                'image' => 'mcserep/elte:dotnet-60-maui',
                 'compileInstructions' => 'C:\\build.ps1' . PHP_EOL .
                     '# Built-in script that looks for .NET Core projects (.sln files) and build them.',
                 'runInstructions' => '',
