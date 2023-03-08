@@ -7,7 +7,7 @@ use app\modules\instructor\resources\TaskResource;
 use app\modules\instructor\resources\TestCaseResource;
 use app\resources\SemesterResource;
 use PhpOffice\PhpSpreadsheet\Reader\Csv;
-use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\data\BaseDataProvider;
@@ -362,7 +362,7 @@ class TestCasesController extends BaseInstructorRestController
      *        in="query",
      *        required=true,
      *        description="Format of the spreadsheet",
-     *        @OA\Schema(type="string", enum={"xls", "csv"}),
+     *        @OA\Schema(type="string", enum={"xlsx", "csv"}),
      *     ),
 
      *     @OA\Response(
@@ -422,8 +422,8 @@ class TestCasesController extends BaseInstructorRestController
         ];
 
         switch ($format) {
-            case 'xls':
-                return $this->exportToXls($task->name, $dataProvider, $columns);
+            case 'xlsx':
+                return $this->exportToXlsx($task->name, $dataProvider, $columns);
             case 'csv':
                 return $this->exportToCsv($task->name, $dataProvider, $columns);
             default:
@@ -520,9 +520,9 @@ class TestCasesController extends BaseInstructorRestController
     }
 
     /**
-     * Creates an XLS file from the given DataProvider
+     * Creates an XLSX file from the given DataProvider
      */
-    private function exportToXls(string $name, BaseDataProvider $dataProvider, array $columns): Response
+    private function exportToXlsx(string $name, BaseDataProvider $dataProvider, array $columns): Response
     {
         $exporter = new Spreadsheet(
             [
@@ -530,7 +530,7 @@ class TestCasesController extends BaseInstructorRestController
                 'columns' => $columns
             ]
         );
-        return $exporter->send($name . '.xls');
+        return $exporter->send($name . '.xlsx');
     }
 
     /**
@@ -561,8 +561,8 @@ class TestCasesController extends BaseInstructorRestController
             case 'csv':
                 $reader = new Csv();
                 break;
-            case 'xls':
-                $reader = new Xls();
+            case 'xlsx':
+                $reader = new Xlsx();
                 break;
             default:
                 throw new BadRequestHttpException(Yii::t('app', 'Unsupported file format'));

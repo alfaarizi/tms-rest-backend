@@ -135,7 +135,7 @@ class StudentFilesController extends BaseInstructorRestController
      *        in="query",
      *        required=true,
      *        description="Format of the spreadsheet",
-     *        @OA\Schema(type="string", enum={"xls", "csv"}),
+     *        @OA\Schema(type="string", enum={"xlsx", "csv"}),
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -210,8 +210,8 @@ class StudentFilesController extends BaseInstructorRestController
             ],
         ];
 
-        if ($format == 'xls') {
-            return $this->exportToXls($task->name, $dataProvider, $columns);
+        if ($format == 'xlsx') {
+            return $this->exportToXlsx($task->name, $dataProvider, $columns);
         } elseif ($format == 'csv') {
             return $this->exportToCsv($task->name, $dataProvider, $columns);
         } else {
@@ -220,13 +220,13 @@ class StudentFilesController extends BaseInstructorRestController
     }
 
     /**
-     * Creates a xls file from the given DataProvider
+     * Creates a xlsx file from the given DataProvider
      * @param string $name
      * @param BaseDataProvider $dataProvider
      * @param array $columns
      * @return \yii\web\Response
      */
-    private function exportToXls($name, $dataProvider, $columns)
+    private function exportToXlsx($name, $dataProvider, $columns)
     {
         $exporter = new Spreadsheet(
             [
@@ -234,7 +234,7 @@ class StudentFilesController extends BaseInstructorRestController
                 'columns' => $columns
             ]
         );
-        return $exporter->send($name . '.xls');
+        return $exporter->send($name . '.xlsx');
     }
 
     /**
