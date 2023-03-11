@@ -118,9 +118,9 @@ class InstructorStudentFilesCest
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
     }
 
-    public function exportSpreadsheetXls(ApiTester $I)
+    public function exportSpreadsheetXlsx(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 5001, 'format' => 'xls']);
+        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 5001, 'format' => 'xlsx']);
         $I->seeResponseCodeIs(HttpCode::OK);
     }
 

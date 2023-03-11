@@ -300,13 +300,13 @@ class InstructorTestCasesCest
 
     public function exportTestCasesTaskNotFound(ApiTester $I)
     {
-        $I->sendGet("/instructor/test-cases/export-test-cases?taskID=0&format=xls");
+        $I->sendGet("/instructor/test-cases/export-test-cases?taskID=0&format=xlsx");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function exportTestCasesWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/test-cases/export-test-cases?taskID=5004&format=xls");
+        $I->sendGet("/instructor/test-cases/export-test-cases?taskID=5004&format=xlsx");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
@@ -316,9 +316,9 @@ class InstructorTestCasesCest
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
     }
 
-    public function exportTestCasesXls(ApiTester $I)
+    public function exportTestCasesXlsx(ApiTester $I)
     {
-        $I->sendGet("/instructor/test-cases/export-test-cases?taskID=5000&format=xls");
+        $I->sendGet("/instructor/test-cases/export-test-cases?taskID=5000&format=xlsx");
         $I->seeResponseCodeIs(HttpCode::OK);
     }
 
@@ -363,17 +363,17 @@ class InstructorTestCasesCest
         $I->sendPost(
             "/instructor/test-cases/import-test-cases?taskID=5000",
             [],
-            ['file' => codecept_data_dir("upload_samples/testInvalid.xlsx")]
+            ['file' => codecept_data_dir("upload_samples/testInvalid.xls")]
         );
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
     }
 
-    public function importTestCasesXls(ApiTester $I)
+    public function importTestCasesXlsx(ApiTester $I)
     {
         $I->sendPost(
             "/instructor/test-cases/import-test-cases?taskID=5000",
             [],
-            ['file' => codecept_data_dir("upload_samples/test.xls")]
+            ['file' => codecept_data_dir("upload_samples/test.xlsx")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseContainsJson(
