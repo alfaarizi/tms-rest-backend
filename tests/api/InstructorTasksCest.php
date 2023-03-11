@@ -122,6 +122,7 @@ class InstructorTasksCest
         $I->seeResponseContainsJson([['id' => 5012]]);
         $I->seeResponseContainsJson([['id' => 5013]]);
         $I->seeResponseContainsJson([['id' => 5014]]);
+        $I->seeResponseContainsJson([['id' => 5015]]);
 
         $I->cantSeeResponseContainsJson([['id' => 5004]]);
         $I->cantSeeResponseContainsJson([['id' => 5005]]);
@@ -464,62 +465,6 @@ class InstructorTasksCest
         $I->cantSeeRecord(InstructorFile::class, ['id' => 3]);
     }
 
-
-    public function toggleAutoTesterNotFound(ApiTester $I)
-    {
-        $I->sendPatch("/instructor/tasks/0/toggle-auto-tester");
-        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
-    }
-
-    public function toggleAutoTesterWithoutPermission(ApiTester $I)
-    {
-        $I->sendPatch("/instructor/tasks/5004/toggle-auto-tester");
-        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
-    }
-
-    public function toggleAutoTestPreviousSemester(ApiTester $I)
-    {
-        $I->sendPatch("/instructor/tasks/5005/toggle-auto-tester");
-        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
-    }
-
-    public function toggleAutoTester(ApiTester $I)
-    {
-        // Turn on
-        $I->sendPatch("/instructor/tasks/toggle-auto-tester?id=5000");
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseContainsJson(
-            [
-                'id' => 5000,
-                'autoTest' => 1
-            ]
-        );
-        $I->seeRecord(
-            Task::class,
-            [
-                'id' => 5000,
-                'autoTest' => 1
-            ]
-        );
-
-        // Turn off
-        $I->sendPatch("/instructor/tasks/toggle-auto-tester?id=5000");
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseContainsJson(
-            [
-                'id' => 5000,
-                'autoTest' => 0
-            ]
-        );
-        $I->seeRecord(
-            Task::class,
-            [
-                'id' => 5000,
-                'autoTest' => 0
-            ]
-        );
-    }
-
     public function listUsers(ApiTester $I)
     {
         $I->sendPost(
@@ -687,19 +632,5 @@ class InstructorTasksCest
                 'codeCompassPackagesInstallInstructions' => 'apt-get install qt5 wireshark -y',
             ]
         );
-    }
-
-    public function autoTesterWithoutTaskType(ApiTester $I)
-    {
-        $I->sendPost(
-            '/instructor/tasks/5000/setup-auto-tester',
-            [
-                'testOS' => 'linux',
-                'imageName' => 'busybox',
-                'showFullErrorMsg' => true
-            ]
-        );
-
-        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
     }
 }

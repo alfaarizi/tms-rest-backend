@@ -271,7 +271,7 @@ class StudentFilesController extends BaseStudentRestController
         $studentFile->uploadTime = date('Y-m-d H:i:s');
         $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
         $studentFile->verified = !$studentFile->task->passwordProtected;
-        $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
+        $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
 
         if ($studentFile->save()) {
             Yii::info(

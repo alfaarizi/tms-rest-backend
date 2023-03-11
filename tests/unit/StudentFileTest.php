@@ -56,32 +56,33 @@ class StudentFileTest extends \Codeception\Test\Unit
             ]
         );
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
         $this->assertNull($file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_LEGACY_FAILED;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_LEGACY_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_INITIATION_FAILED;
-        $this->assertEquals('The testing environment could\'t be initialized', $file->safeErrorMsg);
-
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED;
         $this->assertEquals('The solution didn\'t compile', $file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_EXECUTION_FAILED;
+
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED;
+        $this->assertEquals('The testing environment could\'t be initialized', $file->safeErrorMsg);
+
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED;
         $this->assertEquals('Some error happened executing the program', $file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_TESTS_FAILED;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED;
         $this->assertEquals('Your solution failed the tests', $file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_PASSED;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
         $this->assertEquals('Your solution passed the tests', $file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_IN_PROGRESS;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS;
         $this->assertEquals('Your solution is being tested', $file->safeErrorMsg);
 
         $this->expectException(\UnexpectedValueException::class);
-        $file->evaluatorStatus = 'Invalid';
+        $file->autoTesterStatus = 'Invalid';
         $file->getSafeErrorMsg();
     }
 
@@ -105,36 +106,36 @@ class StudentFileTest extends \Codeception\Test\Unit
             'verified' => true,
         ]);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
         $this->assertNull($file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_LEGACY_FAILED;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_LEGACY_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_INITIATION_FAILED;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_EXECUTION_FAILED;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_TESTS_FAILED;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_PASSED;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
         $this->assertEquals('Your solution passed the tests', $file->safeErrorMsg);
 
-        $file->evaluatorStatus = StudentFile::EVALUATOR_STATUS_IN_PROGRESS;
+        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS;
         $this->assertEquals('Your solution is being tested', $file->safeErrorMsg);
 
         $this->expectException(\UnexpectedValueException::class);
-        $file->evaluatorStatus = 'Invalid';
+        $file->autoTesterStatus = 'Invalid';
         $file->getSafeErrorMsg();
     }
 
-    public function testValidateEvaluatorStatusPassed()
+    public function testValidateAutoTesterStatusPassed()
     {
         $file = new StudentFile(
             [
@@ -143,7 +144,7 @@ class StudentFileTest extends \Codeception\Test\Unit
                 'taskID' => 5002,
                 'uploaderID' => 1000,
                 'isAccepted' => StudentFile::IS_ACCEPTED_PASSED,
-                'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_PASSED,
+                'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_PASSED,
                 'isVersionControlled' => 0,
                 'grade' => 4,
                 'notes' => '',
@@ -157,22 +158,22 @@ class StudentFileTest extends \Codeception\Test\Unit
 
         // Test invalid cases
         $invalidStatusValues = [
-            StudentFile::EVALUATOR_STATUS_NOT_TESTED,
-            StudentFile::EVALUATOR_STATUS_LEGACY_FAILED,
-            StudentFile::EVALUATOR_STATUS_INITIATION_FAILED,
-            StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED,
-            StudentFile::EVALUATOR_STATUS_EXECUTION_FAILED,
-            StudentFile::EVALUATOR_STATUS_TESTS_FAILED,
-            StudentFile::EVALUATOR_STATUS_IN_PROGRESS,
+            StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
+            StudentFile::AUTO_TESTER_STATUS_LEGACY_FAILED,
+            StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED,
+            StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED,
+            StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED,
+            StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED,
+            StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS,
         ];
 
         foreach ($invalidStatusValues as $value) {
-            $file->evaluatorStatus = $value;
+            $file->autoTesterStatus = $value;
             $this->assertFalse($file->validate());
         }
     }
 
-    public function testValidateEvaluatorStatusFailed()
+    public function testValidateAutoTesterStatusFailed()
     {
         $file = new StudentFile(
             [
@@ -192,32 +193,32 @@ class StudentFileTest extends \Codeception\Test\Unit
 
         // Test valid cases
         $validStatusValues = [
-            StudentFile::EVALUATOR_STATUS_LEGACY_FAILED,
-            StudentFile::EVALUATOR_STATUS_INITIATION_FAILED,
-            StudentFile::EVALUATOR_STATUS_COMPILATION_FAILED,
-            StudentFile::EVALUATOR_STATUS_EXECUTION_FAILED,
-            StudentFile::EVALUATOR_STATUS_TESTS_FAILED,
+            StudentFile::AUTO_TESTER_STATUS_LEGACY_FAILED,
+            StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED,
+            StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED,
+            StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED,
+            StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED,
         ];
 
         foreach ($validStatusValues as $value) {
-            $file->evaluatorStatus = $value;
+            $file->autoTesterStatus = $value;
             $this->assertTrue($file->validate());
         }
 
         // Test invalid cases
         $invalidStatusValues = [
-            StudentFile::EVALUATOR_STATUS_NOT_TESTED,
-            StudentFile::EVALUATOR_STATUS_PASSED,
-            StudentFile::EVALUATOR_STATUS_IN_PROGRESS,
+            StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
+            StudentFile::AUTO_TESTER_STATUS_PASSED,
+            StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS,
         ];
 
         foreach ($invalidStatusValues as $value) {
-            $file->evaluatorStatus = $value;
+            $file->autoTesterStatus = $value;
             $this->assertFalse($file->validate());
         }
     }
 
-    public function testValidateEvaluatorStatusInProgress()
+    public function testValidateAutoTesterStatusInProgress()
     {
         $file = new StudentFile(
             [
@@ -226,7 +227,7 @@ class StudentFileTest extends \Codeception\Test\Unit
                 'taskID' => 5002,
                 'uploaderID' => 1000,
                 'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
-                'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_IN_PROGRESS,
+                'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS,
                 'isVersionControlled' => 0,
                 'grade' => 4,
                 'notes' => '',

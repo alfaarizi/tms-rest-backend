@@ -43,6 +43,22 @@ class TestCasesController extends BaseInstructorRestController
     }
 
     /**
+     * @throws BadRequestHttpException
+     */
+    public function beforeAction($action)
+    {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+
+        if (!Yii::$app->params['evaluator']['enabled']) {
+            throw new BadRequestHttpException(Yii::t('app', 'Evaluator is disabled. Contact the administrator for more information.'));
+        }
+
+        return true;
+    }
+
+    /**
      * Get test cases for a task
      * @param $taskID
      * @return ActiveDataProvider
@@ -81,10 +97,6 @@ class TestCasesController extends BaseInstructorRestController
      */
     public function actionIndex($taskID)
     {
-        if (!Yii::$app->params['evaluator']['enabled']) {
-            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
-        }
-
         $task = TaskResource::findOne($taskID);
 
         if (is_null($task)) {
@@ -145,10 +157,6 @@ class TestCasesController extends BaseInstructorRestController
      */
     public function actionCreate()
     {
-        if (!Yii::$app->params['evaluator']['enabled']) {
-            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
-        }
-
         $model = new TestCaseResource();
         $model->scenario = TestCaseResource::SCENARIO_CREATE;
 
@@ -232,10 +240,6 @@ class TestCasesController extends BaseInstructorRestController
      */
     public function actionUpdate($id)
     {
-        if (!Yii::$app->params['evaluator']['enabled']) {
-            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
-        }
-
         $model = TestCaseResource::findOne($id);
 
         if (is_null($model)) {
@@ -306,10 +310,6 @@ class TestCasesController extends BaseInstructorRestController
      */
     public function actionDelete($id)
     {
-        if (!Yii::$app->params['evaluator']['enabled']) {
-            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
-        }
-
         $model = TestCaseResource::findOne($id);
 
         if (is_null($model)) {
@@ -378,10 +378,6 @@ class TestCasesController extends BaseInstructorRestController
      */
     public function actionExportTestCases(int $taskID, string $format): Response
     {
-        if (!Yii::$app->params['evaluator']['enabled']) {
-            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
-        }
-
         $task = TaskResource::findOne($taskID);
 
         if (is_null($task)) {
@@ -475,10 +471,6 @@ class TestCasesController extends BaseInstructorRestController
      */
     public function actionImportTestCases(int $taskID): array
     {
-        if (!Yii::$app->params['evaluator']['enabled']) {
-            throw new BadRequestHttpException(Yii::t('app', 'Auto tester is disabled. Contact the administrator for more information.'));
-        }
-
         $task = TaskResource::findOne($taskID);
 
         if (is_null($task)) {

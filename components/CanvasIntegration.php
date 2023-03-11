@@ -702,7 +702,7 @@ class CanvasIntegration
                 'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
                 'verified' => true,
                 'notes' => '',
-                'evaluatorStatus' => StudentFile::EVALUATOR_STATUS_NOT_TESTED,
+                'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
                 'uploadCount' => 1,
             ]);
             $hasNewUpload = true;
@@ -711,7 +711,7 @@ class CanvasIntegration
             $studentFile->name = $file['display_name'];
             $studentFile->uploadTime = date('Y-m-d H:i:s', strtotime($file['updated_at']));
             $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
-            $studentFile->evaluatorStatus = StudentFile::EVALUATOR_STATUS_NOT_TESTED;
+            $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
             $studentFile->uploadCount++;
             $hasNewUpload = true;
         }
