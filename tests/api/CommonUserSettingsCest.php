@@ -5,6 +5,7 @@ namespace tests\api;
 use ApiTester;
 use app\models\User;
 use app\tests\unit\fixtures\AccessTokenFixture;
+use app\tests\unit\fixtures\AuthAssignmentFixture;
 use app\tests\unit\fixtures\UserFixture;
 use Codeception\Util\HttpCode;
 
@@ -18,6 +19,9 @@ class CommonUserSettingsCest
             ],
             'users' => [
                 'class' => UserFixture::class,
+            ],
+            'authassignments' => [
+                'class' => AuthAssignmentFixture::class
             ],
         ];
     }
@@ -33,6 +37,9 @@ class CommonUserSettingsCest
                 'email' => 'batman@nanana.hu',
                 'customEmail' => null,
                 'locale' => 'en-US',
+                'isStudent' => false,
+                'isFaculty' => false,
+                'isAdmin' => true,
                 'customEmailConfirmed' => 0,
                 'notificationTarget' => 'official',
             ]

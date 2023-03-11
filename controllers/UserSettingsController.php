@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use app\models\User;
-use app\resources\UserSettingsResource;
+use app\resources\UserExtendedResource;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
@@ -47,20 +47,20 @@ class UserSettingsController extends BaseRestController
      *     @OA\Response(
      *         response=200,
      *         description="successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/Common_UserSettingsResource_Read"),
+     *         @OA\JsonContent(ref="#/components/schemas/Common_UserExtendedResource_Read"),
      *     ),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionIndex(): UserSettingsResource
+    public function actionIndex(): UserExtendedResource
     {
         return $this->findResource();
     }
 
     /**
      * Change settings of the current user
-     * @return UserSettingsResource|array A UserSettingsResource object upon success, validation errors upon failure.
+     * @return UserExtendedResource|array A UserExtendedResource object upon success, validation errors upon failure.
      * @throws BadRequestHttpException
      * @throws \yii\base\InvalidConfigException
      *
@@ -75,13 +75,13 @@ class UserSettingsController extends BaseRestController
      *         description="updated settings",
      *         @OA\MediaType(
      *             mediaType="application/json",
-     *             @OA\Schema(ref="#/components/schemas/Common_UserSettingsResource_ScenarioSettings"),
+     *             @OA\Schema(ref="#/components/schemas/Common_UserExtendedResource_ScenarioSettings"),
      *         )
      *     ),
      *     @OA\Response(
      *         response=200,
      *         description="settings updated",
-     *         @OA\JsonContent(ref="#/components/schemas/Common_UserSettingsResource_Read"),
+     *         @OA\JsonContent(ref="#/components/schemas/Common_UserExtendedResource_Read"),
      *     ),
      *    @OA\Response(response=400, ref="#/components/responses/400"),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
@@ -166,11 +166,11 @@ class UserSettingsController extends BaseRestController
     }
 
     /**
-     * Get the UserSettingsResource object of the current user.
+     * Get the UserExtendedResource object of the current user.
      */
-    private function findResource(): UserSettingsResource
+    private function findResource(): UserExtendedResource
     {
-        $user = UserSettingsResource::findOne(Yii::$app->user->id);
+        $user = UserExtendedResource::findOne(Yii::$app->user->id);
         $user->scenario = User::SCENARIO_SETTINGS;
         return $user;
     }

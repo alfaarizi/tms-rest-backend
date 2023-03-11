@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\resources\PrivateSystemInfoResource;
 use app\resources\PublicSystemInfoResource;
+use app\resources\SemesterResource;
 use Yii;
 use yii\helpers\ArrayHelper;
 use app\components\UnitConverterHelper;
@@ -32,6 +33,7 @@ class SystemController extends BaseRestController
             parent::verbs(),
             [
                 'public-info' => ['GET'],
+                'private-info' => ['GET'],
             ]
         );
     }
@@ -82,6 +84,11 @@ class SystemController extends BaseRestController
         $resource = new PrivateSystemInfoResource();
         $resource->uploadMaxFilesize = UnitConverterHelper::phpFilesizeToBytes(ini_get('upload_max_filesize'));
         $resource->postMaxSize = UnitConverterHelper::phpFilesizeToBytes(ini_get('post_max_size'));
+        $resource->isAutoTestEnabled = Yii::$app->params['evaluator']['enabled'];
+        $resource->isVersionControlEnabled = Yii::$app->params['versionControl']['enabled'];
+        $resource->isCanvasEnabled = Yii::$app->params['canvas']['enabled'];
+        $resource->isCodeCompassEnabled = Yii::$app->params['codeCompass']['enabled'];
+        $resource->actualSemester = SemesterResource::findOne(['actual' => 1]);
         return $resource;
     }
 }

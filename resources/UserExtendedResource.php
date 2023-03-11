@@ -2,10 +2,13 @@
 
 namespace app\resources;
 
+use app\components\openapi\generators\OAProperty;
+use yii\helpers\ArrayHelper;
+
 /**
  * Resource class for user settings
  */
-class UserSettingsResource extends \app\models\User
+class UserExtendedResource extends \app\models\User
 {
     /**
      * @inheritdoc
@@ -18,6 +21,9 @@ class UserSettingsResource extends \app\models\User
             'email',
             'customEmail',
             'locale',
+            'isStudent',
+            'isFaculty',
+            'isAdmin',
             'customEmailConfirmed',
             'notificationTarget',
         ];
