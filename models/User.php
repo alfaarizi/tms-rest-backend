@@ -23,6 +23,9 @@ use yii\web\IdentityInterface;
  * @property string $lastLoginTime
  * @property string $lastLoginIP
  * @property integer $canvasID
+ * @property bool $isStudent
+ * @property bool $isFaculty
+ * @property bool $isAdmin
  * @property string $canvasToken
  * @property string $refreshToken
  * @property string $canvasTokenExpiry
@@ -217,6 +220,9 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
             'neptun' => new OAProperty(['type' => 'string']),
             'email' => new OAProperty(['type' => 'string']),
             'customEmail' => new OAProperty(['type' => 'string']),
+            'isStudent' => new OAProperty(['type' => 'boolean']),
+            'isFaculty' => new OAProperty(['type' => 'boolean']),
+            'isAdmin' => new OAProperty(['type' => 'boolean']),
             'locale' => new OAProperty(
                 [
                     'type' => 'string',
@@ -261,6 +267,33 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
     {
         return $this->hasMany(Group::class, ['id' => 'groupID'])
             ->viaTable('{{%instructor_groups}}', ['userID' => 'id']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsStudent(): bool
+    {
+        $roles = Yii::$app->authManager->getRolesByUser($this->id);
+        return array_key_exists('student', $roles);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsAdmin(): bool
+    {
+        $roles = Yii::$app->authManager->getRolesByUser($this->id);
+        return array_key_exists('admin', $roles);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsFaculty(): bool
+    {
+        $roles = Yii::$app->authManager->getRolesByUser($this->id);
+        return array_key_exists('faculty', $roles);
     }
 
     /**

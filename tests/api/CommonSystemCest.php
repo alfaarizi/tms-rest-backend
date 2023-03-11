@@ -4,6 +4,7 @@ namespace tests\api;
 
 use ApiTester;
 use app\tests\unit\fixtures\AccessTokenFixture;
+use app\tests\unit\fixtures\SemesterFixture;
 use Codeception\Util\HttpCode;
 use Yii;
 
@@ -16,9 +17,20 @@ class CommonSystemCest
         'version' => 'string',
     ];
 
+    public const SEMESTER_SCHEMA = [
+        'id' => 'integer',
+        'name' => 'string',
+        'actual' => 'integer'
+    ];
+
     public const PRIVATE_SETTINGS_SCHEMA = [
         'uploadMaxFilesize' => 'integer',
         'postMaxSize' => 'integer',
+        'isAutoTestEnabled' => 'boolean',
+        'isVersionControlEnabled' => 'boolean',
+        'isCanvasEnabled' => 'boolean',
+        'isCodeCompassEnabled' => 'boolean',
+        'actualSemester' => self::SEMESTER_SCHEMA
     ];
 
     public function _fixtures(): array
@@ -26,6 +38,9 @@ class CommonSystemCest
         return [
             'accesstokens' => [
                 'class' => AccessTokenFixture::class,
+            ],
+            'semesters' => [
+                'class' => SemesterFixture::class,
             ],
         ];
     }
@@ -55,5 +70,16 @@ class CommonSystemCest
         $I->sendGet('/common/system/private-info');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::PRIVATE_SETTINGS_SCHEMA);
+        $I->seeResponseContainsJson([
+            'actualSemester' => [
+                'id' => 3001,
+                'name' => '2018/19/2',
+                'actual' => 1,
+            ],
+            'isAutoTestEnabled' => true,
+            'isVersionControlEnabled' => false,
+            'isCanvasEnabled' => true,
+            'isCodeCompassEnabled' => true,
+        ]);
     }
 }
