@@ -76,6 +76,7 @@ return [
                 'os' => 'linux',
                 'appType' => 'Console',
                 'image' => 'mcserep/elte:ubuntu-2004',
+                'autoTest' => true,
                 'compileInstructions' =>
                     '# Remove spaces from directory and file names' . PHP_EOL .
                     'find -name "* *" -type d | rename \'s/ /_/g\'' . PHP_EOL .
@@ -115,6 +116,7 @@ return [
                 'os' => 'linux',
                 'appType' => 'Console',
                 'image' => 'mcserep/elte:dotnet-60',
+                'autoTest' => true,
                 'compileInstructions' => '/build.sh' . PHP_EOL .
                     '# Built-in script that looks for .NET Core projects (.sln files) and build them.',
                 'runInstructions' => '/execute.sh' . PHP_EOL .
@@ -135,6 +137,7 @@ return [
                 'name' => 'Windows / .NET + MAUI',
                 'os' => 'windows',
                 'appType' => 'Console',
+                'autoTest' => true,
                 'image' => 'mcserep/elte:dotnet-60-maui',
                 'compileInstructions' => 'C:\\build.ps1' . PHP_EOL .
                     '# Built-in script that looks for .NET Core projects (.sln files) and build them.',
