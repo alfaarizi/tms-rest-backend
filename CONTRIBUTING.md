@@ -89,7 +89,7 @@ DEVELOPMENT GUIDELINES
 
 ### Workflow
 
-The project follows the [Git Feature Branch Workflow](http://nvie.com/posts/a-successful-git-branching-model/), therefore development for all issues should be carried out on a feature branch with following a naming convention that enables Gitlab to join the issues with the appropriate branches. This convention is `<issue id>-<custom name>`.  
+The project follows the [Gitflow](http://nvie.com/posts/a-successful-git-branching-model/) feature branching model, therefore development for all issues should be carried out on a feature branch with following a naming convention that enables Gitlab to join the issues with the appropriate branches. This convention is `<issue id>-<custom name>`.  
 
 The default development branch for the project is **develop**. Only project members with at least *Maintainer* role are allowed to push to this branch, *Developers* shall submit a merge request for code review in order to merge their feature branch back.  
 The stable branch of the project is **master**. Only project members with at least *Maintainer* role are allowed to push or merge into this branch.
