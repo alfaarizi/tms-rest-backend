@@ -1,7 +1,5 @@
 <?php
 
-use app\models\StudentFile;
-use app\models\User;
 use Cz\Git\GitRepository;
 use yii\db\Migration;
 use yii\db\Query;
@@ -69,8 +67,15 @@ class m220407_104628_add_uploadcount_column_to_student_files_table extends Migra
 
     private function updateVersionControlledFiles()
     {
-        $query = StudentFile::find()
-            ->where(['isVersionControlled' => 1]);
+        $query = (new Query())
+            ->select([
+                '{{%student_files}}.taskID',
+                '{{%student_files}}.id',
+                '{{%users}}.neptun'
+            ])
+            ->from('{{%student_files}}')
+            ->innerJoin('{{%users}}', '{{%users}}.id = {{%student_files}}.uploaderID')
+            ->where(['{{%student_files}}.isVersionControlled' => 1]);
 
         $count = $query->count();
 
@@ -83,8 +88,8 @@ class m220407_104628_add_uploadcount_column_to_student_files_table extends Migra
 
             foreach ($files as $file) {
                 $basePath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir']
-                    . '/uploadedfiles/' . $file->taskID
-                    . '/' . strtolower($file->uploader->neptun) . '/';
+                    . '/uploadedfiles/' . $file['taskID']
+                    . '/' . strtolower($file['neptun']) . '/';
 
                 $dirs = FileHelper::findDirectories($basePath, ['recursive' => false]);
                 rsort($dirs);
@@ -97,8 +102,7 @@ class m220407_104628_add_uploadcount_column_to_student_files_table extends Migra
                     // get commit count
                     $result = $repo->execute(['rev-list', '--count', 'HEAD']);
 
-                    $file->uploadCount = intval($result[0], 10);
-                    $file->save();
+                    $this->update('{{%student_files}}', ['uploadCount' => intval($result[0], 10), ['id' => $file['id']]]);
                 }
             }
         }
@@ -128,13 +132,20 @@ class m220407_104628_add_uploadcount_column_to_student_files_table extends Migra
                 preg_match_all($taskIDPattern, $row['message'], $taskIDMatches, PREG_SET_ORDER);
                 $taskID = end($taskIDMatches)[1];
 
-                $user = User::findOne(['neptun' => $neptun]);
-                $file = StudentFile::findOne(['uploaderID' => $user->id, 'taskID' => $taskID]);
+                $user = (new Query())
+                    ->select('id')
+                    ->from('{{%users}}')
+                    ->where(['neptun' => $neptun])
+                    ->one();
+                $file = (new Query())
+                    ->select(['isVersionControlled', 'uploadCount', 'id'])
+                    ->from('{{%student_files}}')
+                    ->where(['uploaderID' => $user['id'], 'taskID' => $taskID])
+                    ->one();
 
                 // $file should exist, but is could be missing in case of manual deletion
-                if (!is_null($file) && !$file->isVersionControlled) {
-                    $file->uploadCount++;
-                    $file->save();
+                if (!is_null($file) && !$file['isVersionControlled']) {
+                    $this->update('{{%student_files}}', ['uploadCount' => $file['uploadCount'] + 1], ['id' => $file['id']]);
                 }
             }
         }
