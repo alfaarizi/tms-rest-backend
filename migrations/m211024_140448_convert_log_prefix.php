@@ -1,6 +1,5 @@
 <?php
 
-use app\models\User;
 use yii\db\Query;
 use yii\db\Migration;
 
@@ -45,8 +44,19 @@ class m211024_140448_convert_log_prefix extends Migration
                     $ip = $match[1][0];
                     $userID = $match[1][1];
 
-                    $identity = User::findOne(['id' => $userID]);
-                    $userString = !is_null($identity) ? "$identity->name ($identity->neptun)" : "-";
+                    $identity = (new Query())
+                        ->select(['name', 'neptun'])
+                        ->from('{{%users}}')
+                        ->where(['id' => $userID])
+                        ->one();
+
+                    if ($identity !== false) {
+                        $name = $identity['name'];
+                        $neptun = $identity['neptun'];
+                        $userString = "$name ($neptun)";
+                    } else {
+                        $userString = "-";
+                    }
 
                     $newPrefix = "[$ip][$userString]";
 
@@ -94,8 +104,14 @@ class m211024_140448_convert_log_prefix extends Migration
 
                     preg_match('#\((.*?)\)#', $userString, $neptunMatch);
 
-                    $user = count($neptunMatch) == 2 ? User::findOne(['neptun' => $neptunMatch[1]]) : null;
-                    $userID = $user ? $user->id : "-";
+                    $user = count($neptunMatch) == 2 ?
+                        (new Query())
+                            ->select('id')
+                            ->from('{{%users}}')
+                            ->where(['neptun' => $neptunMatch[1]])
+                            ->one()
+                        : null;
+                    $userID = $user ? $user['id'] : "-";
                     $newPrefix = "[$ip][$userID][-]";
                     $this->update('{{%log}}', ['prefix' => $newPrefix], ['id' => $row['id']]);
                 }

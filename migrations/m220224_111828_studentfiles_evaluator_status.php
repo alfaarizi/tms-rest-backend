@@ -1,6 +1,5 @@
 <?php
 
-use app\models\StudentFile;
 use yii\db\Migration;
 use yii\db\Query;
 
@@ -50,18 +49,18 @@ class m220224_111828_studentfiles_evaluator_status extends Migration
                 $errorMsg = $row['errorMsg'];
 
                 if (empty($errorMsg)) {
-                    if ($isAccepted === StudentFile::IS_ACCEPTED_PASSED) {
-                        $evaluatorStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
-                    } elseif ($isAccepted === StudentFile::IS_ACCEPTED_FAILED) {
-                        $evaluatorStatus = StudentFile::AUTO_TESTER_STATUS_LEGACY_FAILED;
+                    if ($isAccepted === 'Passed') {
+                        $evaluatorStatus = 'Passed';
+                    } elseif ($isAccepted === 'Failed') {
+                        $evaluatorStatus = 'Legacy Failed';
                     } else {
-                        $evaluatorStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+                        $evaluatorStatus = 'Not Tested';
                     }
                 } else {
                     if ($errorMsg === 'Your solution passed the tests' || $errorMsg === 'A megoldás átment a teszteken') {
-                        $evaluatorStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
+                        $evaluatorStatus = 'Passed';
                     } else {
-                        $evaluatorStatus = StudentFile::AUTO_TESTER_STATUS_LEGACY_FAILED;
+                        $evaluatorStatus = 'Legacy Failed';
                     }
                 }
 
