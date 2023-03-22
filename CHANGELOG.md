@@ -4,6 +4,14 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.11.1](https://gitlab.com/tms-elte/backend-core/compare/v2.11.0...v2.11.1) (2023-03-22)
+### Bug Fixes
+
+* Store standard output if standard error is empty upon compilation failure of student submission. ([999922](https://gitlab.com/tms-elte/backend-core/commit/9999225ceb44a5984c9315a707d63933820a3f76))
+
+
+---
+
 ## [2.11.0](https://gitlab.com/tms-elte/backend-core/compare/v2.10.0...v2.11.0) (2023-03-06)
 ### Features
 
