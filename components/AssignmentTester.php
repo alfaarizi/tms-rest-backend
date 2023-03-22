@@ -173,11 +173,7 @@ class AssignmentTester
         // check if the compilation was successful
         if ($execResult['exitCode'] != 0) {
             $this->results['compiled'] = false;
-            if ($task->testOS == 'windows') {
-                $this->results['compilationError'] = $execResult['stdout'] . PHP_EOL . $execResult['stderr'];
-            } else {
-                $this->results['compilationError'] = $execResult['stderr'];
-            }
+            $this->results['compilationError'] = !empty($execResult['stderr']) ? $execResult['stderr'] : $execResult['stdout'];
             $this->stopContainer($containerName);
             return;
         }

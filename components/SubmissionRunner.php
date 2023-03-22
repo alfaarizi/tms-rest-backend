@@ -202,7 +202,7 @@ class SubmissionRunner
 
             $compileResult = $dockerContainer->executeCommand($compileCommand);
             if ($compileResult['exitCode'] != 0) {
-                $err = $compileResult['stderr'];
+                $err = !empty($compileResult['stderr']) ? $compileResult['stderr'] : $compileResult['stdout'];
                 Yii::info("Failed to compile student file [" . $this->studentFile->id . "]: " . $err, __METHOD__);
                 throw new SubmissionRunnerException(
                     'Compile failed',
