@@ -109,10 +109,10 @@ class AccessToken extends ActiveRecord
         $authToken->userId = $user->id;
 
         $randomString = Yii::$app->security->generateRandomString(self::ACCESS_TOKEN_LENGTH);
-        $authToken->token = "$user->neptun;$randomString";
+        $authToken->token = "{$user->neptun}-{$randomString}";
 
         $randomString = Yii::$app->security->generateRandomString(self::IMAGE_TOKEN_LENGTH);
-        $authToken->imageToken = "$user->neptun;$randomString";
+        $authToken->imageToken = "{$user->neptun}-{$randomString}";
 
         $authToken->validUntil = static::calculateNewValidation();
 
@@ -132,9 +132,10 @@ class AccessToken extends ActiveRecord
     }
 
     /**
+     * Returns access token for the currently logged-in user.
      * @return AccessToken|null
      */
-    public static function getCurrent()
+    public static function getCurrent(): ?AccessToken
     {
         $authHeader = Yii::$app->request->headers->get('Authorization');
         $token = explode(' ', $authHeader)[1];

@@ -149,6 +149,9 @@ $config = [
                     )
                 );
             },
+            \app\components\docker\DockerImageManager::class => function ($container, $params, $config) {
+                return new \app\components\docker\DockerImageManager($params['os']);
+            },
             \app\components\SubmissionRunner::class => \app\components\SubmissionRunner::class,
         ]
     ],

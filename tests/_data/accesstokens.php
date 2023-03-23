@@ -35,6 +35,12 @@ return [
         "token" => "TEACH2;VALID",
         "userID" => 1007,
         "validUntil" => date('Y-m-d H:i:s', time() + 1200),
-        "imageToken" => "ADMIN1;VALID",
+        "imageToken" => "TEACH2;VALID",
+    ],
+    "token6" => [
+        "token" => "TEACH5;VALID",
+        "userID" => 1010,
+        "validUntil" => date('Y-m-d H:i:s', time() + 1200),
+        "imageToken" => "TEACH5;VALID",
     ],
 ];

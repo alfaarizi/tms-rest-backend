@@ -4,9 +4,11 @@ namespace app\modules\instructor\resources;
 
 use app\components\GitManager;
 use app\components\openapi\generators\OAProperty;
+use app\modules\instructor\resources\CodeCheckerResultResource;
 use Yii;
 use app\models\StudentFile;
 use app\resources\UserResource;
+use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
 
@@ -49,7 +51,8 @@ class StudentFileResource extends StudentFile
             'grader',
             'task',
             'execution',
-            'codeCompass'
+            'codeCompass',
+            'codeCheckerResult'
         ];
     }
 
@@ -67,6 +70,7 @@ class StudentFileResource extends StudentFile
                 'execution' => new OAProperty(['ref' => '#/components/schemas/Instructor_WebAppExecutionResource_Read']),
                 'codeCompass' => new OAProperty(['ref' => '#/components/schemas/Instructor_CodeCompassInstanceResource_Read']),
                 'codeCompassID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+                'codeCheckerResult' => new OAProperty(['ref' => '#/components/schemas/Instructor_CodeCheckerResultResource_Read']),
             ]
         );
     }
@@ -151,5 +155,10 @@ class StudentFileResource extends StudentFile
         return $this->hasOne(CodeCompassInstanceResource::class, ['studentFileId' => 'id'])
             ->one()
             ->id ?? null;
+    }
+
+    public function getCodeCheckerResult(): ActiveQuery
+    {
+        return $this->hasOne(CodeCheckerResultResource::class, ['id' => 'codeCheckerResultID']);
     }
 }

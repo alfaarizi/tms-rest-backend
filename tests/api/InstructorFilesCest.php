@@ -122,7 +122,7 @@ class InstructorFilesCest
                     'uploadTime' => '2021-02-03T10:00:00+01:00',
                 ],
                 [
-                    'id' => 8,
+                    'id' => 10,
                     'name' => 'file2.txt',
                     'uploadTime' => '2021-02-04T10:00:00+01:00',
                 ],
@@ -135,6 +135,8 @@ class InstructorFilesCest
         $I->cantSeeResponseContainsJson(['id' => 5]);
         $I->cantSeeResponseContainsJson(['id' => 6]);
         $I->cantSeeResponseContainsJson(['id' => 7]);
+        $I->cantSeeResponseContainsJson(['id' => 8]);
+        $I->cantSeeResponseContainsJson(['id' => 9]);
     }
 
     public function indexAttachments(ApiTester $I)
@@ -160,6 +162,7 @@ class InstructorFilesCest
         $I->cantSeeResponseContainsJson(['id' => 6]);
         $I->cantSeeResponseContainsJson(['id' => 7]);
         $I->cantSeeResponseContainsJson(['id' => 8]);
+        $I->cantSeeResponseContainsJson(['id' => 9]);
     }
 
     public function indexTestFiles(ApiTester $I)
@@ -171,7 +174,7 @@ class InstructorFilesCest
         $I->seeResponseContainsJson(
             [
                 [
-                    'id' => 8,
+                    'id' => 10,
                     'name' => 'file2.txt',
                     'uploadTime' => '2021-02-04T10:00:00+01:00',
                 ],
@@ -185,6 +188,8 @@ class InstructorFilesCest
         $I->cantSeeResponseContainsJson(['id' => 5]);
         $I->cantSeeResponseContainsJson(['id' => 6]);
         $I->cantSeeResponseContainsJson(['id' => 7]);
+        $I->cantSeeResponseContainsJson(['id' => 8]);
+        $I->cantSeeResponseContainsJson(['id' => 9]);
     }
 
     public function downloadNotFound(ApiTester $I)

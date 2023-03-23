@@ -10,6 +10,7 @@ use Docker\API\Model\ContainersIdJsonGetResponse200;
 use Docker\API\Model\ExecIdStartPostBody;
 use Docker\Docker;
 use ForceUTF8\Encoding;
+use Jane\OpenApiRuntime\Client\Client;
 use Psr\Http\Message\ResponseInterface;
 use Yii;
 
@@ -279,5 +280,25 @@ class DockerContainer
             $this->containerInspectResult instanceof ResponseInterface
             && $this->containerInspectResult->getStatusCode() == 200
             );
+    }
+
+    /**
+     * TODO remove after !45 merged (https://gitlab.com/tms-elte/backend-core/-/merge_requests/45)
+     * Extracts resources from container into a tar archive
+     *
+     * @param string $pathToResource path to resources to extract from the container
+     * @param string $destination path to tar file on host
+     * @return void
+     */
+    public function downloadArchive(string $pathToResource, string $destination)
+    {
+        if ($this->isContainerRunning()) {
+            $containerArchive = $this->docker->containerArchive(
+                $this->containerCreateResult->getId(),
+                ['path' => $pathToResource],
+                Client::FETCH_RESPONSE
+            );
+            file_put_contents($destination, $containerArchive->getBody()->getContents(), LOCK_EX);
+        }
     }
 }

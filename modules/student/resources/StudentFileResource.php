@@ -3,6 +3,7 @@
 namespace app\modules\student\resources;
 
 use app\components\openapi\generators\OAProperty;
+use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -34,32 +35,40 @@ class StudentFileResource extends \app\models\StudentFile
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        return [
+            'codeCheckerResult'
+        ];
+    }
+
     public function fieldTypes(): array
     {
         return ArrayHelper::merge(
             parent::fieldTypes(),
             [
-                'graderName' => new OAProperty(['type' => 'string'])
+                'graderName' => new OAProperty(['type' => 'string']),
+                'codeCheckerResult' => new OAProperty(['ref' => '#/components/schemas/Student_CodeCheckerResultResource_Read']),
             ]
         );
     }
 
     /**
-     * @inheritdoc
-     */
-    public function extraFields()
-    {
-        return [];
-    }
-
-    /**
      * @return string|null
      */
-    public function getGraderName()
+    public function getGraderName(): string
     {
         if ($this->task->group->isExamGroup) {
             return '';
         }
         return $this->grader->name ?? '';
+    }
+
+    public function getCodeCheckerResult(): ActiveQuery
+    {
+        return $this->hasOne(CodeCheckerResultResource::class, ['id' => 'codeCheckerResultID']);
     }
 }

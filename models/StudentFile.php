@@ -16,6 +16,7 @@ use yii\helpers\StringHelper;
  * @property integer $id
  * @property string $name
  * @property-read string $path
+ * @property-read string $basePath
  * @property string $uploadTime
  * @property integer $taskID
  * @property integer $uploaderID
@@ -29,9 +30,11 @@ use yii\helpers\StringHelper;
  * @property integer $canvasID
  * @property integer $uploadCount
  * @property boolean $verified
+ * @property string $codeCheckerResultID
  * @property Task $task
  * @property User $uploader
  * @property User $grader
+ * @property CodeCheckerResult $codeCheckerResult
  *
  * @property-read array $ipAddresses
  * @property-read string $safeErrorMsg
@@ -251,11 +254,18 @@ class StudentFile extends File implements IOpenApiFieldTypes
     /**
      * @inheritdoc
      */
-    public function getPath(): string
+    public function getBasePath(): string
     {
         return Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' .
-            $this->taskID . '/' . strtolower($this->uploader->neptun) . '/' .
-            $this->name;
+            $this->taskID . '/' . strtolower($this->uploader->neptun);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPath(): string
+    {
+        return $this->basePath . '/' . $this->name;
     }
 
     /**
@@ -387,5 +397,10 @@ class StudentFile extends File implements IOpenApiFieldTypes
             default:
                 throw new \UnexpectedValueException('Invalid autoTesterStatus');
         }
+    }
+
+    public function getCodeCheckerResult()
+    {
+        return $this->hasOne(CodeCheckerResult::class, ['id' => 'codeCheckerResultID']);
     }
 }

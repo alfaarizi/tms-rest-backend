@@ -136,5 +136,40 @@ class TaskTest extends \Codeception\Test\Unit
             $this->task->appType = 99999;
             $this->assertFalse($this->task->validate('port'), 'port must be <= 65353');
         });
+
+        $this->specify("Static code analyzer tool should be supported", function () {
+            $this->task->staticCodeAnalysis = true;
+
+            $this->task->staticCodeAnalyzerTool = "codechecker";
+            $this->assertTrue($this->task->validate("staticCodeAnalyzerTool"));
+
+            $this->task->staticCodeAnalyzerTool = "roslynator";
+            $this->assertTrue($this->task->validate("staticCodeAnalyzerTool"));
+
+            $this->task->staticCodeAnalyzerTool = "unknown";
+            $this->assertFalse($this->task->validate("staticCodeAnalyzerTool"));
+        });
+
+        $this->specify("Static code analyzer: 'codeCheckerCompileInstructions' is required when CodeChecker selected", function () {
+            $this->task->staticCodeAnalysis = true;
+            $this->task->staticCodeAnalyzerTool = "codechecker";
+
+            $this->task->codeCheckerCompileInstructions = "g++ *cpp";
+            $this->assertTrue($this->task->validate("codeCheckerCompileInstructions"));
+
+            $this->task->codeCheckerCompileInstructions = null;
+            $this->assertFalse($this->task->validate("codeCheckerCompileInstructions"));
+        });
+
+        $this->specify("Static code analyzer: 'staticCodeAnalyzerInstructions' is required when other analyzer is selected", function () {
+            $this->task->staticCodeAnalysis = true;
+            $this->task->staticCodeAnalyzerTool = "roslynator";
+
+            $this->task->staticCodeAnalyzerInstructions = "roslynator analyze";
+            $this->assertTrue($this->task->validate("staticCodeAnalyzerInstructions"));
+
+            $this->task->staticCodeAnalyzerInstructions = null;
+            $this->assertFalse($this->task->validate("staticCodeAnalyzerInstructions"));
+        });
     }
 }

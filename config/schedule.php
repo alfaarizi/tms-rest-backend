@@ -24,6 +24,10 @@ $schedule->command('auto-tester/check ' . $schedulingParams['autoTesterCheckTask
          ->everyNMinutes($schedulingPeriods['autoTesterCheck'])
          ->withoutOverlapping();
 
+$schedule->command('code-checker/check ' . $schedulingParams['codeCheckerCheckSubmissionsNumber'])
+    ->everyNMinutes($schedulingPeriods['codeCheckerCheck'])
+    ->withoutOverlapping();
+
 $schedule->command('code-compass/clear-cached-images')
          ->everyNMinutes(intval($schedulingPeriods['ccClearCachedImages']) * 1440) // days * 1440 = minutes
          ->withoutOverlapping();

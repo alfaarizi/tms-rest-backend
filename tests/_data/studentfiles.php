@@ -16,6 +16,7 @@ return [
         'autoTesterStatus' => \app\models\StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED,
         'uploadCount' => 1,
         'verified' => true,
+        'codeCheckerResultID' => 1,
     ],
     'file2' => [
         'id' => 2,
@@ -76,6 +77,7 @@ return [
         'errorMsg' => null,
         'uploadCount' => 1,
         'verified' => true,
+        'codeCheckerResultID' => null,
     ],
     'file6' => [
         'id' => 6,
@@ -91,6 +93,7 @@ return [
         'autoTesterStatus' => \app\models\StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
         'uploadCount' => 1,
         'verified' => true,
+        'codeCheckerResultID' => 2,
     ],
     'file7' => [
         'id' => 7,
@@ -249,6 +252,7 @@ return [
         'autoTesterStatus' => \app\models\StudentFile::AUTO_TESTER_STATUS_PASSED,
         'uploadCount' => 1,
         'verified' => true,
+        'codeCheckerResultID' => 3,
     ],
     'file17_already_tested_failed' => [
         'id' => 18,

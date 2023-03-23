@@ -20,7 +20,8 @@ $group = $task->group;
         (<?= \Yii::t('app/mail', 'group') ?>: <?= $group->number ?>)
     <?php endif; ?>
     <br>
-    <?= \Yii::t('app/mail', 'Task name') ?>: <?= Html::encode($task->name) ?><br>
+    <?= \Yii::t('app/mail', 'Task name') ?>:
+    <?= Html::a(Html::encode($task->name), Yii::$app->params['frontendUrl'] . '/student/task-manager/tasks/' . $task->id) ?><br>
     <?= \Yii::t('app/mail', 'Result') ?>: <?= \Yii::t('app', $studentFile->isAccepted) ?><br>
     <?= \Yii::t('app/mail', 'Remark') ?>:<br>
     <pre><?= Html::encode($studentFile->errorMsg) ?></pre>

@@ -16,6 +16,7 @@ class EvaluatorAdditionalInformationResource extends Model implements IOpenApiFi
     public $appTypes;
     public $imageSuccessfullyBuilt;
     public $imageCreationDate;
+    public $supportedStaticAnalyzers;
 
     public function fieldTypes(): array
     {
@@ -29,7 +30,13 @@ class EvaluatorAdditionalInformationResource extends Model implements IOpenApiFi
             'osMap' => new OAProperty(['type' => 'string', 'enum' => new OAList(Task::TEST_OS)]),
             'appTypes' => new OAProperty(['type' => 'string', 'enum' => new OAList(Task::APP_TYPES)]),
             'imageSuccessfullyBuilt' => new OAProperty(['type' => 'boolean']),
-            'imageCreationDate' => new OAProperty(['type' => 'string'])
+            'imageCreationDate' => new OAProperty(['type' => 'string']),
+            'supportedStaticAnalyzers' => new OAProperty(
+                [
+                    'type' => 'array',
+                    new OAItems(['ref' => '#/components/schemas/Instructor_StaticAnalyzerToolResource_Read'])
+                ]
+            ),
         ];
     }
 }

@@ -3,16 +3,15 @@
 namespace app\models\queries;
 
 use app\models\StudentFile;
-use yii\db\ActiveQuery;
 
 class StudentFileQuery extends \yii\db\ActiveQuery
 {
     /**
      * Find submissions by semester
-     * @param $semesterID
+     * @param int $semesterID
      * @return StudentFileQuery
      */
-    public function findBySemester($semesterID)
+    public function findBySemester(int $semesterID): StudentFileQuery
     {
         return $this
             ->joinWith('task t')
@@ -23,7 +22,7 @@ class StudentFileQuery extends \yii\db\ActiveQuery
      * Find tested submissions
      * @return StudentFileQuery
      */
-    public function findTested()
+    public function findTested(): StudentFileQuery
     {
         return $this
             ->andWhere(['not in',
@@ -39,7 +38,7 @@ class StudentFileQuery extends \yii\db\ActiveQuery
      * Find submissions under testing
      * @return StudentFileQuery
      */
-    public function findUnderTesting()
+    public function findUnderTesting(): StudentFileQuery
     {
         return $this->andWhere(['autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS]);
     }
@@ -49,7 +48,7 @@ class StudentFileQuery extends \yii\db\ActiveQuery
      * @param $taskIds
      * @return StudentFileQuery
      */
-    public function notTested($taskIds)
+    public function notTested($taskIds): StudentFileQuery
     {
         return $this->andWhere(
             [

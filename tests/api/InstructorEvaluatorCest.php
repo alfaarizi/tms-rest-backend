@@ -45,7 +45,7 @@ class InstructorEvaluatorCest
             ],
             'studentfiles' => [
                 'class' => StudentFilesFixture::class,
-            ]
+            ],
         ];
     }
 
@@ -68,10 +68,11 @@ class InstructorEvaluatorCest
             '/instructor/tasks/5015/evaluator/setup-auto-tester',
             [
                 'autoTest' => true,
+                'appType' => 'Console',
                 'compileInstructions' => '/compile.sh',
                 'runInstructions' => './program.out',
                 'showFullErrorMsg' => true,
-                'appType' => 'Console'
+                'reevaluateAutoTest' => false,
             ]
         );
 
@@ -224,5 +225,224 @@ class InstructorEvaluatorCest
         );
 
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+    }
+
+    public function setupCodeCheckerValid(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/tasks/5015/evaluator/setup-code-checker',
+            [
+                'staticCodeAnalysis' => true,
+                'staticCodeAnalyzerTool' => 'codechecker',
+                'codeCheckerCompileInstructions' => 'g++ *.cpp',
+                'codeCheckerToggles' => '--toggle1',
+                'codeCheckerSkipFile' => '- */skipped.cpp',
+                'reevaluateStaticCodeAnalysis' => false,
+            ]
+        );
+
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                'id' => 5015,
+                'staticCodeAnalysis' => 1,
+                'staticCodeAnalyzerTool' => 'codechecker',
+                'codeCheckerCompileInstructions' => 'g++ *.cpp',
+                'codeCheckerToggles' => '--toggle1',
+                'codeCheckerSkipFile' => '- */skipped.cpp',
+            ]
+        );
+        $I->seeRecord(
+            Task::class,
+            [
+                'id' => 5015,
+                'staticCodeAnalysis' => 1,
+                'staticCodeAnalyzerTool' => 'codechecker',
+                'codeCheckerCompileInstructions' => 'g++ *.cpp',
+                'codeCheckerToggles' => '--toggle1',
+                'codeCheckerSkipFile' => '- */skipped.cpp',
+            ]
+        );
+
+        // Student file has not changed
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                'id' => 17,
+                'codeCheckerResultID' => 3,
+            ]
+        );
+    }
+
+    public function setupCodeCheckerValidReevaluate(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/tasks/5015/evaluator/setup-code-checker',
+            [
+                'staticCodeAnalysis' => true,
+                'staticCodeAnalyzerTool' => 'codechecker',
+                'codeCheckerCompileInstructions' => 'g++ *.cpp',
+                'codeCheckerToggles' => '--toggle1',
+                'codeCheckerSkipFile' => '- */skipped.cpp',
+                'reevaluateStaticCodeAnalysis' => true,
+            ]
+        );
+
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                'id' => 5015,
+                'staticCodeAnalysis' => 1,
+                'staticCodeAnalyzerTool' => 'codechecker',
+                'codeCheckerCompileInstructions' => 'g++ *.cpp',
+                'codeCheckerToggles' => '--toggle1',
+                'codeCheckerSkipFile' => '- */skipped.cpp',
+            ]
+        );
+        $I->seeRecord(
+            Task::class,
+            [
+                'id' => 5015,
+                'staticCodeAnalysis' => 1,
+                'staticCodeAnalyzerTool' => 'codechecker',
+                'codeCheckerCompileInstructions' => 'g++ *.cpp',
+                'codeCheckerToggles' => '--toggle1',
+                'codeCheckerSkipFile' => '- */skipped.cpp',
+            ]
+        );
+
+        // Student file has changed
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                'id' => 17,
+                'codeCheckerResultID' => null,
+            ]
+        );
+    }
+
+    public function setupCodeCheckerMissingField(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/tasks/5015/evaluator/setup-code-checker',
+            [
+                'staticCodeAnalysis' => true,
+                'staticCodeAnalyzerTool' => 'codechecker',
+                'codeCheckerToggles' => '--toggle1',
+                'codeCheckerSkipFile' => '- */skipped.cpp',
+                'reevaluateStaticCodeAnalysis' => false,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+    }
+
+    public function setupCodeCheckerOtherTool(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/tasks/5015/evaluator/setup-code-checker',
+            [
+                'staticCodeAnalysis' => true,
+                'staticCodeAnalyzerTool' => 'roslynator',
+                'staticCodeAnalyzerInstructions' => 'roslynator analyze',
+                'codeCheckerSkipFile' => '- */skipped.cs',
+                'reevaluateStaticCodeAnalysis' => false,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                'id' => 5015,
+                'staticCodeAnalysis' => 1,
+                'staticCodeAnalyzerTool' => 'roslynator',
+                'staticCodeAnalyzerInstructions' => 'roslynator analyze',
+                'codeCheckerSkipFile' => '- */skipped.cs',
+            ]
+        );
+        $I->seeRecord(
+            Task::class,
+            [
+                'id' => 5015,
+                'staticCodeAnalysis' => 1,
+                'staticCodeAnalyzerTool' => 'roslynator',
+                'staticCodeAnalyzerInstructions' => 'roslynator analyze',
+                'codeCheckerSkipFile' => '- */skipped.cs',
+            ]
+        );
+
+        // Student file not changed
+        $I->seeRecord(
+            StudentFile::class,
+            [
+                'id' => 17,
+                'codeCheckerResultID' => 3,
+            ]
+        );
+    }
+
+    public function setupCodeCheckerUnknownTool(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/tasks/5015/evaluator/setup-code-checker',
+            [
+                'staticCodeAnalysis' => true,
+                'staticCodeAnalyzerTool' => 'unknown',
+                'staticCodeAnalyzerInstructions' => 'roslynator analyze',
+                'codeCheckerSkipFile' => '- */skipped.cs',
+                'reevaluateStaticCodeAnalysis' => false,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+    }
+
+
+    public function setupCodeCheckerTaskNotFound(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/tasks/0/evaluator/setup-code-checker',
+            [
+                'staticCodeAnalysis' => 1,
+                'staticCodeAnalyzerTool' => 'codechecker',
+                'codeCheckerCompileInstructions' => 'g++ *.cpp',
+                'codeCheckerToggles' => '--toggle1',
+                'codeCheckerSkipFile' => '- */skipped.cpp',
+                'reevaluateStaticCodeAnalysis' => 1,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function setupCodeCheckerPreviousSemester(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/tasks/5005/evaluator/setup-code-checker',
+            [
+                'staticCodeAnalysis' => 1,
+                'staticCodeAnalyzerTool' => 'codechecker',
+                'codeCheckerCompileInstructions' => 'g++ *.cpp',
+                'codeCheckerToggles' => '--toggle1',
+                'codeCheckerSkipFile' => '- */skipped.cpp',
+                'reevaluateStaticCodeAnalysis' => 1,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+    }
+
+    public function setupCodeCheckerWithoutPermission(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/tasks/5004/evaluator/setup-code-checker',
+            [
+                'staticCodeAnalysis' => true,
+                'staticCodeAnalyzerTool' => 'codechecker',
+                'codeCheckerCompileInstructions' => 'g++ *.cpp',
+                'codeCheckerToggles' => '--toggle1',
+                'codeCheckerSkipFile' => '- */skipped.cpp',
+                'reevaluateStaticCodeAnalysis' => false,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 }

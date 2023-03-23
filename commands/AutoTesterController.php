@@ -20,7 +20,7 @@ class AutoTesterController extends BaseController
      * @param int $count Number of studentfiles to evaluate.
      * @return int Error code.
      */
-    public function actionCheck($count = 1)
+    public function actionCheck(int $count = 1): int
     {
         if (!Yii::$app->params['evaluator']['enabled']) {
             $this->stderr('Evaluator is disabled in configuration.' . PHP_EOL, Console::FG_RED);

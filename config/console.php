@@ -125,7 +125,16 @@ $config = [
                     )
                 );
             },
+            \app\components\docker\DockerImageManager::class => function ($container, $params, $config) {
+                return new \app\components\docker\DockerImageManager($params['os']);
+            },
             \app\components\SubmissionRunner::class => \app\components\SubmissionRunner::class,
+            \app\components\CanvasIntegration::class => \app\components\CanvasIntegration::class,
+            \app\components\codechecker\AnalyzerRunner::class => [\app\components\codechecker\AnalyzerRunnerFactory::class, 'createForStudentFile'],
+            \app\components\codechecker\CodeCheckerResultPersistence::class => function ($container, $params, $config) {
+                return new \app\components\codechecker\CodeCheckerResultPersistence($params['studentFile']);
+            },
+            \app\components\codechecker\CodeCheckerResultNotifier::class => \app\components\codechecker\CodeCheckerResultNotifier::class,
         ]
     ],
 ];
