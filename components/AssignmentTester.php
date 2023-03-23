@@ -2,13 +2,12 @@
 
 namespace app\components;
 
+use app\components\docker\DockerImageManager;
 use app\models\InstructorFile;
 use Yii;
 use Docker\Docker;
 use Docker\DockerClientFactory;
-use Docker\Context\Context;
 use Docker\API\Model\ContainersCreatePostBody;
-use Docker\API\Model\BuildInfo;
 use Docker\API\Model\ContainersIdExecPostBody;
 use Docker\API\Model\ExecIdStartPostBody;
 use yii\helpers\FileHelper;
@@ -120,11 +119,13 @@ class AssignmentTester
         $imageName = $task->imageName;
         $containerName = $task->containerName;
 
+        $dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $task->testOS]);
+
         //create image for the task
-        //$this->results = self::buildImageForTask($imageName);
+        //$this->results = $dockerImageManager->buildImageForTask($imageName);
 
         // if no image is created, return
-        if (!$this->alreadyBuilt($imageName, $this->socket)) {
+        if (!$dockerImageManager->alreadyBuilt($imageName)) {
             return;
         }
 
@@ -402,117 +403,6 @@ class AssignmentTester
         if (is_dir($path)) {
             $this->deleteFolderContents($path);
         }
-    }
-
-    /**
-     * Checks if an image have already been built.
-     *
-     * @param string $imageName the name of the image.
-     * @param string|null $socket the socket of the Docker daemon to connect.
-     *
-     * @return bool
-     */
-    public static function alreadyBuilt($imageName, $socket = null)
-    {
-        $docker = self::connect($socket);
-        /* @var \Docker\API\Model\ImageSummary[] $images */
-        $images = $docker->imageList();
-        foreach ($images as $image) {
-            $tags = $image->getRepoTags();
-            if (!is_array($tags)) {
-                continue;
-            }
-            foreach ($tags as $tag) {
-                if (strcmp($imageName, $tag) === 0) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Removes a docker image
-     *
-     * @param string $imageName the name of the image
-     * @param string|null $socket the socket of the Docker daemon to connect
-     */
-    public static function removeImage($imageName, $socket = null)
-    {
-        $docker = self::connect($socket);
-        $docker->imageDelete($imageName);
-    }
-
-    /**
-     * Downloads a docker image
-     *
-     * @param string $imageName the name of the image
-     * @param string|null $socket the socket of the Docker daemon to connect
-     */
-    public static function pullImage($imageName, $socket = null)
-    {
-        $docker = self::connect($socket);
-        /** @var \Docker\Stream\CallbackStream $createStream */
-        $createStream = $docker->imageCreate('', [
-            'fromImage' => $imageName,
-        ]);
-
-        $createStream->onFrame(function ($createImageInfo) use (&$firstMessage): void {
-            if (null === $firstMessage) {
-                $firstMessage = $createImageInfo->getStatus();
-            }
-        });
-        $createStream->wait();
-    }
-
-    /**
-     *  Checks if the image have already been built for the task, if not, builds it.
-     *
-     * @param string $taskName the name of the image
-     * @param string $path the path to the Dockerfile
-     * @param string|null $socket the socket of the Docker daemon to connect
-     *
-     * @return array an associative array containing the success and log of the build
-     */
-    public static function buildImageForTask($taskName, $path, $socket = null)
-    {
-        $buildLog = "";
-        $buildResult = [];
-        $buildResult['success'] = true;
-        $buildResult['error'] = '';
-        if (!self::alreadyBuilt($taskName, $socket)) {
-            $context = new Context($path);
-            $inputStream = $context->toStream();
-            $docker = self::connect($socket);
-            /** @var \Docker\Stream\CallbackStream $buildStream */
-            $buildStream = $docker->imageBuild($inputStream, ['t' => $taskName, 'nocache' => true]);
-            $buildStream->onFrame(function (BuildInfo $buildInfo) use ($buildLog) {
-                // Log the build info
-                $buildLog .= $buildInfo->getStream();
-                // if there were errors, return error
-                if ($buildInfo->getError()) {
-                    $buildResult['success'] = false;
-                    $buildResult['error'] = $buildInfo->getError();
-                }
-            });
-            $buildStream->wait();
-        }
-        $buildResult['log'] = $buildLog;
-        return $buildResult;
-    }
-
-    /**
-     * Fetches the image information from an image
-     *
-     * @param string $imageName name of the image
-     * @param string|null $socket String socket of the Docker daemon to connect
-     * @return \Docker\API\Model\Image
-     */
-    public static function inspectImage(string $imageName, string $socket = null): \Docker\API\Model\Image
-    {
-        $docker = self::connect($socket);
-        /** @var \Docker\API\Model\Image $imageInfo */
-        return $docker->imageInspect($imageName);
     }
 
     /**

@@ -53,6 +53,20 @@ return [
     'file8' => [
         'id' => 8,
         'name' => 'file2.txt',
+        'uploadTime' => '2021-02-03 10:00:00',
+        'taskID' => 5007,
+        'category' => 'Test file'
+    ],
+    'file9' => [
+        'id' => 9,
+        'name' => 'file3.txt',
+        'uploadTime' => '2021-02-03 10:00:00',
+        'taskID' => 5007,
+        'category' => 'Test file'
+    ],
+    'file10' => [
+        'id' => 10,
+        'name' => 'file2.txt',
         'uploadTime' => '2021-02-04 10:00:00',
         'taskID' => 5003,
         'category' => 'Test file'

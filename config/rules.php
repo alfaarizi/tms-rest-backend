@@ -10,6 +10,7 @@ return [
     // User settings receives the user ID implicitly from
     // authentication, so no /<id:\d+> is needed
     'PUT,PATCH common/user-settings' => 'user-settings/update',
+    'GET common/code-checker-html-reports/<id>/<token>/<fileName>' => 'code-checker-html-reports/view',
 
     'GET,HEAD common/<controller>' => '<controller>/index',
     'POST common/<controller>' => '<controller>/create',
@@ -28,4 +29,5 @@ return [
     'OPTIONS <module>/<controller>' => '<module>/<controller>/options',
     'OPTIONS <module>/<controller>/<wildcard:.*>' => '<module>/<controller>/options',
     '<module>/<controller>/<action>' => '<module>/<controller>/<action>',
+
 ];

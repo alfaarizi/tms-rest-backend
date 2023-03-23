@@ -4,6 +4,7 @@ namespace app\components;
 
 use app\exceptions\CanvasRequestException;
 use app\models\AccessToken;
+use app\models\CodeCheckerResult;
 use app\models\Group;
 use app\models\InstructorGroup;
 use app\models\StudentFile;
@@ -12,12 +13,14 @@ use app\models\Task;
 use app\models\User;
 use Yii;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 use yii\helpers\FileHelper;
 use yii\helpers\Json;
 use yii\helpers\VarDumper;
 use yii\httpclient\Client;
 use yii\helpers\Console;
 use ForceUTF8\Encoding;
+use yii\httpclient\Exception;
 
 /**
  *  This class implements the canvas synchronization methods.
@@ -703,6 +706,7 @@ class CanvasIntegration
                 'verified' => true,
                 'notes' => '',
                 'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
+                'codeCheckerResultID' => null,
                 'uploadCount' => 1,
             ]);
             $hasNewUpload = true;
@@ -713,6 +717,7 @@ class CanvasIntegration
             $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
             $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
             $studentFile->uploadCount++;
+            $studentFile->codeCheckerResultID = null;
             $hasNewUpload = true;
         }
 
@@ -856,6 +861,74 @@ class CanvasIntegration
                 ->send();
 
             Yii::$app->language = $originalLanguage;
+        }
+    }
+
+    /**
+     * Uploads a short summary of the CodeChecker result to Canvas
+     * @param StudentFile $studentFile
+     * @return void
+     * @throws \UnexpectedValueException Thrown if the CodeChecker result status of the student file has an unexpected value
+     * @throws CanvasRequestException Thrown if Canvas returns with a status code that indicates error
+     * @throws InvalidConfigException Thrown invalid configuration provided for the http client
+     * @throws Exception Thrown if failed to send request to Canvas
+     */
+    public function uploadCodeCheckerResultToCanvas(StudentFile $studentFile)
+    {
+        $synchronizer = $studentFile->task->group->synchronizer;
+        if (is_null($synchronizer) || is_null($synchronizer->canvasToken)) {
+            Yii::error(
+                "Group #{$studentFile->task->groupID} has no valid Canvas synchronizer.",
+                __METHOD__
+            );
+            return;
+        }
+
+        if (!empty($studentFile->codeCheckerResultID) && $this->refreshCanvasToken($synchronizer)) {
+            $codeCheckerResult = $studentFile->codeCheckerResult;
+            $comment = Yii::t('app', 'TMS static code analyzer result: ');
+            switch ($codeCheckerResult->status) {
+                case CodeCheckerResult::STATUS_NO_ISSUES:
+                    $comment .= Yii::t('app', 'No issues were found in the uploaded submission.');
+                    break;
+                case CodeCheckerResult::STATUS_ISSUES_FOUND:
+                    $comment .= Yii::t(
+                        'app',
+                        '{count} issue(s) were found in the uploaded submission. Visit TMS ({url}) for more information.',
+                        [
+                            'count' => count($codeCheckerResult->codeCheckerReports),
+                            'url' => Yii::$app->params['frontendUrl']
+                        ]
+                    );
+                    break;
+                case CodeCheckerResult::STATUS_ANALYSIS_FAILED:
+                    $comment .= Yii::t('app', 'Analysis Failed');
+                    break;
+                case CodeCheckerResult::STATUS_RUNNER_ERROR:
+                    $comment .= Yii::t('app', 'Runner Error');
+                    break;
+                default:
+                    throw new \UnexpectedValueException("Invalid CodeChecker result status for {$studentFile->id}");
+            }
+
+            $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
+            $url = 'api/v1/courses/' . $studentFile->task->group->canvasCourseID .
+                '/assignments/' . $studentFile->task->canvasID . '/submissions/' . $studentFile->uploader->canvasID;
+            $response = $client->createRequest()
+                ->setMethod('PUT')
+                ->setHeaders(['Authorization' => 'Bearer ' . $synchronizer->canvasToken])
+                ->setUrl($url)
+                ->setData(['comment[text_comment]' => $comment])
+                ->send();
+
+            if (!$response->isOk) {
+                Yii::error(
+                    "Saving CodeChecker results to Canvas failed" . PHP_EOL .
+                    "Student File ID: {$studentFile->id}",
+                    __METHOD__
+                );
+                throw new CanvasRequestException($response->statusCode, 'Failed to save CodeChecker results to canvas.');
+            }
         }
     }
 }

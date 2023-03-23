@@ -37,6 +37,12 @@ use yii\helpers\FileHelper;
  * @property integer $port
  * @property string $appType
  * @property string $password
+ * @property boolean $staticCodeAnalysis
+ * @property string $staticCodeAnalyzerTool
+ * @property string $staticCodeAnalyzerInstructions
+ * @property string $codeCheckerCompileInstructions
+ * @property string $codeCheckerToggles
+ * @property string $codeCheckerSkipFile
  *
  * @property InstructorFile[] $instructorFiles
  * @property StudentFile[] $studentFiles
@@ -84,8 +90,6 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 
         return $scenarios;
     }
-
-
 
     /**
      * Array of supported category types for a Task.
@@ -206,7 +210,33 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             [['appType'], 'in', 'range' => self::APP_TYPES],
             [['appType'], 'required', 'when' => function ($model) {
                 return $model->imageName != null;
-            }]
+            }],
+            [
+                ['staticCodeAnalyzerTool'],
+                'required',
+                'when' => function ($model) {
+                    return $model->staticCodeAnalysis;
+                }
+            ],
+            [
+                ['staticCodeAnalyzerTool'],
+                'in',
+                'range' => array_merge(['codechecker'], array_keys(Yii::$app->params["evaluator"]["supportedStaticAnalyzerTools"])),
+            ],
+            [
+                ['codeCheckerCompileInstructions'],
+                'required',
+                'when' => function ($model) {
+                    return $model->staticCodeAnalysis && $model->staticCodeAnalyzerTool === 'codechecker';
+                }
+            ],
+            [
+                ['staticCodeAnalyzerInstructions'],
+                'required',
+                'when' => function ($model) {
+                    return $model->staticCodeAnalysis && $model->staticCodeAnalyzerTool !== 'codechecker';
+                }
+            ]
         ];
     }
 
@@ -239,6 +269,12 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'appType' => Yii::t('app', 'Application type'),
             'codeCompassCompileInstructions' => Yii::t('app', 'CodeCompass Compile Instructions'),
             'codeCompassPackagesInstallInstructions' => Yii::t('app', 'CodeCompass Packages'),
+            'staticCodeAnalysis' => Yii::t('app', 'Static Code Analysis'),
+            'staticCodeAnalyzerTool' => Yii::t('app', 'Static Code Analyzer Tool'),
+            'staticCodeAnalyzerInstructions' => Yii::t('app', 'Static Code Analyzer Instructions'),
+            'codeCheckerCompileInstructions' => Yii::t('app', 'CodeChecker Compiler Instructions'),
+            'codeCheckerToggles' => Yii::t('app', 'CodeChecker Toggles'),
+            'codeCheckerSkipFile' => Yii::t('app', 'CodeChecker Skipfile'),
         ];
     }
 
@@ -475,6 +511,12 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'password' => new OAProperty(['type' => 'string']),
             'port' => new OAProperty(['type' => 'integer']),
             'appType' => new OAProperty(['type' => 'string', 'enum' => new OAList(self::APP_TYPES)]),
+            'staticCodeAnalysis' => new OAProperty(['type' => 'boolean']),
+            'staticCodeAnalyzerTool' => new OAProperty(['type' => 'string']),
+            'staticCodeAnalyzerInstructions' => new OAProperty(['type' => 'string']),
+            'codeCheckerSkipFile' => new OAProperty(['type' => 'string']),
+            'codeCheckerCompileInstructions' => new OAProperty(['type' => 'string']),
+            'codeCheckerToggles' => new OAProperty(['type' => 'string']),
         ];
     }
 }

@@ -32,6 +32,11 @@ return [
         'isVersionControlled' => 0,
         'autoTest' => 1,
         'showFullErrorMsg' => 0,
+        'testOs' => 'linux',
+        'staticCodeAnalysis' => 1,
+        'imageName' => 'image:latest',
+        'staticCodeAnalyzerTool' => 'codechecker',
+        'codeCheckerCompileInstructions' => 'g++ *.cpp',
     ],
     'task3' => [
         'id' => 5002,

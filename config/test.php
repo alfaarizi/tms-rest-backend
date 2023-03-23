@@ -103,6 +103,7 @@ return [
         'definitions' => [
             Docker\Docker::class => app\tests\doubles\DockerStub::class,
             \app\components\SubmissionRunner::class => \app\components\SubmissionRunner::class,
+            \app\components\codechecker\CodeCheckerResultPersistence::class => \app\components\codechecker\CodeCheckerResultPersistence::class
         ],
     ]
 ];

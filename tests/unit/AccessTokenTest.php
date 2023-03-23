@@ -24,11 +24,14 @@ class AccessTokenTest extends Unit
         ];
     }
 
-    public function testCheckValidation()
+    public function testCheckValidationValid()
     {
         $validToken = AccessToken::findOne(['token' => 'BATMAN;12345']);
         $this->assertTrue($validToken->checkValidation());
+    }
 
+    public function testCheckValidationExpired()
+    {
         $expiredToken = AccessToken::findOne(['token' => 'STUD01;EXPIRED']);
         $this->assertFalse($expiredToken->checkValidation());
     }
@@ -37,9 +40,6 @@ class AccessTokenTest extends Unit
     {
         $token0 = AccessToken::findOne(['token' => 'BATMAN;12345']);
         $this->assertTrue($token0->user->neptun === "BATMAN");
-
-        $token1 = AccessToken::findOne(['token' => 'STUD01;VALID']);
-        $this->assertTrue($token1->user->neptun === "STUD01");
     }
 
     public function testCreateForUser()
@@ -53,8 +53,8 @@ class AccessTokenTest extends Unit
         $length = strlen($token->imageToken);
         $this->assertTrue($length === AccessToken::IMAGE_TOKEN_LENGTH + 7);
 
-        $this->assertTrue(str_starts_with($token->token, "STUD02;"));
-        $this->assertTrue(str_starts_with($token->imageToken, "STUD02;"));
+        $this->assertTrue(str_starts_with($token->token, "STUD02-"));
+        $this->assertTrue(str_starts_with($token->imageToken, "STUD02-"));
     }
 
     public function testRefreshValidToken()

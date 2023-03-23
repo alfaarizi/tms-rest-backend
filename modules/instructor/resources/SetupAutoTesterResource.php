@@ -10,18 +10,45 @@ use app\models\Task;
 
 class SetupAutoTesterResource extends Model implements IOpenApiFieldTypes
 {
+    /**
+     * @var bool
+     */
     public $autoTest;
+
+    /**
+     * @var string
+     */
     public $compileInstructions;
+
+    /**
+     * @var string
+     */
     public $runInstructions;
+
+    /**
+     * @var bool
+     */
     public $showFullErrorMsg;
+
+    /**
+     * @var bool
+     */
     public $reevaluateAutoTest;
+
+    /**
+     * @var string
+     */
     public $appType;
+
+    /**
+     * @var integer
+     */
     public $port;
 
     public function rules()
     {
         return [
-            [['appType', 'autoTest'], 'required'],
+            [['appType', 'autoTest', 'showFullErrorMsg', 'reevaluateAutoTest'], 'required'],
             [['compileInstructions', 'runInstructions'], 'string'],
             [['autoTest', 'showFullErrorMsg', 'reevaluateAutoTest'], 'boolean'],
             [['appType'], 'string'],

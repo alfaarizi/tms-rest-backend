@@ -137,9 +137,10 @@ class TaskQuery extends ActiveQuery
      * Find tasks with automatic testing enabled
      * @return TaskQuery
      */
-    public function autoTestEnabled()
+    public function autoTestEnabled(): TaskQuery
     {
-        return $this->andWhere(['autoTest' => 1])
+        return $this
+            ->andWhere(['autoTest' => 1])
             ->andWhere(['not', ['imageName' => null]])
             ->andWhere(['not', ['compileInstructions' => null]])
             ->andWhere(['not', ['appType' => Task::APP_TYPE_WEB]]);

@@ -37,6 +37,8 @@ return [
         'compileTimeout' => '60',
         // seconds allowed to run a test case
         'testTimeout' => '5',
+        // seconds allowed to perform static analysis
+        'staticAnalysisTimeout' => '300',
         //web app execution configuration
         'webApp' => [
             // ttl of remote web applications
@@ -59,6 +61,16 @@ return [
         ],
         // preconfigured templates
         'templates' => [],
+        'supportedStaticAnalyzerTools' => [
+            'roslynator' => [
+                'title' => 'Roslynator (C#)',
+                'outputPath' => 'roslynator.xml',
+            ],
+        ],
+        'reportConverterImage' => [
+            'linux' => 'imageName:latest',
+            'windows' => 'imageName:latest',
+        ]
     ],
     // Canvas synchronization configuration
     'canvas' => [

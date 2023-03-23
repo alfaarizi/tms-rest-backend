@@ -42,6 +42,12 @@ class TaskResource extends \app\models\Task
             'canvasUrl',
             'codeCompassCompileInstructions',
             'codeCompassPackagesInstallInstructions',
+            'staticCodeAnalysis',
+            'staticCodeAnalyzerTool',
+            'staticCodeAnalyzerInstructions',
+            'codeCheckerCompileInstructions',
+            'codeCheckerToggles',
+            'codeCheckerSkipFile',
         ];
     }
 

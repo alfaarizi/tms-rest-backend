@@ -21,4 +21,8 @@ return [
         'userID' => 1006,
         'courseID' => 4003,
     ],
+    'instructorcourse6' => [
+        'userID' => 1010,
+        'courseID' => 4000,
+    ],
 ];

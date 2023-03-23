@@ -2,12 +2,14 @@
 
 namespace app\modules\instructor\controllers;
 
-use app\components\AssignmentTester;
+use app\components\docker\DockerImageManager;
 use app\models\StudentFile;
 use app\models\Task;
 use app\modules\instructor\resources\EvaluatorTemplateResource;
 use app\modules\instructor\resources\SetupAutoTesterResource;
+use app\modules\instructor\resources\SetupCodeCheckerResource;
 use app\modules\instructor\resources\SetupEvaluatorEnvironmentResource;
+use app\modules\instructor\resources\StaticAnalyzerToolResource;
 use app\modules\instructor\resources\TaskResource;
 use app\modules\instructor\resources\EvaluatorAdditionalInformationResource;
 use app\resources\SemesterResource;
@@ -31,6 +33,7 @@ class EvaluatorController extends BaseInstructorRestController
                 'tester-form-data' => ['GET'],
                 'setup-environment' => ['POST'],
                 'setup-auto-tester' => ['POST'],
+                'setup-code-checker' => ['POST'],
                 'update-docker-image' => ['POST'],
             ]
         );
@@ -153,16 +156,13 @@ class EvaluatorController extends BaseInstructorRestController
             }
         }
 
+        $dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $task->testOS]);
         if (file_exists($sourcedir . 'Dockerfile')) {
-            if (AssignmentTester::alreadyBuilt($task->localImageName, Yii::$app->params['evaluator'][$task->testOS])) {
-                AssignmentTester::removeImage($task->localImageName, Yii::$app->params['evaluator'][$task->testOS]);
+            if ($dockerImageManager->alreadyBuilt($task->localImageName)) {
+                $dockerImageManager->removeImage($task->localImageName);
             }
 
-            $buildResult = AssignmentTester::buildImageForTask(
-                $task->localImageName,
-                $sourcedir,
-                Yii::$app->params['evaluator'][$task->testOS]
-            );
+            $buildResult = $dockerImageManager->buildImageForTask($task->localImageName, $sourcedir);
 
             if (!$buildResult['success']) {
                 $error = $buildResult['log'] . PHP_EOL . $buildResult['error'];
@@ -172,11 +172,8 @@ class EvaluatorController extends BaseInstructorRestController
             }
         }
 
-        if (
-            !$task->isLocalImage &&
-            !AssignmentTester::alreadyBuilt($task->imageName, Yii::$app->params['evaluator'][$task->testOS])
-        ) {
-            AssignmentTester::pullImage($task->imageName, Yii::$app->params['evaluator'][$task->testOS]);
+        if (!$task->isLocalImage && !$dockerImageManager->alreadyBuilt($task->imageName)) {
+            $dockerImageManager->pullImage($task->imageName);
         }
 
         // Clean temp files
@@ -371,9 +368,9 @@ class EvaluatorController extends BaseInstructorRestController
     public function actionUpdateDockerImage(int $id): EvaluatorAdditionalInformationResource
     {
         $task = $this->getTaskWithAuthorizationCheck($id);
-
+        $dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $task->testOS]);
         if (!$task->isLocalImage) {
-            AssignmentTester::pullImage($task->imageName, Yii::$app->params['evaluator'][$task->testOS]);
+            $dockerImageManager->pullImage($task->imageName);
         } else {
             throw new BadRequestHttpException(Yii::t('app', 'Local Docker images can\'t be updated from registry.'));
         }
@@ -404,12 +401,114 @@ class EvaluatorController extends BaseInstructorRestController
         return $task;
     }
 
+
+    /**
+     * Updates auto tester for a task
+     *
+     * @param int $id the id of the task
+     * @return TaskResource|array
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     * @throws ErrorException
+     *
+     * @OA\Post(
+     *     path="/instructor/tasks/{id}/evaluator/setup-code-checker",
+     *     operationId="instructor::EvaluatorController::actionCodeChecker",
+     *     tags={"Instructor Tasks Evaluator"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the task",
+     *          @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="tester data",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_SetupCodeCheckerResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="updated task",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TaskResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     */
+    public function actionSetupCodeChecker(int $id)
+    {
+        $task = $this->getTaskWithAuthorizationCheck($id);
+
+        // Check semester
+        if ($task->semesterID !== SemesterResource::getActualID()) {
+            throw new BadRequestHttpException(
+                Yii::t('app', "You can't modify a task from a previous semester!")
+            );
+        }
+
+        $setupData = new SetupCodeCheckerResource();
+        $setupData->load(Yii::$app->request->post(), '');
+
+        if (!$setupData->validate()) {
+            $this->response->statusCode = 422;
+            return $setupData->errors;
+        }
+
+        $task->staticCodeAnalysis = $setupData->staticCodeAnalysis;
+        $task->staticCodeAnalyzerTool = $setupData->staticCodeAnalyzerTool;
+        $task->codeCheckerSkipFile = $setupData->codeCheckerSkipFile;
+        if ($setupData->staticCodeAnalyzerTool === 'codechecker') {
+            $task->codeCheckerCompileInstructions = $setupData->codeCheckerCompileInstructions;
+            $task->codeCheckerToggles = $setupData->codeCheckerToggles;
+        } else {
+            $task->staticCodeAnalyzerInstructions = $setupData->staticCodeAnalyzerInstructions;
+        }
+
+        if (!$task->validate()) {
+            $this->response->statusCode = 422;
+            return $task->errors;
+        }
+
+        if ($task->save(false)) {
+
+            if ($setupData->reevaluateStaticCodeAnalysis){
+                StudentFile::updateAll(
+                    [
+                        'codeCheckerResultID' => null,
+                    ],
+                    [
+                        'and',
+                        ['not in', 'isAccepted', [StudentFile::IS_ACCEPTED_ACCEPTED, StudentFile::IS_ACCEPTED_REJECTED]],
+                        ['=', 'taskID', $task->id],
+                    ]
+                );
+            }
+
+            return $task;
+        } else {
+            throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
+        }
+    }
+
     /**
      * @param TaskResource $task
      * @return EvaluatorAdditionalInformationResource
      */
     private function createAdditionalInformationResponse(TaskResource $task): EvaluatorAdditionalInformationResource
     {
+        $dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $task->testOS]);
         $templates = [];
         $osMap = $task->testOSMap();
 
@@ -419,10 +518,26 @@ class EvaluatorController extends BaseInstructorRestController
                 $resource->name = $template['name'];
                 $resource->os = $template['os'];
                 $resource->image = $template['image'];
+
                 $resource->autoTest = $template['autoTest'];
-                $resource->appType = $template['appType'];
-                $resource->compileInstructions = $template['compileInstructions'];
-                $resource->runInstructions = $template['runInstructions'];
+                if ($resource->autoTest) {
+                    $resource->appType = $template['appType'];
+                    $resource->compileInstructions = $template['compileInstructions'];
+                    $resource->runInstructions = $template['runInstructions'];
+                }
+
+                $resource->staticCodeAnalysis = $template['staticCodeAnalysis'];
+                if ($resource->staticCodeAnalysis) {
+                    $resource->staticCodeAnalyzerTool = $template['staticCodeAnalyzerTool'];
+                    $resource->codeCheckerSkipFile = $template['codeCheckerSkipFile'];
+
+                    if ($resource->staticCodeAnalyzerTool === 'codechecker') {
+                        $resource->codeCheckerCompileInstructions = $template['codeCheckerCompileInstructions'];
+                        $resource->codeCheckerToggles = $template['codeCheckerToggles'];
+                    } else {
+                        $resource->staticCodeAnalyzerInstructions = $template['staticCodeAnalyzerInstructions'];
+                    }
+                }
 
                 $templates[] = $resource;
             }
@@ -432,17 +547,20 @@ class EvaluatorController extends BaseInstructorRestController
         $response->templates = $templates;
         $response->osMap = $osMap;
         $response->appTypes = Task::APP_TYPES;
-        $response->imageSuccessfullyBuilt = AssignmentTester::alreadyBuilt(
-            $task->imageName,
-            Yii::$app->params['evaluator'][$task->testOS]
-        );
+        $response->imageSuccessfullyBuilt = $dockerImageManager->alreadyBuilt($task->imageName);
+
         if ($response->imageSuccessfullyBuilt) {
-            $response->imageCreationDate = AssignmentTester::inspectImage(
-                $task->imageName,
-                Yii::$app->params['evaluator'][$task->testOS]
-            )->getCreated();
+            $response->imageCreationDate = $dockerImageManager->inspectImage($task->imageName)->getCreated();
         }
+        $response->supportedStaticAnalyzers = [];
+        foreach (Yii::$app->params["evaluator"]["supportedStaticAnalyzerTools"] as $key => $value) {
+            $analyzerToolResource = new StaticAnalyzerToolResource();
+            $analyzerToolResource->name = $key;
+            $analyzerToolResource->title = $value['title'];
+            $analyzerToolResource->outputPath = $value['outputPath'];
+            $response->supportedStaticAnalyzers[] = $analyzerToolResource;
+        }
+
         return $response;
     }
-
 }

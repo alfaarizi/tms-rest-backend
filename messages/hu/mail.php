@@ -80,5 +80,15 @@ return [
     'Your requested CodeCompass instance has now been started for the solution of {name} course: {course}.' => 'A korábban kért CodeCompass szerver elindult. Hallgató: {name}, kurzus: {course}.',
     'Notes' => 'Megjegyzések',
     'New notes were added' => 'Új megjegyzések lettek hozzáadva',
-    'New Notes' => 'Új megjegyzések'
+    'New Notes' => 'Új megjegyzések',
+    'Static code analysis ready' => 'A statikus kódanalízis elkészült',
+    'Static code analysis on your previously submitted solution is ready.' => 'A statikus kódanalízis elkészült a beküldött megoldáshoz.',
+    'No issues were found in the uploaded submission.' => 'Nem találhatóak problémák a feltölött megoldásban.',
+    'The static analyzer tool failed to run. The uploaded solution may be incorrect or the configuration for the task may be invalid.'
+        => 'A statikus elemző futtatása sikertelen volt. Előfordulhat hogy hibás a feltölött megoldás vagy érvénytelen a feladathoz tartozó konfiguráció.',
+    'Reports' => 'Jelentések',
+    'File (line, column)' => 'Fájl (sor, oszlop)',
+    'Checker' => 'Ellenőrző',
+    'Severity' => 'Súlyosság',
+    'Message' => 'Üzenet'
 ];

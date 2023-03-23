@@ -272,6 +272,7 @@ class StudentFilesController extends BaseStudentRestController
         $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
         $studentFile->verified = !$studentFile->task->passwordProtected;
         $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+        $studentFile->codeCheckerResultID = null;
 
         if ($studentFile->save()) {
             Yii::info(
