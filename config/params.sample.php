@@ -77,7 +77,7 @@ return [
                 // Environment
                 'name' => 'Linux / gcc',
                 'os' => 'linux',
-                'image' => 'mcserep/elte:ubuntu-2004',
+                'image' => 'tmselte/evaluator:gcc-ubuntu-20.04',
                 // Auto Test
                 'autoTest' => true,
                 'appType' => 'Console',
@@ -107,7 +107,7 @@ return [
                 // Environment
                 'name' => 'Linux / g++',
                 'os' => 'linux',
-                'image' => 'mcserep/elte:ubuntu-2004',
+                'image' => 'tmselte/evaluator:gcc-ubuntu-20.04',
                 // Auto Test
                 'autoTest' => true,
                 'appType' => 'Console',
@@ -136,7 +136,7 @@ return [
                 // Environment
                 'name' => 'Linux / Qt5',
                 'os' => 'linux',
-                'image' => 'mcserep/elte:ubuntu-2004-qt5',
+                'image' => 'tmselte/evaluator:qt5-ubuntu-20.04',
                 // Auto Test
                 'autoTest' => true,
                 'appType' => 'Console',
@@ -159,7 +159,7 @@ return [
                 'name' => 'Linux / .NET',
                 'os' => 'linux',
                 'appType' => 'Console',
-                'image' => 'mcserep/elte:dotnet-60',
+                'image' => 'tmselte/evaluator:dotnet-6.0',
                 // Auto Test
                 'autoTest' => true,
                 'compileInstructions' => '/build.sh' . PHP_EOL .
@@ -202,7 +202,7 @@ return [
                 // Environment
                 'name' => 'Windows / .NET',
                 'os' => 'windows',
-                'image' => 'mcserep/elte:dotnet-60',
+                'image' => 'tmselte/evaluator:dotnet-6.0',
                 // Auto Test
                 'autoTest' => true,
                 'appType' => 'Console',
@@ -248,7 +248,7 @@ return [
                 // Auto Test
                 'autoTest' => true,
                 'appType' => 'Console',
-                'image' => 'mcserep/elte:dotnet-60-maui',
+                'image' => 'tmselte/evaluator:maui-6.0-windows',
                 'compileInstructions' => 'C:\\build.ps1' . PHP_EOL .
                     '# Built-in script that looks for .NET Core projects (.sln files) and build them.',
                 'runInstructions' => '',
@@ -272,9 +272,8 @@ return [
             ],
         ],
         'reportConverterImage' => [
-            'linux' => 'peterkaszab/codechecker-minimal:v6.21.0-bullseye',
-            'windows' => 'peterkaszab/codechecker-minimal:v6.21.0-windowsservercore-1809',
-            // peterkaszab/codechecker-minimal:v6.21.0-windowsservercore-ltsc2022
+            'linux' => 'tmselte/codechecker:6',
+            'windows' => 'tmselte/codechecker:6',
         ]
     ],
     // Canvas synchronization configuration
