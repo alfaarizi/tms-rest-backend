@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [2.11.2](https://gitlab.com/tms-elte/backend-core/compare/v2.11.1...v2.11.2) (2023-03-26)
+### Bug Fixes
+
+* Auto tester error message is always included in the email notification ([35be30](https://gitlab.com/tms-elte/backend-core/commit/35be3057f13554f65734a1ea855734203c93d458))
+
+
+---
+
+
 ## [2.11.1](https://gitlab.com/tms-elte/backend-core/compare/v2.11.0...v2.11.1) (2023-03-22)
 ### Bug Fixes
 
