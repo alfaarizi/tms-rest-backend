@@ -86,7 +86,7 @@ return [
                     'find -name "* *" -type d | rename \'s/ /_/g\'' . PHP_EOL .
                     'find -name "* *" -type f | rename \'s/ /_/g\'' . PHP_EOL .
                     '# Build the program' . PHP_EOL .
-                    'CFLAGS="std=c11 -pedantic -W -Wall -Wextra"' . PHP_EOL .
+                    'CFLAGS="-std=c11 -pedantic -W -Wall -Wextra"' . PHP_EOL .
                     'gcc $CFLAGS $(find . -type f -iname "*.c") -o program.out',
 
                 'runInstructions' => './program.out "$@"',
@@ -98,7 +98,7 @@ return [
                     'find -name "* *" -type d | rename \'s/ /_/g\'' . PHP_EOL .
                     'find -name "* *" -type f | rename \'s/ /_/g\'' . PHP_EOL .
                     '# Build the program' . PHP_EOL .
-                    'CFLAGS="std=c11 -pedantic -W -Wall -Wextra"' . PHP_EOL .
+                    'CFLAGS="-std=c11 -pedantic -W -Wall -Wextra"' . PHP_EOL .
                     'gcc $CFLAGS $(find . -type f -iname "*.c") -o program.out',
                 'codeCheckerSkipFile' => '-/usr/*',
                 'codeCheckerToggles' => '',
