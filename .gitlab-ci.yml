@@ -1,5 +1,5 @@
 # Default image (https://hub.docker.com/r/mcserep/php)
-image: mcserep/php:7.4
+image: registry.gitlab.com/tms-elte/docker-images/php:7.4
 
 # Stages: lint -> test -> docs -> deploy
 stages:
@@ -66,7 +66,7 @@ phpcs:
 codecept_7.4:
   stage: test
   extends: .test
-  image: mcserep/php:7.4
+  image: registry.gitlab.com/tms-elte/docker-images/php:7.4
   script:
     - vendor/bin/codecept run unit,api --no-ansi --xml --coverage --coverage-text --coverage-xml --coverage-cobertura
   coverage: '/^\s*Lines:\s*\d+.\d+\%/'
