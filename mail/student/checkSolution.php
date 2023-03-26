@@ -1,7 +1,6 @@
 <?php
 
 use yii\helpers\Html;
-use yii\helpers\Url;
 
 /* @var $this \yii\web\View view component instance */
 /* @var $message \yii\mail\BaseMessage instance of newly created mail message */
@@ -24,5 +23,5 @@ $group = $task->group;
     <?= Html::a(Html::encode($task->name), Yii::$app->params['frontendUrl'] . '/student/task-manager/tasks/' . $task->id) ?><br>
     <?= \Yii::t('app/mail', 'Result') ?>: <?= \Yii::t('app', $studentFile->isAccepted) ?><br>
     <?= \Yii::t('app/mail', 'Remark') ?>:<br>
-    <pre><?= Html::encode($studentFile->errorMsg) ?></pre>
+    <pre><?= Html::encode($studentFile->safeErrorMsg) ?></pre>
 </p>
