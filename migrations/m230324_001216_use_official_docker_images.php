@@ -60,7 +60,7 @@ class m230324_001216_use_official_docker_images extends Migration
                 continue;
             }
 
-            $this->update('{{%tasks}}', ['imageName' => $toImage], ['imageName' => $fromImage]);
+            $this->update('{{%tasks}}', ['imageName' => $toImage], ['imageName' => $fromImage, 'testOS' => $os]);
 
             if (!\Yii::$app->params['evaluator']['enabled'] || empty(\Yii::$app->params['evaluator'][$os])) {
                 continue;
@@ -101,7 +101,7 @@ class m230324_001216_use_official_docker_images extends Migration
                 continue;
             }
 
-            $this->update('{{%tasks}}', ['imageName' => $toImage], ['imageName' => $fromImage]);
+            $this->update('{{%tasks}}', ['imageName' => $toImage], ['imageName' => $fromImage, 'testOS' => $os]);
 
             if (!\Yii::$app->params['evaluator']['enabled'] || empty(\Yii::$app->params['evaluator'][$os])) {
                 continue;
