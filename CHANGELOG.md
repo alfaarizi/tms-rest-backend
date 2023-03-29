@@ -4,6 +4,24 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.0.0-alpha.1](https://gitlab.com/tms-elte/backend-core/compare/v2.11.2...v3.0.0-alpha.1) (2023-03-29)
+
+### ⚠ BREAKING CHANGES
+
+* Restructure user resources ([9c3bf9](https://gitlab.com/tms-elte/backend-core/commit/9c3bf9ee5e47dfbaf81586544093766eb7566182))
+* Separate evaluator settings from auto tester settings ([aca337](https://gitlab.com/tms-elte/backend-core/commit/aca33702abb54b0a359550b218e4dda4b5711ab0))
+
+### Features
+
+* CodeChecker integration ([adfbc2](https://gitlab.com/tms-elte/backend-core/commit/adfbc2165a66dde26e0db55bc009fea89e19c2f9))
+
+### Bug Fixes
+
+* Auto tester error message is always included in the email notification ([065392](https://gitlab.com/tms-elte/backend-core/commit/0653923b37991c46c981a2129d0e2eb8b40904a2))
+
+
+---
+
 ## [2.11.2](https://gitlab.com/tms-elte/backend-core/compare/v2.11.1...v2.11.2) (2023-03-26)
 ### Bug Fixes
 
