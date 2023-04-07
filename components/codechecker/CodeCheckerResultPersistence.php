@@ -16,9 +16,7 @@ use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\di\NotInstantiableException;
-use yii\helpers\Console;
 use yii\helpers\FileHelper;
-use yii\helpers\VarDumper;
 
 class CodeCheckerResultPersistence extends BaseObject
 {
@@ -107,7 +105,6 @@ class CodeCheckerResultPersistence extends BaseObject
                 ? CodeCheckerResult::STATUS_NO_ISSUES
                 : CodeCheckerResult::STATUS_ANALYSIS_FAILED;
             if (!$result->save()) {
-                Console::stdout(VarDumper::dumpAsString($result->errors));
                 throw new CodeCheckerPersistenceException("Failed to save CodeChecker result to the database");
             }
             $this->notifier->sendNotifications($this->studentFile);
@@ -276,8 +273,32 @@ class CodeCheckerResultPersistence extends BaseObject
         mkdir($dest, 0755, true);
         try {
             FileHelper::copyDirectory($source, $dest, ['fileMode' => 0775]);
+            $this->restoreNonAsciiFileNames($dest);
         } catch (InvalidArgumentException $e) {
             throw new CodeCheckerPersistenceException("Unable to copy HTML reports: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Workaround for https://gitlab.com/tms-elte/backend-core/-/issues/122
+     * PharData removes non-ascii characters from file names, this can break HTML reports
+     * @param string $dir Path of the directory that contains the HTML report files
+     * @return void
+     */
+    private function restoreNonAsciiFileNames(string $dir)
+    {
+        $renamed = [];
+        foreach ($this->studentFile->codeCheckerResult->codeCheckerReports as $report) {
+            $correctName = "$report->plistFileName.html";
+            $incorrectName = preg_replace('/[^[:print:]]/', '', $correctName);
+            if (
+                $correctName !== $incorrectName
+                && !array_key_exists($incorrectName, $renamed)
+                && is_file("$dir/$incorrectName")
+            ) {
+                rename("$dir/$incorrectName", "$dir/$correctName");
+                $renamed[$incorrectName] = null;
+            }
         }
     }
 
