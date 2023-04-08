@@ -1,5 +1,7 @@
 <?php
 
+namespace app\components\openapi\definitions;
+
 /**
  * @OA\Response(
  *     response=400,
@@ -37,3 +39,6 @@
  *     @OA\JsonContent(ref="#/components/schemas/Yii2Error"),
  * )
  */
+abstract class Responses
+{
+}

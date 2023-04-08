@@ -121,11 +121,34 @@ class OASchema extends CodeGenerator
             : "";
     }
 
+    /**
+     * Generates the proper namespace for the schema based on the defined output directory for generation.
+     */
+    private function generateNamespace(): string
+    {
+        /** @var \app\components\openapi\SchemaGenerator $swagger */
+        $swagger = \Yii::$app->swagger;
+        $namespace = $swagger->outputDir;
+        // Remove leading project base path
+        $namespace = str_replace(\Yii::$app->basePath, '', $namespace);
+        // Trim any forward and backward slashes
+        $namespace = trim($namespace, '/\\');
+        // Replace forward slashes with backward slashes
+        $namespace = str_replace('/', '\\', $namespace);
+        return "namespace app\\{$namespace};" . PHP_EOL;
+    }
+
+    private function generateClassDefinition(): string
+    {
+        return "abstract class $this->definitionName {}" . PHP_EOL;
+    }
 
     public function getCode(): string
     {
         $code = "<?php";
         $code .= PHP_EOL;
+        $code .= PHP_EOL;
+        $code .= $this->generateNamespace();
         $code .= PHP_EOL;
         $code .= "/**";
         $code .= PHP_EOL;
@@ -136,6 +159,8 @@ class OASchema extends CodeGenerator
         $code .= $this->generateFieldAnnotations($this->extraFields, true, 4);
         $code .= $this->newCommentLine(")", 1);
         $code .= "*/";
+        $code .= PHP_EOL;
+        $code .= $this->generateClassDefinition();
         $code .= PHP_EOL;
 
         return $code;

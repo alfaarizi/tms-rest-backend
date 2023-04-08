@@ -1242,7 +1242,7 @@ class GroupsController extends BaseInstructorRestController
      *
      * @OA\Get(
      *     path="/instructor/groups/{groupID}/students/{userID}/notes",
-     *     operationId="instructor::GroupsController::actionAddStudentNotes",
+     *     operationId="instructor::GroupsController::actionStudentNotes",
      *     tags={"Instructor Groups"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(

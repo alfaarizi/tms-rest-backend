@@ -1,5 +1,7 @@
 <?php
 
+namespace app\components\openapi\definitions;
+
 /**
  * @OA\Schema(
  *   schema="int_id_list",
@@ -7,3 +9,6 @@
  *   format="([1-9][0-9]*(,[1-9][0-9]*)*)?"
  * )
  */
+abstract class IntIdList
+{
+}
