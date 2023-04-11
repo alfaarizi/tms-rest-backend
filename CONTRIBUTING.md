@@ -190,7 +190,7 @@ Currently, it supports the following annotations:
 
 The tool generates `OA\Schema` annotations for all scenarios and read requests with the following names
 `<prefix>_<resource-name>_Scenario<scenario-name>` and `<prefix>_<resource-name>_Read`.
-The generated files can be found in the `runtime/openapi-schemas` directory.
+The generated files can be found in the `runtime/openapi_schemas` directory.
 
 Currently, the following prefixes are used:
 - `Common`: for the `resources` directory
