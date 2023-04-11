@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.0.0-alpha.2](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.1...v3.0.0-alpha.2) (2023-04-07)
+
+### Bug Fixes
+
+* Keep non-English characters in the filenames of CodeChecker HTML reports ([a21e42](https://gitlab.com/tms-elte/backend-core/commit/a21e42927bcb5d840bd510522cb9129e73c08925))
+
+
+---
+
 ## [3.0.0-alpha.1](https://gitlab.com/tms-elte/backend-core/compare/v2.11.2...v3.0.0-alpha.1) (2023-03-29)
 
 ### ⚠ BREAKING CHANGES
