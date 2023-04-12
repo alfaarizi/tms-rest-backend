@@ -1,5 +1,7 @@
 <?php
 
+namespace app\components\openapi\definitions;
+
 /**
  * @OA\Schema(
  *   schema="int_id",
@@ -8,3 +10,6 @@
  *   minimum=1,
  * )
  */
+abstract class IntId
+{
+}

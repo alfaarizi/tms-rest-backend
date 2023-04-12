@@ -86,7 +86,7 @@ $config = [
         ],
         'swagger' => [
             'class' => 'app\components\openapi\SchemaGenerator',
-            'outputDir' => '@app/runtime/openapi-schemas/',
+            'outputDir' => '@app/runtime/openapi_schemas/',
             // Scanned namespaces
             'namespaces' => [
                 // Prefix => Namespace

@@ -25,6 +25,10 @@ return [
     'components' => [
         'db' => $db,
         'mailer' => [
+            'class' => \yii\symfonymailer\Mailer::class,
+            // Message class required by CodeCeption
+            'messageClass' => \yii\symfonymailer\Message::class,
+            'viewPath' => '@app/mail',
             'useFileTransport' => true,
         ],
         'assetManager' => [

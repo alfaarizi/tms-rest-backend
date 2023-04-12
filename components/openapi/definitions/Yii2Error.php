@@ -1,5 +1,7 @@
 <?php
 
+namespace app\components\openapi\definitions;
+
 /**
  * @OA\Schema(
  *     schema="Yii2Error",
@@ -11,3 +13,6 @@
  *     @OA\Property(type="string", property="type"),
  * )
  */
+abstract class Yii2Error
+{
+}

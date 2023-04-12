@@ -1,5 +1,7 @@
 <?php
 
+namespace app\components\openapi\definitions;
+
 /**
  * @OA\Info(
  *     title=OPEN_API_NAME,
@@ -12,3 +14,6 @@
  *     url=OPEN_API_HOST
  * )
  */
+abstract class ApiInfo
+{
+}

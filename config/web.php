@@ -183,7 +183,7 @@ if (YII_ENV_DEV) {
 
     $config['components']['swagger'] = [
         'class' => 'app\components\openapi\SchemaGenerator',
-        'outputDir' => '@app/runtime/openapi-schemas/',
+        'outputDir' => '@app/runtime/openapi_schemas/',
         // Scanned namespaces
         'namespaces' => [
             // Prefix => Namespace

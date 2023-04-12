@@ -12,7 +12,7 @@ class ConstantHelpers
     // Scanned directories in the Yii2 path alias format
     // light/yii2-swagger and zircote/swagger-php configuration
     public const SCAN_DIRS = [
-        '@app/runtime/openapi-schemas/',
+        '@app/runtime/openapi_schemas/',
         '@app/components/openapi/definitions',
         '@app/controllers',
         '@app/modules/student/controllers',

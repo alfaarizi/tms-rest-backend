@@ -1,17 +1,17 @@
 <?php
 
 return [
-    'class' => 'yii\swiftmailer\Mailer',
+    'class' => \yii\symfonymailer\Mailer::class,
+    'viewPath' => '@app/mail',
     // Comment this to enable real mail transport
     'useFileTransport' => true,
-    // Uncomment and configure this for SMTP mail transport
-    // (By default sendmail transport is utilized.)
+    // By default, NullTransport is utilized (sends no mail).
+    // Uncomment and configure this for SendmailTransport.
     //'transport' => [
-    //    'class' => 'Swift_SmtpTransport',
-    //    'host' => '',
-    //    'username' => '',
-    //    'password' => '',
-    //    'port' => '',
-    //    'encryption' => 'tls',
+    //    'dsn' => 'sendmail://default',
+    //],
+    // Uncomment and configure this for SMTP mail transport
+    //'transport' => [
+    //    'dsn' => 'smtp://user:pass@smtp.example.com:25',
     //],
 ];

@@ -1,5 +1,7 @@
 <?php
 
+namespace app\components\openapi\definitions;
+
 /**
  * @OA\Parameter(
  *      parameter="yii2_fields",
@@ -34,3 +36,6 @@
  *       required=false
  * )
  */
+abstract class Yii2Params
+{
+}
