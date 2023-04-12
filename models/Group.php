@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\behaviors\ISODateTimeBehavior;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
 use app\models\queries\GroupQuery;
@@ -54,6 +55,16 @@ class Group extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public static function tableName()
     {
         return '{{%groups}}';
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => ISODateTimeBehavior::class,
+                'attributes' => ['lastSyncTime']
+            ]
+        ];
     }
 
     /**
@@ -146,6 +157,7 @@ class Group extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'isExamGroup' => new OAProperty(['type' => 'boolean']),
             'timezone' => new OAProperty(['type' => 'string', 'example' => 'Europe/Budapest']),
             'canvasUrl' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
+            'lastSyncTime' => new OAProperty(['type' => 'string'])
         ];
     }
 

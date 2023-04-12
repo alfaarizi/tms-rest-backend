@@ -30,6 +30,7 @@ class GroupResource extends \app\models\Group
             'isCanvasCourse',
             'timezone',
             'canvasUrl',
+            'lastSyncTime'
         ];
     }
 
