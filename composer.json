@@ -34,6 +34,7 @@
         "czproject/git-php": "^3.17",
         "docker-php/docker-php": "^2.0.0",
         "jane-php/open-api-runtime": "4.2",
+        "symfony/serializer": "5.4.12",
         "neitanod/forceutf8": "^2.0",
         "omnilight/yii2-scheduling": "^1.1",
         "phpoffice/phpspreadsheet": "^1.24.0",
