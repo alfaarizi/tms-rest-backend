@@ -40,6 +40,21 @@ class CodeCheckerRunnerTest extends Unit
         ];
     }
 
+    /**
+     * Create CodeCheckerRunner.
+     * Replace the buildAnalyzerContainer method to inject mock containers.
+     * @return void
+     */
+    private function initRunner()
+    {
+        $this->runner = $this->getMockBuilder(CodeCheckerRunner::class)
+            ->enableOriginalConstructor()
+            ->setConstructorArgs([$this->studentFile])
+            ->onlyMethods(['buildAnalyzerContainer'])
+            ->disableArgumentCloning()
+            ->getMock();
+    }
+
     protected function _before()
     {
         $this->studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 5]);
@@ -52,14 +67,7 @@ class CodeCheckerRunnerTest extends Unit
         $dockerImageManagerMock->method('alreadyBuilt')->willReturnOnConsecutiveCalls(true);
         Yii::$container->set(DockerImageManager::class, $dockerImageManagerMock);
 
-        // Create CodeCheckerRunner.
-        // Replace the buildAnalyzerContainer method to inject mock containers
-        $this->runner = $this->getMockBuilder(CodeCheckerRunner::class)
-            ->enableOriginalConstructor()
-            ->setConstructorArgs([$this->studentFile])
-            ->onlyMethods(['buildAnalyzerContainer'])
-            ->disableArgumentCloning()
-            ->getMock();
+        $this->initRunner();
     }
 
     public function testEvaluatorImageIsNotAvailable()
@@ -67,6 +75,7 @@ class CodeCheckerRunnerTest extends Unit
         $dockerImageManagerMock = $this->createMock(DockerImageManager::class);
         $dockerImageManagerMock->method('alreadyBuilt')->willReturn(false);
         Yii::$container->set(DockerImageManager::class, $dockerImageManagerMock);
+        $this->initRunner();
 
         $this->expectException(CodeCheckerRunnerException::class);
 
@@ -112,24 +121,24 @@ class CodeCheckerRunnerTest extends Unit
 
         $this->runner->run();
 
-        $tmpFolder = $this->getAndTestTmpPath();
-        $this->assertDirectoryExists($tmpFolder . '/submission');
+        $testFolder = $this->getAndTestTmpPath() . '/test';
+        $this->assertDirectoryExists($testFolder . '/submission');
 
         $this->assertStringEqualsFile(
-            $tmpFolder . '/' . $expectedBuildScriptName,
+            $testFolder . '/' . $expectedBuildScriptName,
             $this->studentFile->task->codeCheckerCompileInstructions
         );
         $this->assertStringEqualsFile(
-            $tmpFolder . '/skipfile',
+            $testFolder . '/skipfile',
             $this->studentFile->task->codeCheckerSkipFile
         );
         $this->assertFileEquals(
             codecept_data_dir('appdata_samples/uploadedfiles/5007/file2.txt'),
-            $tmpFolder . '/test_files/file2.txt'
+            $testFolder . '/test_files/file2.txt'
         );
         $this->assertFileEquals(
             codecept_data_dir('appdata_samples/uploadedfiles/5007/file3.txt'),
-            $tmpFolder . '/test_files/file3.txt'
+            $testFolder . '/test_files/file3.txt'
         );
     }
 
@@ -157,21 +166,21 @@ class CodeCheckerRunnerTest extends Unit
 
         $this->runner->run();
 
-        $tmpFolder = $this->getAndTestTmpPath();
-        $this->assertDirectoryExists($tmpFolder . '/submission');
+        $testFolder = $this->getAndTestTmpPath() . '/test';
+        $this->assertDirectoryExists($testFolder . '/submission');
 
-        $this->assertFileNotExists($tmpFolder . '/skipfile');
+        $this->assertFileNotExists($testFolder . '/skipfile');
         $this->assertStringEqualsFile(
-            $tmpFolder . '/' . $expectedBuildScriptName,
+            $testFolder . '/' . $expectedBuildScriptName,
             $this->studentFile->task->codeCheckerCompileInstructions
         );
         $this->assertFileEquals(
             codecept_data_dir('appdata_samples/uploadedfiles/5007/file2.txt'),
-            $tmpFolder . '/test_files/file2.txt'
+            $testFolder . '/test_files/file2.txt'
         );
         $this->assertFileEquals(
             codecept_data_dir('appdata_samples/uploadedfiles/5007/file3.txt'),
-            $tmpFolder . '/test_files/file3.txt'
+            $testFolder . '/test_files/file3.txt'
         );
     }
 
@@ -204,9 +213,9 @@ class CodeCheckerRunnerTest extends Unit
 
         $this->runner->run();
 
-        $tmpFolder = $this->getAndTestTmpPath();
+        $testFolder = $this->getAndTestTmpPath() . '/test';
         $this->assertStringEqualsFile(
-            $tmpFolder . '/' . $scriptName,
+            $testFolder . '/' . $scriptName,
             $expectedAnalyzeCommand
         );
     }

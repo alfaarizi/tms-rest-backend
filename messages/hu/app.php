@@ -317,6 +317,11 @@ return [
     'Failed to remove BaseFile' => 'Alapfájl törlése sikertelen',
     'Your solution exceeded the maximum output size.' => 'A programod standard kimenete (stdout) meghaladta a maximális megengedett méretet.',
     'Your solution exceeded the maximum error output size.' => 'A programod standard hiba (stderr) kimenete meghaladta a maximális megengedett méretet.',
+    'Failed to init builder working directory' => 'A builder munkakönyvtár létrehozása sikertelen volt',
+    'File content is empty ({name})' => 'A fájltartalom üres',
+    'Failed to add file ({name})' => 'A fájl hozzáadása sikertelen volt ({name})',
+    'Failed to add submission' => 'A beküldött megoldás hozzáadása sikertelen volt',
+    'Failed to add instructor test file (#{id})' => 'Az oktatói tesztfájl hozzáadása sikertelen volt (#{id})',
 
     // CodeChecker
     'Unspecified' => 'Nem meghatározott',
@@ -464,6 +469,7 @@ return [
     'This user and course combination not found' => 'Ez a felhasználó és kurzus kombináció nem található',
 
     //Web App Execution
+    'Web app execution not enabled for os: {os}' => 'A webes alkalamzások végrehajtása nem engedélyezett a beállított operációs rendszerrel: {os}',
     "Web app execution time must be in range: {min} - {max} min." => "Megengedett futtatási idő {min} - {max} perc között lehet.",
     "Failed to shut down web application." => "Webalkalmazás leállítása sikertelen.",
     "Running web app not found." => "Nem található futó webalkalmazás.",

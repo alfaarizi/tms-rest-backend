@@ -151,7 +151,7 @@ class WebAppExecutionController extends BaseInstructorRestController
 
         if (!$this->webAppExecutionEnabledForOs($studentFile->task->testOS)) {
             throw new BadRequestHttpException(
-                Yii::t('app', 'Web app execution not enabled for os: {{}}',
+                Yii::t('app', 'Web app execution not enabled for os: {os}',
                        ['os' => $studentFile->task->testOS])
             );
         }

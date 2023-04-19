@@ -4,12 +4,10 @@ namespace app\components\codechecker;
 
 use app\components\docker\DockerContainer;
 use app\components\docker\DockerContainerBuilder;
-use app\components\docker\DockerImageManager;
+use app\components\docker\EvaluatorTarBuilder;
 use app\exceptions\CodeCheckerRunnerException;
 use app\models\StudentFile;
 use Yii;
-use yii\base\InvalidConfigException;
-use yii\di\NotInstantiableException;
 
 /**
  * Runs a static analyzer tool in the configured environment then creates CodeChecker reports from it.
@@ -34,8 +32,7 @@ class ReportConverterRunner extends AnalyzerRunner
             );
         }
 
-        $dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $os]);
-        if (!$dockerImageManager->alreadyBuilt($imageName)) {
+        if (!$this->dockerImageManager->alreadyBuilt($imageName)) {
             throw new CodeCheckerRunnerException(
                 Yii::t("app", "CodeChecker Report Converter Docker image is not available"),
                 CodeCheckerRunnerException::BEFORE_RUN_FAILURE
@@ -43,14 +40,19 @@ class ReportConverterRunner extends AnalyzerRunner
         }
     }
 
-    protected function prepareAnalyzeInstructions(): bool
+    protected function addAnalyzeInstructionsToTar(EvaluatorTarBuilder $tarBuilder): void
     {
-        return $this->placeTextFileToWorkdir(
+        $tarBuilder->withTextFile(
             "analyze" . ($this->studentFile->task->testOS == 'windows' ? '.ps1' : '.sh'),
             $this->studentFile->task->staticCodeAnalyzerInstructions
         );
     }
 
+    /**
+     * @param DockerContainer $analyzerContainer
+     * @return string|null
+     * @throws CodeCheckerRunnerException
+     */
     protected function createAndDownloadReportsTar(DockerContainer $analyzerContainer): ?string
     {
         if (!$this->checkIfReportsArePresent($analyzerContainer)) {
@@ -64,8 +66,7 @@ class ReportConverterRunner extends AnalyzerRunner
 
             $this->runReportConverter($reportConverterContainer);
 
-            $this->runParseCommand($reportConverterContainer, "json");
-            $this->runParseCommand($reportConverterContainer, "html");
+            $this->runParseCommand($reportConverterContainer);
             $tarPath = $this->workingDirBasePath . "/reports.tar";
             $reportConverterContainer->downloadArchive(
                 $this->studentFile->task->testOS  === "windows"

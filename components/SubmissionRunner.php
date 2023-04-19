@@ -3,19 +3,19 @@
 namespace app\components;
 
 use app\components\docker\DockerContainerBuilder;
+use app\components\docker\EvaluatorTarBuilder;
+use app\exceptions\EvaluatorTarBuilderException;
 use app\exceptions\SubmissionRunnerException;
-use app\models\InstructorFile;
 use app\models\StudentFile;
 use app\models\Task;
 use Yii;
-use yii\helpers\FileHelper;
+use yii\base\Exception;
 
 /**
  * Class to create a running instance of a Docker container populated with student's submission
  */
 class SubmissionRunner
 {
-    private string $workingDirBasePath;
     private StudentFile $studentFile;
 
     /**
@@ -29,142 +29,42 @@ class SubmissionRunner
      * @return docker\DockerContainer
      *
      * @throws SubmissionRunnerException
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\Exception
      */
     public function run(StudentFile $studentFile, ?int $hostPort = null, ?string $containerName = null, ?DockerContainerBuilder $builder = null): docker\DockerContainer
     {
         $this->studentFile = $studentFile;
-        $this->initWorkDir();
 
         $dockerContainer = null;
         try {
-            $studentFilesResult = $this->prepareStudentFiles();
-            $instructorFilesResult = $this->prepareInstructorFiles();
-            $compileInstructionResult = $this->prepareCompileInstructions();
-            $runInstructionResult = $this->prepareRunInstructions();
-
-            if ($studentFilesResult && $instructorFilesResult && $compileInstructionResult && $runInstructionResult) {
-                try {
-                    $dockerContainer = $this->buildContainer($containerName, $hostPort, $builder);
-                    $this->tryInitContainer($dockerContainer);
-                } catch (\Exception $e) {
-                    throw new SubmissionRunnerException(
-                        Yii::t('app', 'Container initialization failed'),
-                        SubmissionRunnerException::PREPARE_FAILURE,
-                        null,
-                        $e
-                    );
-                }
-            } else {
-                throw new SubmissionRunnerException(
-                    Yii::t('app', 'File prepare failed'),
-                    SubmissionRunnerException::PREPARE_FAILURE
-                );
-            }
-        } finally {
-            $this->deleteSolution();
+            $dockerContainer = $this->buildContainer($containerName, $hostPort, $builder);
+            $this->tryInitContainer($dockerContainer);
+        } catch (EvaluatorTarBuilderException $e) {
+            throw new SubmissionRunnerException(
+                Yii::t('app', 'File prepare failed'),
+                SubmissionRunnerException::PREPARE_FAILURE
+            );
+        } catch (SubmissionRunnerException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            throw new SubmissionRunnerException(
+                Yii::t('app', 'Container initialization failed'),
+                SubmissionRunnerException::PREPARE_FAILURE,
+                null,
+                $e
+            );
         }
+
         return $dockerContainer;
     }
 
     /**
-     * Initializes working directory for student and instructor files
-     * @return void
-     */
-    private function initWorkDir()
-    {
-        $this->workingDirBasePath =
-            Yii::$app->basePath
-            . '/'
-            . Yii::$app->params['data_dir']
-            . '/tmp/docker/'
-            . Yii::$app->security->generateRandomString(4)
-            . '/';
-    }
-
-    /**
-     * Extracts the student solution to tmp/docker/{studentFileID}/submission/
-     *
-     * @return bool The success of extraction.
-     */
-    private function prepareStudentFiles(): bool
-    {
-        $submissionDir = $this->workingDirBasePath . 'submission/';
-
-        if (!file_exists($submissionDir)) {
-            FileHelper::createDirectory($submissionDir, 0755, true);
-        }
-
-        $zip = new \ZipArchive();
-        $res = $zip->open($this->studentFile->path);
-        if ($res === true) {
-            $zip->extractTo($submissionDir);
-            $zip->close();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Copies the instructor defined test files of the task to tmp/docker/{studentFileID}/test_files/
-     *
-     * @return bool The success of the copy operations.
-     */
-    private function prepareInstructorFiles(): bool
-    {
-        $testFileDir = $this->workingDirBasePath . 'test_files/';
-
-        if (!file_exists($testFileDir)) {
-            FileHelper::createDirectory($testFileDir, 0755, true);
-        }
-
-        $testFiles = InstructorFile::find()
-            ->where(['taskID' => $this->studentFile->taskID])
-            ->onlyTestFiles()
-            ->all();
-
-        $success = true;
-        foreach ($testFiles as $testFile) {
-            $success = $success && copy($testFile->path, $testFileDir . '/' . $testFile->name);
-        }
-        return $success;
-    }
-
-    private function prepareCompileInstructions(): bool
-    {
-        $compileFile = $this->workingDirBasePath . 'compile.' .
-            ($this->studentFile->task->testOS == 'windows' ? 'ps1' : 'sh');
-
-        $result = true;
-        if (!empty($this->studentFile->task->compileInstructions)) {
-            $result = !empty(file_put_contents($compileFile, $this->studentFile->task->compileInstructions));
-            $result = $result && chmod($compileFile, 0755);
-        }
-        return $result;
-    }
-
-    private function prepareRunInstructions(): bool
-    {
-        $result = true;
-        if (!empty($this->studentFile->task->runInstructions)) {
-            $runFile = $this->workingDirBasePath . 'run.' .
-                ($this->studentFile->task->testOS == 'windows' ? 'ps1' : 'sh');
-            $result = !empty(file_put_contents($runFile, $this->studentFile->task->runInstructions));
-            $result = $result && chmod($runFile, 0755);
-        }
-        return $result;
-    }
-
-    /**
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     private function buildContainer(?string $containerName, ?int $hostPort, ?DockerContainerBuilder $builder): docker\DockerContainer
     {
         if (empty($builder)) {
             $builder = DockerContainerBuilder::forTask($this->studentFile->task);
-        };
+        }
         if ($this->studentFile->task->appType == Task::APP_TYPE_WEB && !empty($hostPort)) {
             $builder->withHostPort($hostPort);
         }
@@ -172,16 +72,38 @@ class SubmissionRunner
     }
 
 
+    /**
+     * Send student solution, test files and scripts to docker container as TAR stream
+     * @param docker\DockerContainer $dockerContainer
+     * @return void
+     * @throws EvaluatorTarBuilderException File preparation failed
+     */
     private function copyFiles(docker\DockerContainer $dockerContainer)
     {
-        // send student solution to docker container as TAR stream
-        $tarPath = $this->workingDirBasePath . 'test.tar';
-        $phar = new \PharData($tarPath);
-        $phar->buildFromDirectory($this->workingDirBasePath);
-        $dockerContainer->uploadArchive(
-            $tarPath,
-            $this->studentFile->task->testOS == 'windows' ? 'C:\\test' : '/test'
+        $tarBuilder = new EvaluatorTarBuilder(
+            Yii::$app->basePath
+            . '/'
+            . Yii::$app->params['data_dir']
+            . '/tmp/docker/',
+            Yii::$app->security->generateRandomString(4)
         );
+        $task = $this->studentFile->task;
+        $ext = $task->testOS == 'windows' ? '.ps1' : '.sh';
+        try {
+            $tarPath = $tarBuilder
+                ->withSubmission($this->studentFile->getPath())
+                ->withInstructorTestFiles($task->id)
+                ->withTextFile('compile' . $ext, $task->compileInstructions, true)
+                ->withTextFile('run' . $ext, $task->runInstructions, true)
+                ->buildTar();
+
+            $dockerContainer->uploadArchive(
+                $tarPath,
+                $this->studentFile->task->testOS == 'windows' ? 'C:\\test' : '/test'
+            );
+        } finally {
+            $tarBuilder->cleanup();
+        }
     }
 
     /**
@@ -245,6 +167,7 @@ class SubmissionRunner
      * @param docker\DockerContainer $dockerContainer
      * @return void
      * @throws SubmissionRunnerException
+     * @throws EvaluatorTarBuilderException
      */
     private function tryInitContainer(docker\DockerContainer $dockerContainer): void
     {
@@ -264,19 +187,6 @@ class SubmissionRunner
         } catch (\Exception $e) {
             $dockerContainer->stopContainer();
             throw $e;
-        }
-    }
-
-
-    /**
-     * Deletes the student solution and related files from tmp/docker/{studentFileID}
-     * @throws \yii\base\ErrorException
-     */
-    private function deleteSolution()
-    {
-        $path = $this->workingDirBasePath;
-        if (is_dir($path)) {
-            FileHelper::removeDirectory($path);
         }
     }
 }
