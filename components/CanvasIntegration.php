@@ -27,7 +27,7 @@ use yii\httpclient\Exception;
  */
 class CanvasIntegration
 {
-    private static $scopes = [
+    private static array $scopes = [
         // Courses API
         'url:GET|/api/v1/courses', // List your courses
         //'url:GET|/api/v1/courses/:course_id/students', // List students (DEPRECATED)
@@ -67,7 +67,7 @@ class CanvasIntegration
         //'url:POST|/api/v1/sections/:section_id/assignments/:assignment_id/submissions/:user_id/files', // Upload a file
     ];
 
-    public static function getLoginURL()
+    public static function getLoginURL(): string
     {
         $scopes = implode(' ', self::$scopes);
         $currentToken = AccessToken::getCurrent();
@@ -89,7 +89,7 @@ class CanvasIntegration
      * @param int $timeLimit number of seconds before the token expiration while renewal is not required
      * @return bool true if refreshing the token was successful, otherwise false
      */
-    public function refreshCanvasToken($user, $timeLimit = 900)
+    public function refreshCanvasToken(User $user, int $timeLimit = 900): bool
     {
         if (strtotime($user->canvasTokenExpiry) > time() + $timeLimit) {
             return true;
@@ -154,7 +154,7 @@ class CanvasIntegration
      * @param int $courseId the canvas id of the selected course
      * @return array the canvas sections response data in an array
      */
-    public function findCanvasSections($courseId)
+    public function findCanvasSections(int $courseId): array
     {
         $out = [];
         $user = User::findIdentity(Yii::$app->user->id);
@@ -190,7 +190,7 @@ class CanvasIntegration
      * Get the all courses from the canvas
      * @return array the canvas courses response data in an array
      */
-    public function findCanvasCourses()
+    public function findCanvasCourses(): array
     {
         $courses = [];
         $user = User::findIdentity(Yii::$app->user->id);
@@ -238,7 +238,7 @@ class CanvasIntegration
      * @param int $canvasCourseId the id of the course in the canvas
      * @return Group the updated group
      */
-    public function saveCanvasGroup($tmsId, $canvasSectionId, $canvasCourseId)
+    public function saveCanvasGroup(int $tmsId, int $canvasSectionId, int $canvasCourseId): Group
     {
         $group = Group::findOne($tmsId);
         $group->canvasSectionID = $canvasSectionId;
@@ -258,7 +258,7 @@ class CanvasIntegration
      * Get the given group data from canvas and save in the database
      * @param Group $group the selected group
      */
-    public function synchronizeGroupData($group)
+    public function synchronizeGroupData(Group $group): void
     {
         if (!empty($group->canvasCourseID)) {
             $group->lastSyncTime = date('Y-m-d H:i:s');
@@ -281,7 +281,7 @@ class CanvasIntegration
      * Get the students to the group from canvas and save in the database
      * @param Group $group the selected group
      */
-    private function saveCanvasStudentsToGroup($group)
+    private function saveCanvasStudentsToGroup(Group $group): void
     {
         $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
         $subscriptions = [];
@@ -325,11 +325,15 @@ class CanvasIntegration
 
             foreach ($out as $canvasEnrollment) {
                 $user = $this->saveCanvasUser($canvasEnrollment['user']);
-                $subscription = $this->getUserSubscription($user, $group->id);
-                if ($subscription === null) {
-                    $subscription = $this->saveSubscription($user, $group);
+                if ($user !== null) {
+                    $subscription = $this->getUserSubscription($user, $group->id);
+                    if ($subscription === null) {
+                        $subscription = $this->saveSubscription($user, $group);
+                    }
+                    if ($subscription !== null) {
+                        array_push($subscriptions, $subscription);
+                    }
                 }
-                array_push($subscriptions, $subscription);
             }
         } while ($morePages);
 
@@ -345,7 +349,7 @@ class CanvasIntegration
      * Get the teachers to the group from canvas and save in the database
      * @param Group $group the selected group
      */
-    private function saveCanvasTeachersToGroup($group)
+    private function saveCanvasTeachersToGroup(Group $group): void
     {
         $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
         $groups = [];
@@ -383,11 +387,15 @@ class CanvasIntegration
 
             foreach ($out as $canvasEnrollment) {
                 $instructor = $this->saveCanvasUser($canvasEnrollment['user']);
-                $instructorGroup = InstructorGroup::find()->andWhere(['groupID' => $group->id])->andWhere(['userID' => $instructor->id])->one();
-                if (empty($instructorGroup)) {
-                    $instructorGroup = $this->saveInstructorGroup($instructor->id, $group->id);
+                if ($instructor !== null) {
+                    $instructorGroup = InstructorGroup::find()->andWhere(['groupID' => $group->id])->andWhere(['userID' => $instructor->id])->one();
+                    if (empty($instructorGroup)) {
+                        $instructorGroup = $this->saveInstructorGroup($instructor->id, $group->id);
+                    }
+                    if ($instructorGroup !== null) {
+                        array_push($groups, $instructorGroup->id);
+                    }
                 }
-                array_push($groups, $instructorGroup->id);
             }
         } while ($morePages);
 
@@ -405,9 +413,9 @@ class CanvasIntegration
     /**
      * Save the canvas user in the database
      * @param array $canvasUser the user response from the canvas
-     * @return User the updated user
+     * @return User|null the updated user, or null if there was a database error
      */
-    private function saveCanvasUser($canvasUser)
+    private function saveCanvasUser(array $canvasUser): ?User
     {
         $matches = null;
         if (preg_match("/^(.+) +\(([A-Za-z0-9]{6})\)$/", $canvasUser["name"], $matches)) {
@@ -428,6 +436,8 @@ class CanvasIntegration
 
         $user->canvasID = $canvasUser["id"];
         if (!$user->save()) {
+            Yii::error("Saving or updating Canvas user with name '$name' and Neptun ID '$neptun' failed." .
+                "Message: " . VarDumper::dumpAsString($user->firstErrors), __METHOD__);
             return null;
         }
         return $user;
@@ -437,9 +447,9 @@ class CanvasIntegration
      * Create and save the new subscription to the canvas user
      * @param User $user the given user
      * @param Group $group the given group
-     * @return int the id of created/updated subscription
+     * @return int|null the id of created/updated subscription, or null if there was a database error
      */
-    private function saveSubscription($user, $group)
+    private function saveSubscription(User $user, Group $group): ?int
     {
         $subscription = new Subscription([
             'groupID' => $group->id,
@@ -447,6 +457,8 @@ class CanvasIntegration
             'userID' => $user->id
         ]);
         if (!$subscription->save()) {
+            Yii::error("Saving subscription for group #{$group->id}, semester #{$group->semesterID} and user #{$user->id} failed." .
+                "Message: " . VarDumper::dumpAsString($subscription->firstErrors), __METHOD__);
             return null;
         }
         return $subscription->id;
@@ -456,15 +468,17 @@ class CanvasIntegration
      * Create and save the new InstructorGroup to the canvas user
      * @param int $userId id of the given user
      * @param int $groupId id of the given group
-     * @return InstructorGroup the created InstructorGroup
+     * @return InstructorGroup|null the created InstructorGroup, or null if there was a database error
      */
-    private function saveInstructorGroup($userId, $groupId)
+    private function saveInstructorGroup(int $userId, int $groupId): ?InstructorGroup
     {
         $instructorGroup = new InstructorGroup([
             'groupID' => $groupId,
             'userID' => $userId
         ]);
         if (!$instructorGroup->save()) {
+            Yii::error("Saving InstructorGroup for group #$groupId and user #$userId failed." .
+                "Message: " . VarDumper::dumpAsString($instructorGroup->firstErrors), __METHOD__);
             return null;
         }
 
@@ -481,7 +495,7 @@ class CanvasIntegration
      * Get the all task to the given group from canvas and save in the database
      * @param Group $group the selected group
      */
-    private function saveTasksToCourse($group)
+    private function saveTasksToCourse(Group $group): void
     {
         $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
         $taskIds = [];
@@ -515,7 +529,9 @@ class CanvasIntegration
                 if ($assignment['published'] && !$assignment['is_quiz_assignment']) {
                     if ($group->canvasSectionID == -1 && !empty($assignment['lock_at'])) {
                         $id = $this->saveTask($assignment, $group);
-                        array_push($taskIds, $id);
+                        if ($id !== null) {
+                            array_push($taskIds, $id);
+                        }
                     } elseif ($group->canvasSectionID > 0) {
                         $sectionOverride = null;
                         if (!empty($assignment['overrides'])) {
@@ -535,7 +551,9 @@ class CanvasIntegration
 
                         if (!empty($assignment['lock_at'])) {
                             $id = $this->saveTask($assignment, $group);
-                            array_push($taskIds, $id);
+                            if ($id !== null) {
+                                array_push($taskIds, $id);
+                            }
                         }
                     }
                 }
@@ -561,9 +579,9 @@ class CanvasIntegration
      * Save the task from canvas
      * @param array $assignment the response from canvas with the task data
      * @param Group $group the selected group
-     * @return int the id of created/updated task
+     * @return int|null the id of created/updated task, or null if there was a database error
      */
-    private function saveTask($assignment, $group)
+    private function saveTask(array $assignment, Group $group): ?int
     {
         $task = $group->getTasks()->where(['canvasID' => $assignment['id']])->one();
         // Create new task if it was not synchronized before
@@ -605,7 +623,7 @@ class CanvasIntegration
      * Get the uploaded solutions to the given group from canvas
      * @param Group $group the given group
      */
-    private function saveSolutions($group)
+    private function saveSolutions(Group $group): void
     {
         $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
 
@@ -677,9 +695,10 @@ class CanvasIntegration
      * Save the solution from canvas
      * @param array $submission the response from canvas with the solution data
      * @param Task $task the given task
-     * @return int the id of created/updated student file
+     * @return int|null the id of created/updated student file, -1 if the user cannot be found or the
+     *  submission is invalid or corrupted, or null if there was a database error
      */
-    private function saveSolution($submission, $task)
+    private function saveSolution(array $submission, Task $task): ?int
     {
         $file = end($submission['attachments']);
         $user = User::findOne(['canvasID' => $submission['user_id']]);
@@ -766,11 +785,11 @@ class CanvasIntegration
     /**
      * Save the new file from canvas
      * @param int $taskID the id of given task
-     * @param String $name the name of the file
-     * @param String $url the file download link
-     * @param String $neptun the neptun of the uploader
+     * @param string $name the name of the file
+     * @param string $url the file download link
+     * @param string $neptun the neptun of the uploader
      */
-    private function saveCanvasFile($taskID, $name, $url, $neptun)
+    private function saveCanvasFile(int $taskID, string $name, string $url, string $neptun): void
     {
         // Get the dest path.
         $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
@@ -792,9 +811,9 @@ class CanvasIntegration
      * Get the given users subscription to group
      * @param User $user the selected user
      * @param int $groupId the id of selected group
-     * @return int the subscription id or null if the user is not subscribed to the group
+     * @return int|null the subscription id or null if the user is not subscribed to the group
      */
-    private function getUserSubscription($user, $groupId)
+    private function getUserSubscription(User $user, int $groupId): ?int
     {
         foreach ($user->subscriptions as $subscription) {
             if ($subscription->groupID == $groupId) {
@@ -808,7 +827,7 @@ class CanvasIntegration
      * Upload the grade to canvas
      * @param int $studentFileId the id of graded student file
      */
-    public function uploadGradeToCanvas($studentFileId)
+    public function uploadGradeToCanvas(int $studentFileId): void
     {
         $user = User::findIdentity(Yii::$app->user->id);
         $studentFile = StudentFile::findOne($studentFileId);
@@ -830,7 +849,7 @@ class CanvasIntegration
      * Upload the automatic tester result message to canvas
      * @param StudentFile $studentFile the tested student file
      */
-    public function uploadTestResultToCanvas($studentFile)
+    public function uploadTestResultToCanvas(StudentFile $studentFile): void
     {
         $synchronizer = $studentFile->task->group->synchronizer;
         if (is_null($synchronizer) || is_null($synchronizer->canvasToken)) {
@@ -866,14 +885,12 @@ class CanvasIntegration
 
     /**
      * Uploads a short summary of the CodeChecker result to Canvas
-     * @param StudentFile $studentFile
-     * @return void
      * @throws \UnexpectedValueException Thrown if the CodeChecker result status of the student file has an unexpected value
      * @throws CanvasRequestException Thrown if Canvas returns with a status code that indicates error
      * @throws InvalidConfigException Thrown invalid configuration provided for the http client
      * @throws Exception Thrown if failed to send request to Canvas
      */
-    public function uploadCodeCheckerResultToCanvas(StudentFile $studentFile)
+    public function uploadCodeCheckerResultToCanvas(StudentFile $studentFile): void
     {
         $synchronizer = $studentFile->task->group->synchronizer;
         if (is_null($synchronizer) || is_null($synchronizer->canvasToken)) {
