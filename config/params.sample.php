@@ -13,8 +13,6 @@ return [
     'frontendUrl' => 'http://localhost:3000/app',
     // Moss user id for plagiarism detection
     'mossId' => '',
-    // Google Analytics tracking ID
-    'googleAnalyticsId' => '',
     // Supported localizations
     'supportedLocale' => [
         'en-US' => 'English',
