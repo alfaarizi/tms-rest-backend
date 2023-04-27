@@ -591,7 +591,13 @@ class CanvasIntegration
                 'autoTest' => false
             ]);
         }
-        $task->name = Encoding::toUTF8(mb_substr($assignment['name'], 0, 40));
+
+        if (mb_strlen($assignment['name']) > Task::MAX_NAME_LENGTH) {
+            $task->name = Encoding::toUTF8(mb_substr($assignment['name'], 0, Task::MAX_NAME_LENGTH - 3)) . '...';
+        } else {
+            $task->name = Encoding::toUTF8($assignment['name']);
+        }
+
         $task->description = Encoding::toUTF8(strip_tags($assignment['description']));
         $task->semesterID = $group->semesterID;
         $task->groupID = $group->id;

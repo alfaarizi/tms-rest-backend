@@ -63,6 +63,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     public const SCENARIO_CREATE = 'create';
     public const SCENARIO_UPDATE = 'update';
+    public const MAX_NAME_LENGTH = 40;
 
     public function scenarios()
     {
@@ -182,7 +183,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             [['testOS'], 'in', 'range' => self::TEST_OS],
             [['isVersionControlled'], 'boolean'],
             [['softDeadline', 'available'], 'safe'],
-            [['name'], 'string', 'max' => 40],
+            [['name'], 'string', 'max' => self::MAX_NAME_LENGTH],
             [
                 ['groupID'],
                 'exist',
