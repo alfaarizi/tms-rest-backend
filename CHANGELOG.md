@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.0.0-alpha.3](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.2...v3.0.0-alpha.3) (2023-04-28)
+
+### Bug Fixes
+
+* Add ellipsis ('...') to overflowing task names during Canvas synchronization ([838c4d](https://gitlab.com/tms-elte/backend-core/commit/838c4dc9d3db85d2db124446121cf4cfc47e6984))
+
+
+---
+
 ## [3.0.0-alpha.2](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.1...v3.0.0-alpha.2) (2023-04-07)
 
 ### Bug Fixes
