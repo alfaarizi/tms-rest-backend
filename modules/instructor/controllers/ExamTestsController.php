@@ -477,74 +477,12 @@ class ExamTestsController extends BaseInstructorRestController
             throw new BadRequestHttpException(Yii::t('app', 'Test was already finalized'));
         }
 
-        $groupID = $test->groupID;
-        $group = Group::findOne($groupID);
-        $subscriptions = Subscription::find()->select('userID')->where(
-            [
-                'groupID' => $groupID,
-                'semesterID' => $group->semesterID,
-                'isAccepted' => true
-            ]
-        );
-        $count = User::find()->where(['in', 'id', $subscriptions])->count();
-
-        if ($count < 1) {
-            throw new BadRequestHttpException(Yii::t('app', 'The selected group is empty. Please add at least one student!'));
-        }
-
-
-        $users = User::find()->where(['in', 'id', $subscriptions])->all();
-
-        $batchTests = array();
-        foreach ($users as $user) {
-            $testInstance = new ExamTestInstance();
-            $testInstance->score = 0;
-            $testInstance->submitted = 0;
-            $testInstance->userID = $user->id;
-            $testInstance->testID = $id;
-            $batchTests[] = $testInstance->attributes;
-        }
-
-        $transaction = Yii::$app->db->beginTransaction();
         try {
-            $testAttr = ['id', 'starttime', 'finishtime', 'submitted', 'score', 'userID', 'testID'];
-            Yii::$app->db->createCommand()->batchInsert(ExamTestInstance::tableName(), $testAttr, $batchTests)->execute();
-
-            //Shuffle array of questions and slice the first n where n is the question amount
-            $questions = ExamQuestion::find()->where(['questionsetID' => $test->questionsetID])->all();
-            shuffle($questions);
-            $chosen = array_slice($questions, 0, $test->questionamount);
-            $batchQuestions = array();
-            $questionAttr = ['questionID', 'testinstanceID'];
-            foreach (ExamTestInstance::findAll(['testID' => $test->id]) as $testInstance) {
-                //In case of unique test instances questions are being shuffled for every user
-                if ($test->unique) {
-                    shuffle($questions);
-                    $chosen = array_slice($questions, 0, $test->questionamount);
-                    foreach ($chosen as $question) {
-                        $batchQuestions[] = [$question->id, $testInstance->id];
-                    }
-                } else {
-                    foreach ($chosen as $question) {
-                        $batchQuestions[] = [$question->id, $testInstance->id];
-                    }
-                }
-            }
-            Yii::$app->db->createCommand()->batchInsert(
-                ExamTestInstanceQuestion::tableName(),
-                $questionAttr,
-                $batchQuestions
-            )->execute();
-
-            $transaction->commit();
-            Yii::info(
-                "A new test has been finalized: $test->name ($test->id)." . PHP_EOL .
-                "Course: {$test->group->course->name}" . PHP_EOL .
-                "Group number: {$test->group->number}, groupID: {$test->groupID}",
-                __METHOD__);
+            $test->finalize();
             $this->response->statusCode = 204;
+        } catch (\LengthException $e) {
+            throw new BadRequestHttpException($e->getMessage());
         } catch (\Exception $e) {
-            $transaction->rollBack();
             throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
         }
     }

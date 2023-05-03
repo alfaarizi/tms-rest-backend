@@ -180,6 +180,86 @@ class ExamTest extends ActiveRecord implements IOpenApiFieldTypes
     }
 
     /**
+     * Finalize test, create test instance for all users.
+     *
+     * @return void
+     * @throws \yii\db\Exception
+     */
+    public function finalize()
+    {
+        $groupID = $this->groupID;
+        $group = Group::findOne($groupID);
+        $subscriptions = Subscription::find()->select('userID')->where(
+            [
+                'groupID' => $groupID,
+                'semesterID' => $group->semesterID,
+                'isAccepted' => true
+            ]
+        );
+        $count = User::find()->where(['in', 'id', $subscriptions])->count();
+
+        if ($count < 1) {
+            throw new \LengthException(Yii::t('app', 'The selected group is empty. Please add at least one student!'));
+        }
+
+
+        $users = User::find()->where(['in', 'id', $subscriptions])->all();
+
+        $batchTests = array();
+        foreach ($users as $user) {
+            $testInstance = new ExamTestInstance();
+            $testInstance->score = 0;
+            $testInstance->submitted = 0;
+            $testInstance->userID = $user->id;
+            $testInstance->testID = $this->id;
+            $batchTests[] = $testInstance->attributes;
+        }
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $testAttr = ['id', 'starttime', 'finishtime', 'submitted', 'score', 'userID', 'testID'];
+            Yii::$app->db->createCommand()->batchInsert(ExamTestInstance::tableName(), $testAttr, $batchTests)->execute();
+
+            //Shuffle array of questions and slice the first n where n is the question amount
+            $questions = ExamQuestion::find()->where(['questionsetID' => $this->questionsetID])->all();
+            shuffle($questions);
+            $chosen = array_slice($questions, 0, $this->questionamount);
+            $batchQuestions = array();
+            $questionAttr = ['questionID', 'testinstanceID'];
+            foreach (ExamTestInstance::findAll(['testID' => $this->id]) as $testInstance) {
+                //In case of unique test instances questions are being shuffled for every user
+                if ($this->unique) {
+                    shuffle($questions);
+                    $chosen = array_slice($questions, 0, $this->questionamount);
+                    foreach ($chosen as $question) {
+                        $batchQuestions[] = [$question->id, $testInstance->id];
+                    }
+                } else {
+                    foreach ($chosen as $question) {
+                        $batchQuestions[] = [$question->id, $testInstance->id];
+                    }
+                }
+            }
+            Yii::$app->db->createCommand()->batchInsert(
+                ExamTestInstanceQuestion::tableName(),
+                $questionAttr,
+                $batchQuestions
+            )->execute();
+
+            $transaction->commit();
+            Yii::info(
+                "A new test has been finalized: $this->name ($this->id)." . PHP_EOL .
+                "Course: {$this->group->course->name}" . PHP_EOL .
+                "Group number: {$this->group->number}, groupID: {$this->groupID}",
+                __METHOD__
+            );
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function attributeLabels()
