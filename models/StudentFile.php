@@ -36,6 +36,7 @@ use yii\helpers\StringHelper;
  * @property User $grader
  * @property CodeCheckerResult $codeCheckerResult
  *
+ * @property-read string $containerName
  * @property-read array $ipAddresses
  * @property-read string $safeErrorMsg
  */
@@ -295,6 +296,15 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public function getTranslatedIsAccepted()
     {
         return Yii::t('app', $this->isAccepted);
+    }
+
+    /**
+     * Generates the container name for this studentfile.
+     */
+    public function getContainerName(): string
+    {
+        // Prefixing.
+        return "tms_{$this->id}";
     }
 
     /**

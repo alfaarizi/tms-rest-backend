@@ -60,13 +60,13 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
             $this->studentfile->task->compileInstructions = 'echo hi';
 
             $container = $this->submissionRunner
-                ->run($this->studentfile, 8009, $this->studentfile->task->containerName);
+                ->run($this->studentfile, 8009, $this->studentfile->containerName);
             self::assertEquals(
                 2,
                 count(scandir(Yii::$app->basePath . '/appdata_test/tmp/docker')),
                 'Tmp dir should be empty after container start'
             );
-            self::assertEquals($this->studentfile->task->containerName, $container->getContainerName());
+            self::assertEquals($this->studentfile->containerName, $container->getContainerName());
         });
 
         $this->specify("When container fails to start resources should be cleaned up", function () {

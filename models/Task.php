@@ -56,7 +56,6 @@ use yii\helpers\FileHelper;
  * @property-read ?string $canvasUrl
  * @property-read string $localImageName
  * @property-read string $isLocalImage
- * @property-read string $containerName
  * @property-read string $dockerSocket
  */
 class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
@@ -376,16 +375,6 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public function getIsLocalImage(): bool
     {
         return $this->localImageName == $this->imageName;
-    }
-
-    /**
-     * Generates the container name of this task.
-     * @return string
-     */
-    public function getContainerName()
-    {
-        // Prefixing.
-        return "tms_{$this->id}";
     }
 
     /**
