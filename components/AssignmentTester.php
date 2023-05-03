@@ -117,7 +117,7 @@ class AssignmentTester
 
         $task = $this->studentFile->task;
         $imageName = $task->imageName;
-        $containerName = $task->containerName;
+        $containerName = $this->studentFile->containerName;
 
         $dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $task->testOS]);
 
@@ -138,9 +138,10 @@ class AssignmentTester
 
         // send student solution to docker container as TAR stream
         try {
-            $tarPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/test_' . $this->studentFile->id . '.tar';
+            $tarPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '.tar';
             $phar = new \PharData($tarPath);
-            $phar->buildFromDirectory(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/');
+            $phar->buildFromDirectory(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id);
+            unset($phar);
             $this->docker->putContainerArchive(
                 $containerName,
                 file_get_contents($tarPath),
@@ -331,13 +332,13 @@ class AssignmentTester
 
         // add compile commands file
         $task = $this->studentFile->task;
-        $compileFile = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/compile.' .
+        $compileFile = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '/compile.' .
             ($this->studentFile->task->testOS == 'windows' ? 'ps1' : 'sh');
         file_put_contents($compileFile, $task->compileInstructions);
 
         // add run command file
         if (!empty($task->runInstructions)) {
-            $runFile = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/run.' .
+            $runFile = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '/run.' .
                 ($this->studentFile->task->testOS == 'windows' ? 'ps1' : 'sh');
             file_put_contents($runFile, $task->runInstructions);
         }
@@ -346,13 +347,13 @@ class AssignmentTester
     }
 
     /**
-     * Extracts the student solution to tmp/docker/submission/
+     * Extracts the student solution to tmp/docker/{studentFileID}/submission/
      *
      * @return bool The success of extraction.
      */
     private function extractStudentSolution()
     {
-        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/submission/';
+        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '/submission/';
 
         if (!file_exists($path)) {
             mkdir($path, 0755, true);
@@ -370,13 +371,13 @@ class AssignmentTester
     }
 
     /**
-     * Copies the instructor defined test files of the task to tmp/docker/test_files/
+     * Copies the instructor defined test files of the task to tmp/docker/{studentFileID}/test_files/
      *
      * @return bool The success of the copy operations.
      */
     private function copyTestFiles()
     {
-        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/test_files/';
+        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '/test_files/';
 
         if (!file_exists($path)) {
             mkdir($path, 0755, true);
@@ -395,13 +396,18 @@ class AssignmentTester
     }
 
     /**
-     *  Deletes the student solution and related files from tmp/docker/
+     *  Deletes the student solution and related files from tmp/docker/{studentFileID}
+     * @throws \yii\base\ErrorException
      */
     private function deleteStudentSolution()
     {
-        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/';
+        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id;
         if (is_dir($path)) {
-            $this->deleteFolderContents($path);
+            FileHelper::removeDirectory($path);
+        }
+        $tarPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '.tar';
+        if (is_file($tarPath)) {
+            FileHelper::unlink($tarPath);
         }
     }
 
@@ -463,15 +469,5 @@ class AssignmentTester
             'stderr' => Encoding::toUTF8($stderrFull),
             'exitCode' => $exitCode
         ];
-    }
-
-    private function deleteFolderContents(string $path): void
-    {
-        if (file_exists($path)) {
-            $fileSystemIterator = new \FilesystemIterator($path);
-            foreach ($fileSystemIterator as $file) {
-                $file->isDir() ? FileHelper::removeDirectory($file) : FileHelper::unlink($file);
-            }
-        }
     }
 }
