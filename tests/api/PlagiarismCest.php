@@ -5,22 +5,41 @@ namespace tests\api;
 use ApiTester;
 use Yii;
 use app\models\Plagiarism;
+use app\tests\doubles\NoopPlagiarismFinder;
 use app\tests\unit\fixtures\AccessTokenFixture;
-use app\tests\unit\fixtures\PlagiarismFixture;
+use app\tests\unit\fixtures\JPlagPlagiarismFixture;
+use app\tests\unit\fixtures\MossPlagiarismFixture;
 use app\tests\unit\fixtures\SemesterFixture;
 use app\tests\unit\fixtures\UserFixture;
 use Codeception\Util\HttpCode;
+use Wikimedia\ScopedCallback;
 
 class PlagiarismCest
 {
-    public const PLAGIARISM_SCHEMA = [
+    public const BASE_PLAGIARISM_SCHEMA = [
         'id' => 'integer',
         'semesterID' => 'integer',
         'name' => 'string',
         'description' => 'string|null',
-        'response' => 'string|null',
-        'ignoreThreshold' => 'integer|string'
+        'url' => 'string|null',
+        'typeSpecificData' => [
+            'type' => 'string',
+        ],
     ];
+
+    public const MOSS_PLAGIARISM_SCHEMA = [
+        'typeSpecificData' => [
+            'type' => 'string',
+            'ignoreThreshold' => 'integer',
+        ],
+    ] + PlagiarismCest::BASE_PLAGIARISM_SCHEMA;
+
+    public const JPLAG_PLAGIARISM_SCHEMA = [
+        'typeSpecificData' => [
+            'type' => 'string',
+            'tune' => 'integer',
+        ],
+    ] + PlagiarismCest::BASE_PLAGIARISM_SCHEMA;
 
     public function _fixtures()
     {
@@ -31,8 +50,11 @@ class PlagiarismCest
             'users' => [
                 'class' => UserFixture::class
             ],
-            'plagiarism' => [
-                'class' => PlagiarismFixture::class
+            'plagiarisms_moss' => [
+                'class' => MossPlagiarismFixture::class,
+            ],
+            'plagiarisms_jplag' => [
+                'class' => JPlagPlagiarismFixture::class,
             ],
             'accesstokens' => [
                 'class' => AccessTokenFixture::class,
@@ -46,11 +68,29 @@ class PlagiarismCest
         Yii::$app->language = 'en-US';
     }
 
+    /**
+     * Temporarily configure JPlag and automagically remove the configuration
+     * once not needed. Warning: the reference to the returned object needs to
+     * be kept as long as the JPlag config is needed, it’s deconfigured immediately
+     * once there’s no reference to the object!
+     */
+    private function _setJplag(): ScopedCallback
+    {
+        Yii::$app->params['jplag'] = [
+            'jre' => 'java',
+            'jar' => '/dev/null',
+            'report-viewer' => 'https://jplag.github.io/JPlag/',
+        ];
+        // phpcs:ignore Squiz.Functions,Squiz.WhiteSpace,Generic.Formatting.DisallowMultipleStatements.SameLine
+        return new ScopedCallback(static function () { unset(Yii::$app->params['jplag']); });
+    }
+
     public function index(ApiTester $I)
     {
+        $jplagConfig = $this->_setJplag();
         $I->sendGet('/instructor/plagiarism?semesterID=3001');
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::PLAGIARISM_SCHEMA, '$.[*]');
+        $I->seeResponseMatchesJsonType(self::BASE_PLAGIARISM_SCHEMA, '$.[*]');
         $I->seeResponseContainsJson(
             [
                 [
@@ -58,16 +98,22 @@ class PlagiarismCest
                     'semesterID' => 3001,
                     'name' => 'plagiarism4',
                     'description' => 'description4',
-                    'response' => null,
-                    'ignoreThreshold' => 10
+                    'url' => null,
+                    'typeSpecificData' => [
+                        'type' => 'moss',
+                        'ignoreThreshold' => 10,
+                    ],
                 ],
                 [
                     'id' => 3,
                     'semesterID' => 3001,
                     'name' => 'plagiarism3',
                     'description' => 'description3',
-                    'response' => null,
-                    'ignoreThreshold' => 5
+                    'url' => null,
+                    'typeSpecificData' => [
+                        'type' => 'moss',
+                        'ignoreThreshold' => 5,
+                    ],
                 ],
             ]
         );
@@ -79,15 +125,59 @@ class PlagiarismCest
     {
         $I->sendGet('/instructor/plagiarism/3');
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::PLAGIARISM_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::MOSS_PLAGIARISM_SCHEMA);
         $I->seeResponseContainsJson(
             [
                 'id' => 3,
                 'semesterID' => 3001,
                 'name' => 'plagiarism3',
                 'description' => 'description3',
-                'response' => null,
-                'ignoreThreshold' => 5
+                'url' => null,
+                'typeSpecificData' => [
+                    'type' => 'moss',
+                    'ignoreThreshold' => 5,
+                ],
+            ]
+        );
+    }
+
+    public function viewDownloadedMoss(ApiTester $I)
+    {
+        $I->sendGet('/instructor/plagiarism/7');
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::MOSS_PLAGIARISM_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                'id' => 7,
+                'semesterID' => 3001,
+                'name' => 'plagiarism7',
+                'description' => 'description7',
+                'url' => '/index-test.php/instructor/plagiarism-result?id=7&token=ad9e9bcd00632c86b547a1db0f3c9502',
+                'typeSpecificData' => [
+                    'type' => 'moss',
+                    'ignoreThreshold' => 10,
+                ],
+            ]
+        );
+    }
+
+    public function viewDownloadedJplag(ApiTester $I)
+    {
+        $jplagConfig = $this->_setJplag();
+        $I->sendGet('/instructor/plagiarism/9');
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::JPLAG_PLAGIARISM_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                'id' => 9,
+                'semesterID' => 3001,
+                'name' => 'plagiarism9',
+                'description' => 'description9',
+                'url' => 'https://jplag.github.io/JPlag/?file=http%3A%2F%2Flocalhost%2Findex-test.php%2Finstructor%2Fplagiarism-result%3Fid%3D9%26token%3Dad9e9bcd00632c86b547a1db0f3c9502',
+                'typeSpecificData' => [
+                    'type' => 'jplag',
+                    'tune' => 1,
+                ],
             ]
         );
     }
@@ -108,43 +198,107 @@ class PlagiarismCest
     {
         $data = [
             'name' => 'Created',
+            'type' => 'moss',
             'selectedTasks' => [5000, 5001],
             'selectedStudents' => [1001, 1002],
             'ignoreThreshold' => 1,
             'description' => 'created'
         ];
-        $expectedData = [
+        $I->sendPost('/instructor/plagiarism', $data);
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeResponseMatchesJsonType(self::MOSS_PLAGIARISM_SCHEMA);
+        $I->seeResponseContainsJson([
             'name' => 'Created',
+            'description' => 'created',
+            'url' => null,
+            'typeSpecificData' => [
+                'type' => 'moss',
+                'ignoreThreshold' => 1,
+            ],
+        ]);
+        $I->seeRecord(Plagiarism::class, [
+            'name' => 'Created',
+            'description' => 'created',
+            'type' => 'moss',
+        ]);
+    }
+
+    public function createWithoutJplag(ApiTester $I)
+    {
+        $data = [
+            'name' => 'Created',
+            'type' => 'jplag',
+            'selectedTasks' => [5000, 5001],
+            'selectedStudents' => [1001, 1002],
             'ignoreThreshold' => 1,
             'description' => 'created'
         ];
         $I->sendPost('/instructor/plagiarism', $data);
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseContainsJson(
+            [
+                'type' => [ 'Unsupported type. Supported plagiarism type: moss' ]
+            ]
+        );
+    }
+
+    public function createValidJplag(ApiTester $I)
+    {
+        $jplagConfig = $this->_setJplag();
+        $data = [
+            'name' => 'Created',
+            'type' => 'jplag',
+            'selectedTasks' => [5000, 5001],
+            'selectedStudents' => [1001, 1002],
+            'description' => 'created'
+        ];
+        $I->sendPost('/instructor/plagiarism', $data);
         $I->seeResponseCodeIs(HttpCode::CREATED);
-        $I->seeResponseMatchesJsonType(self::PLAGIARISM_SCHEMA);
-        $I->seeResponseContainsJson($expectedData);
-        $I->seeRecord(Plagiarism::class, $expectedData);
+        $I->seeResponseMatchesJsonType(self::JPLAG_PLAGIARISM_SCHEMA);
+        $I->seeResponseContainsJson([
+            'name' => 'Created',
+            'description' => 'created',
+            'url' => null,
+            'typeSpecificData' => [
+                'type' => 'jplag',
+                'tune' => 0,
+            ],
+        ]);
+        $I->seeRecord(Plagiarism::class, [
+            'name' => 'Created',
+            'description' => 'created',
+            'type' => 'jplag',
+        ]);
     }
 
     public function createWithBasefile(ApiTester $I)
     {
         $data = [
             'name' => 'Created',
+            'type' => 'moss',
             'selectedTasks' => [5000, 5001],
             'selectedStudents' => [1001, 1002],
             'selectedBasefiles' => [6000],
             'ignoreThreshold' => 1,
             'description' => 'created'
         ];
-        $expectedData = [
-            'name' => 'Created',
-            'ignoreThreshold' => 1,
-            'description' => 'created'
-        ];
         $I->sendPost('/instructor/plagiarism', $data);
         $I->seeResponseCodeIs(HttpCode::CREATED);
-        $I->seeResponseMatchesJsonType(self::PLAGIARISM_SCHEMA);
-        $I->seeResponseContainsJson($expectedData);
-        $I->seeRecord(Plagiarism::class, $expectedData);
+        $I->seeResponseMatchesJsonType(self::MOSS_PLAGIARISM_SCHEMA);
+        $I->seeResponseContainsJson([
+            'name' => 'Created',
+            'description' => 'created',
+            'url' => null,
+            'typeSpecificData' => [
+                'type' => 'moss',
+                'ignoreThreshold' => 1,
+            ],
+        ]);
+        $I->seeRecord(Plagiarism::class, [
+            'name' => 'Created',
+            'description' => 'created',
+            'type' => 'moss',
+        ]);
     }
 
     public function createInvalid(ApiTester $I)
@@ -162,6 +316,7 @@ class PlagiarismCest
     {
         $data = [
             'name' => 'Created',
+            'type' => 'moss',
             'selectedTasks' => [5000, 5001],
             'selectedStudents' => [1001],
             'ignoreThreshold' => 1,
@@ -180,6 +335,7 @@ class PlagiarismCest
     {
         $data = [
             'name' => 'Created',
+            'type' => 'moss',
             'selectedTasks' => [0, 5001],
             'selectedStudents' => [1001, 1002],
             'ignoreThreshold' => 1,
@@ -198,6 +354,7 @@ class PlagiarismCest
     {
         $data = [
             'name' => 'Created',
+            'type' => 'moss',
             'selectedTasks' => [5000, 5001],
             'selectedStudents' => [0, 1001],
             'ignoreThreshold' => 1,
@@ -216,6 +373,7 @@ class PlagiarismCest
     {
         $data = [
             'name' => 'Created',
+            'type' => 'moss',
             'selectedTasks' => [5000, 5001],
             'selectedStudents' => [1001, 1002],
             'selectedBasefiles' => [0],
@@ -235,6 +393,7 @@ class PlagiarismCest
     {
         $data = [
             'name' => 'Created',
+            'type' => 'moss',
             'selectedTasks' => [5000, 5001],
             'selectedStudents' => [1001, 1002],
             'ignoreThreshold' => 5,
@@ -244,15 +403,18 @@ class PlagiarismCest
 
         $I->sendPost('/instructor/plagiarism', $data);
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::PLAGIARISM_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::MOSS_PLAGIARISM_SCHEMA);
         $I->seeResponseContainsJson(
             [
                 'id' => 3,
                 'semesterID' => 3001,
                 'name' => 'plagiarism3',
                 'description' => 'description3',
-                'response' => null,
-                'ignoreThreshold' => 5
+                'url' => null,
+                'typeSpecificData' => [
+                    'type' => 'moss',
+                    'ignoreThreshold' => 5,
+                ],
             ]
         );
 
@@ -260,7 +422,6 @@ class PlagiarismCest
             Plagiarism::class,
             [
                 'name' => 'Created',
-                'ignoreThreshold' => 10,
                 'description' => 'created'
             ]
         );
@@ -277,15 +438,18 @@ class PlagiarismCest
         );
         $I->seeResponseCodeIs(HttpCode::OK);
 
-        $I->seeResponseMatchesJsonType(self::PLAGIARISM_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::MOSS_PLAGIARISM_SCHEMA);
         $I->seeResponseContainsJson(
             [
                 'id' => 3,
                 'semesterID' => 3001,
                 'name' => 'Updated',
                 'description' => 'description3',
-                'response' => null,
-                'ignoreThreshold' => 5  // can't modify ignoreThreshold
+                'url' => null,
+                'typeSpecificData' => [
+                    'type' => 'moss',
+                    'ignoreThreshold' => 5, // can't modify ignoreThreshold
+                ],
             ]
         );
 
@@ -362,5 +526,57 @@ class PlagiarismCest
         $I->sendDelete('/instructor/plagiarism/1');
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
         $I->seeRecord(Plagiarism::class, ['id' => 1]);
+    }
+
+    public function run(ApiTester $I)
+    {
+        $I->sendPost('/instructor/plagiarism/3/run');
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::MOSS_PLAGIARISM_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                'id' => 3,
+                'semesterID' => 3001,
+                'name' => 'plagiarism3',
+                'description' => 'description3',
+                'url' => null,
+                'typeSpecificData' => [
+                    'type' => 'moss',
+                    'ignoreThreshold' => 5,
+                ],
+            ]
+        );
+    }
+
+    public function runNotFound(ApiTester $I)
+    {
+        $I->sendPost('/instructor/plagiarism/0/run');
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function runWithoutPermission(ApiTester $I)
+    {
+        $I->sendPost('/instructor/plagiarism/1/run');
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function runDisabled(ApiTester $I)
+    {
+        NoopPlagiarismFinder::$enabled = false;
+        $I->sendPost('/instructor/plagiarism/3/run');
+        $I->seeResponseCodeIs(HttpCode::NOT_IMPLEMENTED);
+        NoopPlagiarismFinder::$enabled = true;
+    }
+
+    public function runFailing(ApiTester $I)
+    {
+        NoopPlagiarismFinder::$fails = true;
+        $I->sendPost('/instructor/plagiarism/3/run');
+        $I->seeResponseCodeIs(HttpCode::BAD_GATEWAY);
+        $I->seeResponseContainsJson(
+            [
+                'message' => 'You rang?'
+            ]
+        );
     }
 }

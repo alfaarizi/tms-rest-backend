@@ -109,6 +109,23 @@ Then, the images must be pulled by the system administrator with the following c
 ./yii code-checker/pull-report-converter-image (linux|windows)
 ~~~
 
+#### Plagiarism detection *(optional)*
+
+There are currently two supported plagiarism detectors: Moss and JPlag. Both can be configured or left unconfigured independently of each other. If both services are configured, instructors can choose the service to use before each plagiarism check; if no services are configured, plagiarism detection is unavailable and hidden on the UI.
+
+##### Moss
+
+[Moss](https://theory.stanford.edu/~aiken/moss/) is an online service. After registering as described on the website, all you need to do is setting your user ID (search for `$userid` in the Perl script they sent back) in the `mossId` key in `config/params.php`. As simple it is, it is not uncommon that Moss is unavailable. To reduce the impact of outages, plagiarism check results are automatically downloaded, so merely looking at the results doesn't require the Moss server to be up, but running checks doesn't work during Moss downtime.
+
+##### JPlag
+
+[JPlag](https://github.com/jplag/JPlag) is an offline plagiarism detector. This means that the checks don't depend on third-party services, but it requires more setup. Currently JPlag 4.1.0 is officially supported, but newer versions should also work as long as the command-line API has no breaking changes. You need the following things on the TMS server:
+- A Java Runtime Environment capable of running JPlag (as of JPlag 4.1.0, JRE 17 or newer is required)
+- The JPlag JAR file, downloadable from [GitHub](https://github.com/jplag/JPlag/releases)
+- The JPlag report viewer. The instance operated by the JPlag authors should be sufficient in development environments (although you might run into issues if your dev web server doesn't support HTTPS), but you're urged to use a local instance in production (otherwise you give up the independence on third-party services). The report viewer isn't distributed pre-built; if you decide to use a local instance, you need to check out the JPlag Git repository and build the report viewer (in the `report-viewer` directory) as described by the `README` in that directory.
+
+After preparing the above, you need to configure `jplag` in `params/config.php` as instructed by the comments in the sample file.
+
 ### Database migration
 
 TMS has a code-first database model, by performing the database migration, all required tables will be created:

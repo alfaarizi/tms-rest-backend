@@ -2,10 +2,16 @@
 
 namespace app\modules\instructor\controllers;
 
-use app\components\plagiarism\MossPlagiarismFinder;
+use app\components\plagiarism\AbstractPlagiarismFinder;
 use app\exceptions\PlagiarismServiceException;
+use app\models\AbstractPlagiarism;
+use app\models\JPlagPlagiarism;
+use app\models\MossPlagiarism;
 use app\models\Semester;
 use app\modules\instructor\resources\CreatePlagiarismResource;
+use app\modules\instructor\resources\JPlagPlagiarismResource;
+use app\modules\instructor\resources\MossPlagiarismResource;
+use app\modules\instructor\resources\Resource;
 use app\modules\instructor\resources\PlagiarismResource;
 use Throwable;
 use Yii;
@@ -17,7 +23,6 @@ use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use ZIPARCHIVE;
 
 /**
  * @OA\PathItem(
@@ -194,7 +199,7 @@ class PlagiarismController extends BaseInstructorRestController
         $taskIDs = implode(',', $requestModel->selectedTasks);
         $userIDs = implode(',', $requestModel->selectedStudents);
         $basefileIDs = implode(',', $requestModel->selectedBasefiles);
-        $ignoreThreshold = $requestModel->ignoreThreshold;
+        $type = $requestModel->type;
 
         // Check if the request already presents in the db.
         $requesterID = Yii::$app->user->id;
@@ -206,9 +211,31 @@ class PlagiarismController extends BaseInstructorRestController
                 'userIDs' => $userIDs,
                 'baseFileIDs' => $basefileIDs,
                 'semesterID' => $semesterID,
-                'ignoreThreshold' => $ignoreThreshold
+                'type' => $type,
             ]
         );
+
+        if ($plagiarism !== null) {
+            switch ($type) {
+                case MossPlagiarism::ID:
+                    $moss = $plagiarism->moss;
+                    // Type juggling because `$requestModel->ignoreThreshold` can be string for some reason
+                    if ($moss->ignoreThreshold != $requestModel->ignoreThreshold) {
+                        $plagiarism = null;
+                    }
+                    break;
+                case JPlagPlagiarism::ID:
+                    $jplag = $plagiarism->jplag;
+                    $dbFiles = explode("\n", $jplag->ignoreFiles);
+                    $requestFiles = $requestModel->ignoreFiles;
+                    sort($dbFiles);
+                    sort($requestFiles);
+                    if ($jplag->tune != $requestModel->tune || $dbFiles !== $requestFiles) {
+                        $plagiarism = null;
+                    }
+                    break;
+            }
+        }
 
         // If the request is a new one create it.
         if (is_null($plagiarism)) {
@@ -225,16 +252,39 @@ class PlagiarismController extends BaseInstructorRestController
                     'semesterID' => $semesterID,
                     'name' => $name,
                     'description' => $description,
-                    'ignoreThreshold' => $ignoreThreshold
+                    'type' => $type,
+                    'generateTime' => date('Y-m-d H:i:s'),
                 ]
             );
 
-            if ($plagiarism->save()) {
+            $transaction = PlagiarismResource::getDb()->beginTransaction();
+            $success = false;
+            try {
+                if (!$plagiarism->save()) {
+                    $transaction->rollBack();
+                } else {
+                    $plagiarismType = $this->createPlagiarismType($plagiarism, $requestModel);
+                    if (!$plagiarismType->save()) {
+                        $transaction->rollBack();
+                    } else {
+                        $transaction->commit();
+                        $success = true;
+                    }
+                }
+            } catch (\Throwable $t) {
+                $transaction->rollBack();
+                throw $t;
+            }
+
+            if ($success) {
                 $this->response->statusCode = 201;
                 return $plagiarism;
             } elseif ($plagiarism->hasErrors()) {
                 $this->response->statusCode = 422;
                 return $plagiarism->errors;
+            } elseif (isset($plagiarismType) && $plagiarismType->hasErrors()) {
+                $this->response->statusCode = 422;
+                return $plagiarismType->errors;
             } else {
                 throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
             }
@@ -363,23 +413,44 @@ class PlagiarismController extends BaseInstructorRestController
             $model->delete();
             $this->response->statusCode = 204;
         } catch (Throwable $e) {
-            throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
+            throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'), 0, $e);
         }
     }
 
 
     /**
-     * Send the given plagiarism check to the Moss service
-     * @param int $id
-     * @return PlagiarismResource
-     * @throws BadRequestHttpException
-     * @throws ForbiddenHttpException
-     * @throws NotFoundHttpException
+     * List available plagiarism check types. An empty list means that plagiarism detection is not configured, and should be hidden on the UI.
+     * @return string[]
+     *
+     * @OA\Get(
+     *     path="/instructor/plagiarism/services",
+     *     operationId="instructor::PlagiarismController::actionServices",
+     *     tags={"Instructor Plagiarism"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(type="array", @OA\Items(type="string", enum=app\modules\instructor\resources\PlagiarismResource::POSSIBLE_TYPES)),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionServices(): array {
+        return PlagiarismResource::getAvailableTypes();
+    }
+
+
+    /**
+     * Send the given plagiarism check to the configured service
+     * @throws HttpException
      * @throws ErrorException
      *
      * @OA\Post(
-     *     path="/instructor/plagiarism/{id}/run-moss",
-     *     operationId="instructor::PlagiarismController::actionRunMoss",
+     *     path="/instructor/plagiarism/{id}/run",
+     *     operationId="instructor::PlagiarismController::actionRun",
      *     tags={"Instructor Plagiarism"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
@@ -403,22 +474,24 @@ class PlagiarismController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionRunMoss($id)
+    public function actionRun(int $id): PlagiarismResource
     {
-        if (Yii::$app->params['mossId'] === '') {
-            throw new BadRequestHttpException(
-                Yii::t('app', 'Moss is disabled. Contact the administrator for more information.')
+        $plagiarism = $this->findOwnPlagiarism($id);
+
+        $finder = Yii::$container->get(AbstractPlagiarismFinder::class, [$plagiarism]);
+        if (!$finder::isEnabled()) {
+            throw new HttpException(
+                501,
+                Yii::t('app', 'The requested plagiarism type has been disabled since creating the request. Contact the administrator for more information.')
             );
         }
-
-        $plagiarism = $this->findOwnPlagiarism($id);
 
         // This may take some time.
         set_time_limit(1800);
         ini_set('default_socket_timeout', 900);
 
         try {
-            (new MossPlagiarismFinder($id))->start();
+            $finder->start();
         } catch (PlagiarismServiceException $e) {
             throw new HttpException(502, $e->getMessage(), 0, $e);
         }
@@ -438,6 +511,27 @@ class PlagiarismController extends BaseInstructorRestController
             return $plagiarism;
         } else {
             throw new NotFoundHttpException(Yii::t('app', 'The plagiarism check does not exist or belongs to another user.'));
+        }
+    }
+
+    private function createPlagiarismType(PlagiarismResource $plagiarism, CreatePlagiarismResource $data): AbstractPlagiarism
+    {
+        switch ($plagiarism->type) {
+            case MossPlagiarism::ID:
+                return new MossPlagiarismResource(
+                    [
+                        'plagiarismId' => $plagiarism->id,
+                        'ignoreThreshold' => $data->ignoreThreshold,
+                    ]
+                );
+            case JPlagPlagiarism::ID:
+                return new JPlagPlagiarismResource(
+                    [
+                        'plagiarismId' => $plagiarism->id,
+                        'tune' => $data->tune,
+                        'ignoreFiles' => $data->ignoreFilesString,
+                    ]
+                );
         }
     }
 }

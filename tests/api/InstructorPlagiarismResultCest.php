@@ -3,7 +3,8 @@
 namespace tests\api;
 
 use ApiTester;
-use app\tests\unit\fixtures\PlagiarismFixture;
+use app\tests\unit\fixtures\JPlagPlagiarismFixture;
+use app\tests\unit\fixtures\MossPlagiarismFixture;
 use Codeception\Util\HttpCode;
 use Yii;
 
@@ -15,8 +16,11 @@ class InstructorPlagiarismResultCest
     public function _fixtures()
     {
         return [
-            'plagiarism' => [
-                'class' => PlagiarismFixture::class,
+            'plagiarisms_moss' => [
+                'class' => MossPlagiarismFixture::class,
+            ],
+            'plagiarisms_jplag' => [
+                'class' => JPlagPlagiarismFixture::class,
             ],
         ];
     }
@@ -25,10 +29,16 @@ class InstructorPlagiarismResultCest
     {
         $I->deleteDir(Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
         $I->copyDir(codecept_data_dir('appdata_samples'), Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
+        Yii::$app->params['jplag'] = [
+            'jre' => 'java',
+            'jar' => '/dev/null',
+            'report-viewer' => 'https://jplag.github.io/JPlag/',
+        ];
     }
 
     public function _after(ApiTester $I)
     {
+        unset(Yii::$app->params['jplag']);
         $I->deleteDir(Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
     }
 
@@ -57,6 +67,17 @@ class InstructorPlagiarismResultCest
 
         $I->openFile(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/plagiarism/plagiarism-result/7/index.html');
         $I->seeFileContentsEqual(str_replace("\r", '', $I->grabResponse()));
+    }
+
+    public function indexJplag(ApiTester $I)
+    {
+        $I->sendGet('/instructor/plagiarism-result', ['id' => 9, 'token' => 'ad9e9bcd00632c86b547a1db0f3c9502']);
+        $I->seeResponseCodeIs(HttpCode::OK);
+
+        $I->assertStringEqualsFile(
+            Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/plagiarism/plagiarism-result/9/result.zip',
+            $I->grabResponse()
+        );
     }
 
     public function frameInvalid(ApiTester $I)
@@ -98,6 +119,12 @@ class InstructorPlagiarismResultCest
         $I->seeFileContentsEqual(str_replace("\r", '', $I->grabResponse()));
     }
 
+    public function frameJplag(ApiTester $I)
+    {
+        $I->sendGet('/instructor/plagiarism-result/frame', ['id' => 9, 'token' => 'ad9e9bcd00632c86b547a1db0f3c9502', 'number' => 0, 'side' => 'top']);
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
     public function matchNotFound(ApiTester $I)
     {
         $I->sendGet('/instructor/plagiarism-result/match', ['id' => 0, 'token' => 'ad9e9bcd00632c86b547a1db0f3c9502', 'number' => 0]);
@@ -121,5 +148,11 @@ class InstructorPlagiarismResultCest
         $I->sendGet('/instructor/plagiarism-result/match', ['id' => 7, 'token' => 'ad9e9bcd00632c86b547a1db0f3c9502', 'number' => 0]);
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseContains('<title>Plagiarism result</title>');
+    }
+
+    public function matchJplag(ApiTester $I)
+    {
+        $I->sendGet('/instructor/plagiarism-result/match', ['id' => 9, 'token' => 'ad9e9bcd00632c86b547a1db0f3c9502', 'number' => 0]);
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 }

@@ -12,7 +12,7 @@ return [
     // Frontend application base URL
     'frontendUrl' => 'http://localhost:3000/app',
     // Moss user id for plagiarism detection
-    'mossId' => '',
+    'mossId' => '123456789',
     // Google Analytics tracking ID
     'googleAnalyticsId' => '',
     // Supported localizations

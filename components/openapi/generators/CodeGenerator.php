@@ -48,7 +48,11 @@ abstract class CodeGenerator
             } elseif (is_string($key)) {
                 if ($wrapRefs && $key ===  "ref") {
                     // Wrap refs
-                    $items[] = "oneOf={@OA\Schema(ref=" . $this->formatValue($attributes[$key]) . ")}";
+                    $list = implode(
+                        ',',
+                        array_map(fn ($ref) => "@OA\\Schema(ref={$this->formatValue($ref)})", (array)$attributes[$key])
+                    );
+                    $items[] = "oneOf={{$list}}";
                 } elseif ($attributes[$key] instanceof CodeGenerator) {
                     $items[] = "{$key}=" . $attributes[$key]->getCode();
                 } elseif (is_string($attributes[$key])) {

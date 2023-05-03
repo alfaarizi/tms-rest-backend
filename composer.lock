@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5823edcca1f348288bbaad79c4ba2f93",
+    "content-hash": "227bf0df5fc8492ad534271986cf5a3b",
     "packages": [
         {
             "name": "bower-asset/bootstrap",
@@ -9488,6 +9488,55 @@
             "time": "2021-07-28T10:34:58+00:00"
         },
         {
+            "name": "wikimedia/scoped-callback",
+            "version": "v4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wikimedia/scoped-callback.git",
+                "reference": "dd522a6cfb4c0180b0a39d12fc57046a347c4d81"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wikimedia/scoped-callback/zipball/dd522a6cfb4c0180b0a39d12fc57046a347c4d81",
+                "reference": "dd522a6cfb4c0180b0a39d12fc57046a347c4d81",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.9"
+            },
+            "require-dev": {
+                "mediawiki/mediawiki-codesniffer": "39.0.0",
+                "mediawiki/mediawiki-phan-config": "0.11.1",
+                "mediawiki/minus-x": "1.1.1",
+                "ockcyp/covers-validator": "1.4.0",
+                "php-parallel-lint/php-console-highlighter": "1.0.0",
+                "php-parallel-lint/php-parallel-lint": "1.3.2",
+                "phpunit/phpunit": "^8.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Wikimedia\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Schulz",
+                    "email": "aschulz@wikimedia.org"
+                }
+            ],
+            "description": "Make a callback run when a dummy object leaves the scope.",
+            "homepage": "https://www.mediawiki.org/wiki/ScopedCallback",
+            "support": {
+                "source": "https://github.com/wikimedia/scoped-callback/tree/v4.0.0"
+            },
+            "time": "2022-07-08T22:48:52+00:00"
+        },
+        {
             "name": "yiisoft/yii2-debug",
             "version": "2.1.22",
             "source": {
@@ -9833,5 +9882,5 @@
         "ext-json": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.0.0"
 }

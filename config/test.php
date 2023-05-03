@@ -3,6 +3,11 @@
 $db = require(__DIR__ . '/test_db.php');
 $params = require(__DIR__ . '/test_params.php');
 $rules = require(__DIR__ . '/rules.php');
+$di = require(__DIR__ . '/di.php');
+$di['definitions'] = array_merge($di['definitions'], [
+    \Docker\Docker::class => \app\tests\doubles\DockerStub::class,
+    \app\components\plagiarism\AbstractPlagiarismFinder::class => \app\tests\doubles\NoopPlagiarismFinder::class,
+]);
 
 /**
  * Application configuration shared by all test types
@@ -103,11 +108,5 @@ return [
         ],
     ],
     'params' => $params,
-    'container' => [
-        'definitions' => [
-            Docker\Docker::class => app\tests\doubles\DockerStub::class,
-            \app\components\SubmissionRunner::class => \app\components\SubmissionRunner::class,
-            \app\components\codechecker\CodeCheckerResultPersistence::class => \app\components\codechecker\CodeCheckerResultPersistence::class
-        ],
-    ]
+    'container' => $di,
 ];

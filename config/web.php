@@ -4,6 +4,7 @@ $db = require(__DIR__ . '/db.php');
 $mailer = require(__DIR__ . '/mailer.php');
 $params = require(__DIR__ . '/params.php');
 $rules = require(__DIR__ . '/rules.php');
+$di = require(__DIR__ . '/di.php');
 
 $params['backendUrl'] = rtrim($params['backendUrl'], '/');
 $params['frontendUrl'] = rtrim($params['frontendUrl'], '/');
@@ -138,23 +139,7 @@ $config = [
         ],
     ],
     'params' => $params,
-    'container' => [
-        'definitions' => [
-            'Docker\Docker' => function ($container, $params, $config) {
-                return Docker\Docker::create(
-                    Docker\DockerClientFactory::create(
-                        [
-                            'remote_socket' => Yii::$app->params['evaluator'][$params['os']]
-                        ]
-                    )
-                );
-            },
-            \app\components\docker\DockerImageManager::class => function ($container, $params, $config) {
-                return new \app\components\docker\DockerImageManager($params['os']);
-            },
-            \app\components\SubmissionRunner::class => \app\components\SubmissionRunner::class,
-        ]
-    ],
+    'container' => $di,
 ];
 
 if (YII_ENV_PROD && isset($_SERVER['HOME'])) {

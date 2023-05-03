@@ -3,6 +3,7 @@
 $db = require(__DIR__ . '/db.php');
 $mailer = require(__DIR__ . '/mailer.php');
 $params = require(__DIR__ . '/params.php');
+$di = require(__DIR__ . '/di.php');
 
 $params['backendUrl'] = rtrim($params['backendUrl'], '/');
 $params['frontendUrl'] = rtrim($params['frontendUrl'], '/');
@@ -114,29 +115,7 @@ $config = [
             'migrationNamespaces' => [],
         ],
     ],
-    'container' => [
-        'definitions' => [
-            \Docker\Docker::class => function ($container, $params, $config) {
-                return Docker\Docker::create(
-                    Docker\DockerClientFactory::create(
-                        [
-                            'remote_socket' => Yii::$app->params['evaluator'][$params['os']]
-                        ]
-                    )
-                );
-            },
-            \app\components\docker\DockerImageManager::class => function ($container, $params, $config) {
-                return new \app\components\docker\DockerImageManager($params['os']);
-            },
-            \app\components\SubmissionRunner::class => \app\components\SubmissionRunner::class,
-            \app\components\CanvasIntegration::class => \app\components\CanvasIntegration::class,
-            \app\components\codechecker\AnalyzerRunner::class => [\app\components\codechecker\AnalyzerRunnerFactory::class, 'createForStudentFile'],
-            \app\components\codechecker\CodeCheckerResultPersistence::class => function ($container, $params, $config) {
-                return new \app\components\codechecker\CodeCheckerResultPersistence($params['studentFile']);
-            },
-            \app\components\codechecker\CodeCheckerResultNotifier::class => \app\components\codechecker\CodeCheckerResultNotifier::class,
-        ]
-    ],
+    'container' => $di,
 ];
 
 if (YII_ENV_DEV) {

@@ -316,4 +316,16 @@ return [
             'canvasSynchronizePrioritizedNumber' => 5,
         ],
     ],
+    // JPlag configuration
+    'jplag' => [
+        // Command to run the JRE. You may need to change this if the default
+        // Java on your system is too old to run JPlag, or JRE is not on your PATH.
+        'jre' => 'java',
+        // Path of the JPlag JAR file. It should be readable by the web server user.
+        'jar' => '',
+        // URL of the report viewer. You may use jplag.github.io in dev environment,
+        // but you should use a local installation in production to avoid the
+        // unnecessary external dependency.
+        'report-viewer' => 'https://jplag.github.io/JPlag/',
+    ],
 ];

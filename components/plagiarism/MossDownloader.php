@@ -16,21 +16,12 @@ class MossDownloader
     private string $url;
     private string $dirPath;
 
-    public static function getPlagiarismDir(int $plagiarismId): string
-    {
-        $basePath =  Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/plagiarism/plagiarism-result';
-        if (!is_dir($basePath)) {
-            mkdir($basePath, 0755, false);
-        }
-        return "$basePath/$plagiarismId";
-    }
-
     public function __construct(int $plagiarismId, string $plagiarismToken, string $url)
     {
         $this->plagiarismId = $plagiarismId;
         $this->plagiarismToken = $plagiarismToken;
         $this->url = $url;
-        $this->dirPath = static::getPlagiarismDir($plagiarismId);
+        $this->dirPath = AbstractPlagiarismFinder::getResultDirectory($plagiarismId);
 
         if (is_dir($this->dirPath)) {
             FileHelper::removeDirectory($this->dirPath);
