@@ -6,14 +6,18 @@ use app\models\InstructorGroup;
 use app\models\Semester;
 use app\models\Course;
 use app\models\Group;
+use app\models\StudentFile;
+use app\models\Task;
 use app\models\User;
 use app\models\ExamQuestion;
 use app\models\ExamQuestionSet;
 use app\models\ExamAnswer;
 use app\models\ExamTest;
-use app\models\ExamTestInstance;
+use Yii;
 use yii\console\ExitCode;
+use yii\db\Exception;
 use yii\helpers\Console;
+use yii\helpers\FileHelper;
 use app\models\Subscription;
 
 /**
@@ -22,297 +26,363 @@ use app\models\Subscription;
 class SetupController extends BaseController
 {
     /**
-     * Seeds the database with initial data.
+     * Seeds the database with basic initial data.
      *
      * @return int Error code.
      */
-    public function actionSeed()
+    public function actionInit(): int
     {
+        // Check if database is empty
+        if (Semester::find()->count() > 0) {
+            $this->stdout("Database is not empty and should be pruned before running this command. This can be done with the setup/prune command." . PHP_EOL, Console::FG_YELLOW);
+            return ExitCode::DATAERR;
+        }
+
         // Seed Semester
-        if (Semester::find()->count()) {
-            $this->stdout("Semester has already been seeded, skip." . PHP_EOL, Console::FG_YELLOW);
+        $month = intval(date('n'));
+
+        // August -> December: fall semester
+        if ($month >= 8) {
+            $default_name = sprintf(
+                '%s/%s/1',
+                date('Y'),
+                date('y', strtotime('+1 year'))
+            );
+        } elseif ($month == 1) {
+            // January: fall semester
+            $default_name = sprintf(
+                '%s/%s/1',
+                date('Y', strtotime('-1 year')),
+                date('y')
+            );
         } else {
-            $month = intval(date('n'));
+            // February -> July: spring semester
+            $default_name = sprintf(
+                '%s/%s/2',
+                date('Y', strtotime('-1 year')),
+                date('y')
+            );
+        }
 
-            // August -> December: fall semester
-            if ($month >= 8) {
-                $default_name = sprintf(
-                    '%s/%s/1',
-                    date('Y'),
-                    date('y', strtotime('+1 year'))
-                );
-            } elseif ($month == 1) {
-                // January: fall semester
-                $default_name = sprintf(
-                    '%s/%s/1',
-                    date('Y', strtotime('-1 year')),
-                    date('y')
-                );
-            } else {
-                // February -> July: spring semester
-                $default_name = sprintf(
-                    '%s/%s/2',
-                    date('Y', strtotime('-1 year')),
-                    date('y')
-                );
-            }
+        if ($this->interactive) {
+            $name = Console::prompt("Initial semester:", [
+                'required' => true,
+                'default' => $default_name,
+                'pattern' => '|^\d{4}/\d{2}/[1,2]$|',
+                'error' => 'Invalid semester format.',
+            ]);
+        } else {
+            $name = $default_name;
+        }
 
-            if ($this->interactive) {
-                $name = Console::prompt("Initial semester:", [
-                    'required' => true,
-                    'default' => $default_name,
-                    'pattern' => '|^\d{4}/\d{2}/[1,2]$|',
-                    'error' => 'Invalid semester format.',
-                ]);
-            } else {
-                $name = $default_name;
-            }
-
-            $semester = new Semester();
-            $semester->name = $name;
-            $semester->actual = true;
-            if ($semester->save()) {
-                $this->stdout("Successfully inserted initial semester '$name'." . PHP_EOL, Console::FG_GREEN);
-            } else {
-                $this->stdout("Failed to insert initial semester '$name'." . PHP_EOL, Console::FG_RED);
-                return ExitCode::UNSPECIFIED_ERROR;
-            }
+        $semester = new Semester();
+        $semester->id = 1;
+        $semester->name = $name;
+        $semester->actual = true;
+        if ($semester->save()) {
+            $this->stdout("Successfully inserted initial semester '$name'." . PHP_EOL, Console::FG_GREEN);
+        } else {
+            $this->stdout("Failed to insert initial semester '$name'." . PHP_EOL, Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
         }
 
         //Seed Admin
         $authManager = \Yii::$app->authManager;
-        $numberOfAdmins = count($authManager->getUserIdsByRole('admin'));
-        if ($numberOfAdmins >= 1) {
-            $this->stdout("Admin has already been seeded, skip." . PHP_EOL, Console::FG_YELLOW);
-        } elseif (!$this->interactive) {
-            $this->stdout("Admin user cannot be seeded in non-interactive mode, skip." . PHP_EOL, Console::FG_YELLOW);
-        } else {
-            $neptun = Console::prompt("Administrator's neptun code:", [
-                'required' => true,
-                'pattern' => '/^\w{6}$/',
-                'error' => 'Define a neptun code.',
-            ]);
 
-            $administrator = new User();
-            $administrator->neptun = $neptun;
-            if ($administrator->save()) {
-                $authManager->assign($authManager->getRole('student'), $administrator->id);
-                $authManager->assign($authManager->getRole('faculty'), $administrator->id);
-                $authManager->assign($authManager->getRole('admin'), $administrator->id);
-                $this->stdout("Successfully inserted administrator with neptun: '$administrator->neptun'." . PHP_EOL, Console::FG_GREEN);
+        $default_name = 'administrator01';
+        $default_neptun = 'admr01';
+
+        if ($this->interactive) {
+            $name = Console::prompt("Administrator name:", [
+                'required' => true,
+                'default' => $default_name,
+            ]);
+            $neptun = Console::prompt("Administrator identifier:", [
+                'required' => true,
+                'default' => $default_neptun,
+            ]);
+        } else {
+            $name = $default_name;
+            $neptun = $default_neptun;
+        }
+
+        $administrator = new User();
+        $administrator->id = 1;
+        $administrator->neptun = $neptun;
+        $administrator->name = $name;
+        if ($administrator->save()) {
+            $authManager->assign($authManager->getRole('admin'), $administrator->id);
+            $this->stdout("Successfully inserted administrator with identifier: '$administrator->neptun'." . PHP_EOL, Console::FG_GREEN);
+        } else {
+            $this->stdout("Failed to insert administrator." . PHP_EOL, Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        return ExitCode::OK;
+    }
+
+
+    /**
+     * Seed one submission with given parameters.
+     *
+     * @throws Exception
+     */
+    private function seedSubmission(int $uploaderID, string $neptun, int $taskID, string $isAccepted, ?int $graderID, string $autoTesterStatus): void
+    {
+        $submission = new StudentFile();
+        $submission->name = $neptun . ".zip";
+        $submission->uploadTime = date('Y-m-d H:i:s');
+        $submission->taskID = $taskID;
+        $submission->uploaderID = $uploaderID;
+        $submission->isAccepted = $isAccepted;
+        $submission->autoTesterStatus = $autoTesterStatus;
+        $submission->verified = 1;
+        $submission->uploadCount = 1;
+        $submission->grade = null;
+        $submission->graderID = $graderID;
+        $submission->notes = '';
+        if ($submission->save()) {
+            $this->stdout("Successfully inserted submission." . PHP_EOL, Console::FG_GREEN);
+        } else {
+            throw new Exception('Failed to insert submission.');
+        }
+    }
+
+    /**
+     * Seeds the database with full sample data.
+     *
+     * @return int Error code.
+     * @throws \Exception
+     */
+    public function actionSample(): int
+    {
+        // Seed Semester and Admin
+        $initExitCode = $this->actionInit();
+        if ($initExitCode !== 0) {
+            return $initExitCode;
+        }
+
+        //Seed Instructors
+        $authManager = \Yii::$app->authManager;
+        for ($i = 1; $i < 4; $i++) {
+            $instructor = new User();
+            $instructor->id = $i + 1;
+            $instructor->neptun = 'inst0' . $i;
+            $instructor->name = 'instructor0' . $i;
+            $instructor->email = 'instructor0' . $i . '@example.com';
+            if ($instructor->save()) {
+                $authManager->assign($authManager->getRole('faculty'), $instructor->id);
+                $this->stdout("Successfully inserted instructor with neptun: '$instructor->neptun'." . PHP_EOL, Console::FG_GREEN);
             } else {
-                $this->stdout("Failed to insert administrator." . PHP_EOL, Console::FG_RED);
+                $this->stdout("Failed to insert instructor." . PHP_EOL, Console::FG_RED);
+                return ExitCode::UNSPECIFIED_ERROR;
+            }
+        }
+
+        // Seed Students
+        for ($i = 1; $i < 7; $i++) {
+            $student = new User();
+            $student->id = $i + 4;
+            $student->neptun = 'stud0' . $i;
+            $student->name = 'student0' . $i;
+            $student->email = 'student0' . $i . '@example.com';
+            if ($student->save()) {
+                $authManager->assign($authManager->getRole('student'), $student->id);
+                $this->stdout("Successfully inserted student with neptun: '$student->neptun'." . PHP_EOL, Console::FG_GREEN);
+            } else {
+                $this->stdout("Failed to insert student." . PHP_EOL, Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         }
 
         // Seed Course
-        if (Course::find()->count()) {
-            $this->stdout("Course has already been seeded, skip." . PHP_EOL, Console::FG_YELLOW);
+        $name = 'Development of web based applications';
+        $code = 'IP-08bWAFEG';
+
+        $course = new Course();
+        $course->id = 1;
+        $course->name = $name;
+        $course->code = $code;
+        if ($course->save()) {
+            $this->stdout("Successfully inserted initial course '$name'." . PHP_EOL, Console::FG_GREEN);
         } else {
-            $default_name = 'Webes alkalmazások fejlesztése';
-            $default_code = 'IP-08bWAFEG';
+            $this->stdout("Failed to insert initial course '$name'." . PHP_EOL, Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
 
-            if ($this->interactive) {
-                $name = Console::prompt("Initial course name:", [
-                    'required' => true,
-                    'default' => $default_name,
-                    'error' => 'Define a course name.',
-                ]);
+        // Seed for exam module
+        // Seed Groups
+        $transaction = \Yii::$app->db->beginTransaction();
+        $group = new Group();
+        $group->id = 1;
+        $group->courseID = 1;
+        $group->semesterID = 1;
+        $group->number = 1;
+        $group->timezone = \Yii::$app->timeZone;
 
-                if ($name == $default_name) {
-                    $code = $default_code;
-                } else {
-                    $code = Console::prompt("Course code for '$name':", [
-                        'required' => true,
-                        'error' => 'Define a course code.',
-                    ]);
-                }
+        if ($group->save()) {
+            $this->stdout("Successfully inserted initial group." . PHP_EOL, Console::FG_GREEN);
+        } else {
+            $this->stdout("Failed to insert initial group." . PHP_EOL, Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        for ($i = 1; $i < 4; $i++) {
+            $instructorGroup = new InstructorGroup();
+            $instructorGroup->userID = $i + 1;
+            $instructorGroup->groupID = 1;
+
+            if ($instructorGroup->save()) {
+                $this->stdout("Successfully inserted initial group instructor permission." . PHP_EOL, Console::FG_GREEN);
             } else {
-                $name = $default_name;
-                $code = $default_code;
-            }
-
-            $course = new Course();
-            $course->name = $name;
-            $course->code = $code;
-            if ($course->save()) {
-                $this->stdout("Successfully inserted initial course '$name'." . PHP_EOL, Console::FG_GREEN);
-            } else {
-                $this->stdout("Failed to insert initial course '$name'." . PHP_EOL, Console::FG_RED);
+                $this->stdout("Failed to insert initial group instructor permission." . PHP_EOL, Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         }
 
+        $transaction->commit();
 
-        // Seed for exam module
-        if (ExamTest::find()->count()) {
-            $this->stdout("Exam module has already been seeded, skip." . PHP_EOL, Console::FG_YELLOW);
-        } else {
-            $answer = 0;
-            if ($this->interactive) {
-                $answer = Console::prompt("Seed for exam module? (1 = yes 0 = no):", [
-                    'required' => true,
-                    'default' => 0,
-                    'pattern' => '|[0-1]|',
-                    'error' => 'Please enter 1 for yes or 0 for no.',
-                ]);
-            }
-            if ($answer) {
-                if (User::find()->count()) {
-                    $this->stdout("User has already been seeded, skip." . PHP_EOL, Console::FG_YELLOW);
-                } else {
-                    $user = new User();
-                    $user->name = "John Doe";
-                    $user->email = "email@address.johndoe";
-                    $user->neptun = "JHNDOE";
-                    if ($user->save()) {
-                        $authManager = \Yii::$app->authManager;
-                        $authManager->assign($authManager->getRole('student'), $user->id);
-                        $authManager->assign($authManager->getRole('faculty'), $user->id);
-                        $this->stdout("Successfully inserted initial user '$user->name'." . PHP_EOL, Console::FG_GREEN);
-                    } else {
-                        $this->stdout("Failed to insert initial user '$user->name'." . PHP_EOL, Console::FG_RED);
-                        return ExitCode::UNSPECIFIED_ERROR;
-                    }
-                }
-
-                if (Group::find()->count()) {
-                    $this->stdout("Group has already been seeded, skip." . PHP_EOL, Console::FG_YELLOW);
-                } else {
-                    $transaction = \Yii::$app->db->beginTransaction();
-                    $group = new Group();
-                    $group->courseID = Course::find()->one()->id;
-                    $group->semesterID = Semester::find()->one()->id;
-                    $group->number = 1;
-                    $group->timezone = \Yii::$app->timeZone;
-
-                    if ($group->save()) {
-                        $this->stdout("Successfully inserted initial group." . PHP_EOL, Console::FG_GREEN);
-                    } else {
-                        $this->stdout("Failed to insert initial group." . PHP_EOL, Console::FG_RED);
-                        return ExitCode::UNSPECIFIED_ERROR;
-                    }
-
-                    $instructorGroup = new InstructorGroup();
-                    $instructorGroup->userID = User::find()->one()->id;
-                    $instructorGroup->groupID = $group->id;
-
-                    if ($instructorGroup->save()) {
-                        $this->stdout("Successfully inserted initial group instructor permission." . PHP_EOL, Console::FG_GREEN);
-                    } else {
-                        $this->stdout("Failed to insert initial group instructor permission." . PHP_EOL, Console::FG_RED);
-                        return ExitCode::UNSPECIFIED_ERROR;
-                    }
-                    $transaction->commit();
-                }
-
-                if (Subscription::find()->count()) {
-                    $this->stdout("Subscription has already been seeded, skip." . PHP_EOL, Console::FG_YELLOW);
-                } else {
-                    $subscription = new Subscription();
-                    $subscription->userID = User::find()->one()->id;
-                    $subscription->groupID = Group::find()->one()->id;
-                    $subscription->semesterID = Semester::find()->one()->id;
-                    $subscription->isAccepted = 1;
-                    $subscription->notes = "Notes";
-                    if ($subscription->save()) {
-                        $this->stdout("Successfully inserted initial student course subscription." . PHP_EOL, Console::FG_GREEN);
-                    } else {
-                        $this->stdout("Failed to insert initial student course subscription." . PHP_EOL, Console::FG_RED);
-                        return ExitCode::UNSPECIFIED_ERROR;
-                    }
-                }
-
-
-                if (ExamQuestionSet::find()->count()) {
-                    $this->stdout("Question set has already been seeded, skip." . PHP_EOL, Console::FG_YELLOW);
-                } else {
-                    $questionSet = new ExamQuestionSet();
-                    $questionSet->courseID = Course::find()->one()->id;
-                    $questionSet->name = "Beugró kérdések";
-                    if ($questionSet->save()) {
-                        $this->stdout("Successfully inserted initial question set '$questionSet->name'." . PHP_EOL, Console::FG_GREEN);
-                    } else {
-                        $this->stdout("Failed to insert initial question set '$questionSet->name'." . PHP_EOL, Console::FG_RED);
-                        return ExitCode::UNSPECIFIED_ERROR;
-                    }
-
-                    for ($i = 0; $i < 5; ++$i) {
-                        $question = new ExamQuestion();
-                        $question->text = "Kérdés " . ($i + 1);
-                        $question->questionsetID = $questionSet->id;
-                        $question->save();
-                        for ($j = 0; $j < 5; ++$j) {
-                            $answer = new ExamAnswer();
-                            $answer->text = "Válasz " . ($j + 1);
-                            $answer->correct = ($j == 1) ? 1 : 0;
-                            $answer->questionID = $question->id;
-                            $answer->save();
-                        }
-                    }
-                }
-
-                if (ExamTest::find()->count()) {
-                    $this->stdout("Test has already been seeded, skip." . PHP_EOL, Console::FG_YELLOW);
-                } else {
-                    $test = new ExamTest();
-                    $test->name = "Beugró";
-                    $test->questionamount = ExamQuestion::find()->count();
-                    $test->duration = 60;
-                    $test->shuffled = 1;
-                    $test->unique = 0;
-                    $test->questionsetID = ExamQuestionSet::find()->one()->id;
-                    $test->groupID = Group::find()->one()->id;
-                    $test->availablefrom = date('Y-m-d H:i:s');
-                    $test->availableuntil = date('Y-m-d H:i:s', strtotime('+1 day'));
-
-                    $test2 = new ExamTest();
-                    $test2->name = "ZH";
-                    $test2->questionamount = ExamQuestion::find()->count();
-                    $test2->duration = 60;
-                    $test2->shuffled = 1;
-                    $test2->unique = 0;
-                    $test2->questionsetID = ExamQuestionSet::find()->one()->id;
-                    $test2->groupID = Group::find()->one()->id;
-                    $test2->availablefrom = date('Y-m-d H:i:s');
-                    $test2->availableuntil = date('Y-m-d H:i:s', strtotime('+1 day'));
-
-                    if (!$test->save() || !$test2->save()) {
-                        $this->stdout("Failed to insert initial tests." . PHP_EOL, Console::FG_RED);
-                        return ExitCode::UNSPECIFIED_ERROR;
-                    } else {
-                        $this->stdout("Successfully inserted initial tests." . PHP_EOL, Console::FG_GREEN);
-
-                        $available = new ExamTestInstance();
-                        $available->testID = $test->id;
-                        $available->userID = User::find()->one()->id;
-                        $available->submitted = 0;
-                        $available->starttime = null;
-                        $available->score = 0;
-                        $available->save();
-                        foreach (ExamQuestion::find()->all() as $question) {
-                            $question->link('testInstances', $available);
-                        }
-                        $finished = new ExamTestInstance();
-                        $finished->testID = $test2->id;
-                        $finished->userID = User::find()->one()->id;
-                        $finished->submitted = 1;
-                        $finished->starttime = date('Y-m-d H:i:s', strtotime('-5 minute'));
-                        $finished->finishtime = date('Y-m-d H:i:s');
-                        $finished->score = $test->questionamount;
-                        $finished->save();
-                        foreach (ExamQuestion::find()->all() as $question) {
-                            $question->link('testInstances', $finished);
-                            $finished->link(
-                                'answers',
-                                ExamAnswer::find()->where(['questionID' => $question->id, 'correct' => 1])->one()
-                            );
-                        }
-                    }
-                }
+        // Seed Subscriptions
+        for ($i = 1; $i < 7; $i++) {
+            $subscription = new Subscription();
+            $subscription->userID = $i + 4;
+            $subscription->groupID = 1;
+            $subscription->semesterID = 1;
+            $subscription->isAccepted = 1;
+            $subscription->notes = 'Notes';
+            if ($subscription->save()) {
+                $this->stdout("Successfully inserted initial student course subscription." . PHP_EOL, Console::FG_GREEN);
+            } else {
+                $this->stdout("Failed to insert initial student course subscription." . PHP_EOL, Console::FG_RED);
+                return ExitCode::UNSPECIFIED_ERROR;
             }
         }
+
+        // Seed Tasks
+        for ($i = 1; $i < 3; $i++) {
+            $task = new Task();
+            $task->id = $i;
+            $task->name = "Task $i";
+            $task->semesterID = 1;
+            $task->groupID = 1;
+            $task->hardDeadline = date('Y-m-d H:i:s', time() + 1200);
+            $task->category = 'Smaller tasks';
+            $task->createrID = User::findOne(['neptun' => 'inst01'])->id;
+            $task->description = '';
+
+            if ($task->save()) {
+                $this->stdout("Successfully inserted task." . PHP_EOL, Console::FG_GREEN);
+            } else {
+                $this->stdout("Failed to insert task." . PHP_EOL, Console::FG_RED);
+                return ExitCode::UNSPECIFIED_ERROR;
+            }
+        }
+
+        // Seed Submissions
+        try {
+            // First Task
+            $this->seedSubmission(5, 'stud01', 1, StudentFile::IS_ACCEPTED_ACCEPTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(6, 'stud02', 1, StudentFile::IS_ACCEPTED_PASSED, null, StudentFile::AUTO_TESTER_STATUS_PASSED);
+            $this->seedSubmission(7, 'stud03', 1, StudentFile::IS_ACCEPTED_ACCEPTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(8, 'stud04', 1, StudentFile::IS_ACCEPTED_ACCEPTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(9, 'stud05', 1, StudentFile::IS_ACCEPTED_PASSED, null, StudentFile::AUTO_TESTER_STATUS_PASSED);
+            $this->seedSubmission(10, 'stud06', 1, StudentFile::IS_ACCEPTED_LATE_SUBMISSION, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
+            // Second Task
+            $this->seedSubmission(5, 'stud01', 2, StudentFile::IS_ACCEPTED_REJECTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(6, 'stud02', 2, StudentFile::IS_ACCEPTED_REJECTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(7, 'stud03', 2, StudentFile::IS_ACCEPTED_UPLOADED, null, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(8, 'stud04', 2, StudentFile::IS_ACCEPTED_FAILED, null, StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED);
+            $this->seedSubmission(9, 'stud05', 2, StudentFile::IS_ACCEPTED_ACCEPTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(10, 'stud06', 2, StudentFile::IS_ACCEPTED_ACCEPTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
+        } catch (\Exception $e) {
+            $this->stdout($e->getMessage() . PHP_EOL, Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        // Copy submission files into data directory
+        FileHelper::copyDirectory('sampledata', Yii::$app->params['data_dir']);
+
+        // Seed Question Set
+        $questionSet = new ExamQuestionSet();
+        $questionSet->id = 1;
+        $questionSet->courseID = 1;
+        $questionSet->name = "Quick question set";
+        if ($questionSet->save()) {
+            $this->stdout("Successfully inserted initial question set '$questionSet->name'." . PHP_EOL, Console::FG_GREEN);
+        } else {
+            $this->stdout("Failed to insert initial question set '$questionSet->name'." . PHP_EOL, Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        for ($i = 0; $i < 5; ++$i) {
+            $question = new ExamQuestion();
+            $question->id = $i + 1;
+            $question->text = "Question " . ($i + 1);
+            $question->questionsetID = $questionSet->id;
+            $question->save();
+            for ($j = 0; $j < 5; ++$j) {
+                $answer = new ExamAnswer();
+                $answer->text = "Answer " . ($j + 1);
+                $answer->correct = ($j == 1) ? 1 : 0;
+                $answer->questionID = $question->id;
+                $answer->save();
+            }
+        }
+
+        // Seed Test and Test Instance
+        $test = new ExamTest();
+        $test->id = 1;
+        $test->name = "Quick questions";
+        $test->questionamount = ExamQuestion::find()->count();
+        $test->duration = 60;
+        $test->shuffled = 1;
+        $test->unique = 0;
+        $test->questionsetID = 1;
+        $test->groupID = 1;
+        $test->availablefrom = date('Y-m-d H:i:s');
+        $test->availableuntil = date('Y-m-d H:i:s', strtotime('+1 day'));
+
+        $test2 = new ExamTest();
+        $test2->id = 2;
+        $test2->name = "Exam";
+        $test2->questionamount = ExamQuestion::find()->count();
+        $test2->duration = 60;
+        $test2->shuffled = 1;
+        $test2->unique = 0;
+        $test2->questionsetID = 1;
+        $test2->groupID = 1;
+        $test2->availablefrom = date('Y-m-d H:i:s');
+        $test2->availableuntil = date('Y-m-d H:i:s', strtotime('+1 day'));
+
+        if (!$test->save() || !$test2->save()) {
+            $this->stdout("Failed to insert initial tests." . PHP_EOL, Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        } else {
+            $test->finalize();
+            $test2->finalize();
+
+            $this->stdout("Successfully inserted initial tests." . PHP_EOL, Console::FG_GREEN);
+        }
+
+        return ExitCode::OK;
+    }
+
+    /**
+     * Truncates the database and data from disk.
+     *
+     * @return int Error code.
+     * @throws \yii\base\ErrorException
+     */
+    public function actionPrune(): int
+    {
+        if ($this->promptBoolean('Are you sure you want to truncate the database and delete appdata folder from disk? (Y|N)', false)) {
+            // Truncate database
+            $this->run('migrate/fresh', ['interactive' => 0]);
+
+            // Delete appdata folder
+            FileHelper::removeDirectory(Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
+        }
+
         return ExitCode::OK;
     }
 }

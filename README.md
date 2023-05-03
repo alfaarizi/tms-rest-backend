@@ -134,10 +134,10 @@ TMS has a code-first database model, by performing the database migration, all r
 ./yii migrate
 ~~~
 
-You may seed the database with an initial semester and a course, as managing these entities has no GUI yet:
+You may seed the database with an initial semester and an administrator user, as instances of these entities are required for TMS to function:
 
 ~~~
-./yii setup/seed
+./yii setup/init
 ~~~
 
 
