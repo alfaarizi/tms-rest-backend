@@ -102,7 +102,7 @@ TMS communicates with Docker through the [Docker Engine API](https://docs.docker
 
 CodeChecker integration is part of the automated assignment evaluator, and it is ready to use for C/C++ programs if the evaluator and Docker daemon is configured.
 
-However, if you want to use an external code analyzer, 
+However, if you want to use an external code analyzer,
 the Docker images for CodeChecker Report Converter tool must be configured in `params.php` (`evaluator.reportConverterImage`).
 Then, the images must be pulled by the system administrator with the following command:
 ~~~
@@ -191,7 +191,7 @@ Yii uses [Codeception](https://codeception.com/for/yii) as unit, api, integratio
 Run the following command to execute TMS's tests:
 
 ~~~
-vendor/bin/codecept run unit,api
+composer test
 ~~~
 
 DOCUMENTATION

@@ -106,8 +106,8 @@ Please note that each **fix** and **feat** commit will represent a new item in t
 
 The project integrated <abbr title="PHP CodeSniffer">[PHPCS](https://github.com/squizlabs/PHP_CodeSniffer)</abbr> linter is also useful to show and in many cases even fix styling problems to you early on. You may run it after you [installed](README.md#installation) the dependencies with Composer.
 ~~~bash
-vendor/bin/phpcs  # check code style
-vendor/bin/phpcbf # fix code style
+composer lint     # check code style
+composer lint:fix # fix code style
 ~~~
 
 ### Testing
