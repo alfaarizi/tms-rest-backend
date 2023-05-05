@@ -58,7 +58,7 @@ phpcs:
     # Run Composer
     - composer install --prefer-dist --no-ansi --no-interaction
   script:
-    - vendor/bin/phpcs -n --report=full
+    - composer lint -- -n --report=full
   allow_failure: true
 
 # Codeception tests & coverage reports
@@ -68,7 +68,7 @@ codecept_7.4:
   extends: .test
   image: registry.gitlab.com/tms-elte/docker-images/php:7.4
   script:
-    - vendor/bin/codecept run unit,api --no-ansi --xml --coverage --coverage-text --coverage-xml --coverage-cobertura
+    - composer test -- --no-ansi --xml --coverage --coverage-text --coverage-xml --coverage-cobertura
   coverage: '/^\s*Lines:\s*\d+.\d+\%/'
   artifacts:
     paths:
