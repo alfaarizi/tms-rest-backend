@@ -8,8 +8,10 @@ use app\components\openapi\IOpenApiFieldTypes;
 
 class UsersAddedResource extends \app\models\Model implements IOpenApiFieldTypes
 {
-    public $addedUsers;
-    public $failed;
+    /** @var UserResource[] */
+    public array $addedUsers;
+    /** @var UserAddErrorResource[] */
+    public array $failed;
 
     public function fieldTypes(): array
     {

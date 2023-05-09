@@ -33,6 +33,7 @@ use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 use app\exceptions\AddFailedException;
+use yii\mail\MessageInterface;
 
 /**
 * @OA\PathItem(
@@ -75,7 +76,7 @@ class GroupsController extends BaseInstructorRestController
     /**
      * @inheritdoc
      */
-    protected function verbs()
+    protected function verbs(): array
     {
         return array_merge(parent::verbs(), [
             'index' => ['GET'],
@@ -155,8 +156,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * View group information
-     * @param $id
-     * @return GroupResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -178,7 +177,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionView($id)
+    public function actionView(int $id): GroupResource
     {
         $group = GroupResource::findOne($id);
 
@@ -278,7 +277,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Delete a group
-     * @param int $id
      * @throws BadRequestHttpException
      * @throws ConflictHttpException
      * @throws ForbiddenHttpException
@@ -304,7 +302,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id): void
     {
         $group = GroupResource::findOne($id);
         if (is_null($group)) {
@@ -354,7 +352,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Update a group
-     * @param int $id
      * @return GroupResource|array
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
@@ -387,7 +384,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionUpdate($id)
+    public function actionUpdate(int $id)
     {
         $group = GroupResource::findOne($id);
         if (is_null($group)) {
@@ -425,8 +422,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Duplicate a group
-     * @param int $id
-     * @return GroupResource
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -460,7 +455,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDuplicate($id)
+    public function actionDuplicate(int $id): GroupResource
     {
         $groupToDuplicate = Group::findOne($id);
         if (is_null($groupToDuplicate)) {
@@ -556,8 +551,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * List instructors for the given group
-     * @param int $groupID
-     * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -580,7 +573,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionListInstructors($groupID)
+    public function actionListInstructors(int $groupID): ActiveDataProvider
     {
         $group = GroupResource::findOne($groupID);
 
@@ -605,7 +598,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Add instructors to a group
-     * @param $groupID
      * @return array|UsersAddedResource
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
@@ -636,7 +628,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionAddInstructors($groupID)
+    public function actionAddInstructors(int $groupID)
     {
         $group = GroupResource::findOne($groupID);
 
@@ -671,16 +663,17 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Process the received list and saves them one by one.
-     * @param $neptunCodes
-     * @param $groupID
-     * @return UsersAddedResource
+     * @param string[] $neptunCodes
+     * @param int $groupID
      * @throws Exception
      */
-    private function processInstructors($neptunCodes, $groupID)
+    private function processInstructors(array $neptunCodes, int $groupID): UsersAddedResource
     {
-        // Email notifications
+        /** @var MessageInterface[] Email notifications */
         $messages = [];
+        /** @var UserResource[] */
         $users = [];
+        /** @var UserAddErrorResource[] */
         $failed = [];
 
         foreach ($neptunCodes as $neptun) {
@@ -739,8 +732,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Remove an instructor from a group
-     * @param int $groupID
-     * @param int $userID
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -778,7 +769,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionDeleteInstructor($groupID, $userID)
+    public function actionDeleteInstructor(int $groupID, int $userID): void
     {
         $instructorGroup = InstructorGroup::findOne(
             [
@@ -818,8 +809,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * List students for the given group
-     * @param int $groupID
-     * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -842,7 +831,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionListStudents($groupID)
+    public function actionListStudents(int $groupID): ActiveDataProvider
     {
         $group = GroupResource::findOne($groupID);
 
@@ -867,7 +856,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Add students to a group
-     * @param $groupID
      * @return array|UsersAddedResource
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
@@ -897,7 +885,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionAddStudents($groupID)
+    public function actionAddStudents(int $groupID)
     {
         $group = GroupResource::findOne($groupID);
 
@@ -937,15 +925,16 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Process the received list and saves them one by one.
-     * @param array $neptunCodes
+     * @param string[] $neptunCodes
      * @param GroupResource $group
-     * @return UsersAddedResource
      */
-    private function processStudents($neptunCodes, $group)
+    private function processStudents(array $neptunCodes, GroupResource $group): UsersAddedResource
     {
-        // Email notifications
+        /** @var MessageInterface[] Email notifications */
         $messages = [];
+        /** @var UserResource[] */
         $users = [];
+        /** @var UserAddErrorResource[] */
         $failed = [];
 
         foreach ($neptunCodes as $neptun) {
@@ -1016,8 +1005,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Removes a student from a group
-     * @param int $groupID
-     * @param int $userID
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -1055,7 +1042,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionDeleteStudent($groupID, $userID)
+    public function actionDeleteStudent(int $groupID, int $userID): void
     {
         // Grab the student entry.
         $subscription = Subscription::findOne(
@@ -1092,9 +1079,7 @@ class GroupsController extends BaseInstructorRestController
             ->where(
                 [
                     'taskID' => array_map(
-                        function ($o) {
-                            return $o->id;
-                        },
+                        static fn (Task $t) => $t->id,
                         Task::findAll(['groupID' => $subscription->groupID])
                     )
                 ]
@@ -1126,8 +1111,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Adds a note to a student
-     * @param int $groupID
-     * @param int $userID
      * @return NotesResource|array
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
@@ -1170,7 +1153,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionAddStudentNotes($groupID, $userID)
+    public function actionAddStudentNotes(int $groupID, int $userID)
     {
         // Grab the student entry.
         $subscription = Subscription::findOne(
@@ -1234,9 +1217,6 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Get the notes of a student
-     * @param int $groupID
-     * @param int $userID
-     * @return NotesResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -1274,7 +1254,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionStudentNotes($groupID, $userID)
+    public function actionStudentNotes(int $groupID, int $userID): NotesResource
     {
         // Grab the student entry.
         $subscription = Subscription::findOne(
@@ -1304,7 +1284,7 @@ class GroupsController extends BaseInstructorRestController
     /**
      * Get mandatory data for group statistics
      * @param int $groupID is the id of the group.
-     * @return array
+     * @return GroupTaskStatsResource[]
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -1331,7 +1311,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionGroupStats($groupID)
+    public function actionGroupStats(int $groupID): array
     {
         $group = GroupResource::findOne($groupID);
 
@@ -1346,6 +1326,7 @@ class GroupsController extends BaseInstructorRestController
 
         $countStudentsInGroup = $group->getSubscriptions()->count();
 
+        /** @var GroupTaskStatsResource[] */
         $stats = [];
 
         foreach ($group->tasks as $task) {
@@ -1401,7 +1382,7 @@ class GroupsController extends BaseInstructorRestController
      * Get mandatory data for student statistics
      * @param int $groupID is the id of the group.
      * @param int $studentID is the id of the student.
-     * @return array
+     * @return StudentStatsResource[]
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -1435,7 +1416,7 @@ class GroupsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionStudentStats($groupID, $studentID)
+    public function actionStudentStats(int $groupID, int $studentID): array
     {
         $student = UserResource::findOne($studentID);
 
@@ -1454,7 +1435,8 @@ class GroupsController extends BaseInstructorRestController
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
-        $stats = array();
+        /** @var StudentStatsResource[] */
+        $stats = [];
 
         foreach ($group->tasks as $task) {
             $userScore = null;
