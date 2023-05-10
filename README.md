@@ -85,6 +85,8 @@ ScriptAlias /git/ "/usr/lib/git-core/git-http-backend/"
 
 **NOTE:** the *ScriptAlias* `/git/` must match the `versionControl.basePath` in `config/params.php`.
 
+**NOTE:** ensure that `mod_cgi`, `mod_alias`, and `mod_env` are enabled in Apache, required by the Git HTTP backend.
+
 #### Docker configuration *(optional)*
 
 To enable the automated assignment evaluator, beside enabling the feature in the `config/params.php` file, you must install Docker on the same or a separate computer.
