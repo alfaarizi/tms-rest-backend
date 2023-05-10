@@ -12,6 +12,7 @@ use app\models\Model;
  */
 class AddUsersListResource extends Model implements IOpenApiFieldTypes
 {
+    /** @var string[] */
     public $neptunCodes = [];
 
     public function rules()
