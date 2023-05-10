@@ -7,6 +7,7 @@ use Docker\API\Model\ContainersCreatePostResponse201;
 use Docker\API\Model\ContainersIdJsonGetResponse200;
 use Docker\API\Model\ExecIdJsonGetResponse200;
 use Docker\API\Model\IdResponse;
+use Docker\API\Model\SystemInfo;
 use Docker\Docker;
 use Docker\Stream\DockerRawStream;
 use GuzzleHttp\Psr7\PumpStream;
@@ -145,5 +146,14 @@ class DockerStub extends Docker
         $this->putId = $id;
         $this->putInputStream = $inputStream;
         $this->putQueryParam = $queryParameters;
+    }
+
+    public int $infoCount = 0;
+    public function systemInfo(string $fetch = self::FETCH_OBJECT)
+    {
+        $this->infoCount++;
+        $model = new SystemInfo();
+        $model->setOSType($this->os);
+        return $model;
     }
 }

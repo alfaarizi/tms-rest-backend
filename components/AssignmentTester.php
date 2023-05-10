@@ -205,6 +205,13 @@ class AssignmentTester
                 ->withTextFile('run' . $ext, $task->runInstructions, true)
                 ->buildTar();
 
+            // The container must be stopped before uploading files when a Windows host with Hyper-V isolation is configured
+            $sysInfo = $this->docker->systemInfo();
+            $shouldStop = $sysInfo->getOSType() == 'windows' && $sysInfo->getIsolation() == 'hyperv';
+            if ($shouldStop) {
+                $this->docker->containerStop($containerName);
+            }
+
             $this->docker->putContainerArchive(
                 $containerName,
                 file_get_contents($tarPath),
@@ -212,6 +219,10 @@ class AssignmentTester
                     'path' => $task->testOS == 'windows' ? 'C:\\test' : '/test'
                 ]
             );
+
+            if ($shouldStop) {
+                $this->docker->containerStart($containerName);
+            }
         } finally {
             $tarBuilder->cleanup();
         }
