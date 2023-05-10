@@ -335,8 +335,8 @@ exit \$rc";
         $repo = new GitRepository("$repopath.git");
 
         // Delete all files and directories from repo
-        $oldfiles = FileHelper::findFiles($repopath, ['except' => ['.git*']]);
-        $olddirectories = FileHelper::findDirectories($repopath, ['except' => ['.git/']]);
+        $oldfiles = FileHelper::findFiles($repopath, ['except' => ['/.git/']]);
+        $olddirectories = FileHelper::findDirectories($repopath, ['except' => ['/.git/']]);
         rsort($olddirectories);
         foreach ($oldfiles as $of) {
             unlink($of);
