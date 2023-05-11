@@ -583,7 +583,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
             $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/examination/' . $id . '/';
 
             if (!file_exists($path)) {
-                mkdir($path, 0755, true);
+                FileHelper::createDirectory($path, 0755, true);
             }
 
             // Try to save the file.

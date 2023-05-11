@@ -40,7 +40,7 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
 
         $from = Yii::$app->basePath . '/tests/_data/appdata_samples/uploadedfiles/5007/stud02/stud02.zip';
 
-        mkdir(Yii::$app->basePath . '/appdata_test/uploadedfiles/5007/stud02/', 0777, true);
+        FileHelper::createDirectory(Yii::$app->basePath . '/appdata_test/uploadedfiles/5007/stud02/', 0777, true);
         $to = Yii::$app->basePath . '/appdata_test/uploadedfiles/5007/stud02/stud02.zip';
         copy($from, $to);
     }

@@ -47,7 +47,7 @@ class SchemaGenerator extends Component
     {
         if (file_exists($this->outputDir)) {
             FileHelper::removeDirectory($this->outputDir);
-            mkdir($this->outputDir, 0755, true);
+            FileHelper::createDirectory($this->outputDir, 0755, true);
         }
     }
 
@@ -111,7 +111,7 @@ class SchemaGenerator extends Component
         }
 
         if (!file_exists($this->outputDir)) {
-            mkdir($this->outputDir, 0755, true);
+            FileHelper::createDirectory($this->outputDir, 0755, true);
         }
 
         // Generate Read schema

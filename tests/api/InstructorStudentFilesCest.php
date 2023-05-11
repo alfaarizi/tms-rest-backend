@@ -12,6 +12,7 @@ use app\tests\unit\fixtures\TaskFixture;
 use app\tests\unit\fixtures\UserFixture;
 use app\tests\unit\fixtures\CodeCompassInstanceFixture;
 use Codeception\Util\HttpCode;
+use yii\helpers\FileHelper;
 
 class InstructorStudentFilesCest
 {
@@ -383,7 +384,7 @@ class InstructorStudentFilesCest
 
         $zipPath = Yii::$app->params["data_dir"] . "/tmp/";
         if (!file_exists($zipPath)) {
-            mkdir($zipPath, 0755, true);
+            FileHelper::createDirectory($zipPath, 0755, true);
         }
         $I->writeToFile($zipPath . "codecept.zip", $I->grabResponse());
         $zip = new \ZipArchive();
@@ -403,7 +404,7 @@ class InstructorStudentFilesCest
 
         $zipPath = Yii::$app->params["data_dir"] . "/tmp/";
         if (!file_exists($zipPath)) {
-            mkdir($zipPath, 0755, true);
+            FileHelper::createDirectory($zipPath, 0755, true);
         }
         $I->writeToFile($zipPath . "codecept.zip", $I->grabResponse());
         $zip = new \ZipArchive();

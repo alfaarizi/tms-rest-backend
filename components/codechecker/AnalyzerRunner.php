@@ -220,7 +220,7 @@ abstract class AnalyzerRunner extends BaseObject
             . Yii::$app->security->generateRandomString(4)
             . '/';
 
-        mkdir($this->workingDirBasePath, 0755, true);
+        FileHelper::createDirectory($this->workingDirBasePath, 0755, true);
     }
 
     /**
@@ -233,7 +233,7 @@ abstract class AnalyzerRunner extends BaseObject
         $submissionDir = $this->workingDirBasePath . 'submission/';
 
         if (!file_exists($submissionDir)) {
-            mkdir($submissionDir, 0755, true);
+            FileHelper::createDirectory($submissionDir, 0755, true);
         }
 
         $zip = new \ZipArchive();
@@ -257,7 +257,7 @@ abstract class AnalyzerRunner extends BaseObject
         $testFileDir = $this->workingDirBasePath . 'test_files/';
 
         if (!file_exists($testFileDir)) {
-            mkdir($testFileDir, 0755, true);
+            FileHelper::createDirectory($testFileDir, 0755, true);
         }
 
         $testFiles = InstructorFile::find()

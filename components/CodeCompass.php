@@ -287,7 +287,7 @@ class CodeCompass extends BaseObject
     private function extractStudentSolution(): bool
     {
         if (!file_exists($this->_projectBasePath)) {
-            mkdir($this->_projectBasePath, 0755, true);
+            FileHelper::createDirectory($this->_projectBasePath, 0755, true);
         }
 
         $zip = new ZipArchive();

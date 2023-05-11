@@ -4,6 +4,7 @@ namespace app\components\plagiarism;
 
 use Yii;
 use app\models\Plagiarism;
+use yii\helpers\FileHelper;
 
 class MossPlagiarismFinder extends AbstractPlagiarismFinder
 {
@@ -63,7 +64,7 @@ class MossPlagiarismFinder extends AbstractPlagiarismFinder
         parent::setupTemporaryFiles();
 
         if (!file_exists("{$this->plagiarismPath}/basefiles")) {
-            mkdir("{$this->plagiarismPath}/basefiles", 0755);
+            FileHelper::createDirectory("{$this->plagiarismPath}/basefiles", 0755);
         }
         foreach ($this->plagiarism->baseFiles as $baseFile) {
             copy($baseFile->path, "{$this->plagiarismPath}/basefiles/{$baseFile->id}");

@@ -82,7 +82,7 @@ class GitManager
         $randstring = 'r' . substr(str_shuffle(MD5(microtime())), 0, 25);
         $repopath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
             . $taskId . '/all/' . $randstring . '/';
-        mkdir($repopath, 0775, true);
+        FileHelper::createDirectory($repopath, 0775, true);
 
         $repo = GitRepository::init($repopath);
         // Create the appropriate settings for the repo

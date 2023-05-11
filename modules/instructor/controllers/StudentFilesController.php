@@ -19,6 +19,7 @@ use app\resources\UserResource;
 use yii\data\ActiveDataProvider;
 use yii\data\BaseDataProvider;
 use yii\db\StaleObjectException;
+use yii\helpers\FileHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\ConflictHttpException;
 use yii\web\ForbiddenHttpException;
@@ -621,7 +622,7 @@ class StudentFilesController extends BaseInstructorRestController
         $zipFolder = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/instructor/';
 
         if (!file_exists($zipFolder)) {
-            mkdir($zipFolder, 0755, true);
+            FileHelper::createDirectory($zipFolder, 0755, true);
         }
 
         if ($onlyUngraded) {

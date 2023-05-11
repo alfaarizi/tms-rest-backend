@@ -26,7 +26,7 @@ class MossDownloader
         if (is_dir($this->dirPath)) {
             FileHelper::removeDirectory($this->dirPath);
         }
-        mkdir($this->dirPath, 0755, false);
+        FileHelper::createDirectory($this->dirPath, 0755, false);
     }
 
     /**

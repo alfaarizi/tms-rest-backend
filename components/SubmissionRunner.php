@@ -93,7 +93,7 @@ class SubmissionRunner
         $submissionDir = $this->workingDirBasePath . 'submission/';
 
         if (!file_exists($submissionDir)) {
-            mkdir($submissionDir, 0755, true);
+            FileHelper::createDirectory($submissionDir, 0755, true);
         }
 
         $zip = new \ZipArchive();
@@ -117,7 +117,7 @@ class SubmissionRunner
         $testFileDir = $this->workingDirBasePath . 'test_files/';
 
         if (!file_exists($testFileDir)) {
-            mkdir($testFileDir, 0755, true);
+            FileHelper::createDirectory($testFileDir, 0755, true);
         }
 
         $testFiles = InstructorFile::find()

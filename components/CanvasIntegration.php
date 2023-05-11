@@ -803,7 +803,7 @@ class CanvasIntegration
 
         // Create new folder if not exists
         if (!file_exists($path)) {
-            mkdir($path, 0755, true);
+            FileHelper::createDirectory($path, 0755, true);
         }
         // Delete old files from the folder
         array_map('unlink', array_filter((array) glob($path . "*")));

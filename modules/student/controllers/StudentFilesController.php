@@ -223,7 +223,7 @@ class StudentFilesController extends BaseStudentRestController
             . '/uploadedfiles/' . $taskID . '/' . strtolower(Yii::$app->user->identity->neptun) . '/';
 
         if (!file_exists($basepath)) {
-            mkdir($basepath, 0755, true);
+            FileHelper::createDirectory($basepath, 0755, true);
         }
 
         $zipFiles = FileHelper::findFiles($basepath, ['only' => ['*.zip'], 'recursive' => false]);

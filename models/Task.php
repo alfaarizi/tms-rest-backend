@@ -345,7 +345,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 
         if ($insert) {
             $directoryPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $this->id . '/';
-            mkdir($directoryPath, 0755, true);
+            FileHelper::createDirectory($directoryPath, 0755, true);
 
             // Create git repositories if a new task has been created and the task is version controlled
             if (Yii::$app->params['versionControl']['enabled'] && $this->isVersionControlled) {

@@ -14,6 +14,7 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
+use yii\helpers\FileHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -235,7 +236,7 @@ class InstructorFilesController extends BaseInstructorRestController
         // Create folder for the task (if not exists)
         $dirPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $upload->taskID;
         if (!file_exists($dirPath) && !is_dir($dirPath)) {
-            mkdir($dirPath, 0755, true);
+            FileHelper::createDirectory($dirPath, 0755, true);
         }
 
         $uploaded = [];

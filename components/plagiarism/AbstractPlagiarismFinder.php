@@ -23,7 +23,7 @@ abstract class AbstractPlagiarismFinder
     {
         $basePath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/plagiarism/plagiarism-result';
         if (!is_dir($basePath)) {
-            mkdir($basePath, 0755, false);
+            FileHelper::createDirectory($basePath, 0755, false);
         }
         return "$basePath/$plagiarismId";
     }
@@ -64,7 +64,7 @@ abstract class AbstractPlagiarismFinder
     {
         // Create a folder to the plagiarism validation.
         if (!file_exists($this->plagiarismPath)) {
-            mkdir($this->plagiarismPath, 0755, true);
+            FileHelper::createDirectory($this->plagiarismPath, 0755, true);
         }
 
         $zip = new \ZipArchive();
@@ -80,7 +80,7 @@ abstract class AbstractPlagiarismFinder
             if ($res === true) {
                 $path = $this->plagiarismPath . '/' . $studentFile->taskID . '/' . strtolower($studentFile->uploader->neptun);
                 if (!file_exists($path)) {
-                    mkdir($path, 0755, true);
+                    FileHelper::createDirectory($path, 0755, true);
                 }
 
                 // Check all the files within the zip.
@@ -113,7 +113,7 @@ abstract class AbstractPlagiarismFinder
 
                         // Copy the file into the plagiarism validation folder.
                         $filepath = $path . '/' . $this->getStoredFileName($path, $filename);
-                        is_dir(dirname($filepath)) or mkdir(dirname($filepath), 0755, true);
+                        is_dir(dirname($filepath)) or FileHelper::createDirectory(dirname($filepath), 0755, true);
                         copy("zip://$zipfile#$filename", $filepath);
                     }
                 }

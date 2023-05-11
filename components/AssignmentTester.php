@@ -356,7 +356,7 @@ class AssignmentTester
         $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '/submission/';
 
         if (!file_exists($path)) {
-            mkdir($path, 0755, true);
+            FileHelper::createDirectory($path, 0755, true);
         }
 
         $zip = new \ZipArchive();
@@ -380,7 +380,7 @@ class AssignmentTester
         $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '/test_files/';
 
         if (!file_exists($path)) {
-            mkdir($path, 0755, true);
+            FileHelper::createDirectory($path, 0755, true);
         }
 
         $testFiles = InstructorFile::find()

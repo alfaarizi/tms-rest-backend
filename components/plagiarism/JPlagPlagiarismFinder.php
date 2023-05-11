@@ -4,6 +4,7 @@ namespace app\components\plagiarism;
 
 use app\exceptions\PlagiarismServiceException;
 use Yii;
+use yii\helpers\FileHelper;
 
 class JPlagPlagiarismFinder extends AbstractPlagiarismFinder
 {
@@ -27,7 +28,7 @@ class JPlagPlagiarismFinder extends AbstractPlagiarismFinder
 
         if ($this->plagiarism->hasBaseFiles) {
             if (!file_exists("{$this->plagiarismPath}/basefiles")) {
-                mkdir("{$this->plagiarismPath}/basefiles", 0755);
+                FileHelper::createDirectory("{$this->plagiarismPath}/basefiles", 0755);
             }
             foreach ($this->plagiarism->baseFiles as $baseFile) {
                 $ext = pathinfo($baseFile->name, PATHINFO_EXTENSION);

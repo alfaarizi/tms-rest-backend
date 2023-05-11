@@ -139,7 +139,7 @@ class EvaluatorController extends BaseInstructorRestController
         if (file_exists($sourcedir)) {
             FileHelper::removeDirectory($sourcedir);
         }
-        mkdir($sourcedir, 0755, true);
+        FileHelper::createDirectory($sourcedir, 0755, true);
 
         if ($setupData->files) {
             foreach ($setupData->files as $file) {
