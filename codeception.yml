@@ -18,12 +18,21 @@ modules:
 coverage:
     enabled: true
     include:
-        - models/*
-        - controllers/*
-        - commands/*
-        - components/*
+        - ./*
+    exclude:
+        - appdata/*
+        - assets/*
+        - config/*
         - mail/*
-        - modules/*
+        - messages/*
+        - migrations/*
+        - rbac/*
+        - runtime/*
+        - sampledata/*
+        - test/*
+        - vendor/*
+        - views/*
+        - web/*
     #c3_url: http://localhost:8080/index-test.php/
     #remote: true
     #remote_config: '../codeception.yml'
