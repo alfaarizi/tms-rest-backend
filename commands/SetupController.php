@@ -142,7 +142,7 @@ class SetupController extends BaseController
         $submission->graderID = $graderID;
         $submission->notes = '';
         if ($submission->save()) {
-            $this->stdout("Successfully inserted submission." . PHP_EOL, Console::FG_GREEN);
+            $this->stdout("Successfully inserted submission #$submission->id." . PHP_EOL, Console::FG_GREEN);
         } else {
             throw new Exception('Failed to insert submission.');
         }
@@ -172,9 +172,9 @@ class SetupController extends BaseController
             $instructor->email = 'instructor0' . $i . '@example.com';
             if ($instructor->save()) {
                 $authManager->assign($authManager->getRole('faculty'), $instructor->id);
-                $this->stdout("Successfully inserted instructor with neptun: '$instructor->neptun'." . PHP_EOL, Console::FG_GREEN);
+                $this->stdout("Successfully inserted instructor with neptun '$instructor->neptun'." . PHP_EOL, Console::FG_GREEN);
             } else {
-                $this->stdout("Failed to insert instructor." . PHP_EOL, Console::FG_RED);
+                $this->stdout("Failed to insert instructor with neptun '$instructor->neptun'." . PHP_EOL, Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         }
@@ -188,9 +188,9 @@ class SetupController extends BaseController
             $student->email = 'student0' . $i . '@example.com';
             if ($student->save()) {
                 $authManager->assign($authManager->getRole('student'), $student->id);
-                $this->stdout("Successfully inserted student with neptun: '$student->neptun'." . PHP_EOL, Console::FG_GREEN);
+                $this->stdout("Successfully inserted student with neptun '$student->neptun'." . PHP_EOL, Console::FG_GREEN);
             } else {
-                $this->stdout("Failed to insert student." . PHP_EOL, Console::FG_RED);
+                $this->stdout("Failed to insert student with neptun '$student->neptun'." . PHP_EOL, Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         }
@@ -221,9 +221,9 @@ class SetupController extends BaseController
         $group->timezone = \Yii::$app->timeZone;
 
         if ($group->save()) {
-            $this->stdout("Successfully inserted initial group." . PHP_EOL, Console::FG_GREEN);
+            $this->stdout("Successfully inserted initial group #$group->number." . PHP_EOL, Console::FG_GREEN);
         } else {
-            $this->stdout("Failed to insert initial group." . PHP_EOL, Console::FG_RED);
+            $this->stdout("Failed to insert initial group #$group->number." . PHP_EOL, Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
@@ -233,9 +233,9 @@ class SetupController extends BaseController
             $instructorGroup->groupID = 1;
 
             if ($instructorGroup->save()) {
-                $this->stdout("Successfully inserted initial group instructor permission." . PHP_EOL, Console::FG_GREEN);
+                $this->stdout("Successfully inserted initial group instructor for '{$instructorGroup->user->neptun}'." . PHP_EOL, Console::FG_GREEN);
             } else {
-                $this->stdout("Failed to insert initial group instructor permission." . PHP_EOL, Console::FG_RED);
+                $this->stdout("Failed to insert initial group instructor permission for '{$instructorGroup->user->neptun}'." . PHP_EOL, Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         }
@@ -251,9 +251,9 @@ class SetupController extends BaseController
             $subscription->isAccepted = 1;
             $subscription->notes = 'Notes';
             if ($subscription->save()) {
-                $this->stdout("Successfully inserted initial student course subscription." . PHP_EOL, Console::FG_GREEN);
+                $this->stdout("Successfully inserted initial student course subscription for '{$subscription->user->neptun}'." . PHP_EOL, Console::FG_GREEN);
             } else {
-                $this->stdout("Failed to insert initial student course subscription." . PHP_EOL, Console::FG_RED);
+                $this->stdout("Failed to insert initial student course subscription for '{$subscription->user->neptun}'." . PHP_EOL, Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         }
@@ -265,15 +265,15 @@ class SetupController extends BaseController
             $task->name = "Task $i";
             $task->semesterID = 1;
             $task->groupID = 1;
-            $task->hardDeadline = date('Y-m-d H:i:s', time() + 1200);
+            $task->hardDeadline = date('Y-m-d H:i:s', strtotime("+$i week"));
             $task->category = 'Smaller tasks';
             $task->createrID = User::findOne(['neptun' => 'inst01'])->id;
             $task->description = '';
 
             if ($task->save()) {
-                $this->stdout("Successfully inserted task." . PHP_EOL, Console::FG_GREEN);
+                $this->stdout("Successfully inserted task ('$task->name')." . PHP_EOL, Console::FG_GREEN);
             } else {
-                $this->stdout("Failed to insert task." . PHP_EOL, Console::FG_RED);
+                $this->stdout("Failed to insert task ('$task->name')." . PHP_EOL, Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         }
@@ -340,7 +340,7 @@ class SetupController extends BaseController
         $test->questionsetID = 1;
         $test->groupID = 1;
         $test->availablefrom = date('Y-m-d H:i:s');
-        $test->availableuntil = date('Y-m-d H:i:s', strtotime('+1 day'));
+        $test->availableuntil = date('Y-m-d H:i:s', strtotime('+7 day'));
 
         $test2 = new ExamTest();
         $test2->id = 2;
@@ -352,7 +352,7 @@ class SetupController extends BaseController
         $test2->questionsetID = 1;
         $test2->groupID = 1;
         $test2->availablefrom = date('Y-m-d H:i:s');
-        $test2->availableuntil = date('Y-m-d H:i:s', strtotime('+1 day'));
+        $test2->availableuntil = date('Y-m-d H:i:s', strtotime('+14 day'));
 
         if (!$test->save() || !$test2->save()) {
             $this->stdout("Failed to insert initial tests." . PHP_EOL, Console::FG_RED);
@@ -375,14 +375,33 @@ class SetupController extends BaseController
      */
     public function actionPrune(): int
     {
-        if ($this->promptBoolean('Are you sure you want to truncate the database and delete appdata folder from disk? (Y|N)', false)) {
+        $prune = true;
+        if ($this->interactive && !$this->promptBoolean('Are you sure you want to truncate the database and delete appdata folder from disk? (Y|N)', false)) {
+            $prune = false;
+        }
+
+        if ($prune) {
             // Truncate database
             $this->run('migrate/fresh', ['interactive' => 0]);
 
             // Delete appdata folder
-            FileHelper::removeDirectory(Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
+            $this->deleteFolderContents(Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
         }
 
         return ExitCode::OK;
+    }
+
+    /**
+     * Deletes the content of a folder, but not the folder itself.
+     * @throws \yii\base\ErrorException
+     */
+    private function deleteFolderContents(string $path): void
+    {
+        if (is_dir($path)) {
+            $fileSystemIterator = new \FilesystemIterator($path);
+            foreach ($fileSystemIterator as $file) {
+                $file->isDir() ? FileHelper::removeDirectory($file) : FileHelper::unlink($file);
+            }
+        }
     }
 }
