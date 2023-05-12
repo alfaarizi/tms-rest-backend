@@ -13,6 +13,7 @@ use Throwable;
 use Yii;
 use yii\base\BaseObject;
 use yii\base\ErrorException;
+use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\di\NotInstantiableException;
 use yii\helpers\FileHelper;
@@ -97,18 +98,23 @@ abstract class AnalyzerRunner extends BaseObject
     /**
      * Initializes working directory for student and instructor files
      * @return void
+     * @throws CodeCheckerRunnerException
      */
     private function initWorkDir()
     {
-        $this->workingDirBasePath =
-            Yii::$app->basePath
-            . '/'
-            . Yii::$app->params['data_dir']
-            . '/tmp/codechecker/'
-            . Yii::$app->security->generateRandomString(4)
-            . '/';
+        try {
+            $this->workingDirBasePath =
+                Yii::$app->basePath
+                . '/'
+                . Yii::$app->params['data_dir']
+                . '/tmp/codechecker/'
+                . Yii::$app->security->generateRandomString(4)
+                . '/';
 
-        mkdir($this->workingDirBasePath, 0755, true);
+            FileHelper::createDirectory($this->workingDirBasePath, 0755, true);
+        } catch (Exception $e) {
+            throw new CodeCheckerRunnerException(Yii::t('app', 'Failed to prepare work directory'));
+        }
     }
 
     /**
@@ -175,7 +181,7 @@ abstract class AnalyzerRunner extends BaseObject
     /**
      * Build container for the current run
      * @return DockerContainer
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     protected function buildAnalyzerContainer(): DockerContainer
     {

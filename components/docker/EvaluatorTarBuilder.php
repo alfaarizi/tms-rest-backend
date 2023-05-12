@@ -8,6 +8,7 @@ use PharData;
 use Throwable;
 use Yii;
 use yii\base\BaseObject;
+use yii\base\Exception;
 use yii\helpers\FileHelper;
 use ZipArchive;
 
@@ -48,7 +49,13 @@ class EvaluatorTarBuilder extends BaseObject
         $submissionDir = $this->workDirPath . $destPath . '/';
 
         if (!file_exists($submissionDir)) {
-            mkdir($submissionDir, 0755, true);
+            try {
+                FileHelper::createDirectory($submissionDir, 0755, true);
+            } catch (Exception $e) {
+                throw new EvaluatorTarBuilderException(
+                    Yii::t('app', 'Failed to init directory for submission')
+                );
+            }
         }
 
         $zip = new ZipArchive();
@@ -78,7 +85,14 @@ class EvaluatorTarBuilder extends BaseObject
         $testFileDir = $this->workDirPath . $dirName . '/';
 
         if (!file_exists($testFileDir)) {
-            mkdir($testFileDir, 0755, true);
+            try {
+                FileHelper::createDirectory($testFileDir, 0755, true);
+            } catch (Exception $e) {
+                throw new EvaluatorTarBuilderException(
+                    Yii::t('app', 'Failed to init directory for instructor test files'),
+                    EvaluatorTarBuilderException::ADD
+                );
+            }
         }
 
         $testFiles = InstructorFile::find()
@@ -178,7 +192,9 @@ class EvaluatorTarBuilder extends BaseObject
         if (is_dir($this->workDirPath)) {
             return;
         }
-        if (!mkdir($this->workDirPath, 0755, true)) {
+        try {
+            FileHelper::createDirectory($this->workDirPath, 0755, true);
+        } catch (Exception $e) {
             throw new EvaluatorTarBuilderException(
                 Yii::t('app', 'Failed to init builder working directory'),
                 EvaluatorTarBuilderException::ADD

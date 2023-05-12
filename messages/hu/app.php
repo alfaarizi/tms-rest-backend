@@ -322,6 +322,8 @@ return [
     'Failed to add file ({name})' => 'A fájl hozzáadása sikertelen volt ({name})',
     'Failed to add submission' => 'A beküldött megoldás hozzáadása sikertelen volt',
     'Failed to add instructor test file (#{id})' => 'Az oktatói tesztfájl hozzáadása sikertelen volt (#{id})',
+    'Failed to init directory for submission' => 'A könyvtár előkészítése a megoldás számára sikertelen volt',
+    'Failed to init directory for instructor test files' => 'A könyvtár előkészítése az oktatói teszt fájlok számára sikertelen volt',
 
     // CodeChecker
     'Unspecified' => 'Nem meghatározott',
