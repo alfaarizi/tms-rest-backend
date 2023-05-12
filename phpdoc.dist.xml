@@ -5,6 +5,7 @@
         xmlns="https://www.phpdoc.org"
 >
     <title>TMS REST backend</title>
+    <setting name="template.color" value="teal"/>
 
     <version number="latest">
         <api>
@@ -14,6 +15,7 @@
             <ignore>
                 <path>appdata/**/*</path>
                 <path>migrations/**/*</path>
+                <path>sampledata/**/*</path>
                 <path>runtime/**/*</path>
                 <path>tests/**/*</path>
                 <path>vendor/**/*</path>
