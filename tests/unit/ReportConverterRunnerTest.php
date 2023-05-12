@@ -39,6 +39,21 @@ class ReportConverterRunnerTest extends Unit
         ];
     }
 
+    /**
+     * Create ReportConverterRunner.
+     * Replace the buildAnalyzerContainer and buildReportConverterContainer methods to inject mock containers.
+     * @return void
+     */
+    private function initRunner()
+    {
+        $this->runner = $this->getMockBuilder(ReportConverterRunner::class)
+            ->enableOriginalConstructor()
+            ->setConstructorArgs([$this->studentFile])
+            ->onlyMethods(['buildAnalyzerContainer', 'buildReportConverterContainer'])
+            ->disableArgumentCloning()
+            ->getMock();
+    }
+
     protected function _before()
     {
         $this->studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 5]);
@@ -51,14 +66,7 @@ class ReportConverterRunnerTest extends Unit
         $dockerImageManagerMock->method('alreadyBuilt')->willReturnOnConsecutiveCalls(true, true);
         Yii::$container->set(DockerImageManager::class, $dockerImageManagerMock);
 
-        // Create ReportConverterRunner
-        // Replace the buildAnalyzerContainer and buildReportConverterContainer methods to inject mock containers
-        $this->runner = $this->getMockBuilder(ReportConverterRunner::class)
-            ->enableOriginalConstructor()
-            ->setConstructorArgs([$this->studentFile])
-            ->onlyMethods(['buildAnalyzerContainer', 'buildReportConverterContainer'])
-            ->disableArgumentCloning()
-            ->getMock();
+        $this->initRunner();
     }
 
     protected function _after()
@@ -81,6 +89,7 @@ class ReportConverterRunnerTest extends Unit
         $dockerImageManagerMock = $this->createMock(DockerImageManager::class);
         $dockerImageManagerMock->method('alreadyBuilt')->willReturnOnConsecutiveCalls(false, true);
         Yii::$container->set(DockerImageManager::class, $dockerImageManagerMock);
+        $this->initRunner();
 
         $this->expectException(CodeCheckerRunnerException::class);
 
@@ -92,6 +101,7 @@ class ReportConverterRunnerTest extends Unit
         $dockerImageManagerMock = $this->createMock(DockerImageManager::class);
         $dockerImageManagerMock->method('alreadyBuilt')->willReturnOnConsecutiveCalls(true, false);
         Yii::$container->set(DockerImageManager::class, $dockerImageManagerMock);
+        $this->initRunner();
 
         $this->expectException(CodeCheckerRunnerException::class);
 
@@ -122,20 +132,20 @@ class ReportConverterRunnerTest extends Unit
 
         $this->runner->run();
 
-        $tmpFolder = $this->getAndTestTmpPath();
-        $this->assertDirectoryExists($tmpFolder . '/submission');
+        $testDir = $this->getAndTestTmpPath() . '/test';
+        $this->assertDirectoryExists($testDir . '/submission');
 
         $this->assertStringEqualsFile(
-            $tmpFolder . '/skipfile',
+            $testDir . '/skipfile',
             $this->studentFile->task->codeCheckerSkipFile
         );
         $this->assertFileEquals(
             codecept_data_dir('appdata_samples/uploadedfiles/5007/file2.txt'),
-            $tmpFolder . '/test_files/file2.txt'
+            $testDir . '/test_files/file2.txt'
         );
         $this->assertFileEquals(
             codecept_data_dir('appdata_samples/uploadedfiles/5007/file3.txt'),
-            $tmpFolder . '/test_files/file3.txt'
+            $testDir . '/test_files/file3.txt'
         );
     }
 
@@ -163,17 +173,17 @@ class ReportConverterRunnerTest extends Unit
 
         $this->runner->run();
 
-        $tmpFolder = $this->getAndTestTmpPath();
-        $this->assertDirectoryExists($tmpFolder . '/submission');
+        $testDir = $this->getAndTestTmpPath() . '/test';
+        $this->assertDirectoryExists($testDir . '/submission');
 
-        $this->assertFileNotExists($tmpFolder . '/skipfile');
+        $this->assertFileNotExists($testDir . '/skipfile');
         $this->assertFileEquals(
             codecept_data_dir('appdata_samples/uploadedfiles/5007/file2.txt'),
-            $tmpFolder . '/test_files/file2.txt'
+            $testDir . '/test_files/file2.txt'
         );
         $this->assertFileEquals(
             codecept_data_dir('appdata_samples/uploadedfiles/5007/file3.txt'),
-            $tmpFolder . '/test_files/file3.txt'
+            $testDir . '/test_files/file3.txt'
         );
     }
 
@@ -201,7 +211,7 @@ class ReportConverterRunnerTest extends Unit
 
         $this->runner->run();
 
-        $tmpFolder = $this->getAndTestTmpPath();
+        $tmpFolder = $this->getAndTestTmpPath() . '/test';
         $this->assertStringEqualsFile(
             $tmpFolder . '/' . $scriptName,
             "roslynator analyze"

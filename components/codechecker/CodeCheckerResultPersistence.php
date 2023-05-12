@@ -184,7 +184,7 @@ class CodeCheckerResultPersistence extends BaseObject
             FileHelper::createDirectory($workDir, 0755, true);
             return $workDir;
         } catch (\yii\base\Exception $e) {
-            throw new CodeCheckerPersistenceException("Failed to create work directory for temporary files");
+            throw new CodeCheckerPersistenceException(Yii::t('app', 'Failed to prepare work directory'));
         }
     }
 
@@ -270,11 +270,11 @@ class CodeCheckerResultPersistence extends BaseObject
             throw new CodeCheckerPersistenceException("HTML reports directory not found: " . $source);
         }
         $dest = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . "/codechecker_html_reports/" . $runId;
-        FileHelper::createDirectory($dest, 0755, true);
         try {
+            FileHelper::createDirectory($dest, 0755, true);
             FileHelper::copyDirectory($source, $dest, ['fileMode' => 0775]);
             $this->restoreNonAsciiFileNames($dest);
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException | \yii\base\Exception $e) {
             throw new CodeCheckerPersistenceException("Unable to copy HTML reports: " . $e->getMessage());
         }
     }

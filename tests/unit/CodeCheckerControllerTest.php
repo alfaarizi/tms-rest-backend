@@ -13,6 +13,7 @@ use app\exceptions\CodeCheckerPersistenceException;
 use app\exceptions\CodeCheckerResultNotifierException;
 use app\exceptions\CodeCheckerRunnerException;
 use app\models\StudentFile;
+use app\models\Task;
 use app\tests\unit\fixtures\CodeCheckerResultFixture;
 use app\tests\unit\fixtures\StudentFilesFixture;
 use app\tests\unit\fixtures\TaskFixture;
@@ -23,6 +24,7 @@ use yii\console\ExitCode;
 class CodeCheckerControllerTest extends \Codeception\Test\Unit
 {
     protected \UnitTester $tester;
+    private $runnerMock;
 
     public function _fixtures(): array
     {
@@ -51,6 +53,11 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
             );
 
         Yii::$container->set(StudentFileToAnalyzeFinder::class, $finderMock);
+
+        $this->runnerMock = $this->getMockBuilder(CodeCheckerRunner::class)
+            ->enableOriginalConstructor()
+            ->setConstructorArgs([$this->tester->grabRecord(StudentFile::class, ['id' => 8])])
+            ->getMock();
     }
 
     protected function _after()
@@ -60,11 +67,7 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
 
     public function testCheck()
     {
-        $runnerMock = $this->getMockBuilder(CodeCheckerRunner::class)
-            ->enableOriginalConstructor()
-            ->setConstructorArgs([new StudentFile()])
-            ->getMock();
-        $runnerMock
+        $this->runnerMock
             ->expects($this->exactly(2))
             ->method('run')
             ->willReturn(
@@ -75,8 +78,8 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
                     'stderr' => ''
                 ]
             );
-        $runnerMock->expects($this->exactly(2))->method('deleteWorkDirectory');
-        Yii::$container->set(AnalyzerRunner::class, $runnerMock);
+        $this->runnerMock->expects($this->exactly(2))->method('deleteWorkDirectory');
+        Yii::$container->set(AnalyzerRunner::class, $this->runnerMock);
 
         $persistenceMock = $this->createMock(CodeCheckerResultPersistence::class);
         $persistenceMock->expects($this->exactly(2))->method('saveResult');
@@ -90,17 +93,12 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
 
     public function testCheckWithRunnerException()
     {
-        $runnerMock = $this->getMockBuilder(CodeCheckerRunner::class)
-            ->enableOriginalConstructor()
-            ->setConstructorArgs([new StudentFile()])
-            ->getMock();
-
-        $runnerMock
+        $this->runnerMock
             ->expects($this->exactly(2))
             ->method('run')
             ->willThrowException(new CodeCheckerRunnerException('Runner Exception'));
-        $runnerMock->expects($this->exactly(2))->method('deleteWorkDirectory');
-        Yii::$container->set(AnalyzerRunner::class, $runnerMock);
+        $this->runnerMock->expects($this->exactly(2))->method('deleteWorkDirectory');
+        Yii::$container->set(AnalyzerRunner::class, $this->runnerMock);
 
         $persistenceMock = $this->createMock(CodeCheckerResultPersistence::class);
         $persistenceMock->expects($this->never())->method('saveResult');
@@ -114,17 +112,12 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
 
     public function testCheckWithRunnerExceptionFailedToSaveError()
     {
-        $runnerMock = $this->getMockBuilder(CodeCheckerRunner::class)
-            ->enableOriginalConstructor()
-            ->setConstructorArgs([new StudentFile()])
-            ->getMock();
-
-        $runnerMock
+        $this->runnerMock
             ->expects($this->exactly(2))
             ->method('run')
             ->willThrowException(new CodeCheckerRunnerException('Runner Exception'));
-        $runnerMock->expects($this->exactly(2))->method('deleteWorkDirectory');
-        Yii::$container->set(AnalyzerRunner::class, $runnerMock);
+        $this->runnerMock->expects($this->exactly(2))->method('deleteWorkDirectory');
+        Yii::$container->set(AnalyzerRunner::class, $this->runnerMock);
 
         $persistenceMock = $this->createMock(CodeCheckerResultPersistence::class);
         $persistenceMock->expects($this->never())->method('saveResult');
@@ -141,17 +134,12 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
 
     public function testCheckWithRunnerExceptionFailedToSendNotification()
     {
-        $runnerMock = $this->getMockBuilder(CodeCheckerRunner::class)
-            ->enableOriginalConstructor()
-            ->setConstructorArgs([new StudentFile()])
-            ->getMock();
-
-        $runnerMock
+        $this->runnerMock
             ->expects($this->exactly(2))
             ->method('run')
             ->willThrowException(new CodeCheckerRunnerException('Runner Exception'));
-        $runnerMock->expects($this->exactly(2))->method('deleteWorkDirectory');
-        Yii::$container->set(AnalyzerRunner::class, $runnerMock);
+        $this->runnerMock->expects($this->exactly(2))->method('deleteWorkDirectory');
+        Yii::$container->set(AnalyzerRunner::class, $this->runnerMock);
 
         $persistenceMock = $this->createMock(CodeCheckerResultPersistence::class);
         $persistenceMock->expects($this->never())->method('saveResult');
@@ -168,12 +156,7 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
 
     public function testCheckWithPersistenceException()
     {
-        $runnerMock = $this->getMockBuilder(CodeCheckerRunner::class)
-            ->enableOriginalConstructor()
-            ->setConstructorArgs([new StudentFile()])
-            ->getMock();
-
-        $runnerMock
+        $this->runnerMock
             ->expects($this->exactly(2))
             ->method('run')
             ->willReturn(
@@ -185,8 +168,8 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
                 ]
             );
 
-        $runnerMock->expects($this->exactly(2))->method('deleteWorkDirectory');
-        Yii::$container->set(AnalyzerRunner::class, $runnerMock);
+        $this->runnerMock->expects($this->exactly(2))->method('deleteWorkDirectory');
+        Yii::$container->set(AnalyzerRunner::class, $this->runnerMock);
 
         $persistenceMock = $this->createMock(CodeCheckerResultPersistence::class);
         $persistenceMock
@@ -201,12 +184,7 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
 
     public function testCheckWithNotifierException()
     {
-        $runnerMock = $this->getMockBuilder(CodeCheckerRunner::class)
-            ->enableOriginalConstructor()
-            ->setConstructorArgs([new StudentFile()])
-            ->getMock();
-
-        $runnerMock
+        $this->runnerMock
             ->expects($this->exactly(2))
             ->method('run')
             ->willReturn(
@@ -218,8 +196,8 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
                 ]
             );
 
-        $runnerMock->expects($this->exactly(2))->method('deleteWorkDirectory');
-        Yii::$container->set(AnalyzerRunner::class, $runnerMock);
+        $this->runnerMock->expects($this->exactly(2))->method('deleteWorkDirectory');
+        Yii::$container->set(AnalyzerRunner::class, $this->runnerMock);
 
         $persistenceMock = $this->createMock(CodeCheckerResultPersistence::class);
         $persistenceMock

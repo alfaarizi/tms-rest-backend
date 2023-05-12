@@ -3,14 +3,14 @@
 namespace app\components;
 
 use app\components\docker\DockerImageManager;
-use app\models\InstructorFile;
+use app\components\docker\EvaluatorTarBuilder;
+use app\exceptions\EvaluatorTarBuilderException;
 use Yii;
 use Docker\Docker;
 use Docker\DockerClientFactory;
 use Docker\API\Model\ContainersCreatePostBody;
 use Docker\API\Model\ContainersIdExecPostBody;
 use Docker\API\Model\ExecIdStartPostBody;
-use yii\helpers\FileHelper;
 use ForceUTF8\Encoding;
 
 /**
@@ -105,16 +105,9 @@ class AssignmentTester
 
     /**
      * Runs the testCases on the studentfile.
-     *
-     * @return array an array with the test results.
      */
-    public function test()
+    public function test(): void
     {
-        // get student solution
-        $this->extractStudentSolution();
-        // copy test files
-        $this->copyTestFiles();
-
         $task = $this->studentFile->task;
         $imageName = $task->imageName;
         $containerName = $this->studentFile->containerName;
@@ -138,17 +131,7 @@ class AssignmentTester
 
         // send student solution to docker container as TAR stream
         try {
-            $tarPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '.tar';
-            $phar = new \PharData($tarPath);
-            $phar->buildFromDirectory(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id);
-            unset($phar);
-            $this->docker->putContainerArchive(
-                $containerName,
-                file_get_contents($tarPath),
-                [
-                    'path' => $task->testOS == 'windows' ? 'C:\\test' : '/test'
-                ]
-            );
+            $this->copyFiles($containerName);
         } catch (\Exception $e) {
             $this->results['initialized'] = false;
             $this->results['initiationError'] = $e->getMessage();
@@ -198,6 +181,51 @@ class AssignmentTester
         }
 
         $this->stopContainer($containerName);
+    }
+
+    /**
+     * Send student solution, test files and scripts to docker container as TAR stream
+     * @param string $containerName
+     * @return void
+     * @throws EvaluatorTarBuilderException
+     */
+    private function copyFiles(string $containerName)
+    {
+        $tarBuilder = new EvaluatorTarBuilder(
+            Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/',
+            strval($this->studentFile->id)
+        );
+        $task = $this->studentFile->task;
+        $ext = $task->testOS == 'windows' ? '.ps1' : '.sh';
+        try {
+            $tarPath = $tarBuilder
+                ->withSubmission($this->studentFile->getPath())
+                ->withInstructorTestFiles($task->id)
+                ->withTextFile('compile' . $ext, $task->compileInstructions, true)
+                ->withTextFile('run' . $ext, $task->runInstructions, true)
+                ->buildTar();
+
+            // The container must be stopped before uploading files when a Windows host with Hyper-V isolation is configured
+            $sysInfo = $this->docker->systemInfo();
+            $shouldStop = $sysInfo->getOSType() == 'windows' && $sysInfo->getIsolation() == 'hyperv';
+            if ($shouldStop) {
+                $this->docker->containerStop($containerName);
+            }
+
+            $this->docker->putContainerArchive(
+                $containerName,
+                file_get_contents($tarPath),
+                [
+                    'path' => $task->testOS == 'windows' ? 'C:\\test' : '/test'
+                ]
+            );
+
+            if ($shouldStop) {
+                $this->docker->containerStart($containerName);
+            }
+        } finally {
+            $tarBuilder->cleanup();
+        }
     }
 
     /**
@@ -260,9 +288,6 @@ class AssignmentTester
 
         // remove the container
         $this->docker->containerDelete($containerName);
-
-        // delete the student solution
-        $this->deleteStudentSolution();
     }
 
     /**
@@ -330,85 +355,7 @@ class AssignmentTester
             $containerCreateResult = $this->docker->containerCreate($containerConfig, ['name' => $containerName]);
         }
 
-        // add compile commands file
-        $task = $this->studentFile->task;
-        $compileFile = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '/compile.' .
-            ($this->studentFile->task->testOS == 'windows' ? 'ps1' : 'sh');
-        file_put_contents($compileFile, $task->compileInstructions);
-
-        // add run command file
-        if (!empty($task->runInstructions)) {
-            $runFile = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '/run.' .
-                ($this->studentFile->task->testOS == 'windows' ? 'ps1' : 'sh');
-            file_put_contents($runFile, $task->runInstructions);
-        }
-
         return $containerCreateResult;
-    }
-
-    /**
-     * Extracts the student solution to tmp/docker/{studentFileID}/submission/
-     *
-     * @return bool The success of extraction.
-     */
-    private function extractStudentSolution()
-    {
-        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '/submission/';
-
-        if (!file_exists($path)) {
-            FileHelper::createDirectory($path, 0755, true);
-        }
-
-        $zip = new \ZipArchive();
-        $res = $zip->open($this->studentFile->path);
-        if ($res === true) {
-            $zip->extractTo($path);
-            $zip->close();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Copies the instructor defined test files of the task to tmp/docker/{studentFileID}/test_files/
-     *
-     * @return bool The success of the copy operations.
-     */
-    private function copyTestFiles()
-    {
-        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '/test_files/';
-
-        if (!file_exists($path)) {
-            FileHelper::createDirectory($path, 0755, true);
-        }
-
-        $testFiles = InstructorFile::find()
-            ->where(['taskID' => $this->studentFile->taskID])
-            ->onlyTestFiles()
-            ->all();
-
-        $success = true;
-        foreach ($testFiles as $testFile) {
-            $success &= copy($testFile->path, $path . '/' . $testFile->name);
-        }
-        return $success;
-    }
-
-    /**
-     *  Deletes the student solution and related files from tmp/docker/{studentFileID}
-     * @throws \yii\base\ErrorException
-     */
-    private function deleteStudentSolution()
-    {
-        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id;
-        if (is_dir($path)) {
-            FileHelper::removeDirectory($path);
-        }
-        $tarPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/docker/' . $this->studentFile->id . '.tar';
-        if (is_file($tarPath)) {
-            FileHelper::unlink($tarPath);
-        }
     }
 
     /**

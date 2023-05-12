@@ -195,6 +195,13 @@ class DockerContainer
         string $targetPath
     ) {
         if ($this->isContainerCreated()) {
+            // The container must be stopped before uploading files when a Windows host with Hyper-V isolation is configured
+            $sysInfo = $this->docker->systemInfo();
+            $shouldStop = $sysInfo->getOSType() == 'windows' && $sysInfo->getIsolation() == 'hyperv';
+            if ($shouldStop) {
+                $this->docker->containerStop($this->containerCreateResult->getId());
+            }
+
             $this->docker->putContainerArchive(
                 $this->containerCreateResult->getId(),
                 file_get_contents($sourceTarPath),
@@ -202,6 +209,10 @@ class DockerContainer
                     'path' => $targetPath
                 ]
             );
+
+            if ($shouldStop) {
+                $this->docker->containerStart($this->containerCreateResult->getId());
+            }
         }
     }
 

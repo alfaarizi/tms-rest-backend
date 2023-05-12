@@ -3,6 +3,8 @@
 namespace app\components\codechecker;
 
 use app\components\docker\DockerContainer;
+use app\components\docker\EvaluatorTarBuilder;
+use app\exceptions\CodeCheckerRunnerException;
 use app\models\StudentFile;
 
 /**
@@ -15,38 +17,37 @@ class CodeCheckerRunner extends AnalyzerRunner
         parent::__construct($studentFile);
     }
 
-    protected function prepareAnalyzeInstructions(): bool
+    protected function addAnalyzeInstructionsToTar(EvaluatorTarBuilder $tarBuilder): void
     {
         $testOS = $this->studentFile->task->testOS;
-        $result = $this->placeTextFileToWorkdir(
-            "build." . ($testOS == 'windows' ? 'ps1' : 'sh'),
-            $this->studentFile->task->codeCheckerCompileInstructions
-        );
-        if ($result) {
-            $buildCommand = $testOS === "windows"
-                ? "powershell C:\\test\\build.ps1"
-                : "bash /test/build.sh";
-            $ccCommand = 'CodeChecker check --build "' . $buildCommand . '" --output '
-                . ($testOS === 'windows' ? 'C:\\test\\reports\\plist' : '/test/reports/plist');
-            if (!empty($this->studentFile->task->codeCheckerSkipFile)) {
-                $ccCommand .= ' --ignore ' . ($testOS == 'windows' ? 'C:\\test\\skipfile' : '/test/skipfile');
-            }
-            if (!empty($this->studentFile->task->codeCheckerToggles)) {
-                $ccCommand .= ' ' . $this->studentFile->task->codeCheckerToggles;
-            }
-            return $this->placeTextFileToWorkdir(
-                "analyze." . ($testOS == 'windows' ? 'ps1' : 'sh'),
-                $ccCommand
-            );
+        $ext = $testOS == 'windows' ? '.ps1' : '.sh';
+
+        $buildCommand = $testOS === "windows"
+            ? "powershell C:\\test\\build.ps1"
+            : "bash /test/build.sh";
+        $ccCommand = 'CodeChecker check --build "' . $buildCommand . '" --output '
+            . ($testOS === 'windows' ? 'C:\\test\\reports\\plist' : '/test/reports/plist');
+        if (!empty($this->studentFile->task->codeCheckerSkipFile)) {
+            $ccCommand .= ' --ignore ' . ($testOS == 'windows' ? 'C:\\test\\skipfile' : '/test/skipfile');
         }
-        return false;
+        if (!empty($this->studentFile->task->codeCheckerToggles)) {
+            $ccCommand .= ' ' . $this->studentFile->task->codeCheckerToggles;
+        }
+
+        $tarBuilder
+            ->withTextFile("build" . $ext, $this->studentFile->task->codeCheckerCompileInstructions)
+            ->withTextFile('analyze' . $ext, $ccCommand);
     }
 
+    /**
+     * @param DockerContainer $analyzerContainer
+     * @return string|null
+     * @throws CodeCheckerRunnerException
+     */
     protected function createAndDownloadReportsTar(DockerContainer $analyzerContainer): ?string
     {
         $testOS = $this->studentFile->task->testOS;
-        $this->runParseCommand($analyzerContainer, "json");
-        $this->runParseCommand($analyzerContainer, "html");
+        $this->runParseCommand($analyzerContainer);
 
         $tarPath = $this->workingDirBasePath . "/reports.tar";
         $analyzerContainer->downloadArchive(
