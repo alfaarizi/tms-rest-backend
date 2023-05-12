@@ -85,16 +85,16 @@
         "lint": "phpcs --report=full",
         "lint:fix": "phpcbf",
         "test": [
-          "Composer\\Config::disableProcessTimeout",
-          "codecept run unit,api"
+            "Composer\\Config::disableProcessTimeout",
+            "codecept run unit,api"
         ],
         "test:unit": [
-          "Composer\\Config::disableProcessTimeout",
-          "codecept run unit"
+            "Composer\\Config::disableProcessTimeout",
+            "codecept run unit"
         ],
         "test:api": [
-          "Composer\\Config::disableProcessTimeout",
-          "codecept run api"
+            "Composer\\Config::disableProcessTimeout",
+            "codecept run api"
         ]
     },
     "extra": {
@@ -119,5 +119,5 @@
             "url": "https://asset-packagist.org"
         }
     ],
-    "version": "3.0.0-alpha.3"
+    "version": "3.0.0-alpha.4"
 }

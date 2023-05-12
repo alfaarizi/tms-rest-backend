@@ -4,6 +4,24 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.0.0-alpha.4](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.3...v3.0.0-alpha.4) (2023-05-12)
+
+### ⚠ BREAKING CHANGES
+
+* Integrate JPlag plagiarism detection tool ([a753a4](https://gitlab.com/tms-elte/backend-core/commit/a753a4123a1436b71198dba93cf945119e55acf8))
+
+### Features
+
+* Added sample seeding options command for developers ([327b83](https://gitlab.com/tms-elte/backend-core/commit/327b83132173db6d12dc11d1b09166f84d2149bb))
+
+### Bug Fixes
+
+* Properly delete everything from the Git repositories before extracting the new web upload. ([c2cdae](https://gitlab.com/tms-elte/backend-core/commit/c2cdae59aa6334f5460b5cffae7ecce990c224da))
+* Unable to upload files to Windows-based Docker container with Hyper-V isolation ([2fc3ee](https://gitlab.com/tms-elte/backend-core/commit/2fc3ee3de7eb9dcb7832df81c81a4a266764685c))
+
+
+---
+
 ## [3.0.0-alpha.3](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.2...v3.0.0-alpha.3) (2023-04-28)
 
 ### Bug Fixes
