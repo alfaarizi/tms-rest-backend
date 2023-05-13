@@ -69,7 +69,7 @@ phpstan:
     # Run Composer
     - composer install --prefer-dist --no-ansi --no-interaction
   script:
-    - vendor/bin/codecept build
+    - composer test:generate
     - composer analyze:phpstan -- --no-progress --error-format gitlab > phpstan.json
   allow_failure: true
   artifacts:

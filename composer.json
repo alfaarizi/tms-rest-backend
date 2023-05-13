@@ -97,6 +97,10 @@
             "Composer\\Config::disableProcessTimeout",
             "codecept run api"
         ],
+        "test:generate": [
+            "Composer\\Config::disableProcessTimeout",
+            "codecept build"
+        ],
         "analyze:phpstan": [
             "Composer\\Config::disableProcessTimeout",
             "phpstan analyse --memory-limit 1G"
