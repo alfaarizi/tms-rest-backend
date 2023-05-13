@@ -7,9 +7,12 @@ use app\models\ExamTest;
 use app\models\User;
 use app\tests\unit\fixtures\TestFixture;
 use app\tests\unit\fixtures\UserFixture;
+use UnitTester;
 
 class TestInstanceTest extends \Codeception\Test\Unit
 {
+    protected UnitTester $tester;
+
     public function _fixtures()
     {
         return [

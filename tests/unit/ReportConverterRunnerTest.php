@@ -1,6 +1,6 @@
 <?php
 
-namespace unit;
+namespace app\tests\unit;
 
 use app\components\codechecker\ReportConverterRunner;
 use app\components\docker\DockerContainer;
@@ -19,6 +19,7 @@ use Yii;
 class ReportConverterRunnerTest extends Unit
 {
     protected UnitTester $tester;
+    private StudentFile $studentFile;
     private $runner;
 
     public function _fixtures(): array

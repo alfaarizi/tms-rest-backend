@@ -7,9 +7,12 @@ use app\models\ExamTestInstance;
 use app\models\ExamAnswer;
 use app\tests\unit\fixtures\SubmittedAnswerFixture;
 use app\tests\unit\fixtures\TestInstanceQuestionFixture;
+use UnitTester;
 
 class SubmittedAnswerTest extends \Codeception\Test\Unit
 {
+    protected UnitTester $tester;
+
     public function _fixtures()
     {
         return [

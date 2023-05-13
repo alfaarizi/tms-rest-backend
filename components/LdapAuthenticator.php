@@ -51,7 +51,7 @@ class LdapAuthenticator
     public function auth($username, $passwd)
     {
         if (!function_exists('ldap_connect')) {
-            throw new RuntimeException('LDAP module not enabled for PHP.');
+            throw new \RuntimeException('LDAP module not enabled for PHP.');
         }
 
         $ds = ldap_connect($this->host);

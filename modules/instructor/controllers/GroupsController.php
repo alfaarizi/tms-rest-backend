@@ -264,10 +264,10 @@ class GroupsController extends BaseInstructorRestController
                     $this->response->statusCode = 422;
                     return $instructorGroup->errors;
                 } else {
-                    throw new yii\db\Exception(Yii::t('app', 'A database error occurred'));
+                    throw new \yii\db\Exception(Yii::t('app', 'A database error occurred'));
                 }
             } else {
-                throw new yii\db\Exception(Yii::t('app', 'A database error occurred'));
+                throw new \yii\db\Exception(Yii::t('app', 'A database error occurred'));
             }
         } catch (Throwable $e) {
             $transaction->rollBack();
@@ -341,7 +341,7 @@ class GroupsController extends BaseInstructorRestController
                     Yii::t('app', 'Failed to remove group. Message: ')
                     . Yii::t('app', 'A database error occurred'));
             }
-        } catch (yii\db\IntegrityException $e) {
+        } catch (\yii\db\IntegrityException $e) {
             throw new ConflictHttpException(Yii::t('app', 'Failed to remove group. First you should remove the corresponding tasks!'));
         } catch (ErrorException $e) {
             throw new ServerErrorHttpException(

@@ -332,9 +332,9 @@ class ExamTestsController extends BaseInstructorRestController
             $test->delete();
             $this->response->statusCode = 204;
             return;
-        } catch (yii\db\IntegrityException $e) {
+        } catch (\yii\db\IntegrityException $e) {
             throw new ConflictHttpException(Yii::t('app', 'Cannot delete test because it is already in progress'));
-        } catch (yii\base\ErrorException $e) {
+        } catch (\yii\base\ErrorException $e) {
             throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
         }
     }

@@ -498,7 +498,7 @@ class TasksController extends BaseInstructorRestController
                         Yii::t('app', 'Failed to delete task. Message: ') . Yii::t('app', "Database errors")
                     );
                 }
-            } catch (yii\db\IntegrityException $e) {
+            } catch (\yii\db\IntegrityException $e) {
                 throw new BadRequestHttpException(
                     Yii::t(
                         'app',

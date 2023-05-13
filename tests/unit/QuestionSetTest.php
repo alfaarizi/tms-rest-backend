@@ -9,9 +9,12 @@ use app\models\Course;
 use app\tests\unit\fixtures\QuestionFixture;
 use app\tests\unit\fixtures\CourseFixture;
 use app\tests\unit\fixtures\TestFixture;
+use UnitTester;
 
 class QuestionSetTest extends \Codeception\Test\Unit
 {
+    protected UnitTester $tester;
+
     public function _fixtures()
     {
         return [

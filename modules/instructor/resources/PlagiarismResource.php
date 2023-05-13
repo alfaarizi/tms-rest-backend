@@ -6,6 +6,7 @@ use app\components\openapi\generators\OAProperty;
 use app\models\AbstractPlagiarism;
 use app\models\JPlagPlagiarism;
 use app\models\MossPlagiarism;
+use yii\base\ErrorException;
 use yii\db\ActiveQuery;
 
 /**
@@ -63,6 +64,8 @@ class PlagiarismResource extends \app\models\Plagiarism
                 return $this->moss;
             case JPlagPlagiarism::ID:
                 return $this->jplag;
+            default:
+                throw new ErrorException('Not existing plagiarism type.');
         }
     }
 

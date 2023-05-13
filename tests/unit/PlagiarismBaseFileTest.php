@@ -6,9 +6,12 @@ use app\models\PlagiarismBasefile;
 use app\tests\unit\fixtures\CourseFixture;
 use app\tests\unit\fixtures\GroupFixture;
 use app\tests\unit\fixtures\UserFixture;
+use UnitTester;
 
 class PlagiarsimBasefileTest extends \Codeception\Test\Unit
 {
+    protected UnitTester $tester;
+
     public function _fixtures()
     {
         return [

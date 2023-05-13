@@ -472,6 +472,8 @@ class PlagiarismController extends BaseInstructorRestController
      *    @OA\Response(response=403, ref="#/components/responses/403"),
      *    @OA\Response(response=404, ref="#/components/responses/404"),
      *    @OA\Response(response=500, ref="#/components/responses/500"),
+     *    @OA\Response(response=501, ref="#/components/responses/501"),
+     *    @OA\Response(response=502, ref="#/components/responses/502"),
      * ),
      */
     public function actionRun(int $id): PlagiarismResource
@@ -532,6 +534,8 @@ class PlagiarismController extends BaseInstructorRestController
                         'ignoreFiles' => $data->ignoreFilesString,
                     ]
                 );
+            default:
+                throw new ErrorException('Not existing plagiarism type.');
         }
     }
 }

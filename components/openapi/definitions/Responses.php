@@ -37,6 +37,16 @@ namespace app\components\openapi\definitions;
  *     response=500,
  *     description="internal server error",
  *     @OA\JsonContent(ref="#/components/schemas/Yii2Error"),
+ * ),
+ * @OA\Response(
+ *     response=501,
+ *     description="not implemented",
+ *     @OA\JsonContent(ref="#/components/schemas/Yii2Error"),
+ * ),
+ * @OA\Response(
+ *     response=502,
+ *     description="bad gateway",
+ *     @OA\JsonContent(ref="#/components/schemas/Yii2Error"),
  * )
  */
 abstract class Responses
