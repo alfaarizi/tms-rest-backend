@@ -1,0 +1,22 @@
+parameters:
+  level: 0
+  paths:
+    - behaviors
+    - commands
+    - components
+    - controllers
+    - exceptions
+    - models
+    - modules
+    - rbac
+    - resources
+    - validators
+    - tests
+  excludePaths:
+    analyse:
+        - tests/_data
+        - tests/_support
+    analyseAndScan:
+        - tests/_output
+  bootstrapFiles:
+    - vendor/yiisoft/yii2/Yii.php
