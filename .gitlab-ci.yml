@@ -61,6 +61,21 @@ phpcs:
     - composer lint -- -n --report=full
   allow_failure: true
 
+
+# PHPStan static analyzer
+phpstan:
+  stage: lint
+  before_script:
+    # Run Composer
+    - composer install --prefer-dist --no-ansi --no-interaction
+  script:
+    - vendor/bin/codecept build
+    - composer analyze:phpstan -- --no-progress --error-format gitlab > phpstan.json
+  allow_failure: true
+  artifacts:
+    reports:
+      codequality: phpstan.json
+
 # Codeception tests & coverage reports
 # PHP 7.4
 codecept_7.4:
