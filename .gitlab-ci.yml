@@ -14,9 +14,10 @@ cache:
   paths:
     - vendor/
 
-# Dependency scanning
+# Dependency scanning & Secret detection
 include:
-  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
 
 .db:
   # Variables
