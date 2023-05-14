@@ -110,6 +110,16 @@ composer lint     # check code style
 composer lint:fix # fix code style
 ~~~
 
+### Automated code quality check
+
+The project integrated the [PHPStan](https://phpstan.org/) static analyzer to detect code quality issues and potential bugs in the codebase. You may run it after you [installed](README.md#installation) the dependencies with Composer.
+~~~bash
+composer test:generate   # generate Codeception base classes (required for static analysis)
+composer analyze:phpstan # perform static analysis
+~~~
+
+All contributions are required to pass both the linting and the static analysis check!
+
 ### Testing
 
 TMS comes both with unit and functional API tests implemented with the [PHPUnit](https://phpunit.de/) and the [Codeception](https://codeception.com/for/yii) test frameworks. You should always perform these tests as described in the [README](README.md#testing) before you submit your code for review.

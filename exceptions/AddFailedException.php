@@ -30,7 +30,7 @@ class AddFailedException extends \yii\base\UserException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($identifier, $cause, $code = 0, Throwable $previous = null)
+    public function __construct($identifier, $cause, $code = 0, \Throwable $previous = null)
     {
         parent::__construct("Failed to add item with $identifier", $code, $previous);
         $this->identifier = $identifier;

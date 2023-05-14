@@ -11,6 +11,7 @@ use app\modules\instructor\resources\SetupWebAppExecutionResource;
 use app\modules\instructor\resources\WebAppExecutionResource;
 use Exception;
 use Yii;
+use yii\base\ErrorException;
 use yii\web\BadRequestHttpException;
 use yii\web\ConflictHttpException;
 use yii\web\ForbiddenHttpException;
@@ -166,6 +167,8 @@ class WebAppExecutionController extends BaseInstructorRestController
                     throw new ConflictHttpException($e->getMessageTranslated());
                 case WebAppExecutionException::$START_UP_FAILURE:
                     throw new UnprocessableEntityHttpException($e->getMessageTranslated());
+                default:
+                    throw $e;
             }
         } catch (Exception $e) {
             Yii::error("Failed to start web application: " . $e->getMessage() . ' ' . $e->getTraceAsString(),  __METHOD__);

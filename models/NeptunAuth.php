@@ -31,7 +31,7 @@ class NeptunAuth extends \yii\base\BaseObject implements RemoteAuthInterface
                     include_once Yii::getAlias('@simplesamlphp') . '/lib/_autoload.php';
                     include_once Yii::getAlias('@simplesamlphp') . '/lib/SimpleSAML/Auth/Simple.php';
                 }
-            } catch (yii\base\InvalidArgumentException $e) {
+            } catch (\yii\base\InvalidArgumentException $e) {
                 // alias @simplesamlphp not defined
             }
 
@@ -58,6 +58,7 @@ class NeptunAuth extends \yii\base\BaseObject implements RemoteAuthInterface
             throw new NotSupportedException('SAML is not supported.');
         }
 
+        /** @phpstan-ignore-next-line */
         $this->_simpleSaml = new \SimpleSAML_Auth_Simple('default-sp');
         $this->_attributes = $this->_simpleSaml->getAttributes();
     }
