@@ -129,6 +129,7 @@ class SetupController extends BaseController
      */
     private function seedSubmission(int $uploaderID, string $neptun, int $taskID, string $isAccepted, ?int $graderID, string $autoTesterStatus): void
     {
+        $dirname = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . "/uploadedfiles/$taskID/$neptun";
         $submission = new StudentFile();
         $submission->name = $neptun . ".zip";
         $submission->uploadTime = date('Y-m-d H:i:s');
@@ -141,6 +142,9 @@ class SetupController extends BaseController
         $submission->grade = null;
         $submission->graderID = $graderID;
         $submission->notes = '';
+        if (!FileHelper::createDirectory($dirname, 0755, true) || !copy('sampledata/uploadedfile.zip', "$dirname/{$submission->name}")) {
+            throw new Exception('Failed to copy file.');
+        }
         if ($submission->save()) {
             $this->stdout("Successfully inserted submission #$submission->id." . PHP_EOL, Console::FG_GREEN);
         } else {
@@ -298,9 +302,6 @@ class SetupController extends BaseController
             $this->stdout($e->getMessage() . PHP_EOL, Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
-
-        // Copy submission files into data directory
-        FileHelper::copyDirectory('sampledata', Yii::$app->params['data_dir']);
 
         // Seed Question Set
         $questionSet = new ExamQuestionSet();
