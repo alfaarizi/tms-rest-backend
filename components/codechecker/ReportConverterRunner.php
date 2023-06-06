@@ -59,21 +59,12 @@ class ReportConverterRunner extends AnalyzerRunner
             return null;
         }
 
-        $reportConverterContainer = $this->buildReportConverterContainer();
+        $reportConverterContainer = $this->buildAndStartReportConverterContainer();
         try {
-            $reportConverterContainer->startContainer();
             $this->copyTestDirectoryToConverterContainer($analyzerContainer, $reportConverterContainer);
-
             $this->runReportConverter($reportConverterContainer);
-
             $this->runParseCommand($reportConverterContainer);
-            $tarPath = $this->workingDirBasePath . "/reports.tar";
-            $reportConverterContainer->downloadArchive(
-                $this->studentFile->task->testOS  === "windows"
-                    ? "C:\\test\\reports" : "/test/reports",
-                $tarPath
-            );
-            return $tarPath;
+            return $this->downloadReportsFromReportConverterContainer($reportConverterContainer);
         } finally {
             $reportConverterContainer->stopContainer();
         }
@@ -113,15 +104,25 @@ class ReportConverterRunner extends AnalyzerRunner
      * If the needed image is not present then tries to pull it.
      * @return DockerContainer
      * @throws CodeCheckerRunnerException
-     * @throws \yii\base\Exception
      */
-    protected function buildReportConverterContainer(): DockerContainer
+    protected function buildAndStartReportConverterContainer(): DockerContainer
     {
-        $os = $this->studentFile->task->testOS;
-        $imageName = Yii::$app->params["evaluator"]["reportConverterImage"][$os];
+        try {
+            $os = $this->studentFile->task->testOS;
+            $imageName = Yii::$app->params["evaluator"]["reportConverterImage"][$os];
 
-        $builder = new DockerContainerBuilder($os, $imageName);
-        return $builder->build("tms_report_converter_" . $this->studentFile->id);
+            $builder = new DockerContainerBuilder($os, $imageName);
+            $container = $builder->build("tms_report_converter_" . $this->studentFile->id);
+            $container->startContainer();
+            return $container;
+        } catch (\Throwable $e) {
+            throw new CodeCheckerRunnerException(
+                Yii::t('app', 'Failed to create or start Docker container'),
+                CodeCheckerRunnerException::PARSE_FAILURE,
+                null,
+                $e
+            );
+        }
     }
 
     /**
@@ -129,36 +130,84 @@ class ReportConverterRunner extends AnalyzerRunner
      * @param DockerContainer $analyzerContainer
      * @param DockerContainer $reportConverterContainer
      * @return void
+     * @throws CodeCheckerRunnerException
      */
     private function copyTestDirectoryToConverterContainer(
         DockerContainer $analyzerContainer,
         DockerContainer $reportConverterContainer
     ) {
-        $tarPath = $this->workingDirBasePath . "/analyzed_test.tar";
-        $analyzerContainer->downloadArchive(
-            $this->studentFile->task->testOS === "linux" ? "/test" : "C:\\test",
-            $tarPath
-        );
-        $reportConverterContainer->uploadArchive($tarPath, '/');
+        try {
+            $tarPath = $this->workingDirBasePath . "/analyzed_test.tar";
+            $analyzerContainer->downloadArchive(
+                $this->studentFile->task->testOS === "linux" ? "/test" : "C:\\test",
+                $tarPath
+            );
+            $reportConverterContainer->uploadArchive($tarPath, '/');
+        } catch (\Throwable $e) {
+            throw new CodeCheckerRunnerException(
+                Yii::t('app', 'Failed to copy project files to the Report Converter container'),
+                CodeCheckerRunnerException::PARSE_FAILURE,
+                null,
+                $e
+            );
+        }
     }
 
     /**
      * Runs report converter on the report-converter container
      * @param DockerContainer $container
      * @return void
+     * @throws CodeCheckerRunnerException
      */
     private function runReportConverter(DockerContainer $container)
     {
-        $toolName = $this->studentFile->task->staticCodeAnalyzerTool;
-        $resultFilePath = ($this->studentFile->task->testOS === "windows" ? "C:\\test\\" : "/test/")
-            . Yii::$app->params["evaluator"]["supportedStaticAnalyzerTools"][$toolName]["outputPath"];
-        $plistPath = $this->studentFile->task->testOS === "windows" ? "C:\\test\\reports\\plist" : "/test/reports/plist";
+        try {
+            $toolName = $this->studentFile->task->staticCodeAnalyzerTool;
+            $resultFilePath = ($this->studentFile->task->testOS === "windows" ? "C:\\test\\" : "/test/")
+                . Yii::$app->params["evaluator"]["supportedStaticAnalyzerTools"][$toolName]["outputPath"];
+            $plistPath = $this->studentFile->task->testOS === "windows" ? "C:\\test\\reports\\plist" : "/test/reports/plist";
 
-        $container->executeCommand([
-            "report-converter",
-            "-t", $this->studentFile->task->staticCodeAnalyzerTool,
-            "-o", $plistPath,
-            $resultFilePath
-        ]);
+            $container->executeCommand(
+                [
+                   "report-converter",
+                   "-t", $this->studentFile->task->staticCodeAnalyzerTool,
+                   "-o", $plistPath,
+                   $resultFilePath
+                ]
+            );
+        } catch (\Throwable $e) {
+            throw new CodeCheckerRunnerException(
+                Yii::t('app', 'Failed to run the Report Converter tool'),
+                CodeCheckerRunnerException::PARSE_FAILURE,
+                null,
+                $e
+            );
+        }
+    }
+
+    /**
+     * Downloads converted reports from the Report Converter container
+     * @param DockerContainer $reportConverterContainer
+     * @return string The location of the downloaded tar file
+     * @throws CodeCheckerRunnerException
+     */
+    private function downloadReportsFromReportConverterContainer(DockerContainer $reportConverterContainer): string
+    {
+        try {
+            $tarPath = $this->workingDirBasePath . "/reports.tar";
+            $reportConverterContainer->downloadArchive(
+                $this->studentFile->task->testOS  === "windows"
+                    ? "C:\\test\\reports" : "/test/reports",
+                $tarPath
+            );
+            return $tarPath;
+        } catch (\Throwable $e) {
+            throw new CodeCheckerRunnerException(
+                Yii::t('app', 'Failed to download reports from the Report Converter container'),
+                CodeCheckerRunnerException::PARSE_FAILURE,
+                null,
+                $e
+            );
+        }
     }
 }

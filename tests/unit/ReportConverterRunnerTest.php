@@ -42,7 +42,7 @@ class ReportConverterRunnerTest extends Unit
 
     /**
      * Create ReportConverterRunner.
-     * Replace the buildAnalyzerContainer and buildReportConverterContainer methods to inject mock containers.
+     * Replace the buildAndStartAnalyzerContainer and buildAndStartReportConverterContainer methods to inject mock containers.
      * @return void
      */
     private function initRunner()
@@ -50,7 +50,7 @@ class ReportConverterRunnerTest extends Unit
         $this->runner = $this->getMockBuilder(ReportConverterRunner::class)
             ->enableOriginalConstructor()
             ->setConstructorArgs([$this->studentFile])
-            ->onlyMethods(['buildAnalyzerContainer', 'buildReportConverterContainer'])
+            ->onlyMethods(['buildAndStartAnalyzerContainer', 'buildAndStartReportConverterContainer'])
             ->disableArgumentCloning()
             ->getMock();
     }
@@ -129,7 +129,7 @@ class ReportConverterRunnerTest extends Unit
                     'stderr' => null,
                 ]
             );
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $this->runner->run();
 
@@ -170,7 +170,7 @@ class ReportConverterRunnerTest extends Unit
                     'stderr' => null,
                 ]
             );
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $this->runner->run();
 
@@ -208,7 +208,7 @@ class ReportConverterRunnerTest extends Unit
                     'stderr' => null,
                 ]
             );
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $this->runner->run();
 
@@ -234,7 +234,7 @@ class ReportConverterRunnerTest extends Unit
                     'stderr' => null,
                 ]
             );
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $this->runner->run();
         $this->runner->deleteWorkDirectory();
@@ -248,7 +248,6 @@ class ReportConverterRunnerTest extends Unit
         $this->studentFile->task->testOS = "linux";
 
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
-        $analyzerContainerMock->expects($this->once())->method('startContainer');
         $analyzerContainerMock
             ->expects($this->once())
             ->method('executeCommand')
@@ -269,8 +268,8 @@ class ReportConverterRunnerTest extends Unit
             );
         $analyzerContainerMock->expects($this->once())->method('uploadArchive');
         $analyzerContainerMock->expects($this->once())->method('stopContainer');
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
-        $this->runner->expects($this->never())->method('buildReportConverterContainer');
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->never())->method('buildAndStartReportConverterContainer');
 
         $result = $this->runner->run();
 
@@ -285,7 +284,6 @@ class ReportConverterRunnerTest extends Unit
         $this->studentFile->task->testOS = "windows";
 
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
-        $analyzerContainerMock->expects($this->once())->method('startContainer');
         $analyzerContainerMock
             ->expects($this->once())
             ->method('executeCommand')
@@ -299,8 +297,8 @@ class ReportConverterRunnerTest extends Unit
             );
         $analyzerContainerMock->expects($this->once())->method('uploadArchive');
         $analyzerContainerMock->expects($this->once())->method('stopContainer');
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
-        $this->runner->expects($this->never())->method('buildReportConverterContainer');
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->never())->method('buildAndStartReportConverterContainer');
 
         $result = $this->runner->run();
 
@@ -314,7 +312,6 @@ class ReportConverterRunnerTest extends Unit
     {
         $this->studentFile->task->testOS = "linux";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
-        $analyzerContainerMock->expects($this->once())->method('startContainer');
 
         $analyzerContainerMock
             ->method('executeCommand')
@@ -347,7 +344,7 @@ class ReportConverterRunnerTest extends Unit
         $analyzerContainerMock->expects($this->once())->method('uploadArchive');
         $analyzerContainerMock->expects($this->once())->method('stopContainer');
         $analyzerContainerMock->expects($this->once())->method('downloadArchive');
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $reportConverterContainerMock = $this->createMock(DockerContainer::class);
         $reportConverterContainerMock
@@ -401,7 +398,7 @@ class ReportConverterRunnerTest extends Unit
 
         $this->runner
             ->expects($this->once())
-            ->method('buildReportConverterContainer')->willReturn($reportConverterContainerMock);
+            ->method('buildAndStartReportConverterContainer')->willReturn($reportConverterContainerMock);
 
         $result = $this->runner->run();
 
@@ -416,7 +413,6 @@ class ReportConverterRunnerTest extends Unit
         $this->studentFile->task->testOS = "linux";
         $this->studentFile->task->codeCheckerSkipFile = "- */ignored.cs";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
-        $analyzerContainerMock->expects($this->once())->method('startContainer');
 
         $analyzerContainerMock
             ->method('executeCommand')
@@ -449,7 +445,7 @@ class ReportConverterRunnerTest extends Unit
         $analyzerContainerMock->expects($this->once())->method('uploadArchive');
         $analyzerContainerMock->expects($this->once())->method('stopContainer');
         $analyzerContainerMock->expects($this->once())->method('downloadArchive');
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $reportConverterContainerMock = $this->createMock(DockerContainer::class);
         $reportConverterContainerMock
@@ -506,7 +502,7 @@ class ReportConverterRunnerTest extends Unit
         $reportConverterContainerMock->expects($this->once())->method('uploadArchive');
         $reportConverterContainerMock->expects($this->once())->method('downloadArchive');
 
-        $this->runner->expects($this->once())->method('buildReportConverterContainer')->willReturn($reportConverterContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartReportConverterContainer')->willReturn($reportConverterContainerMock);
         $result = $this->runner->run();
 
         $this->assertEquals(1, $result['exitCode']);
@@ -519,7 +515,6 @@ class ReportConverterRunnerTest extends Unit
     {
         $this->studentFile->task->testOS = "linux";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
-        $analyzerContainerMock->expects($this->once())->method('startContainer');
 
         $analyzerContainerMock
             ->method('executeCommand')
@@ -552,8 +547,8 @@ class ReportConverterRunnerTest extends Unit
         $analyzerContainerMock->expects($this->once())->method('uploadArchive');
         $analyzerContainerMock->expects($this->once())->method('stopContainer');
         $analyzerContainerMock->expects($this->never())->method('downloadArchive');
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
-        $this->runner->expects($this->never())->method('buildReportConverterContainer');
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->never())->method('buildAndStartReportConverterContainer');
 
         $result = $this->runner->run();
 
@@ -567,7 +562,6 @@ class ReportConverterRunnerTest extends Unit
     {
         $this->studentFile->task->testOS = "windows";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
-        $analyzerContainerMock->expects($this->once())->method('startContainer');
 
         $analyzerContainerMock
             ->method('executeCommand')
@@ -595,7 +589,7 @@ class ReportConverterRunnerTest extends Unit
         $analyzerContainerMock->expects($this->once())->method('uploadArchive');
         $analyzerContainerMock->expects($this->once())->method('stopContainer');
         $analyzerContainerMock->expects($this->once())->method('downloadArchive');
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $reportConverterContainerMock = $this->createMock(DockerContainer::class);
         $reportConverterContainerMock
@@ -644,7 +638,7 @@ class ReportConverterRunnerTest extends Unit
                 ],
             );
 
-        $this->runner->expects($this->once())->method('buildReportConverterContainer')->willReturn($reportConverterContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartReportConverterContainer')->willReturn($reportConverterContainerMock);
 
         $result = $this->runner->run();
 
@@ -659,7 +653,6 @@ class ReportConverterRunnerTest extends Unit
         $this->studentFile->task->testOS = "windows";
         $this->studentFile->task->codeCheckerSkipFile = "- */ignored.cs";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
-        $analyzerContainerMock->expects($this->once())->method('startContainer');
 
         $analyzerContainerMock
             ->method('executeCommand')
@@ -687,7 +680,7 @@ class ReportConverterRunnerTest extends Unit
         $analyzerContainerMock->expects($this->once())->method('uploadArchive');
         $analyzerContainerMock->expects($this->once())->method('stopContainer');
         $analyzerContainerMock->expects($this->once())->method('downloadArchive');
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $reportConverterContainerMock = $this->createMock(DockerContainer::class);
         $reportConverterContainerMock
@@ -738,7 +731,7 @@ class ReportConverterRunnerTest extends Unit
                 ],
             );
 
-        $this->runner->expects($this->once())->method('buildReportConverterContainer')->willReturn($reportConverterContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartReportConverterContainer')->willReturn($reportConverterContainerMock);
 
         $result = $this->runner->run();
 
@@ -752,7 +745,6 @@ class ReportConverterRunnerTest extends Unit
     {
         $this->studentFile->task->testOS = "windows";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
-        $analyzerContainerMock->expects($this->once())->method('startContainer');
 
         $analyzerContainerMock
             ->method('executeCommand')
@@ -780,9 +772,9 @@ class ReportConverterRunnerTest extends Unit
         $analyzerContainerMock->expects($this->once())->method('uploadArchive');
         $analyzerContainerMock->expects($this->once())->method('stopContainer');
         $analyzerContainerMock->expects($this->never())->method('downloadArchive');
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
-        $this->runner->expects($this->never())->method('buildReportConverterContainer');
+        $this->runner->expects($this->never())->method('buildAndStartReportConverterContainer');
 
         $result = $this->runner->run();
 

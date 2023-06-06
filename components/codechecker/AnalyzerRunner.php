@@ -60,10 +60,8 @@ abstract class AnalyzerRunner extends BaseObject
         $this->initWorkDir();
         $testTarPath = $this->createTar();
 
-        $container = $this->buildAnalyzerContainer();
+        $container = $this->buildAndStartAnalyzerContainer();
         try {
-            $container->startContainer();
-
             $this->copyFiles($container, $testTarPath);
             $analyzeResult = $this->execAnalyzeCommand($container);
             $reportsTarPath = $analyzeResult["exitCode"] !== 0
@@ -179,14 +177,25 @@ abstract class AnalyzerRunner extends BaseObject
     abstract protected function createAndDownloadReportsTar(DockerContainer $analyzerContainer): ?string;
 
     /**
-     * Build container for the current run
+     * Build and start container for the current run
      * @return DockerContainer
-     * @throws Exception
+     * @throws CodeCheckerRunnerException
      */
-    protected function buildAnalyzerContainer(): DockerContainer
+    protected function buildAndStartAnalyzerContainer(): DockerContainer
     {
-        return DockerContainerBuilder::forTask($this->studentFile->task)
-            ->build("tms_codechecker_{$this->studentFile->id}");
+        try {
+            $container = DockerContainerBuilder::forTask($this->studentFile->task)
+                ->build("tms_codechecker_{$this->studentFile->id}");
+            $container->startContainer();
+            return $container;
+        } catch (\Throwable $e) {
+            throw new CodeCheckerRunnerException(
+                Yii::t('app', 'Failed to create or start Docker container'),
+                CodeCheckerRunnerException::PREPARE_FAILURE,
+                null,
+                $e
+            );
+        }
     }
 
     /**

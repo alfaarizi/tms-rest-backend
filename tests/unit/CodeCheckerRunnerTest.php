@@ -42,7 +42,7 @@ class CodeCheckerRunnerTest extends Unit
 
     /**
      * Create CodeCheckerRunner.
-     * Replace the buildAnalyzerContainer method to inject mock containers.
+     * Replace the buildAndStartAnalyzerContainer method to inject mock containers.
      * @return void
      */
     private function initRunner()
@@ -50,7 +50,7 @@ class CodeCheckerRunnerTest extends Unit
         $this->runner = $this->getMockBuilder(CodeCheckerRunner::class)
             ->enableOriginalConstructor()
             ->setConstructorArgs([$this->studentFile])
-            ->onlyMethods(['buildAnalyzerContainer'])
+            ->onlyMethods(['buildAndStartAnalyzerContainer'])
             ->disableArgumentCloning()
             ->getMock();
     }
@@ -117,7 +117,7 @@ class CodeCheckerRunnerTest extends Unit
                     'stderr' => null,
                 ]
             );
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $this->runner->run();
 
@@ -162,7 +162,7 @@ class CodeCheckerRunnerTest extends Unit
                     'stderr' => null,
                 ]
             );
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $this->runner->run();
 
@@ -209,7 +209,7 @@ class CodeCheckerRunnerTest extends Unit
                     'stderr' => null,
                 ]
             );
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $this->runner->run();
 
@@ -225,7 +225,6 @@ class CodeCheckerRunnerTest extends Unit
         $this->studentFile->task->testOS = "linux";
 
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
-        $analyzerContainerMock->expects($this->once())->method('startContainer');
         $analyzerContainerMock
             ->expects($this->once())
             ->method('executeCommand')
@@ -242,7 +241,7 @@ class CodeCheckerRunnerTest extends Unit
              ]);
         $analyzerContainerMock->expects($this->once())->method('uploadArchive');
         $analyzerContainerMock->expects($this->once())->method('stopContainer');
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $result = $this->runner->run();
 
@@ -257,7 +256,6 @@ class CodeCheckerRunnerTest extends Unit
         $this->studentFile->task->testOS = "windows";
 
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
-        $analyzerContainerMock->expects($this->once())->method('startContainer');
         $analyzerContainerMock
             ->expects($this->once())
             ->method('executeCommand')
@@ -271,7 +269,7 @@ class CodeCheckerRunnerTest extends Unit
             );
         $analyzerContainerMock->expects($this->once())->method('uploadArchive');
         $analyzerContainerMock->expects($this->once())->method('stopContainer');
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $result = $this->runner->run();
 
@@ -285,7 +283,6 @@ class CodeCheckerRunnerTest extends Unit
     {
         $this->studentFile->task->testOS = "linux";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
-        $analyzerContainerMock->expects($this->once())->method('startContainer');
 
         $analyzeCommand = [
             'timeout',
@@ -329,7 +326,7 @@ class CodeCheckerRunnerTest extends Unit
         $analyzerContainerMock->expects($this->once())->method('uploadArchive');
         $analyzerContainerMock->expects($this->once())->method('stopContainer');
         $analyzerContainerMock->expects($this->once())->method('downloadArchive');
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $result = $this->runner->run();
 
@@ -343,7 +340,6 @@ class CodeCheckerRunnerTest extends Unit
     {
         $this->studentFile->task->testOS = "windows";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
-        $analyzerContainerMock->expects($this->once())->method('startContainer');
 
         $analyzeCommand = [
             "powershell", "C:\\test\\analyze.ps1"
@@ -385,7 +381,7 @@ class CodeCheckerRunnerTest extends Unit
         $analyzerContainerMock->expects($this->once())->method('uploadArchive');
         $analyzerContainerMock->expects($this->once())->method('stopContainer');
         $analyzerContainerMock->expects($this->once())->method('downloadArchive');
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $result = $this->runner->run();
 
@@ -410,7 +406,7 @@ class CodeCheckerRunnerTest extends Unit
                     'stderr' => null,
                 ]
             );
-        $this->runner->expects($this->once())->method('buildAnalyzerContainer')->willReturn($analyzerContainerMock);
+        $this->runner->expects($this->once())->method('buildAndStartAnalyzerContainer')->willReturn($analyzerContainerMock);
 
         $this->runner->run();
         $this->runner->deleteWorkDirectory();
