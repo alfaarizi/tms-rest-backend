@@ -355,6 +355,9 @@ return [
     'CodeChecker Report Converter Docker image is not set in params.php' => 'A CodeChecker Report Converter Docker kép nincs konfigurálva a params.php állományban',
     'CodeChecker Report Converter Docker image is not available' => 'A CodeChecker Report Converter Docker kép nem áll rendelkezésre',
     "'outputPath' is not provided in params.php for the {toolName} tool" => "Az 'outputPath' nem áll rendelkezésre az aktuális eszközhöz ({toolName})",
+    'Failed to create or start Docker container' => 'A Docker konténer létrehozása vagy elindítása sikertelen volt',
+    'Failed to copy project files to the Report Converter container' => 'Nem sikerült a fájlokat átmásolni a Report Converter konténerbe',
+    'Failed to run the Report Converter tool' => 'A Report Converter eszköz futtatása sikertelen volt',
     // CodeChecker Task Fields
     'Static Code Analysis' => 'Statikus kódanalízis',
     'Static Code Analyzer Tool' => 'Statikus kódelemző eszköz',
