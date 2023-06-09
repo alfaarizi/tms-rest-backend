@@ -126,7 +126,11 @@ class AssignmentTester
         $this->createContainerForTask($imageName, $containerName);
 
         // start the container
-        $this->docker->containerStart($containerName);
+        try {
+            $this->docker->containerStart($containerName);
+        } catch (\Exception $e) {
+            // TODO: implement better logic for waiting on Docker containers to start on Windows with hyperv isolation
+        }
         $container = $this->docker->containerInspect($containerName);
 
         // send student solution to docker container as TAR stream
