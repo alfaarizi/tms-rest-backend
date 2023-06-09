@@ -162,7 +162,7 @@ return [
                 'autoTest' => true,
                 'compileInstructions' => '/build.sh' . PHP_EOL .
                     '# Built-in script that looks for .NET Core projects (.sln files) and build them.',
-                'runInstructions' => '/execute.sh' . PHP_EOL .
+                'runInstructions' => '/execute.sh "$@"' . PHP_EOL .
                     '# Built-in script that looks for executable .NET Core projects and runs the first one.',
                 // Static Code Analysis
                 'staticCodeAnalysis' => true,
@@ -206,7 +206,7 @@ return [
                 'appType' => 'Console',
                 'compileInstructions' => 'C:\\build.ps1' . PHP_EOL .
                     '# Built-in script that looks for .NET Core projects (.sln files) and build them.',
-                'runInstructions' => 'C:\\execute.ps1' . PHP_EOL .
+                'runInstructions' => 'C:\\execute.ps1 $args' . PHP_EOL .
                     '# Built-in script that looks for executable .NET Core projects and runs the first one.',
                 // Static Code Analysis
                 'staticCodeAnalysis' => true,
