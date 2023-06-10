@@ -8,8 +8,8 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
-* Handle slower container start on Windows with hyperv isolation after tar file upload ([6127f2](https://gitlab.com/tms-elte/backend-core/commit/6127f25548252a328a491de9b25d3cbc50458107))
-* Handle slower container start on Windows with hyperv isolation mode ([ea4115](https://gitlab.com/tms-elte/backend-core/commit/ea4115cebd7d256905d2ad44e90e27b6e682a876))
+* Handle slower container start on Windows with hyperv isolation after restart ([6127f2](https://gitlab.com/tms-elte/backend-core/commit/6127f25548252a328a491de9b25d3cbc50458107))
+* Handle slower container start on Windows with hyperv isolation after initial start ([ea4115](https://gitlab.com/tms-elte/backend-core/commit/ea4115cebd7d256905d2ad44e90e27b6e682a876))
 
 
 ---
@@ -80,7 +80,7 @@ All notable changes to this project will be documented in this file.
 ## [2.11.1](https://gitlab.com/tms-elte/backend-core/compare/v2.11.0...v2.11.1) (2023-03-22)
 ### Bug Fixes
 
-* Store standard output if standard error is empty upon compilation failure of student submission. ([999922](https://gitlab.com/tms-elte/backend-core/commit/9999225ceb44a5984c9315a707d63933820a3f76))
+* Store standard output if standard error is empty upon compilation failure of student submission ([999922](https://gitlab.com/tms-elte/backend-core/commit/9999225ceb44a5984c9315a707d63933820a3f76))
 
 
 ---
@@ -189,7 +189,7 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
-* Relative paths on windows are not supported for symlinks (version control support). ([5ab405](https://gitlab.com/tms-elte/backend-core/commit/5ab405a83638e0b5af274de70a5dbbcc01610106))
+* Relative paths on windows are not supported for symlinks (version control support) ([5ab405](https://gitlab.com/tms-elte/backend-core/commit/5ab405a83638e0b5af274de70a5dbbcc01610106))
 
 ---
 
@@ -217,14 +217,14 @@ All notable changes to this project will be documented in this file.
 ## [2.5.2](https://gitlab.com/tms-elte/backend-core/compare/v2.5.1...v2.5.2) (2022-04-01)
 ### Bug Fixes
 
-* Copy only the test files of the selected task into the docker container in the automated tester. ([23b098](https://gitlab.com/tms-elte/backend-core/commit/23b098c3d17cbe874c72f6609d2554a8163d9697))
+* Copy only the test files of the selected task into the docker container in the automated tester ([23b098](https://gitlab.com/tms-elte/backend-core/commit/23b098c3d17cbe874c72f6609d2554a8163d9697))
 
 ---
 
 ## [2.5.1](https://gitlab.com/tms-elte/backend-core/compare/v2.5.0...v2.5.1) (2022-03-30)
 ### Bug Fixes
 
-* Increase compilation and run instruction length limit in automated evaluator to 65535 characters. ([56ffe6](https://gitlab.com/tms-elte/backend-core/commit/56ffe6789ac41973a0829855bde16814a6d161e4))
+* Increase compilation and run instruction length limit in automated evaluator to 65535 characters ([56ffe6](https://gitlab.com/tms-elte/backend-core/commit/56ffe6789ac41973a0829855bde16814a6d161e4))
 
 ---
 
@@ -238,7 +238,7 @@ All notable changes to this project will be documented in this file.
 
 * Always store detailed compile or runtime error messages for the evaluator ([f4fe04](https://gitlab.com/tms-elte/backend-core/commit/f4fe048231c5a012e506f49e133930c71bdc0bf8))
 * Remove FL_NOCASE flag when opening ZIP ([527990](https://gitlab.com/tms-elte/backend-core/commit/52799035709f62f6e0ab32e378973d5b9cb9e7ad))
-* Return display name with LDAP-based auth properly. ([1d702a](https://gitlab.com/tms-elte/backend-core/commit/1d702ad4b0690f11c90b0e56389ba0d52a818c7a))
+* Return display name with LDAP-based auth properly ([1d702a](https://gitlab.com/tms-elte/backend-core/commit/1d702ad4b0690f11c90b0e56389ba0d52a818c7a))
 
 ---
 
