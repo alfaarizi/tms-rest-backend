@@ -215,7 +215,12 @@ class DockerContainer
             );
 
             if ($shouldStop) {
-                $this->docker->containerStart($this->containerCreateResult->getId());
+                try {
+                    $this->docker->containerStart($this->containerCreateResult->getId());
+                } catch (\Exception $e) {
+                    // TODO: implement better logic for waiting on Docker containers to start on Windows with hyperv isolation
+                }
+                $this->containerInspectResult = $this->docker->containerInspect($this->containerCreateResult->getId());
             }
         }
     }
