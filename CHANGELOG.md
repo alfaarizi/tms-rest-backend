@@ -4,6 +4,16 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.0.0-alpha.5](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.4...v3.0.0-alpha.5) (2023-06-10)
+
+### Bug Fixes
+
+* Handle slower container start on Windows with hyperv isolation after tar file upload ([6127f2](https://gitlab.com/tms-elte/backend-core/commit/6127f25548252a328a491de9b25d3cbc50458107))
+* Handle slower container start on Windows with hyperv isolation mode ([ea4115](https://gitlab.com/tms-elte/backend-core/commit/ea4115cebd7d256905d2ad44e90e27b6e682a876))
+
+
+---
+
 ## [3.0.0-alpha.4](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.3...v3.0.0-alpha.4) (2023-05-12)
 
 ### ⚠ BREAKING CHANGES
