@@ -213,12 +213,7 @@ class AssignmentTester
             $sysInfo = $this->docker->systemInfo();
             $shouldStop = $sysInfo->getOSType() == 'windows' && $sysInfo->getIsolation() == 'hyperv';
             if ($shouldStop) {
-                try {
-                    $this->docker->containerStart($containerName);
-                } catch (\Exception $e) {
-                    // TODO: implement better logic for waiting on Docker containers to start on Windows with hyperv isolation
-                }
-                $container = $this->docker->containerInspect($containerName);
+                $this->docker->containerStop($containerName);
             }
 
             $this->docker->putContainerArchive(
@@ -230,7 +225,12 @@ class AssignmentTester
             );
 
             if ($shouldStop) {
-                $this->docker->containerStart($containerName);
+                try {
+                    $this->docker->containerStart($containerName);
+                } catch (\Exception $e) {
+                    // TODO: implement better logic for waiting on Docker containers to start on Windows with hyperv isolation
+                }
+                $container = $this->docker->containerInspect($containerName);
             }
         } finally {
             $tarBuilder->cleanup();
