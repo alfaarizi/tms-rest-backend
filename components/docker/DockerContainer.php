@@ -8,6 +8,7 @@ use Docker\API\Model\ContainersCreatePostResponse201;
 use Docker\API\Model\ContainersIdExecPostBody;
 use Docker\API\Model\ContainersIdJsonGetResponse200;
 use Docker\API\Model\ExecIdStartPostBody;
+use Docker\API\Model\SystemInfo;
 use Docker\Docker;
 use ForceUTF8\Encoding;
 use Jane\OpenApiRuntime\Client\Client;
@@ -49,6 +50,12 @@ class DockerContainer
     private $containerInspectResult;
 
     /**
+     * Information about the Docker instance
+     * @var SystemInfo
+     */
+    private SystemInfo $systemInfo;
+
+    /**
      * Initializes a Docker Client to the specified OS instance.
      *
      * @param string $os
@@ -57,6 +64,7 @@ class DockerContainer
     public function __construct(string $os)
     {
         $this->docker = Yii::$container->get(Docker::class, ['os' => $os]);
+        $this->systemInfo = $this->docker->systemInfo();
     }
 
     /**
@@ -200,8 +208,7 @@ class DockerContainer
     ) {
         if ($this->isContainerCreated()) {
             // The container must be stopped before uploading files when a Windows host with Hyper-V isolation is configured
-            $sysInfo = $this->docker->systemInfo();
-            $shouldStop = $sysInfo->getOSType() == 'windows' && $sysInfo->getIsolation() == 'hyperv';
+            $shouldStop = $this->systemInfo->getOSType() == 'windows' && $this->systemInfo->getIsolation() == 'hyperv';
             if ($shouldStop) {
                 $this->docker->containerStop($this->containerCreateResult->getId());
             }
@@ -312,13 +319,28 @@ class DockerContainer
      */
     public function downloadArchive(string $pathToResource, string $destination)
     {
-        if ($this->isContainerRunning()) {
+        if ($this->isContainerCreated()) {
+            // The container must be stopped before uploading files when a Windows host with Hyper-V isolation is configured
+            $shouldStop = $this->systemInfo->getOSType() == 'windows' && $this->systemInfo->getIsolation() == 'hyperv';
+            if ($shouldStop) {
+                $this->docker->containerStop($this->containerCreateResult->getId());
+            }
+
             $containerArchive = $this->docker->containerArchive(
                 $this->containerCreateResult->getId(),
                 ['path' => $pathToResource],
                 Client::FETCH_RESPONSE
             );
             file_put_contents($destination, $containerArchive->getBody()->getContents(), LOCK_EX);
+
+            if ($shouldStop) {
+                try {
+                    $this->docker->containerStart($this->containerCreateResult->getId());
+                } catch (\Exception $e) {
+                    // TODO: implement better logic for waiting on Docker containers to start on Windows with hyperv isolation
+                }
+                $this->containerInspectResult = $this->docker->containerInspect($this->containerCreateResult->getId());
+            }
         }
     }
 }

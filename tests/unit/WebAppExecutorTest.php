@@ -14,6 +14,7 @@ use app\modules\instructor\resources\SetupWebAppExecutionResource;
 use app\tests\doubles\DockerStub;
 use app\tests\unit\fixtures\WebAppExecutionFixture;
 use Docker\API\Model\ContainersIdJsonGetResponse200;
+use Docker\API\Model\SystemInfo;
 use Docker\Docker;
 use Yii;
 use yii\db\Exception;
@@ -181,6 +182,7 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
         $response200 = new ContainersIdJsonGetResponse200();
         $response200->setId('foo');
         $mockObject = $this->makeEmpty(DockerStub::class);
+        $mockObject->method('systemInfo')->willReturn(new SystemInfo());
         $mockObject->method('containerInspect')->willReturn($response200);
         Yii::$container->set(Docker::class, $mockObject);
 
