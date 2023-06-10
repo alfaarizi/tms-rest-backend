@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.0.0-alpha.7](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.6...v3.0.0-alpha.7) (2023-06-10)
+
+### Bug Fixes
+
+* Handle file download from Windows containers with Hyper-V isolation ([8097db](https://gitlab.com/tms-elte/backend-core/commit/8097db41bc06ce2ca906ae2f704635a2b4ed4800))
+
+
+---
+
 ## [3.0.0-alpha.6](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.5...v3.0.0-alpha.6) (2023-06-10)
 
 ### Bug Fixes
