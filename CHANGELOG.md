@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.0.0-alpha.6](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.5...v3.0.0-alpha.6) (2023-06-10)
+
+### Bug Fixes
+
+* Restart Windows containers with Hyper-V isolation correctly during testing ([36384c](https://gitlab.com/tms-elte/backend-core/commit/36384c744089062b83261ccbb9b2337743020e5c))
+
+
+---
+
 ## [3.0.0-alpha.5](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.4...v3.0.0-alpha.5) (2023-06-10)
 
 ### Bug Fixes
