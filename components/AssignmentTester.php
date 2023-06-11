@@ -326,8 +326,9 @@ class AssignmentTester
             "TEST_CASE_NR=$testCaseNr /test/run.sh $testCase->arguments <<< \"{$testCase->input}\""];
         if ($task->testOS == 'windows') {
             $runCommand = [
+                "\$env:TEST_CASE_NR=$testCaseNr; ",
                 "powershell echo \"{$testCase->input}\" | ",
-                "powershell \$TEST_CASE_NR=$testCaseNr; C:\\test\\run.ps1 $testCase->arguments"];
+                "powershell C:\\test\\run.ps1 $testCase->arguments"];
         }
         $execResult = $this->executeCommand($runCommand, $container);
 
