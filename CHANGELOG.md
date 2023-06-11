@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.0.0-alpha.8](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.7...v3.0.0-alpha.8) (2023-06-11)
+
+### Bug Fixes
+
+* Improve saving all related error output with Windows-bases testing ([90de30](https://gitlab.com/tms-elte/backend-core/commit/90de30b3da7ca628b6863d6185e1d287f5f535bb))
+
+
+---
+
 ## [3.0.0-alpha.7](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0-alpha.6...v3.0.0-alpha.7) (2023-06-10)
 
 ### Bug Fixes
