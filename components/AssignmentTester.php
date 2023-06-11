@@ -162,7 +162,11 @@ class AssignmentTester
         // check if the compilation was successful
         if ($execResult['exitCode'] != 0) {
             $this->results['compiled'] = false;
-            $this->results['compilationError'] = !empty($execResult['stderr']) ? $execResult['stderr'] : $execResult['stdout'];
+            if ($task->testOS == 'linux') {
+                $this->results['compilationError'] = !empty($execResult['stderr']) ? $execResult['stderr'] : $execResult['stdout'];
+            } else { // == 'windows'
+                $this->results['compilationError'] = $execResult['stdout'];
+            }
             $this->stopContainer($containerName);
             return;
         }
@@ -256,8 +260,10 @@ class AssignmentTester
             // If the execution timed out
             if ($result['exitCode'] == 124 && $task->testOS == 'linux') {
                 $this->results['errorMsg'] = Yii::t('app', 'Your solution exceeded the execution time limit.');
-            } else {
-                $this->results['errorMsg'] = $result['stderr'];
+            } elseif ($task->testOS == 'linux') {
+                $this->results['errorMsg'] = !empty($result['stderr']) ? $result['stderr'] : $result['stdout'];
+            } else { // == 'windows'
+                $this->results['errorMsg'] = $result['stdout'];
             }
             return false;
         }

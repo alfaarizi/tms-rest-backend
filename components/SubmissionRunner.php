@@ -124,7 +124,11 @@ class SubmissionRunner
 
             $compileResult = $dockerContainer->executeCommand($compileCommand);
             if ($compileResult['exitCode'] != 0) {
-                $err = !empty($compileResult['stderr']) ? $compileResult['stderr'] : $compileResult['stdout'];
+                if ($this->studentFile->task->testOS == 'linux') {
+                    $err = !empty($compileResult['stderr']) ? $compileResult['stderr'] : $compileResult['stdout'];
+                } else { // == 'windows'
+                    $err = $compileResult['stdout'];
+                }
                 Yii::info("Failed to compile student file [" . $this->studentFile->id . "]: " . $err, __METHOD__);
                 throw new SubmissionRunnerException(
                     'Compile failed',
@@ -148,7 +152,11 @@ class SubmissionRunner
             }
             $runResult = $dockerContainer->executeCommand($runCommand);
             if ($runResult['exitCode'] != 0) {
-                $err = $runResult['stderr'];
+                if ($this->studentFile->task->testOS == 'linux') {
+                    $err = !empty($runResult['stderr']) ? $runResult['stderr'] : $runResult['stdout'];
+                } else { // == 'windows'
+                    $err = $runResult['stdout'];
+                }
                 Yii::info("Failed to execute run instruction for student file [ " . $this->studentFile->id . "]: " . $err, __METHOD__);
 
                 throw new SubmissionRunnerException(
