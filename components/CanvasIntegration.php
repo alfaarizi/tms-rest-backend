@@ -67,6 +67,8 @@ class CanvasIntegration
         //'url:POST|/api/v1/sections/:section_id/assignments/:assignment_id/submissions/:user_id/files', // Upload a file
     ];
 
+    private array $syncErrorMsgs;
+
     public static function getLoginURL(): string
     {
         $scopes = implode(' ', self::$scopes);
@@ -260,6 +262,7 @@ class CanvasIntegration
      */
     public function synchronizeGroupData(Group $group): void
     {
+        $this->syncErrorMsgs = array();
         if (!empty($group->canvasCourseID)) {
             $group->lastSyncTime = date('Y-m-d H:i:s');
             $group->save(); // Update last sync time, so in case of error the queue won't get stuck
@@ -269,12 +272,58 @@ class CanvasIntegration
             $this->saveTasksToCourse($group);
             $this->saveSolutions($group);
 
-            Yii::info(
-                "Canvas sync was successful" . PHP_EOL .
-                "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
-                __METHOD__
-            );
+            $syncErrorMsgsString = null;
+            if (count($this->syncErrorMsgs) != 0) {
+                $syncErrorMsgsString = implode(PHP_EOL, $this->syncErrorMsgs);
+            } else {
+                Yii::info(
+                    "Canvas sync was successful" . PHP_EOL .
+                    "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
+                    __METHOD__
+                );
+            }
+
+            if ($group->canvasErrors != $syncErrorMsgsString) {
+                $updatedGroup = Group::find()->where(['id' => $group->id])->one();
+                $updatedGroup->canvasErrors = $syncErrorMsgsString;
+                $updatedGroup->save();
+                if ($syncErrorMsgsString !== null) {
+                    $this->sendEmailsAboutErrors($updatedGroup);
+                }
+            }
         }
+    }
+
+    /**
+     * sending emails to the relevant instructors about the canvas errors, which occurred during canvas sync
+     */
+    private function sendEmailsAboutErrors(Group $group): void
+    {
+        $originalLanguage = Yii::$app->language;
+        $instructors = $group->getInstructors()->all();
+        foreach ($instructors as $instructor) {
+            if (!empty($instructor->notificationEmail)) {
+                Yii::$app->language = $instructor->locale;
+                ;
+                Yii::$app->mailer->compose(
+                    'instructor/canvasErrors',
+                    [
+                        'group' => $group
+                    ]
+                )
+                    ->setFrom(Yii::$app->params['systemEmail'])
+                    ->setTo($instructor->notificationEmail)
+                    ->setSubject(Yii::t('app/mail', 'Canvas synchronization errors'))
+                    ->send();
+            }
+        }
+
+        Yii::$app->language = $originalLanguage;
+        Yii::info(
+            'Emails were successfully sent about canvas synchronization errors. ' .
+            "Group id: $group->id",
+            __METHOD__
+        );
     }
 
     /**
@@ -312,12 +361,14 @@ class CanvasIntegration
                     ->send();
             }
             if (!$response->isOk) {
+                $errorMsg = 'Fetching students from Canvas failed.';
+                array_push($this->syncErrorMsgs, $errorMsg);
                 Yii::error(
-                    "Fetching students from Canvas failed" . PHP_EOL .
+                    $errorMsg . PHP_EOL .
                     "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
                     __METHOD__
                 );
-                throw new CanvasRequestException($response->statusCode, 'Fetching students from Canvas failed.');
+                throw new CanvasRequestException($response->statusCode, $errorMsg);
             }
 
             $out = $response->data;
@@ -370,12 +421,14 @@ class CanvasIntegration
                     'per_page' => 50])
                 ->send();
             if (!$response->isOk) {
+                $errorMsg = 'Fetching teachers from Canvas failed.';
+                array_push($this->syncErrorMsgs, $errorMsg);
                 Yii::error(
-                    "Fetching teachers from Canvas failed" . PHP_EOL .
+                    $errorMsg . PHP_EOL .
                     "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
                     __METHOD__
                 );
-                throw new CanvasRequestException($response->statusCode, 'Fetching teachers from Canvas failed.');
+                throw new CanvasRequestException($response->statusCode, $errorMsg);
             }
 
             $out = $response->data;
@@ -436,7 +489,9 @@ class CanvasIntegration
 
         $user->canvasID = $canvasUser["id"];
         if (!$user->save()) {
-            Yii::error("Saving or updating Canvas user with name '$name' and Neptun ID '$neptun' failed." .
+            $errorMsg = "Saving or updating Canvas user with name '$name' and Neptun ID '$neptun' failed.";
+            array_push($this->syncErrorMsgs, $errorMsg);
+            Yii::error($errorMsg .
                 "Message: " . VarDumper::dumpAsString($user->firstErrors), __METHOD__);
             return null;
         }
@@ -457,7 +512,9 @@ class CanvasIntegration
             'userID' => $user->id
         ]);
         if (!$subscription->save()) {
-            Yii::error("Saving subscription for group #{$group->id}, semester #{$group->semesterID} and user #{$user->id} failed." .
+            $errorMsg = "Saving subscription for group #{$group->id}, semester #{$group->semesterID} and user #{$user->id} failed.";
+            array_push($this->syncErrorMsgs, $errorMsg);
+            Yii::error($errorMsg .
                 "Message: " . VarDumper::dumpAsString($subscription->firstErrors), __METHOD__);
             return null;
         }
@@ -477,7 +534,9 @@ class CanvasIntegration
             'userID' => $userId
         ]);
         if (!$instructorGroup->save()) {
-            Yii::error("Saving InstructorGroup for group #$groupId and user #$userId failed." .
+            $errorMsg = "Saving InstructorGroup for group #$groupId and user #$userId failed.";
+            array_push($this->syncErrorMsgs, $errorMsg);
+            Yii::error($errorMsg .
                 "Message: " . VarDumper::dumpAsString($instructorGroup->firstErrors), __METHOD__);
             return null;
         }
@@ -514,12 +573,14 @@ class CanvasIntegration
                     'per_page' => 50])
                 ->send();
             if (!$response->isOk) {
+                $errorMsg = 'Fetching assignments from Canvas failed.';
+                array_push($this->syncErrorMsgs, $errorMsg);
                 Yii::error(
-                    "Fetching assignments from Canvas failed" . PHP_EOL .
+                    $errorMsg . PHP_EOL .
                     "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
                     __METHOD__
                 );
-                throw new CanvasRequestException($response->statusCode, 'Fetching assignments from Canvas failed.');
+                throw new CanvasRequestException($response->statusCode, $errorMsg);
             }
 
             $out = $response->data;
@@ -613,7 +674,9 @@ class CanvasIntegration
 
         try {
             if (!$task->save()) {
-                Yii::error("Saving task for Group #{$group->id} failed." .
+                $errorMsg = "Saving task for Group #{$group->id} failed.";
+                array_push($this->syncErrorMsgs, $errorMsg);
+                Yii::error($errorMsg .
                     "Message: " . VarDumper::dumpAsString($task->firstErrors), __METHOD__);
                 return null;
             }
@@ -665,12 +728,14 @@ class CanvasIntegration
                 }
 
                 if (!$response->isOk) {
+                    $errorMsg = 'Fetching submissions from Canvas failed.';
+                    array_push($this->syncErrorMsgs, $errorMsg);
                     Yii::error(
-                        "Fetching submissions from Canvas failed" . PHP_EOL .
+                        $errorMsg . PHP_EOL .
                         "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
                         __METHOD__
                     );
-                    throw new CanvasRequestException($response->statusCode, 'Fetching submissions from Canvas failed.');
+                    throw new CanvasRequestException($response->statusCode, $errorMsg);
                 }
 
                 $out = $response->data;
@@ -766,8 +831,10 @@ class CanvasIntegration
 
         try {
             if (!$studentFile->save()) {
+                $errorMsg = "Saving solution for user {$user->neptun} (ID: #{$user->id}) on Task #{$task->id} failed.";
+                array_push($this->syncErrorMsgs, $errorMsg);
                 Yii::error(
-                    "Saving solution for user {$user->neptun} (ID: #{$user->id}) on Task #{$task->id} failed." .
+                    $errorMsg .
                     "Message: " . VarDumper::dumpAsString($studentFile->firstErrors),
                     __METHOD__
                 );
@@ -946,7 +1013,7 @@ class CanvasIntegration
 
             if (!$response->isOk) {
                 Yii::error(
-                    "Saving CodeChecker results to Canvas failed" . PHP_EOL .
+                    'Saving CodeChecker results to Canvas failed' . PHP_EOL .
                     "Student File ID: {$studentFile->id}",
                     __METHOD__
                 );
