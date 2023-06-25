@@ -22,6 +22,7 @@ return [
     'Available from' => 'Elérhető ettől',
     'Automated submission test ready' => 'Beadandó tesztelés elkészült',
     'Automated testing on your previously submitted solution is ready.' => 'A beküldött megoldásod tesztelésre került.',
+    'Canvas synchronization errors' => 'Canvas-szinkronizációs hibák',
     'Category' => 'Kategória',
     'Classwork tasks' =>  'Órai munkák',
     'Course' => 'Kurzus',
@@ -30,6 +31,7 @@ return [
     'Examinations' => 'Vizsgák',
     'Grade' => 'Értékelés',
     'Graded submission' => 'Beadandó értékelés',
+    'Group Number' => 'Csoportszám',
     'Hard deadline of task' => 'Feladat végső határideje',
     'If it was you, please click the following link to confirm the address: {link}' =>
         'Ha te voltál, kattints a következő hivatkozásra a cím megerősítéséhez: {link}',
@@ -40,6 +42,7 @@ return [
     'Name' => 'Név',
     'New grade for previous submission has been recorded.' => 'Új beadandó értékelés került rögzítésre.',
     'New group assignment' => 'Új csoport hozzárendelés',
+    'New Canvas synchronization errors have occurred' => 'Új Canvas-szinkronizációs hibák történtek',
     'New course assignment' => 'Új kurzus hozzárendelés',
     'New task' => 'Új feladat kiírás',
     'New task was assigned to the course {course} (group: {group}).' => 'Új feladat került kiírásra a(z) {course} (csoport: {group}) kurzushoz.',

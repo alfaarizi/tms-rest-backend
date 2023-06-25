@@ -22,6 +22,7 @@ use Yii;
  * @property string $lastSyncTime
  * @property boolean $isExamGroup
  * @property string $timezone
+ * @property string $canvasErrors
  * @property-read boolean $isCanvasCourse
  * @property-read boolean $canvasCanBeSynchronized
  * @property-read ?string $canvasUrl
@@ -121,6 +122,11 @@ class Group extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
                 'targetClass' => User::class,
                 'targetAttribute' => ['synchronizerID' => 'id']
             ],
+            [
+                ['canvasErrors'],
+                'string',
+                'max' => 2000
+            ],
         ];
     }
 
@@ -157,7 +163,8 @@ class Group extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'isExamGroup' => new OAProperty(['type' => 'boolean']),
             'timezone' => new OAProperty(['type' => 'string', 'example' => 'Europe/Budapest']),
             'canvasUrl' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
-            'lastSyncTime' => new OAProperty(['type' => 'string'])
+            'lastSyncTime' => new OAProperty(['type' => 'string']),
+            'canvasErrors' => new OAProperty(['type' => 'string']),
         ];
     }
 
