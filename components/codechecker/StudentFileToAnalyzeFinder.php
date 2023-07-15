@@ -29,7 +29,8 @@ class StudentFileToAnalyzeFinder extends BaseObject
                     [
                         StudentFile::IS_ACCEPTED_REJECTED,
                         StudentFile::IS_ACCEPTED_ACCEPTED,
-                        StudentFile::IS_ACCEPTED_LATE_SUBMISSION
+                        StudentFile::IS_ACCEPTED_LATE_SUBMISSION,
+                        StudentFile::IS_ACCEPTED_CORRUPTED,
                     ]
                 ]
             )
