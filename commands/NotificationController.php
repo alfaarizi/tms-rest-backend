@@ -34,6 +34,7 @@ class NotificationController extends BaseController
                             StudentFile::IS_ACCEPTED_UPLOADED,
                             StudentFile::IS_ACCEPTED_PASSED,
                             StudentFile::IS_ACCEPTED_FAILED,
+                            StudentFile::IS_ACCEPTED_CORRUPTED,
                         ]
                 ]
             )
@@ -57,6 +58,16 @@ class NotificationController extends BaseController
             $this->stdout("No new solutions has been submitted." . PHP_EOL);
         } else {
             $this->stdout("$count new solution(s) has been submitted." . PHP_EOL);
+
+            $corruptedSolutions = array_filter($newSolutions, function ($solution) {
+                return $solution->isAccepted == StudentFile::IS_ACCEPTED_CORRUPTED;
+            });
+            $corruptedCount = count($corruptedSolutions);
+
+
+            if ($corruptedCount > 0) {
+                $this->stdout("$corruptedCount new corrupted solution(s) has been submitted. (subset of new solutions)" . PHP_EOL);
+            }
 
             // Show data
             $table = new Table();

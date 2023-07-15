@@ -77,12 +77,12 @@ class CanvasIntegration
         $currentToken->save();
 
         return rtrim(Yii::$app->params['canvas']['url'], '/') . '/login/oauth2/auth' .
-            '?client_id=' . Yii::$app->params['canvas']['clientID'] .
-            '&response_type=code' .
-            '&purpose=TMS-Canvas synchronization' .
-            '&redirect_uri=' . Yii::$app->params['canvas']['redirectUri'] .
-            '&state=' . $currentToken->canvasOAuth2State .
-            "&scope=$scopes";
+        '?client_id=' . Yii::$app->params['canvas']['clientID'] .
+        '&response_type=code' .
+        '&purpose=TMS-Canvas synchronization' .
+        '&redirect_uri=' . Yii::$app->params['canvas']['redirectUri'] .
+        '&state=' . $currentToken->canvasOAuth2State .
+        "&scope=$scopes";
     }
 
     /**
@@ -99,13 +99,13 @@ class CanvasIntegration
 
         $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
         $response = $client->createRequest()
-            ->setMethod('POST')
-            ->setUrl('login/oauth2/token')
-            ->setData(['grant_type' => 'refresh_token',
-                'client_id' => Yii::$app->params['canvas']['clientID'],
-                'client_secret' => Yii::$app->params['canvas']['secretKey'],
-                'refresh_token' => $user->refreshToken])
-            ->send();
+        ->setMethod('POST')
+        ->setUrl('login/oauth2/token')
+        ->setData(['grant_type' => 'refresh_token',
+            'client_id' => Yii::$app->params['canvas']['clientID'],
+            'client_secret' => Yii::$app->params['canvas']['secretKey'],
+            'refresh_token' => $user->refreshToken])
+        ->send();
         if ($response->isOk) {
             $responseJson = Json::decode($response->content);
             $user->canvasToken = $responseJson['access_token'];
@@ -117,7 +117,7 @@ class CanvasIntegration
                 $sleepTime = 0;
                 if ($rateLimit < 100) {
                     $sleepTime = 20;
-                } else if ($rateLimit < 200) {
+                } elseif ($rateLimit < 200) {
                     $sleepTime = 10;
                 }
 
@@ -141,11 +141,11 @@ class CanvasIntegration
                     Yii::info("Deleting Canvas token for user {$user->neptun} (ID: #{$user->id}).", __METHOD__);
                 } else {
                     Yii::error("Refreshing Canvas token for user {$user->neptun} (ID: #{$user->id}) failed." .
-                               "Error: {$responseJson['error']}. Description: {$responseJson['error_description']}", __METHOD__);
+                           "Error: {$responseJson['error']}. Description: {$responseJson['error_description']}", __METHOD__);
                 }
             } catch (InvalidArgumentException $e) {
                 Yii::error("Refreshing Canvas token for user {$user->neptun} (ID: #{$user->id}) failed." .
-                           "Error: {$response->content}", __METHOD__);
+                       "Error: {$response->content}", __METHOD__);
             }
         }
         return $response->isOk;
@@ -166,15 +166,15 @@ class CanvasIntegration
         $morePages = true;
         do {
             $response = $client->createRequest()
-                ->setMethod('GET')
-                ->setUrl(['api/v1/courses/' . $courseId . '/sections', 'include[]' => 'total_students'])
-                ->setHeaders(['Authorization' => 'Bearer ' . $user->canvasToken])
-                ->setData(
-                    [
-                        'page' => $page++,
-                        'per_page' => 50
-                    ]
-                )
+            ->setMethod('GET')
+            ->setUrl(['api/v1/courses/' . $courseId . '/sections', 'include[]' => 'total_students'])
+            ->setHeaders(['Authorization' => 'Bearer ' . $user->canvasToken])
+            ->setData(
+                [
+                    'page' => $page++,
+                    'per_page' => 50
+                ]
+            )
                 ->send();
             if (!$response->isOk) {
                 Yii::error("Fetching sections from Canvas failed for course #{$courseId}.", __METHOD__);
@@ -202,15 +202,15 @@ class CanvasIntegration
         $morePages = true;
         do {
             $response = $client->createRequest()
-                ->setMethod('GET')
-                ->setUrl('api/v1/courses')
-                ->setHeaders(['Authorization' => 'Bearer ' . $user->canvasToken])
-                ->setData([
-                    'enrollment_type' => 'teacher',
-                    'include[]' => 'term',
-                    'page' => $page++,
-                    'per_page' => 50
-                ])
+            ->setMethod('GET')
+            ->setUrl('api/v1/courses')
+            ->setHeaders(['Authorization' => 'Bearer ' . $user->canvasToken])
+            ->setData([
+                'enrollment_type' => 'teacher',
+                'include[]' => 'term',
+                'page' => $page++,
+                'per_page' => 50
+            ])
                 ->send();
             if (!$response->isOk) {
                 Yii::error("Fetching courses from Canvas failed for user {$user->neptun} (ID: #{$user->id}).", __METHOD__);
@@ -341,24 +341,24 @@ class CanvasIntegration
             //if the number is -1, get the all users to the course
             if ($group->canvasSectionID == -1) {
                 $response = $client->createRequest()
-                    ->setMethod('GET')
-                    ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/enrollments')
-                    ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
-                    ->setData([
-                        'type[]' => 'StudentEnrollment',
-                        'page' => $page++,
-                        'per_page' => 50])
+                ->setMethod('GET')
+                ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/enrollments')
+                ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                ->setData([
+                    'type[]' => 'StudentEnrollment',
+                    'page' => $page++,
+                    'per_page' => 50])
                     ->send();
             } else {
                 $response = $client->createRequest()
-                    ->setMethod('GET')
-                    ->setUrl('api/v1/sections/' . $group->canvasSectionID . '/enrollments')
-                    ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
-                    ->setData([
-                        'type[]' => 'StudentEnrollment',
-                        'page' => $page++,
-                        'per_page' => 50])
-                    ->send();
+                ->setMethod('GET')
+                ->setUrl('api/v1/sections/' . $group->canvasSectionID . '/enrollments')
+                ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                ->setData([
+                    'type[]' => 'StudentEnrollment',
+                    'page' => $page++,
+                    'per_page' => 50])
+                ->send();
             }
             if (!$response->isOk) {
                 $errorMsg = 'Fetching students from Canvas failed.';
@@ -389,9 +389,9 @@ class CanvasIntegration
         } while ($morePages);
 
         $condition = [
-            'AND',
-            ['NOT', ['id' => $subscriptions]],
-            ['groupID' => $group->id]
+        'AND',
+        ['NOT', ['id' => $subscriptions]],
+        ['groupID' => $group->id]
         ];
         Subscription::deleteAll($condition);
     }
@@ -410,15 +410,15 @@ class CanvasIntegration
         $morePages = true;
         do {
             $response = $client->createRequest()
-                ->setMethod('GET')
-                ->setUrl($group->canvasSectionID == -1
-                    ? 'api/v1/courses/' . $group->canvasCourseID . '/enrollments'
-                    : 'api/v1/sections/' . $group->canvasSectionID . '/enrollments')
+            ->setMethod('GET')
+            ->setUrl($group->canvasSectionID == -1
+                ? 'api/v1/courses/' . $group->canvasCourseID . '/enrollments'
+                : 'api/v1/sections/' . $group->canvasSectionID . '/enrollments')
                 ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
                 ->setData([
-                    'type[]' => 'TeacherEnrollment',
-                    'page' => $page++,
-                    'per_page' => 50])
+                'type[]' => 'TeacherEnrollment',
+                'page' => $page++,
+                'per_page' => 50])
                 ->send();
             if (!$response->isOk) {
                 $errorMsg = 'Fetching teachers from Canvas failed.';
@@ -454,12 +454,12 @@ class CanvasIntegration
 
         // Delete existing instructors only if there were any assigned to the Canvas course
         /*if ($hasAny) {
-            $condition = [
-                'AND',
-                ['NOT', ['id' => $groups]],
-                ['groupID' => $group->id]
-            ];
-            InstructorGroup::deleteAll($condition);
+        $condition = [
+            'AND',
+            ['NOT', ['id' => $groups]],
+            ['groupID' => $group->id]
+        ];
+        InstructorGroup::deleteAll($condition);
         }*/
     }
 
@@ -507,9 +507,9 @@ class CanvasIntegration
     private function saveSubscription(User $user, Group $group): ?int
     {
         $subscription = new Subscription([
-            'groupID' => $group->id,
-            'semesterID' => $group->semesterID,
-            'userID' => $user->id
+        'groupID' => $group->id,
+        'semesterID' => $group->semesterID,
+        'userID' => $user->id
         ]);
         if (!$subscription->save()) {
             $errorMsg = "Saving subscription for group #{$group->id}, semester #{$group->semesterID} and user #{$user->id} failed.";
@@ -530,8 +530,8 @@ class CanvasIntegration
     private function saveInstructorGroup(int $userId, int $groupId): ?InstructorGroup
     {
         $instructorGroup = new InstructorGroup([
-            'groupID' => $groupId,
-            'userID' => $userId
+        'groupID' => $groupId,
+        'userID' => $userId
         ]);
         if (!$instructorGroup->save()) {
             $errorMsg = "Saving InstructorGroup for group #$groupId and user #$userId failed.";
@@ -560,17 +560,17 @@ class CanvasIntegration
         $taskIds = [];
 
         $page = 1;
-        $morePages = true;
+
         do {
             $response = $client->createRequest()
-                ->setMethod('GET')
-                ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/assignments')
-                ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
-                ->setData([
-                    'include[]' => 'overrides',
-                    'override_assignment_dates' => false,
-                    'page' => $page++,
-                    'per_page' => 50])
+            ->setMethod('GET')
+            ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/assignments')
+            ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+            ->setData([
+                'include[]' => 'overrides',
+                'override_assignment_dates' => false,
+                'page' => $page++,
+                'per_page' => 50])
                 ->send();
             if (!$response->isOk) {
                 $errorMsg = 'Fetching assignments from Canvas failed.';
@@ -623,8 +623,8 @@ class CanvasIntegration
 
         // delete tasks and submissions recursively
         $condition = ['AND',
-            ['NOT', ['id' => $taskIds]],
-            ['groupID' => $group->id]
+        ['NOT', ['id' => $taskIds]],
+        ['groupID' => $group->id]
         ];
         $tasksToRemove = Task::find()->where($condition)->all();
         foreach ($tasksToRemove as $task) {
@@ -648,8 +648,8 @@ class CanvasIntegration
         // Create new task if it was not synchronized before
         if (empty($task)) {
             $task = new Task([
-                'canvasID' => $assignment['id'],
-                'autoTest' => false
+            'canvasID' => $assignment['id'],
+            'autoTest' => false
             ]);
         }
 
@@ -696,35 +696,37 @@ class CanvasIntegration
     {
         $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
 
+        $countSyncProblems = 0;
+
         foreach ($group->tasks as $task) {
             $studentFileIds = [];
 
             $page = 1;
-            $morePages = true;
+
             do {
                 //if the number is -1, get the all users to the course
                 if ($group->canvasSectionID == -1) {
                     $response = $client->createRequest()
-                        ->setMethod('GET')
-                        ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/assignments/' . $task->canvasID . '/submissions')
-                        ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
-                        ->setData([
-                            'include[]' => 'submission_comments',
-                            'page' => $page++,
-                            'per_page' => 50
-                        ])
+                    ->setMethod('GET')
+                    ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/assignments/' . $task->canvasID . '/submissions')
+                    ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                    ->setData([
+                        'include[]' => 'submission_comments',
+                        'page' => $page++,
+                        'per_page' => 50
+                    ])
                         ->send();
                 } else {
                     $response = $client->createRequest()
-                        ->setMethod('GET')
-                        ->setUrl('api/v1/sections/' . $group->canvasSectionID . '/assignments/' . $task->canvasID . '/submissions')
-                        ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
-                        ->setData([
-                            'include[]' => 'submission_comments',
-                            'page' => $page++,
-                            'per_page' => 50
-                        ])
-                        ->send();
+                    ->setMethod('GET')
+                    ->setUrl('api/v1/sections/' . $group->canvasSectionID . '/assignments/' . $task->canvasID . '/submissions')
+                    ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                    ->setData([
+                        'include[]' => 'submission_comments',
+                        'page' => $page++,
+                        'per_page' => 50
+                    ])
+                    ->send();
                 }
 
                 if (!$response->isOk) {
@@ -743,116 +745,180 @@ class CanvasIntegration
 
                 foreach ($out as $submission) {
                     if (!empty($submission['attachments'])) {
-                        $id = $this->saveSolution($submission, $task);
-                        if ($id > 0) {
-                            array_push($studentFileIds, $id);
+                        $tmsFile = $this->saveSolution($submission, $task);
+                        if ($tmsFile != null && $tmsFile->id > 0) {
+                            array_push($studentFileIds, $tmsFile->id);
+                            if ($tmsFile->isAccepted == StudentFile::IS_ACCEPTED_CORRUPTED) {
+                                $countSyncProblems++;
+                            }
                         }
                     }
                 }
             } while ($morePages);
 
             $condition = ['AND',
-                ['NOT', ['id' => $studentFileIds]],
-                ['taskID' => $task->id]
+            ['NOT', ['id' => $studentFileIds]],
+            ['taskID' => $task->id]
             ];
             $submissionsToRemove = StudentFile::find()->where($condition)->all();
             foreach ($submissionsToRemove as $sf) {
                 $sf->delete();
             }
         }
+
+        if ($countSyncProblems > 0) {
+            throw new CanvasRequestException(500, Yii::t(
+                'app',
+                'Synchronization problem occurred due to corrupted submissions. {count} submission(s) was corrupted. The corrupted files were not synchronized.',
+                [
+                'count' => $countSyncProblems
+                ]
+            ));
+        }
     }
 
     /**
-     * Save the solution from canvas
+     * Save the solution from canvas, and notifies users if there is/are corrupted files
      * @param array $submission the response from canvas with the solution data
      * @param Task $task the given task
-     * @return int|null the id of created/updated student file, -1 if the user cannot be found or the
-     *  submission is invalid or corrupted, or null if there was a database error
+     * @return StudentFile|null the created/updated student file, null if the user cannot be found or
+     * there was a database error
      */
-    private function saveSolution(array $submission, Task $task): ?int
+    private function saveSolution(array $submission, Task $task): ?StudentFile
     {
-        $file = end($submission['attachments']);
+        $canvasFile = end($submission['attachments']);
         $user = User::findOne(['canvasID' => $submission['user_id']]);
+        $hasNewUpload = false;
+        $newFileCorrupted = false;
+
         if (is_null($user)) {
             // $user not exists in TMS, it is the Test account of the Canvas course
-            return -1;
-        }
-        if (is_null($file['size'])) {
-            // Canvas file upload by student is invalid or corrupted
-            return -1;
+            return null;
         }
 
-        $studentFile = $task->getStudentFiles()->where(['canvasID' => $submission['id']])->one();
-        $hasNewUpload = false;
-        if (empty($studentFile)) {
-            $this->saveCanvasFile($task->id, $file['display_name'], $file['url'], $user->neptun);
-            $studentFile = new StudentFile([
-                'canvasID' => $submission['id'],
-                'name' => $file['display_name'],
-                'uploadTime' => date('Y-m-d H:i:s', strtotime($file['updated_at'])),
-                'taskID' => $task->id,
-                'uploaderID' => $user->id,
-                'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
-                'verified' => true,
-                'notes' => '',
-                'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
-                'codeCheckerResultID' => null,
-                'uploadCount' => 1,
-            ]);
-            $hasNewUpload = true;
-        } else if (strtotime($studentFile->uploadTime) !== strtotime($file['updated_at'])) {
-            $this->saveCanvasFile($task->id, $file['display_name'], $file['url'], $user->neptun);
-            $studentFile->name = $file['display_name'];
-            $studentFile->uploadTime = date('Y-m-d H:i:s', strtotime($file['updated_at']));
-            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
-            $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
-            $studentFile->uploadCount++;
-            $studentFile->codeCheckerResultID = null;
-            $hasNewUpload = true;
-        }
+        $tmsFile = $task->getStudentFiles()->where(['canvasID' => $submission['id']])->one();
 
-        if (!empty($submission['grader_id'])) {
-            $studentFile->grade = filter_var($submission['score'], FILTER_VALIDATE_FLOAT) === false ? null : $submission['score'];
-            $grader = User::findOne(['canvasID' => $submission['grader_id']]);
-            $studentFile->graderID = $grader->id ?? null;
-            if (!empty($submission['submission_comments'])) {
-                foreach (array_reverse($submission['submission_comments']) as $comment) {
-                    if (
-                        $comment['author_id'] == $submission['grader_id'] &&
-                        strpos($comment['comment'], 'TMS auto') !== 0 &&
-                        strpos($comment['comment'], 'A TMS auto') !== 0
-                    ) {
-                        $studentFile->notes = Encoding::toUTF8($comment['comment']);
-                        break;
+        // Canvas file upload by student is invalid or corrupted
+        if (is_null($canvasFile['size']) || $canvasFile['size'] == 0) {
+            if (empty($tmsFile)) {
+                $newFileCorrupted = true;
+                $this->saveCanvasFile($task->id, $canvasFile['display_name'], Yii::$app->basePath . StudentFile::PATH_OF_CORRUPTED_FILE, $user->neptun);
+                $tmsFile = new StudentFile([
+                   'canvasID' => $submission['id'],
+                   'name' => $canvasFile['display_name'],
+                   'uploadTime' => date('Y-m-d H:i:s', strtotime($canvasFile['updated_at'])),
+                   'taskID' => $task->id,
+                   'uploaderID' => $user->id,
+                   'isAccepted' => StudentFile::IS_ACCEPTED_CORRUPTED,
+                   'verified' => true,
+                   'notes' => '',
+                   'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
+                   'codeCheckerResultID' => null,
+                   'uploadCount' => 0,
+                ]);
+            } elseif (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
+                $newFileCorrupted = true;
+                $this->saveCanvasFile($task->id, $canvasFile['display_name'], Yii::$app->basePath . StudentFile::PATH_OF_CORRUPTED_FILE, $user->neptun);
+                $tmsFile->name = $canvasFile['display_name'];
+                $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
+                $tmsFile->isAccepted = StudentFile::IS_ACCEPTED_CORRUPTED;
+                $tmsFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+                $tmsFile->codeCheckerResultID = null;
+            }
+        } else {
+            if (empty($tmsFile)) {
+                $this->saveCanvasFile($task->id, $canvasFile['display_name'], $canvasFile['url'], $user->neptun);
+                $tmsFile = new StudentFile([
+                    'canvasID' => $submission['id'],
+                    'name' => $canvasFile['display_name'],
+                    'uploadTime' => date('Y-m-d H:i:s', strtotime($canvasFile['updated_at'])),
+                    'taskID' => $task->id,
+                    'uploaderID' => $user->id,
+                    'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
+                    'verified' => true,
+                    'notes' => '',
+                    'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
+                    'codeCheckerResultID' => null,
+                    'uploadCount' => 1,
+                ]);
+                $hasNewUpload = true;
+            } elseif (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
+                $this->saveCanvasFile($task->id, $canvasFile['display_name'], $canvasFile['url'], $user->neptun);
+                $tmsFile->name = $canvasFile['display_name'];
+                $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
+                $tmsFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
+                $tmsFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+                $tmsFile->uploadCount++;
+                $tmsFile->codeCheckerResultID = null;
+                $hasNewUpload = true;
+            }
+
+            if (!empty($submission['grader_id'])) {
+                $tmsFile->grade = filter_var($submission['score'], FILTER_VALIDATE_FLOAT) === false ? null : $submission['score'];
+                $grader = User::findOne(['canvasID' => $submission['grader_id']]);
+                $tmsFile->graderID = $grader->id ?? null;
+                if (!empty($submission['submission_comments'])) {
+                    foreach (array_reverse($submission['submission_comments']) as $comment) {
+                        if (
+                            $comment['author_id'] == $submission['grader_id'] &&
+                            strpos($comment['comment'], 'TMS auto') !== 0 &&
+                            strpos($comment['comment'], 'A TMS auto') !== 0
+                        ) {
+                            $tmsFile->notes = Encoding::toUTF8($comment['comment']);
+                            break;
+                        }
                     }
                 }
             }
         }
 
         try {
-            if (!$studentFile->save()) {
+            if (!$tmsFile->save()) {
                 $errorMsg = "Saving solution for user {$user->neptun} (ID: #{$user->id}) on Task #{$task->id} failed.";
                 array_push($this->syncErrorMsgs, $errorMsg);
                 Yii::error(
                     $errorMsg .
-                    "Message: " . VarDumper::dumpAsString($studentFile->firstErrors),
+                    "Message: " . VarDumper::dumpAsString($tmsFile->firstErrors),
                     __METHOD__
                 );
                 return null;
             }
         } catch (\yii\db\Exception $ex) {
-            $studentFile->notes = Encoding::fixUTF8($studentFile->notes);
-            $studentFile->save();
+            $tmsFile->notes = Encoding::fixUTF8($tmsFile->notes);
+            $tmsFile->save();
         }
 
         if ($hasNewUpload) {
             Yii::info(
                 "A new solution has been uploaded for " .
-                "{$studentFile->task->name} ($studentFile->taskID)",
+                "{$tmsFile->task->name} ($tmsFile->taskID)",
+                __METHOD__
+            );
+        } elseif ($newFileCorrupted) {
+            if (!empty($user->notificationEmail)) {
+                $originalLanguage = Yii::$app->language;
+                Yii::$app->language = $user->locale;
+                Yii::$app->mailer->compose(
+                    'student/corruptedSubmission',
+                    [
+                        'studentFile' => $tmsFile
+                    ]
+                )
+                    ->setFrom(Yii::$app->params['systemEmail'])
+                    ->setTo($user->notificationEmail)
+                    ->setSubject(Yii::t('app/mail', 'Corrupted submission'))
+                    ->send();
+
+                Yii::$app->language = $originalLanguage;
+            }
+            Yii::warning(
+                "A corrupted file was found at " .
+                "{$tmsFile->task->name} ($tmsFile->taskID)",
                 __METHOD__
             );
         }
-        return $studentFile->id;
+
+        return $tmsFile;
     }
 
     /**
@@ -868,16 +934,33 @@ class CanvasIntegration
         $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
             . $taskID . '/' . strtolower($neptun) . '/';
 
+        $this->deleteCanvasFiles($taskID, $neptun);
+
         // Create new folder if not exists
         if (!file_exists($path)) {
             FileHelper::createDirectory($path, 0755, true);
         }
-        // Delete old files from the folder
-        array_map('unlink', array_filter((array) glob($path . "*")));
 
         // Save the new file
         $context = file_get_contents($url);
         file_put_contents($path . $name, $context);
+    }
+
+    /**
+     * Delete saved files from given folder
+     * @param int $taskID the id of given task
+     * @param string $neptun Neptun ID of the uploader
+     */
+    private function deleteCanvasFiles(int $taskID, string $neptun): void
+    {
+        // Get the dest path.
+        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
+            . $taskID . '/' . strtolower($neptun) . '/';
+
+        // Delete files from given folder
+        if (file_exists($path)) {
+            array_map('unlink', array_filter((array) glob($path . "*")));
+        }
     }
 
     /**

@@ -52,6 +52,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public const AUTO_TESTER_STATUS_TESTS_FAILED = 'Tests Failed';
     public const AUTO_TESTER_STATUS_PASSED = 'Passed';
     public const AUTO_TESTER_STATUS_IN_PROGRESS = 'In Progress';
+    public const PATH_OF_CORRUPTED_FILE = '/sampledata/uploadedfiles/corrupted_submission.zip';
 
     public const AUTO_TESTER_STATUS_VALUES = [
         self::AUTO_TESTER_STATUS_NOT_TESTED,
@@ -70,6 +71,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public const IS_ACCEPTED_LATE_SUBMISSION = 'Late Submission';
     public const IS_ACCEPTED_PASSED = 'Passed';
     public const IS_ACCEPTED_FAILED = 'Failed';
+    public const IS_ACCEPTED_CORRUPTED = 'Corrupted';
 
     public const IS_ACCEPTED_VALUES = [
         self::IS_ACCEPTED_UPLOADED,
@@ -77,7 +79,8 @@ class StudentFile extends File implements IOpenApiFieldTypes
         self::IS_ACCEPTED_REJECTED,
         self::IS_ACCEPTED_LATE_SUBMISSION,
         self::IS_ACCEPTED_PASSED,
-        self::IS_ACCEPTED_FAILED
+        self::IS_ACCEPTED_FAILED,
+        self::IS_ACCEPTED_CORRUPTED,
     ];
 
     /**
