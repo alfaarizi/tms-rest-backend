@@ -192,7 +192,7 @@ class PlagiarismResultController extends Controller
         if (!file_exists($content) || !is_readable($content)) {
             throw new NotFoundHttpException('The requested HTML file could not be found.');
         }
-        $mime = FileHelper::getMimeType($content);
+        $mime = FileHelper::getMimeTypeByExtension($content);
         $options = [
             'inline' => true,
             'mimeType' => strpos($mime, 'text/') === 0 ? "$mime; charset=UTF-8" : $mime,
