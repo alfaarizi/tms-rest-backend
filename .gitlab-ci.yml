@@ -121,7 +121,7 @@ phpdoc:
   before_script:
     - 'which curl || ( apt-get update -yqq && apt-get install -yqq curl)'
   script:
-    - curl -sL https://phpdoc.org/phpDocumentor.phar -o phpdoc
+    - curl -sL https://github.com/phpDocumentor/phpDocumentor/releases/download/v3.3.1/phpDocumentor.phar -o phpdoc
     - chmod +x phpdoc
     - ./phpdoc
   artifacts:
