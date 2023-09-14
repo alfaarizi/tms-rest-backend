@@ -94,4 +94,16 @@ return [
         'email' => 'teach5@elte.hu',
         'locale' => 'en-US',
     ],
+    'users6' => [
+        'id' => 1011,
+        'neptun' => 'STUD11',
+        'name' => 'Student Eleven',
+        'email' => 'stud11@elte.hu',
+        'customEmail' => 'stud11@inf.elte.hu',
+        'locale' => 'en-US',
+        'customEmailConfirmed' => 0,
+        'customEmailConfirmationCode' => 'MYCODE007',
+        'customEmailConfirmationExpiry' => date('Y/m/d H:i:s', time() + 24 * 3600),
+        'notificationTarget' => 'official',
+    ],
 ];

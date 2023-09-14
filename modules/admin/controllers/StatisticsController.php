@@ -65,7 +65,7 @@ class StatisticsController extends BaseAdminRestController
 
         $statistics->groupsCount = Group::find()->count();
         $statistics->tasksCount = Task::find()->count();
-        $statistics->submissionsCount = StudentFile::find()->count();
+        $statistics->submissionsCount = StudentFile::find()->where(['not', ['uploadCount' => 0]])->count();
         $statistics->testedSubmissionCount = StudentFile::find()
             ->findTested()
             ->count();
@@ -76,6 +76,7 @@ class StatisticsController extends BaseAdminRestController
             ->findBySemester($semesterID)
             ->count();
         $statistics->submissionsCountPerSemester = StudentFile::find()
+            ->where(['not', ['uploadCount' => 0]])
             ->findBySemester($semesterID)
             ->count();
         $statistics->testedSubmissionCountPerSemester = StudentFile::find()

@@ -251,6 +251,38 @@ class TasksController extends BaseInstructorRestController
             );
         }
 
+        // Create new StudentFile for everybody in the group
+        foreach ($task->group->subscriptions as $subscription) {
+            $studentFile = new StudentFile();
+            $studentFile->taskID = $task->id;
+            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_NO_SUBMISSION;
+            $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+            $studentFile->uploaderID = $subscription->userID;
+            $studentFile->name = null;
+            $studentFile->grade = null;
+            $studentFile->notes = "";
+            $studentFile->uploadTime = null;
+            $studentFile->isVersionControlled = $task->isVersionControlled;
+            $studentFile->uploadCount = 0;
+            $studentFile->verified = true;
+            $studentFile->codeCheckerResultID = null;
+
+            if ($studentFile->save()) {
+                Yii::info(
+                    "A new blank solution has been uploaded for " .
+                    "{$studentFile->task->name} ($studentFile->taskID)",
+                    __METHOD__
+                );
+                $this->response->statusCode = 201;
+            } elseif ($studentFile->hasErrors()) {
+                $this->response->statusCode = 422;
+                return $studentFile->errors;
+            } else {
+                $this->response->statusCode = 500;
+                throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
+            }
+        }
+
         // Email notifications
         $messages = [];
 
@@ -471,14 +503,24 @@ class TasksController extends BaseInstructorRestController
             );
         }
 
-        $instructorFiles = InstructorFile::findAll(['taskID' => $task->id]);
-        $studentFiles = StudentFile::findAll(['taskID' => $task->id]);
-        $testCases = TestCase::findAll(['taskID' => $task->id]);
+        // Count all submissions in task
+        $allStudentFilesCount = StudentFile::find()
+            ->andWhere(['taskID' => $task->id])
+            ->count();
 
-        // Check for student solutions
-        if (count($studentFiles) == 0) {
+        // Query all 'No Submission' submissions
+        $noSubmissionStudentFilesQuery = StudentFile::find()
+            ->andWhere(['taskID' => $task->id])
+            ->andWhere(['isAccepted' => StudentFile::IS_ACCEPTED_NO_SUBMISSION]);
+
+        // Check if they match
+        if ($allStudentFilesCount == $noSubmissionStudentFilesQuery->count()) {
             // Try to delete them.
             try {
+                // Queries
+                $instructorFiles = InstructorFile::findAll(['taskID' => $task->id]);
+                $testCases = TestCase::findAll(['taskID' => $task->id]);
+                $studentFiles = $noSubmissionStudentFilesQuery->all();
                 // Delete instructor files.
                 foreach ($instructorFiles as $file) {
                     // Delete the entry and the file from the disk.
@@ -488,6 +530,10 @@ class TasksController extends BaseInstructorRestController
                 foreach ($testCases as $case) {
                     // Delete the entity.
                     $case->delete();
+                }
+                // Delete (no submission) student files
+                foreach ($studentFiles as $file) {
+                    $file->delete();
                 }
 
                 if ($task->delete()) {

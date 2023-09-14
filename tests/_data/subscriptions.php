@@ -59,10 +59,10 @@ return [
     ],
     'subscription8' => [
         'id' => 8,
-        'userID' => 4,
+        'userID' => 1011,
         'isAccepted' => 0,
-        'groupID' => 11,
-        'semesterID' => 1,
+        'groupID' => 2000,
+        'semesterID' => 3001,
         'notes' => 'subscription8'
     ]
 ];
