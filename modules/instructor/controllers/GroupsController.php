@@ -7,6 +7,7 @@ use app\models\Group;
 use app\models\InstructorFile;
 use app\models\InstructorGroup;
 use app\models\Semester;
+use app\models\StudentFile;
 use app\models\Subscription;
 use app\models\Task;
 use app\modules\instructor\resources\GroupResource;
@@ -961,12 +962,36 @@ class GroupsController extends BaseInstructorRestController
                     ]
                 );
 
-                // Create repository for student for all version controlled tasks
-                $tasks = Task::findAll(['groupID' => $group->id, 'isVersionControlled' => '1']);
+                // Create new studentfile for student to add to tasks in group
+                $tasks = Task::findAll(['groupID' => $group->id]);
                 foreach ($tasks as $task) {
-                    GitManager::createUserRepository($task, $user);
-                }
+                    $studentFile = new StudentFile();
+                    $studentFile->taskID = $task->id;
+                    $studentFile->isAccepted = StudentFile::IS_ACCEPTED_NO_SUBMISSION;
+                    $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+                    $studentFile->uploaderID = $subscription->userID;
+                    $studentFile->name = null;
+                    $studentFile->grade = null;
+                    $studentFile->notes = "";
+                    $studentFile->uploadTime = null;
+                    $studentFile->isVersionControlled = $task->isVersionControlled;
+                    $studentFile->uploadCount = 0;
+                    $studentFile->verified = true;
+                    $studentFile->codeCheckerResultID = null;
 
+                    if ($studentFile->save()) {
+                        if ($task->isVersionControlled) {
+                            GitManager::createUserRepository($task, $user);
+                        }
+                        Yii::info(
+                            "A new blank solution has been uploaded for " .
+                            "{$studentFile->task->name} ($studentFile->taskID)",
+                            __METHOD__
+                        );
+                    } else {
+                        throw new AddFailedException($neptun, [Yii::t('app', "A database error occurred")]);
+                    }
+                }
 
                 if (!$subscription->save()) {
                     throw new AddFailedException($neptun, $subscription->errors);
@@ -1075,7 +1100,7 @@ class GroupsController extends BaseInstructorRestController
         }
 
         // Get uploaded files for the student
-        $uploadedFiles = $subscription->user->getFiles()
+        $thereAreUploadedFiles = $subscription->user->getFiles()
             ->where(
                 [
                     'taskID' => array_map(
@@ -1083,11 +1108,12 @@ class GroupsController extends BaseInstructorRestController
                         Task::findAll(['groupID' => $subscription->groupID])
                     )
                 ]
-            )->one();
-
+            )
+            ->andWhere(['not', ['isAccepted' => 'No Submission']])
+            ->exists();
 
         // Check for uploaded file
-        if (!is_null($uploadedFiles)) {
+        if ($thereAreUploadedFiles) {
             throw new BadRequestHttpException(Yii::t('app', 'Cannot remove student with uploaded file.'));
         }
 
@@ -1337,18 +1363,20 @@ class GroupsController extends BaseInstructorRestController
             $groupScores = [];
 
             foreach ($task->studentFiles as $studentFile) {
-                if ($task->softDeadline != null) {
-                    if ($studentFile->uploadTime <= $task->softDeadline) {
-                        $submittedInTime += 1;
-                        $submittedNot -= 1;
+                if($studentFile->isAccepted !== StudentFile::IS_ACCEPTED_NO_SUBMISSION) {
+                    if ($task->softDeadline != null) {
+                        if ($studentFile->uploadTime <= $task->softDeadline) {
+                            $submittedInTime += 1;
+                            $submittedNot -= 1;
+                        } else {
+                            $submittedDelayed += 1;
+                            $submittedNot -= 1;
+                        }
                     } else {
-                        $submittedDelayed += 1;
-                        $submittedNot -= 1;
-                    }
-                } else {
-                    if ($studentFile->uploadTime <= $task->hardDeadline) {
-                        $submittedInTime += 1;
-                        $submittedNot -= 1;
+                        if ($studentFile->uploadTime <= $task->hardDeadline) {
+                            $submittedInTime += 1;
+                            $submittedNot -= 1;
+                        }
                     }
                 }
                 if (!is_null($studentFile->grade)) {
@@ -1443,7 +1471,7 @@ class GroupsController extends BaseInstructorRestController
             $groupScores = [];
             $submittingTime = null;
             foreach ($task->studentFiles as $studentFile) {
-                if ($studentFile->uploaderID == $student->id) {
+                if ($studentFile->uploaderID == $student->id && $studentFile->isAccepted !== StudentFile::IS_ACCEPTED_NO_SUBMISSION) {
                     $userScore = $studentFile->grade;
                     $submittingTime = $studentFile->uploadTime;
                 }

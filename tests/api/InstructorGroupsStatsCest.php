@@ -97,7 +97,7 @@ class InstructorGroupsStatsCest
                         [
                             'intime' => 0,
                             'delayed' => 0,
-                            'missed' => 3,
+                            'missed' => 4,
                         ],
                 ],
                 [

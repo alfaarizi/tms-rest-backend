@@ -99,13 +99,13 @@ class CanvasIntegration
 
         $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
         $response = $client->createRequest()
-        ->setMethod('POST')
-        ->setUrl('login/oauth2/token')
-        ->setData(['grant_type' => 'refresh_token',
-            'client_id' => Yii::$app->params['canvas']['clientID'],
-            'client_secret' => Yii::$app->params['canvas']['secretKey'],
-            'refresh_token' => $user->refreshToken])
-        ->send();
+            ->setMethod('POST')
+            ->setUrl('login/oauth2/token')
+            ->setData(['grant_type' => 'refresh_token',
+                'client_id' => Yii::$app->params['canvas']['clientID'],
+                'client_secret' => Yii::$app->params['canvas']['secretKey'],
+                'refresh_token' => $user->refreshToken])
+            ->send();
         if ($response->isOk) {
             $responseJson = Json::decode($response->content);
             $user->canvasToken = $responseJson['access_token'];
@@ -202,15 +202,15 @@ class CanvasIntegration
         $morePages = true;
         do {
             $response = $client->createRequest()
-            ->setMethod('GET')
-            ->setUrl('api/v1/courses')
-            ->setHeaders(['Authorization' => 'Bearer ' . $user->canvasToken])
-            ->setData([
-                'enrollment_type' => 'teacher',
-                'include[]' => 'term',
-                'page' => $page++,
-                'per_page' => 50
-            ])
+                ->setMethod('GET')
+                ->setUrl('api/v1/courses')
+                ->setHeaders(['Authorization' => 'Bearer ' . $user->canvasToken])
+                ->setData([
+                    'enrollment_type' => 'teacher',
+                    'include[]' => 'term',
+                    'page' => $page++,
+                    'per_page' => 50
+                ])
                 ->send();
             if (!$response->isOk) {
                 Yii::error("Fetching courses from Canvas failed for user {$user->neptun} (ID: #{$user->id}).", __METHOD__);
@@ -267,9 +267,9 @@ class CanvasIntegration
             $group->lastSyncTime = date('Y-m-d H:i:s');
             $group->save(); // Update last sync time, so in case of error the queue won't get stuck
 
-            $this->saveCanvasStudentsToGroup($group);
             $this->saveCanvasTeachersToGroup($group);
             $this->saveTasksToCourse($group);
+            $this->saveCanvasStudentsToGroup($group);
             $this->saveSolutions($group);
 
             $syncErrorMsgsString = null;
@@ -341,24 +341,25 @@ class CanvasIntegration
             //if the number is -1, get the all users to the course
             if ($group->canvasSectionID == -1) {
                 $response = $client->createRequest()
-                ->setMethod('GET')
-                ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/enrollments')
-                ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
-                ->setData([
-                    'type[]' => 'StudentEnrollment',
-                    'page' => $page++,
-                    'per_page' => 50])
+                    ->setMethod('GET')
+                    ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/enrollments')
+                    ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                    ->setData([
+                        'type[]' => 'StudentEnrollment',
+                        'page' => $page++,
+                        'per_page' => 50])
                     ->send();
             } else {
                 $response = $client->createRequest()
-                ->setMethod('GET')
-                ->setUrl('api/v1/sections/' . $group->canvasSectionID . '/enrollments')
-                ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
-                ->setData([
-                    'type[]' => 'StudentEnrollment',
-                    'page' => $page++,
-                    'per_page' => 50])
-                ->send();
+                    ->setMethod('GET')
+                    ->setUrl('api/v1/sections/' . $group->canvasSectionID . '/enrollments')
+                    ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                    ->setData([
+                        'type[]' => 'StudentEnrollment',
+                        'page' => $page++,
+                        'per_page' => 50
+                      ])
+                    ->send();
             }
             if (!$response->isOk) {
                 $errorMsg = 'Fetching students from Canvas failed.';
@@ -410,15 +411,15 @@ class CanvasIntegration
         $morePages = true;
         do {
             $response = $client->createRequest()
-            ->setMethod('GET')
-            ->setUrl($group->canvasSectionID == -1
-                ? 'api/v1/courses/' . $group->canvasCourseID . '/enrollments'
-                : 'api/v1/sections/' . $group->canvasSectionID . '/enrollments')
+                ->setMethod('GET')
+                ->setUrl($group->canvasSectionID == -1
+                    ? 'api/v1/courses/' . $group->canvasCourseID . '/enrollments'
+                    : 'api/v1/sections/' . $group->canvasSectionID . '/enrollments')
                 ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
                 ->setData([
-                'type[]' => 'TeacherEnrollment',
-                'page' => $page++,
-                'per_page' => 50])
+                    'type[]' => 'TeacherEnrollment',
+                    'page' => $page++,
+                    'per_page' => 50])
                 ->send();
             if (!$response->isOk) {
                 $errorMsg = 'Fetching teachers from Canvas failed.';
@@ -506,11 +507,33 @@ class CanvasIntegration
      */
     private function saveSubscription(User $user, Group $group): ?int
     {
-        $subscription = new Subscription([
-        'groupID' => $group->id,
-        'semesterID' => $group->semesterID,
-        'userID' => $user->id
-        ]);
+        $subscription = new Subscription(
+            [
+                'groupID' => $group->id,
+                'semesterID' => $group->semesterID,
+                'userID' => $user->id
+            ]
+        );
+
+        $tasks = $group->getTasks()->all();
+        foreach ($tasks as $task) {
+            $studentFile = new StudentFile();
+            $studentFile->taskID = $task->id;
+            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_NO_SUBMISSION;
+            $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+            $studentFile->uploaderID = $subscription->userID;
+            $studentFile->name = null;
+            $studentFile->grade = null;
+            $studentFile->notes = "";
+            $studentFile->uploadTime = null;
+            $studentFile->isVersionControlled = $task->isVersionControlled;
+            $studentFile->uploadCount = 0;
+            $studentFile->verified = true;
+            $studentFile->codeCheckerResultID = null;
+
+            $studentFile->save();
+        }
+
         if (!$subscription->save()) {
             $errorMsg = "Saving subscription for group #{$group->id}, semester #{$group->semesterID} and user #{$user->id} failed.";
             array_push($this->syncErrorMsgs, $errorMsg);
@@ -530,8 +553,8 @@ class CanvasIntegration
     private function saveInstructorGroup(int $userId, int $groupId): ?InstructorGroup
     {
         $instructorGroup = new InstructorGroup([
-        'groupID' => $groupId,
-        'userID' => $userId
+            'groupID' => $groupId,
+            'userID' => $userId
         ]);
         if (!$instructorGroup->save()) {
             $errorMsg = "Saving InstructorGroup for group #$groupId and user #$userId failed.";
@@ -563,14 +586,14 @@ class CanvasIntegration
 
         do {
             $response = $client->createRequest()
-            ->setMethod('GET')
-            ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/assignments')
-            ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
-            ->setData([
-                'include[]' => 'overrides',
-                'override_assignment_dates' => false,
-                'page' => $page++,
-                'per_page' => 50])
+                ->setMethod('GET')
+                ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/assignments')
+                ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                ->setData([
+                    'include[]' => 'overrides',
+                    'override_assignment_dates' => false,
+                    'page' => $page++,
+                    'per_page' => 50])
                 ->send();
             if (!$response->isOk) {
                 $errorMsg = 'Fetching assignments from Canvas failed.';
@@ -648,8 +671,8 @@ class CanvasIntegration
         // Create new task if it was not synchronized before
         if (empty($task)) {
             $task = new Task([
-            'canvasID' => $assignment['id'],
-            'autoTest' => false
+                'canvasID' => $assignment['id'],
+                'autoTest' => false
             ]);
         }
 
@@ -707,26 +730,26 @@ class CanvasIntegration
                 //if the number is -1, get the all users to the course
                 if ($group->canvasSectionID == -1) {
                     $response = $client->createRequest()
-                    ->setMethod('GET')
-                    ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/assignments/' . $task->canvasID . '/submissions')
-                    ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
-                    ->setData([
-                        'include[]' => 'submission_comments',
-                        'page' => $page++,
-                        'per_page' => 50
-                    ])
+                        ->setMethod('GET')
+                        ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/assignments/' . $task->canvasID . '/submissions')
+                        ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                        ->setData([
+                            'include[]' => 'submission_comments',
+                            'page' => $page++,
+                            'per_page' => 50
+                        ])
                         ->send();
                 } else {
                     $response = $client->createRequest()
-                    ->setMethod('GET')
-                    ->setUrl('api/v1/sections/' . $group->canvasSectionID . '/assignments/' . $task->canvasID . '/submissions')
-                    ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
-                    ->setData([
-                        'include[]' => 'submission_comments',
-                        'page' => $page++,
-                        'per_page' => 50
-                    ])
-                    ->send();
+                        ->setMethod('GET')
+                        ->setUrl('api/v1/sections/' . $group->canvasSectionID . '/assignments/' . $task->canvasID . '/submissions')
+                        ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                        ->setData([
+                            'include[]' => 'submission_comments',
+                            'page' => $page++,
+                            'per_page' => 50
+                        ])
+                        ->send();
                 }
 
                 if (!$response->isOk) {
@@ -757,8 +780,8 @@ class CanvasIntegration
             } while ($morePages);
 
             $condition = ['AND',
-            ['NOT', ['id' => $studentFileIds]],
-            ['taskID' => $task->id]
+                ['NOT', ['id' => $studentFileIds]],
+                ['taskID' => $task->id]
             ];
             $submissionsToRemove = StudentFile::find()->where($condition)->all();
             foreach ($submissionsToRemove as $sf) {
@@ -996,8 +1019,8 @@ class CanvasIntegration
             ->setHeaders(['Authorization' => 'Bearer ' . $user->canvasToken])
             ->setUrl($url)
             ->setData([
-                'submission[posted_grade]' => is_null($studentFile->grade) ? "" : $studentFile->grade,
-                'comment[text_comment]' => $studentFile->notes])
+                          'submission[posted_grade]' => is_null($studentFile->grade) ? "" : $studentFile->grade,
+                          'comment[text_comment]' => $studentFile->notes])
             ->send();
     }
 
@@ -1028,11 +1051,11 @@ class CanvasIntegration
                 ->setHeaders(['Authorization' => 'Bearer ' . $synchronizer->canvasToken])
                 ->setUrl($url)
                 ->setData([
-                    'comment[text_comment]' => Yii::t(
-                        'app',
-                        'TMS automatic tester result: '
-                    ) . $studentFile->safeErrorMsg
-                ])
+                              'comment[text_comment]' => Yii::t(
+                                  'app',
+                                  'TMS automatic tester result: '
+                              ) . $studentFile->safeErrorMsg
+                          ])
                 ->send();
 
             Yii::$app->language = $originalLanguage;

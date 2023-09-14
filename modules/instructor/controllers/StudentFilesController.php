@@ -637,7 +637,10 @@ class StudentFilesController extends BaseInstructorRestController
                 ]
             );
         } else {
-            $files = StudentFileResource::findAll(['taskID' => $taskID]);
+            $files = StudentFileResource::find()
+                ->andWhere(['taskID' => $taskID])
+                ->andWhere(['not', ['isAccepted' => StudentFile::IS_ACCEPTED_NO_SUBMISSION]])
+                ->all();
         }
 
         if (count($files) < 1) {

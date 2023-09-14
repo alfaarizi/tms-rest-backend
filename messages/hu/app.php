@@ -101,6 +101,7 @@ return [
     'My Tasks' => 'Enyémek',
     'Name' => 'Név',
     'No files found for upload.' => 'Nem került fájl feltöltésre kiválasztásra.',
+    'No Submission' => 'Nincs beküldött megoldás',
     'Files not found' => 'Nem találhatóak fájlok.',
     'Moss is disabled. Contact the administrator for more information.' => 'A Moss eszköz nincs engedélyezve. Lépjen kapcsolatba az adminisztrátorral további információért.',
     'Moss server currently unavailable' => 'A Moss szerver jelenleg nem érhető el',

@@ -18,8 +18,8 @@ class InstructorStudentFilesCest
 {
     public const STUDENT_FILES_SCHEMA = [
         'id' => 'integer',
-        'name' => 'string',
-        'uploadTime' => 'string',
+        'name' => 'string|null',
+        'uploadTime' => 'string|null',
         'uploadCount' => 'integer',
         'isAccepted' => 'string',
         'grade' => 'integer|string|null',

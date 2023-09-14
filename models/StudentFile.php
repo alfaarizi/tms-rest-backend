@@ -72,6 +72,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public const IS_ACCEPTED_PASSED = 'Passed';
     public const IS_ACCEPTED_FAILED = 'Failed';
     public const IS_ACCEPTED_CORRUPTED = 'Corrupted';
+    public const IS_ACCEPTED_NO_SUBMISSION = 'No Submission';
 
     public const IS_ACCEPTED_VALUES = [
         self::IS_ACCEPTED_UPLOADED,
@@ -81,6 +82,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
         self::IS_ACCEPTED_PASSED,
         self::IS_ACCEPTED_FAILED,
         self::IS_ACCEPTED_CORRUPTED,
+        self::IS_ACCEPTED_NO_SUBMISSION,
     ];
 
     /**
@@ -121,7 +123,13 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public function rules()
     {
         return [
-            [['name', 'path', 'taskID', 'uploaderID', 'isAccepted', 'autoTesterStatus', 'verified'], 'required'],
+            [['path', 'taskID', 'uploaderID', 'isAccepted', 'autoTesterStatus', 'verified'], 'required'],
+            [['name', 'uploadTime'], 'required', 'when' => function ($studentFile) {
+                return $studentFile->isAccepted !== StudentFile::IS_ACCEPTED_NO_SUBMISSION;
+            }],
+            [['name', 'uploadTime'], 'compare', 'compareValue' => 'null', 'when' => function ($studentFile) {
+                return $studentFile->isAccepted === StudentFile::IS_ACCEPTED_NO_SUBMISSION;
+            }],
             [['uploadTime'], 'safe'],
             [['taskID', 'uploaderID', 'graderID'], 'integer'],
             [['isAccepted'], 'string'],
@@ -215,7 +223,8 @@ class StudentFile extends File implements IOpenApiFieldTypes
     {
         if (
             $this->isAccepted === self::IS_ACCEPTED_PASSED && $this->autoTesterStatus !== self::AUTO_TESTER_STATUS_PASSED ||
-            $this->isAccepted !== self::IS_ACCEPTED_UPLOADED && $this->autoTesterStatus === self::AUTO_TESTER_STATUS_IN_PROGRESS
+            $this->isAccepted !== self::IS_ACCEPTED_UPLOADED && $this->autoTesterStatus === self::AUTO_TESTER_STATUS_IN_PROGRESS ||
+            $this->isAccepted === self::IS_ACCEPTED_NO_SUBMISSION && $this->autoTesterStatus !== self::AUTO_TESTER_STATUS_NOT_TESTED
         ) {
             $this->addError(
                 'autoTesterStatus',
@@ -252,6 +261,16 @@ class StudentFile extends File implements IOpenApiFieldTypes
         }
 
         $this->errorMsg = StringHelper::truncate($this->errorMsg, 65000);
+        return true;
+    }
+
+    /** {@inheritdoc} */
+    public function beforeDelete()
+    {
+        if ($this->isAccepted !== StudentFile::IS_ACCEPTED_NO_SUBMISSION) {
+            return parent::beforeDelete();
+        }
+
         return true;
     }
 

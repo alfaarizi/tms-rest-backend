@@ -3,6 +3,7 @@
 namespace tests\api;
 
 use ApiTester;
+use app\tests\unit\fixtures\StudentFilesFixture;
 use Yii;
 use app\models\Subscription;
 use app\models\User;
@@ -42,6 +43,9 @@ class InstructorGroupsStudentsCest
             ],
             'subscriptions' => [
                 'class' => SubscriptionFixture::class
+            ],
+            'studentfiles' => [
+                'class' => StudentFilesFixture::class
             ]
         ];
     }
@@ -133,7 +137,7 @@ class InstructorGroupsStudentsCest
         );
     }
 
-    public function deleteStudent(ApiTester $I)
+    public function deleteStudentHasSubmission(ApiTester $I)
     {
         $I->seeRecord(
             Subscription::class,
@@ -142,11 +146,29 @@ class InstructorGroupsStudentsCest
             ]
         );
         $I->sendDelete('/instructor/groups/2000/students/1001');
+        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+        $I->seeRecord(
+            Subscription::class,
+            [
+                'id' => 1,
+            ]
+        );
+    }
+
+    public function deleteStudent(ApiTester $I)
+    {
+        $I->seeRecord(
+            Subscription::class,
+            [
+                'id' => 8,
+            ]
+        );
+        $I->sendDelete('/instructor/groups/2000/students/1011');
         $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
         $I->cantSeeRecord(
             Subscription::class,
             [
-                'id' => 1,
+                'id' => 8,
             ]
         );
     }

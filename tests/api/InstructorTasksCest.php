@@ -264,7 +264,7 @@ class InstructorTasksCest
         );
 
         $I->seeRecord(Task::class, ['name' => 'Created']);
-        $I->seeEmailIsSent(3);
+        $I->seeEmailIsSent(4);
     }
 
     public function updateNotFound(ApiTester $I)
@@ -376,7 +376,7 @@ class InstructorTasksCest
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
         $I->seeRecord(Task::class, ['name' => 'Updated', 'hardDeadline' => $date]);
-        $I->seeEmailIsSent(3);
+        $I->seeEmailIsSent(4);
     }
 
     public function updateValidChangeSoftDeadline(ApiTester $I)
@@ -392,7 +392,7 @@ class InstructorTasksCest
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
         $I->seeRecord(Task::class, ['name' => 'Updated', 'softDeadline' => $date]);
-        $I->seeEmailIsSent(3);
+        $I->seeEmailIsSent(4);
     }
 
     public function updateValidChangeAvailable(ApiTester $I)
@@ -408,7 +408,7 @@ class InstructorTasksCest
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
         $I->seeRecord(Task::class, ['name' => 'Updated', 'available' => $date]);
-        $I->seeEmailIsSent(3);
+        $I->seeEmailIsSent(4);
     }
 
     public function deleteNotFound(ApiTester $I)

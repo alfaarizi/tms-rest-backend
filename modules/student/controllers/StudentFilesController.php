@@ -251,22 +251,8 @@ class StudentFilesController extends BaseStudentRestController
             GitManager::uploadToRepo($repopath, $zipPath);
         }
 
-        $uploader = User::findOne(Yii::$app->user->id);
-        $studentFile = null;
-        if ($prevStudentFile == null) {
-            $studentFile = new StudentFileResource();
-            //Set details
-            $studentFile->taskID = $taskID;
-            $studentFile->grade = null;
-            $studentFile->notes = "";
-            $studentFile->uploaderID = $uploader->id;
-            $studentFile->isVersionControlled = $versionControlled ? 1 : 0;
-            $studentFile->uploadCount = 1;
-        } else {
-            $studentFile = $prevStudentFile;
-            $studentFile->uploadCount++;
-        }
-
+        $studentFile = $prevStudentFile;
+        $studentFile->uploadCount++;
         $studentFile->name = basename($newFile->name);
         $studentFile->uploadTime = date('Y-m-d H:i:s');
         $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;

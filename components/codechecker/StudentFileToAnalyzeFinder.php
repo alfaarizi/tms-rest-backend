@@ -34,6 +34,7 @@ class StudentFileToAnalyzeFinder extends BaseObject
                     ]
                 ]
             )
+            ->andWhere(['not', ['uploadCount' => 0]])
             ->orderBy(['s.uploadCount' => SORT_ASC, 's.uploadTime' => SORT_ASC])
             ->one();
     }
