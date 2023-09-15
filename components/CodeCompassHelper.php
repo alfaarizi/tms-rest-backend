@@ -67,7 +67,7 @@ class CodeCompassHelper
     {
         $usedPorts = ArrayHelper::getColumn(CodeCompassInstance::find()->all(), 'port');
         $portRangeArray = Yii::$app->params['codeCompass']['portRange'];
-        $range = range($portRangeArray[0], $portRangeArray[1]);
+        $range = range($portRangeArray['from'], $portRangeArray['to']);
         return current(array_filter($range, function ($num) use ($usedPorts) {
             return !in_array($num, $usedPorts);
         })) ?: null;

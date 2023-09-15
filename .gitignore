@@ -60,3 +60,5 @@ tests/_support/_generated
 /appdata/
 /appdata_*/
 /.env
+/config.yml
+/config.test.yml

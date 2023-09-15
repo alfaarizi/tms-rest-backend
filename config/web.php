@@ -1,8 +1,21 @@
 <?php
 
-$db = require(__DIR__ . '/db.php');
-$mailer = require(__DIR__ . '/mailer.php');
-$params = require(__DIR__ . '/params.php');
+use Symfony\Component\Yaml\Yaml;
+use yii\base\InvalidConfigException;
+use yii\helpers\ArrayHelper;
+
+if (!file_exists(__DIR__ . '/../config.yml')) {
+    throw new InvalidConfigException('Configuration file config.yml does not exist, read the documentation!');
+}
+
+$phpConfig = require(__DIR__ . '/config.php');
+$distConfig = Yaml::parseFile(__DIR__ . '/config.dist.yml');
+$localConfig = Yaml::parseFile(__DIR__ . '/../config.yml');
+$config = ArrayHelper::merge($phpConfig, $distConfig, $localConfig);
+
+$db = $config['db'];
+$mailer = $config['mail'];
+$params = $config['app'];
 $rules = require(__DIR__ . '/rules.php');
 $di = require(__DIR__ . '/di.php');
 
@@ -12,7 +25,7 @@ if ($params['versionControl']['enabled']) {
     $params['versionControl']['basePath'] = rtrim($params['versionControl']['basePath'], '/');
 }
 
-$config = [
+$fullConfig = [
     'id' => 'tms',
     'language' => 'hu',
     'timeZone' => 'Europe/Budapest',
@@ -143,7 +156,7 @@ $config = [
 ];
 
 if (YII_ENV_PROD && isset($_SERVER['HOME'])) {
-    $config['aliases']['@simplesamlphp'] = "${_SERVER['HOME']}/samlsrc/simplesamlphp/";
+    $fullConfig['aliases']['@simplesamlphp'] = "${_SERVER['HOME']}/samlsrc/simplesamlphp/";
 }
 
 /*
@@ -152,21 +165,21 @@ if (YII_ENV_PROD && isset($_SERVER['HOME'])) {
  */
 if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
-    $config['bootstrap'][] = 'debug';
-    $config['modules']['debug'] = [
+    $fullConfig['bootstrap'][] = 'debug';
+    $fullConfig['modules']['debug'] = [
         'class' => 'yii\debug\Module',
         // uncomment the following to add your IP if you are not connecting from localhost.
         //'allowedIPs' => ['127.0.0.1', '::1'],
     ];
 
-    $config['bootstrap'][] = 'gii';
-    $config['modules']['gii'] = [
+    $fullConfig['bootstrap'][] = 'gii';
+    $fullConfig['modules']['gii'] = [
         'class' => 'yii\gii\Module',
         // uncomment the following to add your IP if you are not connecting from localhost.
         //'allowedIPs' => ['127.0.0.1', '::1'],
     ];
 
-    $config['components']['swagger'] = [
+    $fullConfig['components']['swagger'] = [
         'class' => 'app\components\openapi\SchemaGenerator',
         'outputDir' => '@app/runtime/openapi_schemas/',
         // Scanned namespaces
@@ -179,4 +192,4 @@ if (YII_ENV_DEV) {
     ];
 }
 
-return $config;
+return $fullConfig;

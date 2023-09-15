@@ -1,8 +1,21 @@
 <?php
 
-$db = require(__DIR__ . '/db.php');
-$mailer = require(__DIR__ . '/mailer.php');
-$params = require(__DIR__ . '/params.php');
+use Symfony\Component\Yaml\Yaml;
+use yii\base\InvalidConfigException;
+use yii\helpers\ArrayHelper;
+
+if (!file_exists(__DIR__ . '/../config.yml')) {
+    throw new InvalidConfigException('Configuration file config.yml does not exist, read the documentation!');
+}
+
+$phpConfig = require(__DIR__ . '/config.php');
+$distConfig = Yaml::parseFile(__DIR__ . '/config.dist.yml');
+$localConfig = Yaml::parseFile(__DIR__ . '/../config.yml');
+$config = ArrayHelper::merge($phpConfig, $distConfig, $localConfig);
+
+$db = $config['db'];
+$mailer = $config['mail'];
+$params = $config['app'];
 $di = require(__DIR__ . '/di.php');
 
 $params['backendUrl'] = rtrim($params['backendUrl'], '/');
@@ -11,7 +24,7 @@ if ($params['versionControl']['enabled']) {
     $params['versionControl']['basePath'] = rtrim($params['versionControl']['basePath'], '/');
 }
 
-$config = [
+$fullConfig = [
     'id' => 'tms-console',
     'language' => 'en-US',
     'timeZone' => 'Europe/Budapest',
@@ -120,10 +133,10 @@ $config = [
 
 if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
-    $config['bootstrap'][] = 'gii';
-    $config['modules']['gii'] = [
+    $fullConfig['bootstrap'][] = 'gii';
+    $fullConfig['modules']['gii'] = [
         'class' => 'yii\gii\Module',
     ];
 }
 
-return $config;
+return $fullConfig;

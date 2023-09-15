@@ -1,0 +1,336 @@
+db:
+  dsn: 'mysql:host=<db host name>;dbname=<database name>'
+  username: '<db user>'
+  password: '<db password>'
+  charset: utf8
+  tablePrefix: ''
+
+mail:
+  # Set this false to enable real mail transport
+  useFileTransport: true
+  # By default, NullTransport is utilized (sends no mail).
+  # Add the following to configure SendmailTransport.
+  # transport:
+  #   dsn: 'sendmail://default'
+  #
+  # Add the following to configure SMTP mail transport.
+  # transport:
+  #   dsn: 'smtp://user:pass@smtp.example.com:25'
+
+app:
+  # Directory for data storage (uploadedfiles, tmp, plagiarism)
+  data_dir: appdata
+  # Administrator email address
+  adminEmail: admin@example.com
+  # Notification sender email address
+  systemEmail: noreply@example.com
+  # Console commands cannot auto-detect host base URL, this will be used
+  backendUrl: http://localhost/backend-core/web
+  # Frontend application base URL
+  frontendUrl: http://localhost:3000/app
+  # Moss user id for plagiarism detection
+  mossId: ''
+  # Supported localizations
+  supportedLocale:
+    en-US: English
+    hu: Magyar
+  accessTokenExtendValidationBy: 30 minutes
+
+  # LDAP authentication parameters
+  ldap:
+    host: ldap://mydomain.com:389
+    baseDN: 'OU=...,DC=...,DC=...,DC=...'
+    bindDN: 'CN=...,OU=...,DC=...,DC=...,DC=...'
+    bindPasswd: bindPassword
+    uidAttr: sAMAccountName
+
+  # Version control configuration
+  versionControl:
+    enabled: false
+    #Path of the shell executable
+    shell: '#!/bin/bash; C:/Program\ Files/Git/usr/bin/sh.exe'
+    #Base path of web access
+    basePath: /git/
+
+  # Automated evaluator configuration
+  evaluator:
+    enabled: false
+    # Linux-based docker host
+    linux: 'unix:///var/run/docker.sock'
+    #  Windows-based docker host
+    windows: ''
+    # seconds allowed to compile a submission
+    compileTimeout: 60
+    # seconds allowed to run a test case
+    testTimeout: 5
+    # seconds allowed to perform static analysis
+    staticAnalysisTimeout: 300
+    # web app execution configuration
+    webApp:
+      # ttl of remote web applications
+      maxWebAppRunTime: 60
+      # web app access reverse proxy configuration
+      gateway:
+        # gateway configured
+        enabled: false
+        # gateway url
+        url: ''
+      linux:
+        # reserved ports for on linux docker host
+        reservedPorts:
+          from: 8080
+          to: 8089
+      windows:
+        # reserved ports for on windows docker host
+        reservedPorts:
+          from: 9090
+          to: 9099
+    #  preconfigured templates
+    templates:
+      - name: 'Linux / gcc'
+        # Environment
+        os: linux
+        image: 'tmselte/evaluator:gcc-ubuntu-20.04'
+        # Auto Test
+        autoTest: true
+        appType: Console
+        compileInstructions: |
+          # Remove spaces from directory and file names
+          find -name "* *" -type d | rename 's/ /_/g'
+          find -name "* *" -type f | rename 's/ /_/g'
+          # Build the program
+          CFLAGS="-std=c11 -pedantic -W -Wall -Wextra"
+          gcc $CFLAGS $(find . -type f -iname "*.c") -o program.out
+        runInstructions: './program.out "$@"'
+        # Static Code Analysis
+        staticCodeAnalysis: true
+        staticCodeAnalyzerTool: codechecker
+        codeCheckerCompileInstructions: |
+          # Remove spaces from directory and file names
+          find -name "* *" -type d | rename 's/ /_/g'
+          find -name "* *" -type f | rename 's/ /_/g'
+          # Build the program
+          CFLAGS="-std=c11 -pedantic -W -Wall -Wextra"
+          gcc $CFLAGS $(find . -type f -iname "*.c") -o program.out
+        codeCheckerSkipFile: '-/usr/*'
+        codeCheckerToggles: ''
+
+      - name: 'Linux / g++'
+        # Environment
+        os: linux
+        image: 'tmselte/evaluator:gcc-ubuntu-20.04'
+        # Auto Test
+        autoTest: true
+        appType: Console
+        compileInstructions: |
+          # Remove spaces from directory and file names
+          find -name "* *" -type d | rename 's/ /_/g'
+          find -name "* *" -type f | rename 's/ /_/g'
+          # Build the program
+          CFLAGS="-std=c++14 -pedantic -Wall -I ./include"
+          g++ $CFLAGS $(find . -type f -iname "*.cpp") -o program.out
+        runInstructions: './program.out "$@"'
+        # Static Code Analysis
+        staticCodeAnalysis: true
+        staticCodeAnalyzerTool: codechecker
+        codeCheckerCompileInstructions: |
+          # Remove spaces from directory and file names
+          find -name "* *" -type d | rename 's/ /_/g'
+          find -name "* *" -type f | rename 's/ /_/g'
+          # Build the program
+          CFLAGS="-std=c++14 -pedantic -Wall -I ./include"
+          g++ $CFLAGS $(find . -type f -iname "*.cpp") -o program.out
+        codeCheckerSkipFile: '-/usr/*'
+        codeCheckerToggles: ''
+
+      - name: 'Linux / Qt5'
+        # Environment
+        os: linux
+        image: 'tmselte/evaluator:qt5-ubuntu-20.04'
+        # Auto Test
+        autoTest: true
+        appType: Console
+        compileInstructions: |
+          /build.sh
+          # Built-in script that looks for Qt projects (Qt Creator, CMake) and build them.
+        runInstructions: ''
+        # Static Code Analysis
+        staticCodeAnalysis: true
+        staticCodeAnalyzerTool: codechecker
+        codeCheckerCompileInstructions: |
+          /build.sh
+          # Built-in script that looks for Qt projects (Qt Creator, CMake) and build them.
+        codeCheckerSkipFile: |
+          -/usr/*
+          -*/moc*
+          -*/qrc*
+        codeCheckerToggles: ''
+
+      - name: 'Linux / .NET'
+        # Environment
+        os: linux
+        appType: Console
+        image: 'tmselte/evaluator:dotnet-6.0'
+        # Auto Test
+        autoTest: true
+        compileInstructions: |
+          /build.sh
+          # Built-in script that looks for .NET Core projects (.sln files) and build them.
+        runInstructions: |
+          /execute.sh "$@"
+          # Built-in script that looks for executable .NET Core projects and runs the first one.
+        # Static Code Analysis
+        staticCodeAnalysis: true
+        staticCodeAnalyzerTool: roslynator
+        staticCodeAnalyzerInstructions: |
+          set -e
+          IFS=$'\n'
+          counter=$(find . -iname "*.csproj" | wc -l)
+          if [ $counter -eq 0 ]; then
+            echo "No Visual Studio projects found." 1>&2
+            exit 1
+          fi
+          diagnostics=("--supported-diagnostics")
+          if [ -f /test/test_files/diagnostics.txt ]; then
+            readarray  -t -O "${#diagnostics[@]}" diagnostics < <(grep -v "^#" /test/test_files/diagnostics.txt)
+          else
+            readarray  -t -O "${#diagnostics[@]}" diagnostics < <(curl --fail --silent --show-error https://gitlab.com/tms-elte/backend-core/-/snippets/2518152/raw/main/diagnostics.txt | grep -v "^#")
+          fi
+          roslynator analyze $(find . -name "*.csproj") \
+            --output roslynator.xml \
+            --severity-level hidden \
+            --analyzer-assemblies $ANALYZERS_DIR \
+            --ignore-analyzer-references \
+            --report-suppressed-diagnostics \
+            "${diagnostics[@]}"
+          roslynatorExitCode=$?
+          if [ -f roslynator.xml ]; then
+            exit 1
+          fi
+          exit $roslynatorExitCode
+        codeCheckerSkipFile: ''
+
+      - name: 'Windows / .NET'
+        # Environment
+        os: windows
+        image: 'tmselte/evaluator:dotnet-6.0'
+        # Auto Test
+        autoTest: true
+        appType: Console
+        compileInstructions: |
+          C:\build.ps1
+          # Built-in script that looks for .NET Core projects (.sln files) and build them.
+        runInstructions: |
+          C:\execute.ps1 $args
+          # Built-in script that looks for executable .NET Core projects and runs the first one.
+        # Static Code Analysis
+        staticCodeAnalysis: true
+        staticCodeAnalyzerTool: roslynator
+        staticCodeAnalyzerInstructions: |
+          $ErrorActionPreference = "Stop"
+          $projects = Get-ChildItem -Path .\ -Filter *.csproj -Recurse -File -Name
+          if ($projects.Count -eq 0) {
+            Write-Error -Message "No C# projects found." -Category InvalidData
+            exit 1
+          }
+          $diagnostics = @("--supported-diagnostics")
+          if (Test-Path -Path C:\test\test_files\diagnostics.txt) {
+            $diagnostics += Get-Content -Path C:\test\test_files\diagnostics.txt | Where-Object { $_ -notmatch "^#" }
+          } else {
+            $diagnostics += curl.exe --fail --silent --show-error https://gitlab.com/tms-elte/backend-core/-/snippets/2518152/raw/main/diagnostics.txt | Where-Object { $_ -notmatch "^#" }
+          }
+          roslynator analyze $projects `
+            --output roslynator.xml `
+            --severity-level hidden `
+            --ignore-analyzer-references `
+            --analyzer-assemblies $env:ANALYZERS_DIR `
+            --report-suppressed-diagnostics `
+            $diagnostics
+          $roslynatorExitCode = $LASTEXITCODE
+          if (Test-Path -Path "roslynator.xml") {
+            exit 1
+          }
+          exit $roslynatorExitCode
+        codeCheckerSkipFile: ''
+
+      - name: 'Windows / .NET + MAUI'
+        # Environment
+        os: windows
+        image: 'tmselte/evaluator:maui-6.0-windows'
+        # Auto Test
+        autoTest: true
+        appType: Console
+        compileInstructions: |
+          C:\build.ps1
+          # Built-in script that looks for .NET Core projects (.sln files) and build them
+        runInstructions: ''
+        # Static Code Analysis
+        staticCodeAnalysis: false
+    supportedStaticAnalyzerTools:
+      # Template for tool configuration
+      # The key should be the tool name that will be passed to the 'report-converter' command with the '-t' flag
+      # List of the supported tools: https://github.com/Ericsson/codechecker/blob/master/docs/tools/report-converter.md
+      # sample_key:
+      #     title: 'Display name on the frontend'
+      #     # Path to the analyzer results relative to 'test' directory of the container
+      #     # Expected path separator: '/'
+      #     outputPath: 'folder/output'
+      roslynator:
+        title: 'Roslynator (C#)'
+        outputPath: submission/roslynator.xml
+    reportConverterImage:
+      linux: 'tmselte/codechecker:6'
+      windows: 'tmselte/codechecker:6'
+
+  # Canvas synchronization configuration
+  canvas:
+    enabled: false
+    url: ''
+    clientID: ''
+    secretKey: ''
+    redirectUri: ''
+
+  # CodeCompass integration configuration
+  codeCompass:
+    enabled: true
+    socket: 'unix:///var/run/docker.sock'
+    imageName: 'modelcpp/codecompass:runtime-sqlite'
+    maxContainerNum: 10
+    containerExpireMinutes: 30
+    portRange:
+      from: 6200
+      to: 6300
+    username: compass
+    passwordLength: 6
+    isImageCachingEnabled: true
+
+  # Cronjob scheduling configuration
+  scheduling:
+    periods:
+      canvasSynchronizePrioritized: 5 # in minutes
+      systemClearExpiredAccessTokens: 7 # in days
+      autoTesterCheck: 5 # in minutes
+      codeCheckerCheck: 5 # in minutes
+      ccClearCachedImages: 30 # in days
+      ccStartWaitingContainer: 10 # in minutes
+      ccStopExpiredContainers: 10 # in minutes
+      waShutDownExpiredExecutions: 10 # in minutes
+    dates: # 0:00 - 23:59
+      nDigestInstructors: '7:00'
+      nDigestOncomingTaskDeadlines: '7:00'
+    params:
+      autoTesterCheckTasksNumber: 50
+      codeCheckerCheckSubmissionsNumber: 50
+      canvasSynchronizePrioritizedNumber: 5
+
+  # JPlag configuration
+  jplag:
+    # Command to run the JRE. You may need to change this if the default
+    # Java on your system is too old to run JPlag, or JRE is not on your PATH.
+    jre: 'java'
+    # Path of the JPlag JAR file. It should be readable by the web server user.
+    jar: ''
+    # URL of the report viewer. You may use jplag.github.io in dev environment,
+    # but you should use a local installation in production to avoid the
+    # unnecessary external dependency.
+    report-viewer: https://jplag.github.io/JPlag/

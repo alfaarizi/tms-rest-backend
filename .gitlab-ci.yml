@@ -45,10 +45,8 @@ include:
   # Run Composer
   - composer install --prefer-dist --no-ansi --no-interaction
   # Configure application
-  - cp -f config/db.gitlab-ci.php config/db.php
-  - cp -f config/db.gitlab-ci.php config/test_db.php
-  - cp -f config/mailer.sample.php config/mailer.php
-  - cp -f config/params.sample.php config/params.php
+  - cp -f config/config.ci.yml config.yml
+  - cp -f config/config.ci.yml config.test.yml
   # Initialize application
   - php tests/bin/yii migrate --interactive=0
 
