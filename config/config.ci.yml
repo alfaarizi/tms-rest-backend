@@ -1,0 +1,5 @@
+db:
+  dsn: 'mysql:host=mariadb;dbname=tms'
+  username: tms
+  password: tms
+  tablePrefix: test_

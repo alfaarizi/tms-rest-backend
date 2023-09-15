@@ -1,0 +1,30 @@
+app:
+  # Directory for data storage (uploadedfiles, tmp, plagiarism)
+  data_dir: appdata_test
+  # Moss user id for plagiarism detection
+  mossId: '123456789'
+  # Automated evaluator configuration
+  evaluator:
+    enabled: true
+    supportedStaticAnalyzerTools:
+      roslynator:
+        title: 'Roslynator (C#)'
+        outputPath: roslynator.xml
+    reportConverterImage:
+      linux: 'imageName:latest'
+      windows: 'imageName:latest'
+  # Canvas synchronization configuration
+  canvas:
+    enabled: true
+    url: https://canvas.example.com
+    clientID: '1'
+    secretKey: key
+    redirectUri: http://localhost:3000/instructor/task-mamager/canvas/oauth2-response
+  # CodeCompass integration configuration
+  codeCompass:
+    enabled: true
+    maxContainerNum: 3
+    containerExpireMinutes: 61
+    portRange:
+      from: 25565
+      to: 25568

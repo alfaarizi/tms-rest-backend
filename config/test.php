@@ -1,7 +1,22 @@
 <?php
 
-$db = require(__DIR__ . '/test_db.php');
-$params = require(__DIR__ . '/test_params.php');
+use Symfony\Component\Yaml\Yaml;
+use yii\base\InvalidConfigException;
+use yii\helpers\ArrayHelper;
+
+if (!file_exists(__DIR__ . '/../config.test.yml')) {
+    throw new InvalidConfigException('Configuration file config.test.yml does not exist, read the documentation!');
+}
+
+$phpConfig = require(__DIR__ . '/config.php');
+$distConfig = Yaml::parseFile(__DIR__ . '/config.dist.yml');
+$testConfig = Yaml::parseFile(__DIR__ . '/config.test.dist.yml');
+$localConfig = Yaml::parseFile(__DIR__ . '/../config.test.yml');
+$config = ArrayHelper::merge($phpConfig, $distConfig, $testConfig, $localConfig);
+
+$db = $config['db'];
+$mailer = $config['mail'];
+$params = $config['app'];
 $rules = require(__DIR__ . '/rules.php');
 $di = require(__DIR__ . '/di.php');
 $di['definitions'] = array_merge($di['definitions'], [

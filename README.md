@@ -35,9 +35,21 @@ composer install --prefer-dist
 
 ### Configuration
 
-Create the `config/db.php`, `config/mailer.php` and `config/params.php` configuration files based on the provided samples in that directory.
+Create the `config.yml` configuration file with at the bare minimum configuring a database connection:
+```yml
+db:
+  dsn: 'mysql:host=<db host name>;dbname=<database name>'
+  username: '<db user>'
+  password: '<db password>'
+  charset: utf8
+  tablePrefix: ''
+```
 
 **NOTE:** Yii won't create the database for you, this has to be done manually before you can access it.
+
+This will only enable the most basic features of TMS, but you should have an operating instance. Turning on advanced features can be achieved through extending the `config.yml` configuration file. See the `config/config.dist.yml` default configuration file for reference.
+
+**NOTE:** Do not edit the `config/config.dist.yml` file, but copy the desired parts to `config.yml`!
 
 #### Folder permission
 
@@ -50,7 +62,7 @@ Give write permission for the web server to the following folders:
 
 #### Git configuration *(optional)*
 
-To enable Git version controller submissions, beside enabling the feature in the `config/params.php` file, you must install Git and allow to serve the Git repositories through your HTTP server with the [smart HTTP protocol](https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols), using the [`git-http-backend` binary](https://git-scm.com/docs/git-http-backend).
+To enable Git version controller submissions, beside enabling the feature in the `config.yml` file, you must install Git and allow to serve the Git repositories through your HTTP server with the [smart HTTP protocol](https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols), using the [`git-http-backend` binary](https://git-scm.com/docs/git-http-backend).
 
 In case of Apache 2 webserver, the following configuration shall be placed in the main configuration file (`apache2.conf` on Linux, `httpd.conf` on Windows), or preferably in a separate and included config file:
 
@@ -89,7 +101,7 @@ ScriptAlias /git/ "/usr/lib/git-core/git-http-backend/"
 
 #### Docker configuration *(optional)*
 
-To enable the automated assignment evaluator, beside enabling the feature in the `config/params.php` file, you must install Docker on the same or a separate computer.
+To enable the automated assignment evaluator, beside enabling the feature in the `config.yml` file, you must install Docker on the same or a separate computer.
 
 TMS communicates with Docker through the [Docker Engine API](https://docs.docker.com/engine/api/).
 - In case Docker was installed on the local Linux machine, this communication can be done through the UNIX socket of Docker, `unix:///var/run/docker.sock`.
@@ -126,7 +138,7 @@ There are currently two supported plagiarism detectors: Moss and JPlag. Both can
 - The JPlag JAR file, downloadable from [GitHub](https://github.com/jplag/JPlag/releases)
 - The JPlag report viewer. The instance operated by the JPlag authors should be sufficient in development environments (although you might run into issues if your dev web server doesn't support HTTPS), but you're urged to use a local instance in production (otherwise you give up the independence on third-party services). The report viewer isn't distributed pre-built; if you decide to use a local instance, you need to check out the JPlag Git repository and build the report viewer (in the `report-viewer` directory) as described by the `README` in that directory.
 
-After preparing the above, you need to configure `jplag` in `params/config.php` as instructed by the comments in the sample file.
+After preparing the above, you need to configure `jplag` in the `config.yml` file, as instructed by the comments in the `config/config.dist.yml` file.
 
 ### Database migration
 
@@ -177,7 +189,7 @@ TESTING
 
 ### Set up the environment
 
-Create the `config/test_db.php` configuration file based on the provided sample in that directory.
+Create the `config.test.yml` configuration file similarly to `config.yml` before, but this one will be used for testing.
 
 Initialize a secondary testing database. You should not run tests on production or development databases, as testing will purge your data!
 

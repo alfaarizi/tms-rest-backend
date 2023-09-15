@@ -188,7 +188,13 @@ class WebAppExecutor
         $remoteExecutionResource->instructorID = $userID;
         $remoteExecutionResource->dockerHostUrl = $this->getDockerHostUrl($studentFile->task->testOS);
 
-        $reservablePorts = Yii::$app->params['evaluator']['webApp'][$studentFile->task->testOS]['reservedPorts'];
+        $reservablePorts = [];
+        if (!empty(Yii::$app->params['evaluator']['webApp'][$studentFile->task->testOS]['reservedPorts'])) {
+            $reservablePorts = range(
+                Yii::$app->params['evaluator']['webApp'][$studentFile->task->testOS]['reservedPorts']['from'],
+                Yii::$app->params['evaluator']['webApp'][$studentFile->task->testOS]['reservedPorts']['to']
+            );
+        }
         if (empty($reservablePorts)) {
             throw new WebAppExecutionException(Yii::t('app', 'Platform not supported for web application testing.'), WebAppExecutionException::$PREPARATION_FAILURE);
         }
