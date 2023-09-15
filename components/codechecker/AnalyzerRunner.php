@@ -213,7 +213,7 @@ abstract class AnalyzerRunner extends BaseObject
         } else {
             $ccCommand = [
                 'timeout',
-                Yii::$app->params['evaluator']['staticAnalysisTimeout'],
+                strval(Yii::$app->params['evaluator']['staticAnalysisTimeout']),
                 '/bin/bash',
                 '/test/analyze.sh'
             ];

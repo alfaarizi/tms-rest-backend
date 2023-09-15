@@ -150,7 +150,7 @@ class AssignmentTester
         }
         $compileCommand = [
             'timeout',
-            Yii::$app->params['evaluator']['compileTimeout'],
+            strval(Yii::$app->params['evaluator']['compileTimeout']),
             '/bin/bash',
             '/test/compile.sh'
         ];
@@ -320,7 +320,7 @@ class AssignmentTester
         // set TEST_CASE_NR environment variable
         $runCommand = [
             'timeout',
-            Yii::$app->params['evaluator']['testTimeout'],
+            strval(Yii::$app->params['evaluator']['testTimeout']),
             '/bin/bash',
             '-c',
             "TEST_CASE_NR=$testCaseNr /test/run.sh $testCase->arguments <<< \"{$testCase->input}\""];
