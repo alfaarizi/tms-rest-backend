@@ -316,29 +316,36 @@ class AssignmentTester
     {
         $task = $this->studentFile->task;
 
-        // runs the compiled program with the testCase input redirected to it's stdin
+        // runs the compiled program with the testCase input redirected to its stdin
         // set TEST_CASE_NR environment variable
-        $runCommand = [
-            'timeout',
-            strval(Yii::$app->params['evaluator']['testTimeout']),
-            '/bin/bash',
-            '-c',
-            "TEST_CASE_NR=$testCaseNr /test/run.sh $testCase->arguments <<< \"{$testCase->input}\""];
-        if ($task->testOS == 'windows') {
+        if ($task->testOS == 'linux') {
             $runCommand = [
-                "\$env:TEST_CASE_NR=$testCaseNr; ",
-                "powershell echo \"{$testCase->input}\" | ",
-                "powershell C:\\test\\run.ps1 $testCase->arguments"];
+                'timeout',
+                strval(Yii::$app->params['evaluator']['testTimeout']),
+                '/bin/bash',
+                '-c',
+                "TEST_CASE_NR=$testCaseNr /test/run.sh $testCase->arguments <<< \"{$testCase->input}\""
+            ];
+        } else { // $task->testOS == 'windows'
+            $runCommand = [
+                "powershell",
+                "-Command",
+                "\$env:TEST_CASE_NR=$testCaseNr; echo \"{$testCase->input}\" | powershell C:\\test\\run.ps1 $testCase->arguments"
+            ];
         }
         $execResult = $this->executeCommand($runCommand, $container);
 
-        // Check for output equality
         // trimming expected and actual output
+        $actualOutput = trim($execResult['stdout']);
+        $expectedOutput = trim($testCase->output);
         // removing /r from output preventing errors from newline mismatches
-        $execResult['equal'] = strcmp(
-            preg_replace('/\r/', '', trim($execResult['stdout'])),
-            preg_replace('/\r/', '', trim($testCase->output))
-        );
+        $actualOutput = preg_replace('/\r/', '', $actualOutput);
+        $expectedOutput = preg_replace('/\r/', '', $expectedOutput);
+        // remove the utf-8 BOM (added by powershell)
+        $actualOutput = preg_replace('/^\xEF\xBB\xBF/', '', $actualOutput);
+
+        // Check for output equality
+        $execResult['equal'] = strcmp($actualOutput, $expectedOutput);
         return $execResult;
     }
 
