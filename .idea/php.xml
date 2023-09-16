@@ -172,6 +172,17 @@
       <path value="$PROJECT_DIR$/vendor/bower-asset/inputmask" />
       <path value="$PROJECT_DIR$/vendor/bower-asset/jquery" />
       <path value="$PROJECT_DIR$/vendor/phpstan/phpstan" />
+      <path value="$PROJECT_DIR$/vendor/opis/closure" />
+      <path value="$PROJECT_DIR$/vendor/fitbug/symfony-yaml-serializer-encoder-decoder" />
+      <path value="$PROJECT_DIR$/vendor/symfony/property-access" />
+      <path value="$PROJECT_DIR$/vendor/symfony/inflector" />
+      <path value="$PROJECT_DIR$/vendor/symfony/debug" />
+      <path value="$PROJECT_DIR$/vendor/jane/runtime" />
+      <path value="$PROJECT_DIR$/vendor/jane/open-api" />
+      <path value="$PROJECT_DIR$/vendor/jane/openapi-runtime" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/inflector" />
+      <path value="$PROJECT_DIR$/vendor/jane/jane" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-token-stream" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.4" />

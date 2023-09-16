@@ -28,5 +28,33 @@ return [
         'output' => '9',
         'arguments' => '27',
         'taskID' => 5005
-    ]
+    ],
+    'testcase5' => [
+        'id' => 5,
+        'input' => '2',
+        'output' => '4',
+        'arguments' => '8',
+        'taskID' => 5016
+    ],
+    'testcase6' => [
+        'id' => 6,
+        'input' => '3',
+        'output' => '9',
+        'arguments' => '27',
+        'taskID' => 5016
+    ],
+    'testcase7' => [
+        'id' => 7,
+        'input' => '2',
+        'output' => '4',
+        'arguments' => '8',
+        'taskID' => 5017
+    ],
+    'testcase8' => [
+        'id' => 8,
+        'input' => '3',
+        'output' => '9',
+        'arguments' => '27',
+        'taskID' => 5017
+    ],
 ];

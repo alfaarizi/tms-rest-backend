@@ -5,6 +5,7 @@ namespace app\components;
 use app\components\docker\DockerImageManager;
 use app\components\docker\EvaluatorTarBuilder;
 use app\exceptions\EvaluatorTarBuilderException;
+use app\models\TestResult;
 use Yii;
 use Docker\Docker;
 use Docker\DockerClientFactory;
@@ -105,6 +106,9 @@ class AssignmentTester
 
     /**
      * Runs the testCases on the studentfile.
+     *
+     * @return array an array with the test results.
+     * @throws \Throwable
      */
     public function test(): void
     {
@@ -171,20 +175,24 @@ class AssignmentTester
             return;
         }
         $this->results['compiled'] = true;
+        $this->results['executed'] = true;
         $this->results['passed'] = true;
-        $this->results['error'] = false;
         $this->results['errorMsg'] = '';
         $testCaseNr = 1;
         // run the test cases on the solution
         if ($task->testOS != 'windows') {
             $this->executeCommand(['chmod', '0755', '/test/run.sh'], $container);
         }
+
         foreach ($this->testCases as $testCase) {
             $result = $this->runTestCase($testCaseNr, $testCase, $container);
-            if (!$this->checkResult($result, $testCaseNr, $testCase)) {
-                $this->stopContainer($containerName);
-                return;
+            if (!$this->checkResult($result, $testCaseNr, $testCase) && $this->results['passed']) {
+                // The overall result will be the status of the first failing test case.
+                $this->results['passed'] = false;
+                $this->results['executed'] = $this->results[$testCaseNr]['executed'];
+                $this->results['errorMsg'] = $this->results[$testCaseNr]['errorMsg'];
             }
+
             $testCaseNr++;
         }
 
@@ -255,27 +263,31 @@ class AssignmentTester
         $task = $this->studentFile->task;
         // check if there were errors during the execution
         if ($result['exitCode'] != 0) {
-            $this->results['passed'] = false;
-            $this->results['error'] = true;
+            $this->results[$testCaseNr]['executed'] = false;
+            $this->results[$testCaseNr]['passed'] = false;
             // If the execution timed out
             if ($result['exitCode'] == 124 && $task->testOS == 'linux') {
-                $this->results['errorMsg'] = Yii::t('app', 'Your solution exceeded the execution time limit.');
+                $this->results[$testCaseNr]['errorMsg'] = Yii::t('app', 'Your solution exceeded the execution time limit.');
             } elseif ($task->testOS == 'linux') {
-                $this->results['errorMsg'] = !empty($result['stderr']) ? $result['stderr'] : $result['stdout'];
+                $this->results[$testCaseNr]['errorMsg'] = !empty($result['stderr']) ? $result['stderr'] : $result['stdout'];
             } else { // == 'windows'
-                $this->results['errorMsg'] = $result['stdout'];
+                $this->results[$testCaseNr]['errorMsg'] = $result['stdout'];
             }
             return false;
         }
+
+        $this->results[$testCaseNr]['executed'] = true;
         $this->results[$testCaseNr]['arguments'] = $testCase->arguments;
         $this->results[$testCaseNr]['input'] = $testCase->input;
         $this->results[$testCaseNr]['expectedOutput'] = $testCase->output;
         $this->results[$testCaseNr]['output'] = $result['stdout'];
+        $this->results[$testCaseNr]['errorMsg'] = null;
+
         // check if the output matches the expected output
         if ($result['equal'] === 0) {
             $this->results[$testCaseNr]['passed'] = true;
         } else {
-            $this->results['errorMsg'] = Yii::t('app', 'Your solution failed on') . ':' . PHP_EOL .
+            $this->results[$testCaseNr]['errorMsg'] = Yii::t('app', 'Your solution failed on') . ':' . PHP_EOL .
                 Yii::t('app', 'Command arguments') . ': ' . PHP_EOL .
                 $testCase->arguments . PHP_EOL . PHP_EOL .
                 Yii::t('app', 'Given input') . ': ' . PHP_EOL .
@@ -285,7 +297,6 @@ class AssignmentTester
                 Yii::t('app', 'Actual output') . ': ' . PHP_EOL .
                 $result['stdout'];
             $this->results[$testCaseNr]['passed'] = false;
-            $this->results['passed'] = false;
             return false;
         }
         return true;

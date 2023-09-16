@@ -223,6 +223,8 @@ return [
     'Console' => 'Konzol',
     'Web' => 'Web',
     'Port' => 'Port',
+    'TestCase ID' => 'Teszteset azonosítója',
+    'StudentFile ID' => 'Hallgatói fájl azonosítója',
 
     "Task not found." => "A feladat nem található.",
     "Group not found." => "A csoport nem található.",
@@ -298,6 +300,7 @@ return [
     'The testing environment could\'t be initialized' => 'A tesztelési környezet inicializálása sikertelen',
     'The solution didn\'t compile' => 'A megoldás nem fordult le',
     'Your solution failed on' => 'A megoldás megbukott az alábbi teszteseten',
+    'Your solution failed the test' => 'A megoldás megbukott a teszten',
     'Your solution failed the tests' => 'A megoldás megbukott a teszteken',
     'Your solution passed the tests' => 'A megoldás átment a teszteken',
     'Your solution is being tested' => 'A megoldás tesztelés alatt áll',

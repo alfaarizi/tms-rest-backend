@@ -61,6 +61,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
             "POST <module:{$this->id}>/<controller:student-files>/<id>/start-code-compass" => '<module>/<controller>/start-code-compass',
             "POST <module:{$this->id}>/<controller:student-files>/<id>/stop-code-compass" => '<module>/<controller>/stop-code-compass',
             "GET <module:{$this->id}>/<controller:instructor-files>/<id>/download" => '<module>/<controller>/download',
+            "GET <module:{$this->id}>/<controller:student-files>/<id>/auto-tester-results" => '<module>/<controller>/auto-tester-results',
 
             // instructor/exam-question-sets
             "<module:{$this->id}>/<controller:exam-question-sets>/<id>/duplicate" => '<module>/<controller>/duplicate',

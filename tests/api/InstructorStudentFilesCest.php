@@ -11,6 +11,7 @@ use app\tests\unit\fixtures\SubscriptionFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use app\tests\unit\fixtures\UserFixture;
 use app\tests\unit\fixtures\CodeCompassInstanceFixture;
+use app\tests\unit\fixtures\TestResultFixture;
 use Codeception\Util\HttpCode;
 use yii\helpers\FileHelper;
 
@@ -35,6 +36,12 @@ class InstructorStudentFilesCest
         'codeCompassID' => 'integer|null'
     ];
 
+    public const TEST_RESULT_SCHEMA = [
+        'testCaseNr' => 'integer',
+        'isPassed' => 'boolean',
+        'errorMsg' => 'string|null',
+    ];
+
     public function _fixtures()
     {
         return [
@@ -55,7 +62,10 @@ class InstructorStudentFilesCest
             ],
             'codecompassinstances' => [
                 'class' => CodeCompassInstanceFixture::class
-            ]
+            ],
+            'testresults' => [
+                'class' => TestResultFixture::class
+            ],
         ];
     }
 
@@ -469,5 +479,28 @@ class InstructorStudentFilesCest
     {
         $I->sendPost("/instructor/student-files/3/stop-code-compass");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function viewTestResults(ApiTester $I)
+    {
+        $I->sendGet("/instructor/student-files/51/auto-tester-results");
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TEST_RESULT_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                'testCaseNr' => 1,
+                'isPassed' => false,
+                'errorMsg' => 'FULL_ERROR_MESSAGE',
+            ]
+        );
+
+        $I->seeResponseContainsJson(
+            [
+                'testCaseNr' => 2,
+                'isPassed' => true,
+                'errorMsg' => null,
+            ]
+        );
     }
 }

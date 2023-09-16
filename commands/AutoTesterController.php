@@ -7,6 +7,7 @@ use app\components\CanvasIntegration;
 use app\models\Task;
 use app\models\TestCase;
 use app\models\StudentFile;
+use app\models\TestResult;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
@@ -104,30 +105,55 @@ class AutoTesterController extends BaseController
                 $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED;
                 $studentFile->errorMsg = $errorMsg;
                 // If there were errors executing the program
-            } elseif ($result['error'] && $result['compiled']) {
+            } elseif (!$result['executed']) {
                 $errorMsg = $result['errorMsg'];
                 $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
                 $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED;
                 $studentFile->errorMsg = $errorMsg;
-                // If the solution compiled and there were no errors
+                // If the tests passed
+            } elseif ($result['passed']) {
+                $studentFile->isAccepted = StudentFile::IS_ACCEPTED_PASSED;
+                $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
+                $studentFile->errorMsg = null;
+                // If the tests failed
             } else {
-                if (!$result['error'] && $result['compiled']) {
-                    // If the solution passed
-                    if ($result['passed']) {
-                        $studentFile->isAccepted = StudentFile::IS_ACCEPTED_PASSED;
-                        $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
-                        $studentFile->errorMsg = null;
-                    } else {
-                        $errorMsg = $result['errorMsg'];
-                        $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-                        $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED;
-                        $studentFile->errorMsg = $errorMsg;
-                    }
-                }
+                $errorMsg = $result['errorMsg'];
+                $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
+                $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED;
+                $studentFile->errorMsg = $errorMsg;
             }
 
-            // Save the results in the database
-            $studentFile->save();
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                // Save the results in the database
+                $studentFile->save();
+
+                // Delete old per test case results from the database
+                TestResult::deleteAll(['studentFileID' => $studentFile->id]);
+
+                // Save new per test case results in the database
+                if (isset($result['compiled']) && $result['compiled']) {
+                    $testCaseNr = 1;
+                    foreach ($testCases as $testCase) {
+                        if (!isset($result[$testCaseNr])) {
+                            continue;
+                        }
+
+                        $testResult = new TestResult();
+                        $testResult->testCaseID = $testCase->id;
+                        $testResult->studentFileID = $studentFile->id;
+                        $testResult->isPassed = $result[$testCaseNr]['passed'];
+                        $testResult->errorMsg = $result[$testCaseNr]['errorMsg'];
+                        $testResult->save();
+
+                        $testCaseNr++;
+                    }
+                }
+                $transaction->commit();
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                throw $e;
+            }
 
             // Upload the result message to the canvas
             if (Yii::$app->params['canvas']['enabled'] && !empty($studentFile->canvasID)) {

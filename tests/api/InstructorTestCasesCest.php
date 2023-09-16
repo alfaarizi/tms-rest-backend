@@ -379,7 +379,7 @@ class InstructorTestCasesCest
         $I->seeResponseContainsJson(
             [
                 [
-                    'id' => 5,
+                    'id' => 9,
                     'input' => '1',
                     'output' => '1',
                     'arguments' => '',
@@ -400,14 +400,14 @@ class InstructorTestCasesCest
         $I->seeResponseContainsJson(
             [
                 [
-                    'id' => 5,
+                    'id' => 9,
                     'input' => '1',
                     'output' => '1',
                     'arguments' => '',
                     'taskID' => 5000
                 ],
                 [
-                    'id' => 6,
+                    'id' => 10,
                     'input' => '2',
                     'output' => '2',
                     'arguments' => '',
