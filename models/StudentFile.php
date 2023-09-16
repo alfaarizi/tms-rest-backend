@@ -31,14 +31,16 @@ use yii\helpers\StringHelper;
  * @property integer $uploadCount
  * @property boolean $verified
  * @property string $codeCheckerResultID
+ * @property-read string $containerName
+ * @property-read array $ipAddresses
+ * @property-read string $safeErrorMsg
+ *
  * @property Task $task
  * @property User $uploader
  * @property User $grader
  * @property CodeCheckerResult $codeCheckerResult
+ * @property TestResult[] $testResults
  *
- * @property-read string $containerName
- * @property-read array $ipAddresses
- * @property-read string $safeErrorMsg
  */
 class StudentFile extends File implements IOpenApiFieldTypes
 {
@@ -313,6 +315,14 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public function getGrader()
     {
         return $this->hasOne(User::class, ['id' => 'graderID']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTestResults()
+    {
+        return $this->hasMany(TestResult::class, ['studentFileID' => 'id']);
     }
 
     public function getTranslatedIsAccepted()

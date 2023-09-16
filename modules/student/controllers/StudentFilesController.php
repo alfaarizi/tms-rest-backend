@@ -3,11 +3,11 @@
 namespace app\modules\student\controllers;
 
 use app\components\GitManager;
-use app\models\Log;
 use app\models\StudentFile;
 use app\models\User;
 use app\modules\student\resources\StudentFileUploadResource;
 use app\modules\student\resources\VerifyItemResource;
+use app\resources\AutoTesterResultResource;
 use Yii;
 use app\modules\student\resources\TaskResource;
 use app\modules\student\helpers\PermissionHelpers;
@@ -34,6 +34,7 @@ class StudentFilesController extends BaseStudentRestController
             'download' => ['GET'],
             'upload' => ['POST'],
             'verify' => ['POST'],
+            'auto-tester-results' => ['GET'],
         ]);
     }
 
@@ -361,5 +362,61 @@ class StudentFilesController extends BaseStudentRestController
         } else {
             throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
         }
+    }
+
+    /**
+     * Get information about an uploaded file's autotester result
+     * @param int $id
+     * @return array
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/student/student-files/{id}/auto-tester-results",
+     *     operationId="student::StudentFilesController::actionAutoTesterResults",
+     *     tags={"Student Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the file",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_AutoTesterResultResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionAutoTesterResults($id)
+    {
+        $file = StudentFileResource::findOne($id);
+
+        if (is_null($file)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Student File not found.'));
+        }
+
+        PermissionHelpers::isItMyTask($file->taskID);
+        PermissionHelpers::isItMyStudentFile($file);
+
+        $results = $file->testResults;
+
+        $idx = 1;
+        return array_map(function ($result) use (&$idx) {
+            return new AutoTesterResultResource(
+                $idx++,
+                $result->isPassed,
+                $result->safeErrorMsg,
+            );
+        }, $results);
     }
 }

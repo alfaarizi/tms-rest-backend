@@ -16,6 +16,7 @@ use Yii;
  * @property string $output
  *
  * @property Task $task
+ * @property TestResult[] $testResults
  */
 class TestCase extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
@@ -88,5 +89,13 @@ class TestCase extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public function getTask()
     {
         return $this->hasOne(Task::class, ['id' => 'taskID']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTestResults()
+    {
+        return $this->hasMany(TestResult::class, ['testCaseID' => 'id']);
     }
 }

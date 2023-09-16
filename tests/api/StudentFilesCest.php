@@ -3,7 +3,6 @@
 namespace tests\api;
 
 use ApiTester;
-use app\tests\unit\fixtures\LogFixture;
 use Yii;
 use app\models\StudentFile;
 use app\tests\unit\fixtures\AccessTokenFixture;
@@ -11,6 +10,8 @@ use app\tests\unit\fixtures\StudentFilesFixture;
 use app\tests\unit\fixtures\SubscriptionFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use app\tests\unit\fixtures\UserFixture;
+use app\tests\unit\fixtures\LogFixture;
+use app\tests\unit\fixtures\TestResultFixture;
 use Codeception\Util\HttpCode;
 
 class StudentFilesCest
@@ -28,6 +29,12 @@ class StudentFilesCest
         'graderName' => 'string|null',
         'errorMsg' => 'string|null',
         'taskID' => 'integer',
+    ];
+
+    public const TEST_RESULT_SCHEMA = [
+        'testCaseNr' => 'integer',
+        'isPassed' => 'boolean',
+        'errorMsg' => 'string|null',
     ];
 
     public function _fixtures()
@@ -50,6 +57,9 @@ class StudentFilesCest
             ],
             'logs' => [
                 'class' => LogFixture::class
+            ],
+            'testresults' => [
+                'class' => TestResultFixture::class
             ],
         ];
     }
@@ -627,6 +637,52 @@ class StudentFilesCest
                 "id" => 16,
                 "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
                 "verified" => true,
+            ]
+        );
+    }
+
+    public function viewTestResultsWithFullErrorMessage(ApiTester $I)
+    {
+        $I->sendGet("/student/student-files/51/auto-tester-results");
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TEST_RESULT_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                'testCaseNr' => 1,
+                'isPassed' => false,
+                'errorMsg' => 'FULL_ERROR_MESSAGE',
+            ]
+        );
+
+        $I->seeResponseContainsJson(
+            [
+                'testCaseNr' => 2,
+                'isPassed' => true,
+                'errorMsg' => null,
+            ]
+        );
+    }
+
+    public function viewTestResultsWithoutFullErrorMessage(ApiTester $I)
+    {
+        $I->sendGet("/student/student-files/52/auto-tester-results");
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TEST_RESULT_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                'testCaseNr' => 1,
+                'isPassed' => false,
+                'errorMsg' => 'Your solution failed the test',
+            ]
+        );
+
+        $I->seeResponseContainsJson(
+            [
+                'testCaseNr' => 2,
+                'isPassed' => true,
+                'errorMsg' => '',
             ]
         );
     }

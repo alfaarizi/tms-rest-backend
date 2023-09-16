@@ -11,6 +11,7 @@ use app\models\StudentFile;
 use app\models\User;
 use app\modules\instructor\resources\CodeCompassInstanceResource;
 use app\modules\instructor\resources\GroupResource;
+use app\resources\AutoTesterResultResource;
 use app\resources\SemesterResource;
 use Yii;
 use app\modules\instructor\resources\StudentFileResource;
@@ -47,7 +48,8 @@ class StudentFilesController extends BaseInstructorRestController
             'download' => ['GET'],
             'download-all-files' => ['GET'],
             'start-code-compass' => ['POST'],
-            'stop-code-compass' => ['POST']
+            'stop-code-compass' => ['POST'],
+            'auto-tester-results' => ['GET'],
         ]);
     }
 
@@ -860,5 +862,62 @@ class StudentFilesController extends BaseInstructorRestController
         } catch (\Exception $e) {
             throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
         }
+    }
+
+    /**
+     * Get information about an uploaded file
+     * @param int $id
+     * @return array
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/student-files/{id}/auto-tester-results",
+     *     operationId="instructor::StudentFilesController::actionAutoTesterResults",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the student file",
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Common_AutoTesterResultResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionAutoTesterResults($id)
+    {
+        $studentFile = StudentFileResource::findOne($id);
+
+        if (is_null($studentFile)) {
+            throw new NotFoundHttpException(Yii::t('app', 'StudentFile not found'));
+        }
+
+        // Authorization check
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $studentFile->task->groupID])) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
+        }
+
+        $results = $studentFile->testResults;
+
+        $idx = 1;
+        return array_map(function ($result) use (&$idx) {
+            return new AutoTesterResultResource(
+                $idx++,
+                $result->isPassed,
+                $result->errorMsg
+            );
+        }, $results);
     }
 }
