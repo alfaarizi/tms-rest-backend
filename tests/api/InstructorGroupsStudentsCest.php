@@ -3,6 +3,7 @@
 namespace tests\api;
 
 use ApiTester;
+use app\models\StudentFile;
 use app\tests\unit\fixtures\StudentFilesFixture;
 use Yii;
 use app\models\Subscription;
@@ -169,6 +170,15 @@ class InstructorGroupsStudentsCest
             Subscription::class,
             [
                 'id' => 8,
+            ]
+        );
+
+        // No submission StudentFile should be removed
+        $I->cantSeeRecord(
+            StudentFile::class,
+            [
+                'uploaderID' => 1011,
+                'taskID' => 5000,
             ]
         );
     }
