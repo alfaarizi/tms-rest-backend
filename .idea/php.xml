@@ -7,7 +7,8 @@
     <option name="transferred" value="true" />
   </component>
   <component name="PHPCodeSnifferOptionsConfiguration">
-    <option name="codingStandard" value="PSR12" />
+    <option name="codingStandard" value="Custom" />
+    <option name="customRuleset" value="$PROJECT_DIR$/.phpcs.xml" />
     <option name="highlightLevel" value="WARNING" />
     <option name="transferred" value="true" />
   </component>
