@@ -1109,12 +1109,30 @@ class GroupsController extends BaseInstructorRestController
                     )
                 ]
             )
-            ->andWhere(['not', ['isAccepted' => 'No Submission']])
+            ->andWhere(['not', ['isAccepted' => StudentFile::IS_ACCEPTED_NO_SUBMISSION]])
             ->exists();
 
         // Check for uploaded file
         if ($thereAreUploadedFiles) {
             throw new BadRequestHttpException(Yii::t('app', 'Cannot remove student with uploaded file.'));
+        }
+
+        // Query all 'No Submission' submissions for the student
+        $noSubmissionStudentFiles = $subscription->user->getFiles()
+            ->where(
+                [
+                    'taskID' => array_map(
+                        static fn (Task $t) => $t->id,
+                        Task::findAll(['groupID' => $subscription->groupID])
+                    )
+                ]
+            )
+            ->andWhere(['isAccepted' => StudentFile::IS_ACCEPTED_NO_SUBMISSION])
+            ->all();
+
+        // Delete (no submission) student files
+        foreach ($noSubmissionStudentFiles as $file) {
+            $file->delete();
         }
 
         // Remove user from task repos if the task is version controlled
