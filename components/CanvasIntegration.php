@@ -270,7 +270,7 @@ class CanvasIntegration
             $this->saveCanvasTeachersToGroup($group);
             $this->saveTasksToCourse($group);
             $this->saveCanvasStudentsToGroup($group);
-            $this->saveSolutions($group);
+            $this->saveSubmissions($group);
 
             $syncErrorMsgsString = null;
             if (count($this->syncErrorMsgs) != 0) {
@@ -338,7 +338,7 @@ class CanvasIntegration
         $page = 1;
         $morePages = true;
         do {
-            //if the number is -1, get the all users to the course
+            //if the number is -1, get all users to the course
             if ($group->canvasSectionID == -1) {
                 $response = $client->createRequest()
                     ->setMethod('GET')
@@ -390,9 +390,9 @@ class CanvasIntegration
         } while ($morePages);
 
         $condition = [
-        'AND',
-        ['NOT', ['id' => $subscriptions]],
-        ['groupID' => $group->id]
+            'AND',
+            ['NOT', ['id' => $subscriptions]],
+            ['groupID' => $group->id]
         ];
         Subscription::deleteAll($condition);
     }
@@ -712,10 +712,10 @@ class CanvasIntegration
     }
 
     /**
-     * Get the uploaded solutions to the given group from canvas
+     * Gets and persists the submissions of the given group from canvas
      * @param Group $group the given group
      */
-    private function saveSolutions(Group $group): void
+    private function saveSubmissions(Group $group): void
     {
         $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
 
@@ -727,7 +727,7 @@ class CanvasIntegration
             $page = 1;
 
             do {
-                //if the number is -1, get the all users to the course
+                //if the number is -1, get all submissions to the course
                 if ($group->canvasSectionID == -1) {
                     $response = $client->createRequest()
                         ->setMethod('GET')
@@ -767,18 +767,17 @@ class CanvasIntegration
                 $morePages = !empty($response->data);
 
                 foreach ($out as $submission) {
-                    if (!empty($submission['attachments'])) {
-                        $tmsFile = $this->saveSolution($submission, $task);
-                        if ($tmsFile != null && $tmsFile->id > 0) {
-                            array_push($studentFileIds, $tmsFile->id);
-                            if ($tmsFile->isAccepted == StudentFile::IS_ACCEPTED_CORRUPTED) {
-                                $countSyncProblems++;
-                            }
+                    $tmsFile = $this->saveSubmission($submission, $task);
+                    if ($tmsFile != null && $tmsFile->id > 0) {
+                        array_push($studentFileIds, $tmsFile->id);
+                        if ($tmsFile->isAccepted == StudentFile::IS_ACCEPTED_CORRUPTED) {
+                            $countSyncProblems++;
                         }
                     }
                 }
             } while ($morePages);
 
+            // Remove old submissions not belonging to a current student of the group
             $condition = ['AND',
                 ['NOT', ['id' => $studentFileIds]],
                 ['taskID' => $task->id]
@@ -801,15 +800,22 @@ class CanvasIntegration
     }
 
     /**
-     * Save the solution from canvas, and notifies users if there is/are corrupted files
+     * Save the submission from canvas, and notifies users if there is/are corrupted files
      * @param array $submission the response from canvas with the solution data
      * @param Task $task the given task
      * @return StudentFile|null the created/updated student file, null if the user cannot be found or
      * there was a database error
      */
-    private function saveSolution(array $submission, Task $task): ?StudentFile
+    private function saveSubmission(array $submission, Task $task): ?StudentFile
     {
-        $canvasFile = end($submission['attachments']);
+        $canvasFile = null;
+        if (
+            isset($submission['attachments']) &&
+            is_array($submission['attachments']) &&
+            count($submission['attachments']) > 0
+        ) {
+            $canvasFile = end($submission['attachments']);
+        }
         $user = User::findOne(['canvasID' => $submission['user_id']]);
         $hasNewUpload = false;
         $newFileCorrupted = false;
@@ -819,77 +825,65 @@ class CanvasIntegration
             return null;
         }
 
+        // Load StudentFile by Canvas ID
+        /** @var StudentFile $tmsFile */
         $tmsFile = $task->getStudentFiles()->where(['canvasID' => $submission['id']])->one();
 
-        // Canvas file upload by student is invalid or corrupted
-        if (is_null($canvasFile['size']) || $canvasFile['size'] == 0) {
-            if (empty($tmsFile)) {
-                $newFileCorrupted = true;
-                $this->saveCanvasFile($task->id, $canvasFile['display_name'], Yii::$app->basePath . StudentFile::PATH_OF_CORRUPTED_FILE, $user->neptun);
-                $tmsFile = new StudentFile([
-                   'canvasID' => $submission['id'],
-                   'name' => $canvasFile['display_name'],
-                   'uploadTime' => date('Y-m-d H:i:s', strtotime($canvasFile['updated_at'])),
-                   'taskID' => $task->id,
-                   'uploaderID' => $user->id,
-                   'isAccepted' => StudentFile::IS_ACCEPTED_CORRUPTED,
-                   'verified' => true,
-                   'notes' => '',
-                   'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
-                   'codeCheckerResultID' => null,
-                   'uploadCount' => 0,
-                ]);
-            } elseif (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
-                $newFileCorrupted = true;
-                $this->saveCanvasFile($task->id, $canvasFile['display_name'], Yii::$app->basePath . StudentFile::PATH_OF_CORRUPTED_FILE, $user->neptun);
-                $tmsFile->name = $canvasFile['display_name'];
-                $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
-                $tmsFile->isAccepted = StudentFile::IS_ACCEPTED_CORRUPTED;
-                $tmsFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
-                $tmsFile->codeCheckerResultID = null;
-            }
-        } else {
-            if (empty($tmsFile)) {
-                $this->saveCanvasFile($task->id, $canvasFile['display_name'], $canvasFile['url'], $user->neptun);
-                $tmsFile = new StudentFile([
-                    'canvasID' => $submission['id'],
-                    'name' => $canvasFile['display_name'],
-                    'uploadTime' => date('Y-m-d H:i:s', strtotime($canvasFile['updated_at'])),
-                    'taskID' => $task->id,
-                    'uploaderID' => $user->id,
-                    'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
-                    'verified' => true,
-                    'notes' => '',
-                    'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
-                    'codeCheckerResultID' => null,
-                    'uploadCount' => 1,
-                ]);
-                $hasNewUpload = true;
-            } elseif (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
-                $this->saveCanvasFile($task->id, $canvasFile['display_name'], $canvasFile['url'], $user->neptun);
-                $tmsFile->name = $canvasFile['display_name'];
-                $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
-                $tmsFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
-                $tmsFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
-                $tmsFile->uploadCount++;
-                $tmsFile->codeCheckerResultID = null;
-                $hasNewUpload = true;
+        // For first sync, load StudentFile by uploader user ID
+        if (is_null($tmsFile)) {
+            /** @var StudentFile $tmsFile */
+            $tmsFile = $task->getStudentFiles()->where(['uploaderID' => $user->id])->one();
+
+            if (is_null($tmsFile)) {
+                // Should not occur since there should be a 'No submission' record even for non-submitted solutions.
+                Yii::error("Solution for user {$user->neptun} (ID: #{$user->id}) on Task #{$task->id} not found.", __METHOD__);
+                return null;
             }
 
-            if (!empty($submission['grader_id'])) {
-                $tmsFile->grade = filter_var($submission['score'], FILTER_VALIDATE_FLOAT) === false ? null : $submission['score'];
-                $grader = User::findOne(['canvasID' => $submission['grader_id']]);
-                $tmsFile->graderID = $grader->id ?? null;
-                if (!empty($submission['submission_comments'])) {
-                    foreach (array_reverse($submission['submission_comments']) as $comment) {
-                        if (
-                            $comment['author_id'] == $submission['grader_id'] &&
-                            strpos($comment['comment'], 'TMS auto') !== 0 &&
-                            strpos($comment['comment'], 'A TMS auto') !== 0
-                        ) {
-                            $tmsFile->notes = Encoding::toUTF8($comment['comment']);
-                            break;
-                        }
+            $tmsFile->canvasID = $submission['id'];
+        }
+
+        // Check if there is a submission in Canvas by the student
+        if (!is_null($canvasFile)) {
+            // Canvas file upload by student is invalid or corrupted
+            if ($canvasFile['size'] == 0) { // deliberately == 0, so it checks for null as well
+                if (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
+                    $this->saveCanvasFile($task->id, $canvasFile['display_name'], Yii::$app->basePath . StudentFile::PATH_OF_CORRUPTED_FILE, $user->neptun);
+                    $tmsFile->name = $canvasFile['display_name'];
+                    $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
+                    $tmsFile->isAccepted = StudentFile::IS_ACCEPTED_CORRUPTED;
+                    $tmsFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+                    $tmsFile->codeCheckerResultID = null;
+                    $newFileCorrupted = true;
+                }
+            } else {
+                if (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
+                    $this->saveCanvasFile($task->id, $canvasFile['display_name'], $canvasFile['url'], $user->neptun);
+                    $tmsFile->name = $canvasFile['display_name'];
+                    $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
+                    $tmsFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
+                    $tmsFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+                    $tmsFile->uploadCount++;
+                    $tmsFile->codeCheckerResultID = null;
+                    $hasNewUpload = true;
+                }
+            }
+        }
+
+        // Update grade and notes
+        if (!empty($submission['grader_id'])) {
+            $tmsFile->grade = filter_var($submission['score'], FILTER_VALIDATE_FLOAT) === false ? null : $submission['score'];
+            $grader = User::findOne(['canvasID' => $submission['grader_id']]);
+            $tmsFile->graderID = $grader->id ?? null;
+            if (!empty($submission['submission_comments'])) {
+                foreach (array_reverse($submission['submission_comments']) as $comment) {
+                    if (
+                        $comment['author_id'] == $submission['grader_id'] &&
+                        strpos($comment['comment'], 'TMS auto') !== 0 &&
+                        strpos($comment['comment'], 'A TMS auto') !== 0
+                    ) {
+                        $tmsFile->notes = Encoding::toUTF8($comment['comment']);
+                        break;
                     }
                 }
             }
@@ -908,7 +902,16 @@ class CanvasIntegration
             }
         } catch (\yii\db\Exception $ex) {
             $tmsFile->notes = Encoding::fixUTF8($tmsFile->notes);
-            $tmsFile->save();
+            if (!$tmsFile->save()) {
+                $errorMsg = "Saving solution for user {$user->neptun} (ID: #{$user->id}) on Task #{$task->id} failed.";
+                array_push($this->syncErrorMsgs, $errorMsg);
+                Yii::error(
+                    $errorMsg .
+                    "Message: " . VarDumper::dumpAsString($tmsFile->firstErrors),
+                    __METHOD__
+                );
+                return null;
+            }
         }
 
         if ($hasNewUpload) {

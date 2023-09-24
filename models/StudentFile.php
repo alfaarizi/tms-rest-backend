@@ -273,7 +273,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
             return parent::beforeDelete();
         }
 
-        return true;
+        return \yii\db\ActiveRecord::beforeDelete();
     }
 
     /**
