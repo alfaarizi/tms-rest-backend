@@ -83,8 +83,17 @@ class StudentFile extends File implements IOpenApiFieldTypes
         self::IS_ACCEPTED_LATE_SUBMISSION,
         self::IS_ACCEPTED_PASSED,
         self::IS_ACCEPTED_FAILED,
-        self::IS_ACCEPTED_CORRUPTED,
         self::IS_ACCEPTED_NO_SUBMISSION,
+        self::IS_ACCEPTED_CORRUPTED
+    ];
+
+    public const IS_ACCEPTED_GRADE_VALUES = [
+        self::IS_ACCEPTED_UPLOADED,
+        self::IS_ACCEPTED_ACCEPTED,
+        self::IS_ACCEPTED_REJECTED,
+        self::IS_ACCEPTED_LATE_SUBMISSION,
+        self::IS_ACCEPTED_PASSED, // Required by a third party tool
+        self::IS_ACCEPTED_FAILED, // Required by a third party tool
     ];
 
     /**
@@ -127,10 +136,10 @@ class StudentFile extends File implements IOpenApiFieldTypes
         return [
             [['path', 'taskID', 'uploaderID', 'isAccepted', 'autoTesterStatus', 'verified'], 'required'],
             [['name', 'uploadTime'], 'required', 'when' => function ($studentFile) {
-                return $studentFile->isAccepted !== StudentFile::IS_ACCEPTED_NO_SUBMISSION;
+                return $studentFile->uploadCount > 0;
             }],
             [['name', 'uploadTime'], 'compare', 'compareValue' => 'null', 'when' => function ($studentFile) {
-                return $studentFile->isAccepted === StudentFile::IS_ACCEPTED_NO_SUBMISSION;
+                return $studentFile->uploadCount === 0;
             }],
             [['uploadTime'], 'safe'],
             [['taskID', 'uploaderID', 'graderID'], 'integer'],
@@ -140,7 +149,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
             [['notes'], 'string'],
             [['isVersionControlled', 'verified'], 'boolean'],
             [['errorMsg'], 'string'],
-            ['isAccepted', 'in', 'range' => self::IS_ACCEPTED_VALUES, 'on' => self::SCENARIO_GRADE],
+            ['isAccepted', 'in', 'range' => self::IS_ACCEPTED_GRADE_VALUES, 'on' => self::SCENARIO_GRADE],
             ['autoTesterStatus', 'in', 'range' => self::AUTO_TESTER_STATUS_VALUES],
             ['autoTesterStatus', 'validateAutoTesterStatus'],
         ];
