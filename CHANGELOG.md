@@ -4,6 +4,44 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.0.0](https://gitlab.com/tms-elte/backend-core/compare/v2.11.2...v3.0.0) (2023-09-26)
+
+### ⚠ BREAKING CHANGES
+
+* Integrate JPlag plagiarism detection tool ([a753a4](https://gitlab.com/tms-elte/backend-core/commit/a753a4123a1436b71198dba93cf945119e55acf8))
+* Restructure user resources ([9c3bf9](https://gitlab.com/tms-elte/backend-core/commit/9c3bf9ee5e47dfbaf81586544093766eb7566182))
+* Separate evaluator settings from auto tester settings ([aca337](https://gitlab.com/tms-elte/backend-core/commit/aca33702abb54b0a359550b218e4dda4b5711ab0))
+
+### Features
+
+* Added sample seeding options command for developers ([327b83](https://gitlab.com/tms-elte/backend-core/commit/327b83132173db6d12dc11d1b09166f84d2149bb))
+* Add record for non-submitted tasks ([5df40a](https://gitlab.com/tms-elte/backend-core/commit/5df40aff8636356b9f3a461bfa7d5154335530fb))
+* CodeChecker integration ([adfbc2](https://gitlab.com/tms-elte/backend-core/commit/adfbc2165a66dde26e0db55bc009fea89e19c2f9))
+* Execute and store result for all test cases regardless if one fails. ([da413d](https://gitlab.com/tms-elte/backend-core/commit/da413d0330ef4fb2d1fc4c77fb9b1851aa05b538))
+* Handle corrupted Canvas submissions ([b59d77](https://gitlab.com/tms-elte/backend-core/commit/b59d77ce59289cf05b2689d949a94df52bdc393b))
+* Store Canvas synchronization errors and notify users through email ([ee6415](https://gitlab.com/tms-elte/backend-core/commit/ee641543593db00d23b8e66de7b36a0e08721707))
+
+### Bug Fixes
+
+* Add ellipsis to overflowing task names during Canvas synchronization ([838c4d](https://gitlab.com/tms-elte/backend-core/commit/838c4dc9d3db85d2db124446121cf4cfc47e6984))
+* Auto tester error message is always included in the email notification ([065392](https://gitlab.com/tms-elte/backend-core/commit/0653923b37991c46c981a2129d0e2eb8b40904a2))
+* Handle file download from Windows containers with Hyper-V isolation ([8097db](https://gitlab.com/tms-elte/backend-core/commit/8097db41bc06ce2ca906ae2f704635a2b4ed4800))
+* Handle non-submitted tasks with Canvas integration ([1e7171](https://gitlab.com/tms-elte/backend-core/commit/1e7171751f367d2fb89060ec4b948e4fe839eff2))
+* Handle slower container start on Windows with hyperv isolation after tar file upload ([6127f2](https://gitlab.com/tms-elte/backend-core/commit/6127f25548252a328a491de9b25d3cbc50458107))
+* Handle slower container start on Windows with hyperv isolation mode ([ea4115](https://gitlab.com/tms-elte/backend-core/commit/ea4115cebd7d256905d2ad44e90e27b6e682a876))
+* Ignore file contents for MIME type ([e65ab4](https://gitlab.com/tms-elte/backend-core/commit/e65ab413188898a50471a293cd42f71c93920133))
+* Improve saving all related error output with Windows-bases testing ([90de30](https://gitlab.com/tms-elte/backend-core/commit/90de30b3da7ca628b6863d6185e1d287f5f535bb))
+* Keep non-English characters in the filenames of CodeChecker HTML reports ([a21e42](https://gitlab.com/tms-elte/backend-core/commit/a21e42927bcb5d840bd510522cb9129e73c08925))
+* Pass test case number in Windows-based automated testing ([b549ff](https://gitlab.com/tms-elte/backend-core/commit/b549ff988e3d77be8451549d9f826880b83dff63))
+* Properly delete everything from the Git repositories before extracting the new web upload. ([c2cdae](https://gitlab.com/tms-elte/backend-core/commit/c2cdae59aa6334f5460b5cffae7ecce990c224da))
+* Remove no submission records upon removing student from group ([12e981](https://gitlab.com/tms-elte/backend-core/commit/12e981c327594858c6b46e4a757870d32ed44b97))
+* Restart Windows containers with Hyper-V isolation correctly during testing ([36384c](https://gitlab.com/tms-elte/backend-core/commit/36384c744089062b83261ccbb9b2337743020e5c))
+* Unable to upload files to Windows-based Docker container with Hyper-V isolation ([2fc3ee](https://gitlab.com/tms-elte/backend-core/commit/2fc3ee3de7eb9dcb7832df81c81a4a266764685c))
+* Windows-based auto testing does not get executed ([7b9168](https://gitlab.com/tms-elte/backend-core/commit/7b9168f65cbbfa423f0c45dcfa97a60a1325aa48))
+
+
+---
+
 ## [3.0.0-beta.1](https://gitlab.com/tms-elte/backend-core/compare/v2.11.2...v3.0.0-beta.1) (2023-09-17)
 
 ### ⚠ BREAKING CHANGES
