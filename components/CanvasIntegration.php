@@ -675,6 +675,7 @@ class CanvasIntegration
                 'autoTest' => false
             ]);
         }
+        $isNewTask = $task->isNewRecord;
 
         if (mb_strlen($assignment['name']) > Task::MAX_NAME_LENGTH) {
             $task->name = Encoding::toUTF8(mb_substr($assignment['name'], 0, Task::MAX_NAME_LENGTH - 3)) . '...';
@@ -695,19 +696,67 @@ class CanvasIntegration
         $task->hardDeadline = date('Y-m-d H:i:s', strtotime($assignment['lock_at']));
         $task->category = "Canvas tasks";
 
+        $transaction = Yii::$app->db->beginTransaction();
         try {
-            if (!$task->save()) {
-                $errorMsg = "Saving task for Group #{$group->id} failed.";
-                array_push($this->syncErrorMsgs, $errorMsg);
-                Yii::error($errorMsg .
-                    "Message: " . VarDumper::dumpAsString($task->firstErrors), __METHOD__);
-                return null;
+            try {
+                if (!$task->save()) {
+                    $errorMsg = "Saving task for Group #{$group->id} failed.";
+                    array_push($this->syncErrorMsgs, $errorMsg);
+                    Yii::error($errorMsg .
+                        "Message: " . VarDumper::dumpAsString($task->firstErrors), __METHOD__);
+                    return null;
+                }
+            } catch (\yii\db\Exception $ex) {
+                $task->name = Encoding::fixUTF8($task->name);
+                $task->description = Encoding::fixUTF8($task->description);
+                $task->save();
             }
-        } catch (\yii\db\Exception $ex) {
-            $task->name = Encoding::fixUTF8($task->name);
-            $task->description = Encoding::fixUTF8($task->description);
-            $task->save();
+
+            if ($isNewTask) {
+                // Create new StudentFile for everybody in the group
+                foreach ($task->group->subscriptions as $subscription) {
+                    $studentFile = new StudentFile();
+                    $studentFile->taskID = $task->id;
+                    $studentFile->isAccepted = StudentFile::IS_ACCEPTED_NO_SUBMISSION;
+                    $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+                    $studentFile->uploaderID = $subscription->userID;
+                    $studentFile->name = null;
+                    $studentFile->grade = null;
+                    $studentFile->notes = "";
+                    $studentFile->uploadTime = null;
+                    $studentFile->isVersionControlled = $task->isVersionControlled;
+                    $studentFile->uploadCount = 0;
+                    $studentFile->verified = true;
+                    $studentFile->codeCheckerResultID = null;
+
+                    if ($studentFile->save()) {
+                        Yii::info(
+                            "A new blank solution has been uploaded for " .
+                            "{$studentFile->task->name} ($studentFile->taskID)",
+                            __METHOD__
+                        );
+                    } else {
+                        $errorMsg = "Creating blank solution for user {$subscription->user->neptun} (ID: {$subscription->userID}) on Task #{$task->id} failed.";
+                        array_push($this->syncErrorMsgs, $errorMsg);
+                        Yii::error(
+                            $errorMsg .
+                             ($studentFile->hasErrors()
+                                 ? "Message: " . VarDumper::dumpAsString($studentFile->errors)
+                                 : ""),
+                            __METHOD__
+                        );
+
+                        $transaction->rollBack();
+                        break;
+                    }
+                }
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
+
         return $task->id;
     }
 
