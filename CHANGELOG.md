@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.0.1](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0...v3.0.1) (2023-10-07)
+
+### Bug Fixes
+
+* Create new blank submission for each student of a group when synchronizing a new task from Canvas to TMS ([aa142b](https://gitlab.com/tms-elte/backend-core/commit/aa142b2cfbda3afb59755c1b0ce1b8ac1da2a316))
+
+
+---
+
 ## [3.0.0](https://gitlab.com/tms-elte/backend-core/compare/v2.11.2...v3.0.0) (2023-09-26)
 
 ### ⚠ BREAKING CHANGES
