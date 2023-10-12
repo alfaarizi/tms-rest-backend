@@ -43,7 +43,7 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
 
     protected function _before()
     {
-        $this->tester->copyDir(codecept_data_dir("appdata_samples"), Yii::$app->params['data_dir']);
+        $this->tester->copyDir(codecept_data_dir("appdata_samples"), Yii::getAlias("@appdata"));
 
         $finderMock = $this->createMock(StudentFileToAnalyzeFinder::class);
         $finderMock->method('findNext')
@@ -62,7 +62,7 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
 
     protected function _after()
     {
-        $this->tester->deleteDir(Yii::$app->params['data_dir']);
+        $this->tester->deleteDir(Yii::getAlias("@appdata"));
     }
 
     public function testCheck()

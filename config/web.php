@@ -39,6 +39,7 @@ $fullConfig = [
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
+        '@appdata' => '@app/' . $params['data_dir'],
     ],
     'components' => [
         'db' => $db,

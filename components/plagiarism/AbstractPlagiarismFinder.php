@@ -21,7 +21,7 @@ abstract class AbstractPlagiarismFinder
 
     public static function getResultDirectory(int $plagiarismId): string
     {
-        $basePath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/plagiarism/plagiarism-result';
+        $basePath = Yii::getAlias("@appdata/plagiarism/plagiarism-result");
         if (!is_dir($basePath)) {
             FileHelper::createDirectory($basePath, 0755, false);
         }
@@ -38,7 +38,7 @@ abstract class AbstractPlagiarismFinder
     public function __construct(Plagiarism $plagiarism)
     {
         $this->plagiarism = $plagiarism;
-        $dataDir = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'];
+        $dataDir = Yii::getAlias("@appdata");
         $this->plagiarismPath = "$dataDir/plagiarism/{$plagiarism->id}";
     }
 

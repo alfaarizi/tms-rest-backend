@@ -29,12 +29,12 @@ class GitManager
     {
         $id = $task->id;
         $neptun = strtolower($student->neptun);
-        if (!is_dir(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $id . '/' . $neptun . '/')) {
+        if (!is_dir(Yii::getAlias("@appdata/uploadedfiles/$id/$neptun/"))) {
             // Set uniqe string to prevent students to clone other repositories
             $randstring = 'w' . substr(str_shuffle(MD5(microtime())), 0, 25);
             $randstring2 = 'r' . substr(str_shuffle(MD5(microtime())), 0, 25);
-            $repopath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $id . '/' . $neptun . '/' . $randstring . '/';
-            $reposym = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $id . '/' . $neptun . '/' . $randstring2;
+            $repopath = Yii::getAlias("@appdata/uploadedfiles/$id/$neptun/$randstring/");
+            $reposym = Yii::getAlias("@appdata/uploadedfiles/$id/$neptun/$randstring2");
             if (!is_dir($repopath . '.git')) {
                 $repo = GitRepository::init($repopath);
                 // Create a symlink for instructors
@@ -80,8 +80,7 @@ class GitManager
     public static function createTaskLevelRepository(int $taskId): void
     {
         $randstring = 'r' . substr(str_shuffle(MD5(microtime())), 0, 25);
-        $repopath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
-            . $taskId . '/all/' . $randstring . '/';
+        $repopath = Yii::getAlias("@appdata/uploadedfiles/$taskId/all/$randstring/");
         FileHelper::createDirectory($repopath, 0775, true);
 
         $repo = GitRepository::init($repopath);
@@ -138,8 +137,7 @@ class GitManager
      */
     private static function getTaskLevelRepoDirectoryPath(int $taskID): ?string
     {
-        $taskAllDirPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
-            . $taskID . '/all';
+        $taskAllDirPath = Yii::getAlias("@appdata/uploadedfiles/$taskID/all");
 
         if (!is_dir($taskAllDirPath)) {
             return null;
@@ -169,8 +167,7 @@ class GitManager
     public static function getReadonlyUserRepositoryUrl(int $taskID, string $neptun): string
     {
         $neptun = strtolower($neptun);
-        $userRepoPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
-            . $taskID . '/' . strtolower($neptun) . '/';
+        $userRepoPath = Yii::getAlias("@appdata/uploadedfiles/$taskID/") . strtolower($neptun) . '/';
         $dirs = FileHelper::findDirectories($userRepoPath, ['recursive' => false]);
         rsort($dirs);
         $path = Yii::$app->params['versionControl']['basePath'] . '/' . $taskID . '/'
@@ -185,8 +182,7 @@ class GitManager
     {
         $neptun = strtolower($neptun);
         // Search for random string id directory
-        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $taskID
-            . '/' . $neptun . '/';
+        $path = Yii::getAlias("@appdata/uploadedfiles/$taskID/$neptun/");
         $dirs = FileHelper::findDirectories($path, ['recursive' => false]);
         rsort($dirs);
         return Yii::$app->request->hostInfo . Yii::$app->params['versionControl']['basePath'] . '/'
@@ -253,7 +249,8 @@ exit \$rc";
      */
     public static function afterTaskUpdate(Task $task, Subscription $subscription): void
     {
-        $repopath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $task->id . '/' . strtolower($subscription->user->neptun) . '/';
+        $repopath = Yii::getAlias("@appdata/uploadedfiles/") . $task->id . '/'
+            . strtolower($subscription->user->neptun) . '/';
         $dirs = FileHelper::findDirectories($repopath, ['recursive' => false]);
         rsort($dirs);
         $repopath = $repopath . basename($dirs[0]) . '/';
@@ -273,8 +270,8 @@ exit \$rc";
      */
     public static function afterStatusUpdate(StudentFile $studentFile): void
     {
-        $repopath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
-            . $studentFile->taskID . '/' . strtolower($studentFile->uploader->neptun) . '/';
+        $repopath = Yii::getAlias("@appdata/uploadedfiles/") . $studentFile->taskID . '/'
+            . strtolower($studentFile->uploader->neptun) . '/';
         $dirs = FileHelper::findDirectories($repopath, ['recursive' => false]);
         rsort($dirs);
         $repopath = $repopath . basename($dirs[0]) . '/';
@@ -297,7 +294,7 @@ exit \$rc";
     {
         // Find the unique string
         $student = User::findOne($studentid);
-        $basepath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' .  $taskid .  '/' . $student->neptun . '/';
+        $basepath = Yii::getAlias("@appdata/uploadedfiles/$taskid/") . $student->neptun . '/';
         $dirs = FileHelper::findDirectories($basepath, ['recursive' => false]);
         rsort($dirs);
         $repopath = $basepath .  basename($dirs[0]) . '/';

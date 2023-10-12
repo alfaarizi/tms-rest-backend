@@ -175,10 +175,7 @@ class CodeCheckerResultPersistence extends BaseObject
     private function createWorkDir(): string
     {
         try {
-            $workDir = Yii::$app->basePath
-                . '/'
-                . Yii::$app->params['data_dir']
-                . '/tmp/codechecker/'
+            $workDir = Yii::getAlias("@appdata/tmp/codechecker/")
                 . Yii::$app->security->generateRandomString(4)
                 . '/';
             FileHelper::createDirectory($workDir, 0755, true);
@@ -269,7 +266,7 @@ class CodeCheckerResultPersistence extends BaseObject
         if (!is_dir($source)) {
             throw new CodeCheckerPersistenceException("HTML reports directory not found: " . $source);
         }
-        $dest = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . "/codechecker_html_reports/" . $runId;
+        $dest = Yii::getAlias("@appdata/codechecker_html_reports/$runId");
         try {
             FileHelper::createDirectory($dest, 0755, true);
             FileHelper::copyDirectory($source, $dest, ['fileMode' => 0775]);

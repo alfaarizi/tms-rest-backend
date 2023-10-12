@@ -220,8 +220,8 @@ class StudentFilesController extends BaseStudentRestController
     private function saveFile($prevStudentFile, $newFile, $taskID, $versionControlled)
     {
         // Set basepath
-        $basepath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir']
-            . '/uploadedfiles/' . $taskID . '/' . strtolower(Yii::$app->user->identity->neptun) . '/';
+        $basepath = Yii::getAlias("@appdata/uploadedfiles/$taskID/")
+            . strtolower(Yii::$app->user->identity->neptun) . '/';
 
         if (!file_exists($basepath)) {
             FileHelper::createDirectory($basepath, 0755, true);

@@ -102,7 +102,7 @@ class CodeCheckerResult extends \yii\db\ActiveRecord implements IOpenApiFieldTyp
 
     public function getHtmlReportsDirPath(): ?string
     {
-        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/codechecker_html_reports/' . $this->id;
+        $path = Yii::getAlias("@appdata/codechecker_html_reports/") . $this->id;
         return is_dir($path) ? $path : null;
     }
 

@@ -224,7 +224,7 @@ class PlagiarismBasefileController extends BaseInstructorRestController
         }
 
         // Create folder for the basefiles (if not exists)
-        $dirPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/basefiles/';
+        $dirPath = Yii::getAlias("@appdata/uploadedfiles/basefiles/");
         if (!file_exists($dirPath) && !is_dir($dirPath)) {
             FileHelper::createDirectory($dirPath, 0755, true);
         }

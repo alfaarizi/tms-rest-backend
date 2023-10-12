@@ -290,7 +290,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
      */
     public function getBasePath(): string
     {
-        return Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' .
+        return Yii::getAlias("@appdata/uploadedfiles/") .
             $this->taskID . '/' . strtolower($this->uploader->neptun);
     }
 

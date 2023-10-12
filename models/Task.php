@@ -310,7 +310,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             return false;
         }
 
-        FileHelper::removeDirectory(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $this->id . '/');
+        FileHelper::removeDirectory(Yii::getAlias("@appdata/uploadedfiles/") . $this->id . '/');
         return true;
     }
 
@@ -344,7 +344,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         parent::afterSave($insert, $changedAttributes);
 
         if ($insert) {
-            $directoryPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $this->id . '/';
+            $directoryPath = Yii::getAlias("@appdata/uploadedfiles/") . $this->id . '/';
             FileHelper::createDirectory($directoryPath, 0755, true);
 
             // Create git repositories if a new task has been created and the task is version controlled

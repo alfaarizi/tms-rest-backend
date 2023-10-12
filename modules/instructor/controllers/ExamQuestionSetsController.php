@@ -484,7 +484,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
             );
         }
 
-        $imageFolder = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/examination/' . $id . '/';
+        $imageFolder = Yii::getAlias("@appdata/uploadedfiles/examination/$id/");
 
         if (!file_exists($imageFolder)) {
             return [];
@@ -580,7 +580,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
         $uploaded = [];
         $failed = [];
         foreach ($files as $file) {
-            $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/examination/' . $id . '/';
+            $path = Yii::getAlias("@appdata/uploadedfiles/examination/$id/");
 
             if (!file_exists($path)) {
                 FileHelper::createDirectory($path, 0755, true);

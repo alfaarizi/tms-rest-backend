@@ -57,15 +57,15 @@ class InstructorExamQuestionSetCest
 
     public function _before(ApiTester $I)
     {
-        $I->deleteDir(Yii::$app->params['data_dir']);
-        $I->copyDir(codecept_data_dir("appdata_samples"), Yii::$app->params['data_dir']);
+        $I->deleteDir(Yii::getAlias("@appdata"));
+        $I->copyDir(codecept_data_dir("appdata_samples"), Yii::getAlias("@appdata"));
         $I->amBearerAuthenticated("TEACH2;VALID");
         Yii::$app->language = 'en-US';
     }
 
     public function _after(ApiTester $I)
     {
-        $I->deleteDir(Yii::$app->params['data_dir']);
+        $I->deleteDir(Yii::getAlias("@appdata"));
     }
 
     // tests
@@ -381,7 +381,7 @@ class InstructorExamQuestionSetCest
     {
         $I->sendDelete("/instructor/exam-question-sets/1/images/img1.jpg");
         $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
-        $I->cantSeeFileFound(Yii::$app->params['data_dir'] . "/uploadedfiles/examination/1/img1.jpg");
+        $I->cantSeeFileFound(Yii::getAlias("@appdata/uploadedfiles/examination/1/img1.jpg"));
     }
 
     public function uploadNotFound(ApiTester $I)
@@ -420,7 +420,7 @@ class InstructorExamQuestionSetCest
         $I->seeResponseMatchesJsonType(self::IMAGE_SCHEMA, '$.[uploaded].[*]');
         $I->seeResponseMatchesJsonType(['uploaded' => 'array', 'failed' => 'array']);
         $data = $I->grabDataFromResponseByJsonPath('$.[uploaded].[*]');
-        $I->seeFileFound($data[0]['name'], Yii::$app->params['data_dir'] . '/uploadedfiles/examination/1');
-        $I->seeFileFound($data[1]['name'], Yii::$app->params['data_dir'] . '/uploadedfiles/examination/1');
+        $I->seeFileFound($data[0]['name'], Yii::getAlias("@appdata/uploadedfiles/examination/1"));
+        $I->seeFileFound($data[1]['name'], Yii::getAlias("@appdata/uploadedfiles/examination/1"));
     }
 }

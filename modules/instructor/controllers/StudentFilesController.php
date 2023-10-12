@@ -620,8 +620,8 @@ class StudentFilesController extends BaseInstructorRestController
         }
 
         $zipName = Yii::$app->security->generateRandomString(36) . '.zip';
-        $zipPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/instructor/' . $zipName;
-        $zipFolder = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/instructor/';
+        $zipPath = Yii::getAlias("@appdata/tmp/instructor/$zipName");
+        $zipFolder = Yii::getAlias("@appdata/tmp/instructor/");
 
         if (!file_exists($zipFolder)) {
             FileHelper::createDirectory($zipFolder, 0755, true);

@@ -41,6 +41,7 @@ return [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
         '@tests' => '@app/tests',
+        '@appdata' => '@app/' . $params['data_dir'],
     ],
     'components' => [
         'db' => $db,

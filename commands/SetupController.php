@@ -129,7 +129,7 @@ class SetupController extends BaseController
      */
     private function seedSubmission(int $uploaderID, string $neptun, int $taskID, string $isAccepted, ?int $graderID, string $autoTesterStatus): void
     {
-        $dirname = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . "/uploadedfiles/$taskID/$neptun";
+        $dirname = Yii::getAlias("@appdata/uploadedfiles/$taskID/$neptun");
         $submission = new StudentFile();
         $submission->name = $neptun . ".zip";
         $submission->uploadTime = date('Y-m-d H:i:s');
@@ -386,7 +386,7 @@ class SetupController extends BaseController
             $this->run('migrate/fresh', ['interactive' => 0]);
 
             // Delete appdata folder
-            $this->deleteFolderContents(Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
+            $this->deleteFolderContents(Yii::getAlias("@appdata"));
         }
 
         return ExitCode::OK;

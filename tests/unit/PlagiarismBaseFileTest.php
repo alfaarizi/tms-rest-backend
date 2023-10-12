@@ -85,7 +85,7 @@ class PlagiarsimBasefileTest extends \Codeception\Test\Unit
         $baseFile = $this->getCorrectModel();
         $baseFile->id = 1024;
         $this->assertEquals(
-            \Yii::$app->basePath . '/' . \Yii::$app->params['data_dir'] . '/uploadedfiles/basefiles/1024',
+            \Yii::getAlias("@appdata/uploadedfiles/basefiles/1024"),
             $baseFile->getPath()
         );
     }

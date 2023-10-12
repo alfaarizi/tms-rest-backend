@@ -655,7 +655,7 @@ class CanvasIntegration
                 $submission->delete();
             }
             $task->delete();
-            FileHelper::removeDirectory(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $task->id . '/');
+            FileHelper::removeDirectory(Yii::getAlias("@appdata/uploadedfiles/") . $task->id . '/');
         }
     }
 
@@ -1006,8 +1006,7 @@ class CanvasIntegration
     private function saveCanvasFile(int $taskID, string $name, string $url, string $neptun): void
     {
         // Get the dest path.
-        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
-            . $taskID . '/' . strtolower($neptun) . '/';
+        $path = Yii::getAlias("@appdata/uploadedfiles/$taskID/") . strtolower($neptun) . '/';
 
         $this->deleteCanvasFiles($taskID, $neptun);
 
@@ -1029,8 +1028,7 @@ class CanvasIntegration
     private function deleteCanvasFiles(int $taskID, string $neptun): void
     {
         // Get the dest path.
-        $path = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/'
-            . $taskID . '/' . strtolower($neptun) . '/';
+        $path = Yii::getAlias("@appdata/uploadedfiles/$taskID/") . strtolower($neptun) . '/';
 
         // Delete files from given folder
         if (file_exists($path)) {

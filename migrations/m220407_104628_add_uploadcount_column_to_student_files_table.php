@@ -87,8 +87,7 @@ class m220407_104628_add_uploadcount_column_to_student_files_table extends Migra
                 ->all();
 
             foreach ($files as $file) {
-                $basePath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir']
-                    . '/uploadedfiles/' . $file['taskID']
+                $basePath = Yii::getAlias("@appdata/uploadedfiles/") . $file['taskID']
                     . '/' . strtolower($file['neptun']) . '/';
 
                 $dirs = FileHelper::findDirectories($basePath, ['recursive' => false]);

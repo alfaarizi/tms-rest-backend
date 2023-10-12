@@ -18,9 +18,9 @@ class JPlagPlagiarismFinderTest extends \Codeception\Test\Unit
 
     protected function _before()
     {
-        $this->appdata_dir = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'];
-        $this->tester->deleteDir(Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
-        $this->tester->copyDir(codecept_data_dir('appdata_samples'), Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
+        $this->appdata_dir = Yii::getAlias("@appdata");
+        $this->tester->deleteDir(Yii::getAlias("@appdata"));
+        $this->tester->copyDir(codecept_data_dir('appdata_samples'), Yii::getAlias("@appdata"));
         Yii::$app->params['jplag'] = [
             'jre' => 'java',
             'jar' => '/dev/null',
@@ -31,7 +31,7 @@ class JPlagPlagiarismFinderTest extends \Codeception\Test\Unit
     public function _after()
     {
         unset(Yii::$app->params['jplag']);
-        $this->tester->deleteDir(Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
+        $this->tester->deleteDir(Yii::getAlias("@appdata"));
     }
 
     public function _fixtures()

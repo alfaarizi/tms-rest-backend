@@ -37,13 +37,13 @@ class MossPlagiarismFinderTest extends \Codeception\Test\Unit
             },
         ]));
         Yii::$container->set(MossDownloader::class, fn () => $this->makeEmpty(MossDownloader::class));
-        $this->tester->deleteDir(Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
-        $this->tester->copyDir(codecept_data_dir('appdata_samples'), Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
+        $this->tester->deleteDir(Yii::getAlias("@appdata"));
+        $this->tester->copyDir(codecept_data_dir('appdata_samples'), Yii::getAlias("@appdata"));
     }
 
     public function _after()
     {
-        $this->tester->deleteDir(Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
+        $this->tester->deleteDir(Yii::getAlias("@appdata"));
     }
 
     public function _fixtures()
