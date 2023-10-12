@@ -234,7 +234,7 @@ class InstructorFilesController extends BaseInstructorRestController
         }
 
         // Create folder for the task (if not exists)
-        $dirPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $upload->taskID;
+        $dirPath = Yii::getAlias("@appdata/uploadedfiles/") . $upload->taskID;
         if (!file_exists($dirPath) && !is_dir($dirPath)) {
             FileHelper::createDirectory($dirPath, 0755, true);
         }

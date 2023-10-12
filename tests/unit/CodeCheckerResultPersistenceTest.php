@@ -36,7 +36,7 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     protected function _after()
     {
-        $this->tester->deleteDir(Yii::$app->params['data_dir']);
+        $this->tester->deleteDir(Yii::getAlias("@appdata"));
     }
 
     public function testCreateNewResult()

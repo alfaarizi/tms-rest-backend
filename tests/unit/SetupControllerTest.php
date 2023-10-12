@@ -168,6 +168,6 @@ class SetupControllerTest extends \Codeception\Test\Unit
             'testID' => 2
         ]);
 
-        FileHelper::removeDirectory(Yii::$app->basePath . '/' . Yii::$app->params['data_dir']);
+        FileHelper::removeDirectory(Yii::getAlias("@appdata"));
     }
 }

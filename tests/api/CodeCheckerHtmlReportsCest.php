@@ -20,13 +20,13 @@ class CodeCheckerHtmlReportsCest
 
     public function _before(ApiTester $I)
     {
-        $I->copyDir(codecept_data_dir("appdata_samples"), Yii::$app->params['data_dir']);
+        $I->copyDir(codecept_data_dir("appdata_samples"), Yii::getAlias("@appdata"));
         Yii::$app->language = 'en-US';
     }
 
     public function _after(ApiTester $I)
     {
-        $I->deleteDir(Yii::$app->params['data_dir']);
+        $I->deleteDir(Yii::getAlias("@appdata"));
     }
 
     public function view(ApiTester $I)

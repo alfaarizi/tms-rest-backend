@@ -67,7 +67,7 @@ class CodeCompass extends BaseObject
         $this->_docker = $docker;
 
         $this->_containerId = 'compass_' . $this->_studentFile->id;
-        $this->_projectBasePath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/codecompass/' . $this->_studentFile->id;
+        $this->_projectBasePath = Yii::getAlias("@appdata/tmp/codecompass/") . $this->_studentFile->id;
         parent::__construct();
     }
 

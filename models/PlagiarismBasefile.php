@@ -75,7 +75,7 @@ class PlagiarismBasefile extends File implements IOpenApiFieldTypes
      */
     public function getPath(): string
     {
-        return Yii::getAlias(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/basefiles/' . $this->id);
+        return Yii::getAlias(Yii::getAlias("@appdata/uploadedfiles/basefiles/") . $this->id);
     }
 
     public function fieldTypes(): array

@@ -511,7 +511,7 @@ class GroupsController extends BaseInstructorRestController
                     if ($task->save()) {
                         // If the task can be saved we copy the files as well.
                         $filesToDuplicate = InstructorFile::findAll(['taskID' => $taskToDuplicate->id]);
-                        $directoryPath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $task->id . '/';
+                        $directoryPath = Yii::getAlias("@appdata/uploadedfiles/") . $task->id . '/';
                         $directoryPaths[] = $directoryPath;
                         foreach ($filesToDuplicate as $fileToDuplicate) {
                             $file = new InstructorFile($fileToDuplicate);

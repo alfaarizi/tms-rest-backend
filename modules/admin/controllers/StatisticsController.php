@@ -101,7 +101,7 @@ class StatisticsController extends BaseAdminRestController
             ->notTested($IDs)
             ->count();
 
-        $path = Yii::$app->basePath . DIRECTORY_SEPARATOR . Yii::$app->params['data_dir'];
+        $path = Yii::getAlias("@appdata");
         if(is_dir($path)) {
             $statistics->diskFree = disk_free_space($path);
         } else {

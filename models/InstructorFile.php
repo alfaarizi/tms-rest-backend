@@ -133,7 +133,7 @@ class InstructorFile extends File implements IOpenApiFieldTypes
      */
     public function getPath(): string
     {
-        return Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $this->taskID . '/' . $this->name;
+        return Yii::getAlias("@appdata/uploadedfiles/") . $this->taskID . '/' . $this->name;
     }
 
     public function getTask(): \yii\db\ActiveQuery

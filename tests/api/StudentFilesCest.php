@@ -66,15 +66,15 @@ class StudentFilesCest
 
     public function _before(ApiTester $I)
     {
-        $I->deleteDir(Yii::$app->params['data_dir']);
-        $I->copyDir(codecept_data_dir("appdata_samples"), Yii::$app->params['data_dir']);
+        $I->deleteDir(Yii::getAlias("@appdata"));
+        $I->copyDir(codecept_data_dir("appdata_samples"), Yii::getAlias("@appdata"));
         $I->amBearerAuthenticated("STUD01;VALID");
         Yii::$app->language = 'en-US';
     }
 
     public function _after(ApiTester $I)
     {
-        $I->deleteDir(Yii::$app->params['data_dir']);
+        $I->deleteDir(Yii::getAlias("@appdata"));
     }
 
     public function viewNotFound(ApiTester $I)
@@ -158,7 +158,7 @@ class StudentFilesCest
         $I->sendGet("/student/student-files/1/download");
         $I->seeResponseCodeIs(HttpCode::OK);
 
-        $I->openFile(Yii::$app->params['data_dir'] . "/uploadedfiles/5001/stud01/stud01.zip");
+        $I->openFile(Yii::getAlias("@appdata/uploadedfiles/5001/stud01/stud01.zip"));
         $I->seeFileContentsEqual($I->grabResponse());
     }
 
@@ -235,8 +235,8 @@ class StudentFilesCest
                 "uploadCount" => 2,
             ]
         );
-        $I->cantSeeFileFound("stud01.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5004/stud01/");
-        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5004/stud01/");
+        $I->cantSeeFileFound("stud01.zip", Yii::getAlias("@appdata/uploadedfiles/5004/stud01/"));
+        $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5004/stud01/"));
     }
 
     public function uploadAccepted(ApiTester $I)
@@ -287,8 +287,8 @@ class StudentFilesCest
                 "uploadCount" => 2,
             ]
         );
-        $I->cantSeeFileFound("stud01.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5001/stud01/");
-        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5001/stud01/");
+        $I->cantSeeFileFound("stud01.zip", Yii::getAlias("@appdata/uploadedfiles/5001/stud01/"));
+        $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5001/stud01/"));
     }
 
     public function uploadNew(ApiTester $I)
@@ -322,7 +322,7 @@ class StudentFilesCest
                 "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
             ]
         );
-        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5008/stud01/");
+        $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5008/stud01/"));
     }
 
     public function uploadToPasswordProtectedTask(ApiTester $I)
@@ -358,7 +358,7 @@ class StudentFilesCest
                 "uploadCount" => 1,
             ]
         );
-        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5010/stud01/");
+        $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5010/stud01/"));
     }
 
     public function reuploadUnverifiedSolution(ApiTester $I)
@@ -396,7 +396,7 @@ class StudentFilesCest
                 "verified" => false,
             ]
         );
-        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5011/stud01/");
+        $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5011/stud01/"));
     }
 
     public function reuploadVerifiedSolution(ApiTester $I)
@@ -434,7 +434,7 @@ class StudentFilesCest
                 "verified" => false,
             ]
         );
-        $I->seeFileFound("stud01_upload_test.zip", Yii::$app->params["data_dir"] . "/uploadedfiles/5012/stud01/");
+        $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5012/stud01/"));
     }
 
     public function verifySolution(ApiTester $I)

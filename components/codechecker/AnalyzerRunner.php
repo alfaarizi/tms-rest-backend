@@ -102,10 +102,7 @@ abstract class AnalyzerRunner extends BaseObject
     {
         try {
             $this->workingDirBasePath =
-                Yii::$app->basePath
-                . '/'
-                . Yii::$app->params['data_dir']
-                . '/tmp/codechecker/'
+                Yii::getAlias("@appdata/tmp/codechecker/")
                 . Yii::$app->security->generateRandomString(4)
                 . '/';
 

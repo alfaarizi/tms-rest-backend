@@ -27,8 +27,7 @@ class m230403_171248_fix_codechecker_html_filenames extends Migration
             $reports = $query->limit(self::BATCH_SIZE)->all();
 
             foreach ($reports as $report) {
-                $dir = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . "/codechecker_html_reports/"
-                    . $report['resultID'];
+                $dir = Yii::getAlias("@appdata/codechecker_html_reports/") . $report['resultID'];
                 $correctName = "{$report['plistFileName']}.html";
                 $incorrectName = preg_replace('/[^[:print:]]/', '', $correctName);
                 if ($correctName !== $incorrectName && is_file("$dir/$incorrectName")) {
@@ -56,8 +55,7 @@ class m230403_171248_fix_codechecker_html_filenames extends Migration
             $reports = $query->limit(self::BATCH_SIZE)->all();
 
             foreach ($reports as $report) {
-                $dir = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . "/codechecker_html_reports/"
-                    . $report['resultID'];
+                $dir = Yii::getAlias("@appdata/codechecker_html_reports/") . $report['resultID'];
                 $correctName = "{$report['plistFileName']}.html";
                 $incorrectName = preg_replace('/[^[:print:]]/', '', $correctName);
                 if ($correctName !== $incorrectName && is_file("$dir/$correctName")) {

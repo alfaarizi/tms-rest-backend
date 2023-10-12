@@ -71,15 +71,15 @@ class InstructorStudentFilesCest
 
     public function _before(ApiTester $I)
     {
-        $I->deleteDir(Yii::$app->params['data_dir']);
-        $I->copyDir(codecept_data_dir("appdata_samples"), Yii::$app->params['data_dir']);
+        $I->deleteDir(Yii::getAlias("@appdata"));
+        $I->copyDir(codecept_data_dir("appdata_samples"), Yii::getAlias("@appdata"));
         $I->amBearerAuthenticated("TEACH2;VALID");
         Yii::$app->language = 'en-US';
     }
 
     public function _after(ApiTester $I)
     {
-        $I->deleteDir(Yii::$app->params['data_dir']);
+        $I->deleteDir(Yii::getAlias("@appdata"));
     }
 
     public function listForTaskNotFound(ApiTester $I)
@@ -371,7 +371,7 @@ class InstructorStudentFilesCest
         $I->sendGet("/instructor/student-files/1/download");
         $I->seeResponseCodeIs(HttpCode::OK);
 
-        $I->openFile(Yii::$app->params['data_dir'] . "/uploadedfiles/5001/stud01/stud01.zip");
+        $I->openFile(Yii::getAlias("@appdata/uploadedfiles/5001/stud01/stud01.zip"));
         $I->seeFileContentsEqual($I->grabResponse());
     }
 
@@ -392,7 +392,7 @@ class InstructorStudentFilesCest
         $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5001, 'onlyUngraded' => false]);
         $I->seeResponseCodeIs(HttpCode::OK);
 
-        $zipPath = Yii::$app->params["data_dir"] . "/tmp/";
+        $zipPath = Yii::getAlias("@appdata/tmp/");
         if (!file_exists($zipPath)) {
             FileHelper::createDirectory($zipPath, 0755, true);
         }
@@ -412,7 +412,7 @@ class InstructorStudentFilesCest
         $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5001, 'onlyUngraded' => true]);
         $I->seeResponseCodeIs(HttpCode::OK);
 
-        $zipPath = Yii::$app->params["data_dir"] . "/tmp/";
+        $zipPath = Yii::getAlias("@appdata/tmp/");
         if (!file_exists($zipPath)) {
             FileHelper::createDirectory($zipPath, 0755, true);
         }

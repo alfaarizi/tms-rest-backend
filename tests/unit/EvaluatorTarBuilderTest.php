@@ -24,8 +24,8 @@ class EvaluatorTarBuilderTest extends \Codeception\Test\Unit
 
     protected function _before()
     {
-        $this->tester->copyDir(codecept_data_dir("appdata_samples"), Yii::$app->params['data_dir']);
-        $this->basePath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'];
+        $this->tester->copyDir(codecept_data_dir("appdata_samples"), Yii::getAlias("@appdata"));
+        $this->basePath = Yii::getAlias("@appdata");
         $this->builder = new EvaluatorTarBuilder(
             $this->basePath . '/tmp',
             'test'
@@ -34,7 +34,7 @@ class EvaluatorTarBuilderTest extends \Codeception\Test\Unit
 
     protected function _after()
     {
-        $this->tester->deleteDir(Yii::$app->params['data_dir']);
+        $this->tester->deleteDir(Yii::getAlias("@appdata"));
     }
 
     public function testWithSubmission()

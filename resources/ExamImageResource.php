@@ -46,7 +46,7 @@ class ExamImageResource extends Model implements IOpenApiFieldTypesAlias
 
     public function getFolderPath()
     {
-        return  Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/examination/' . $this->questionSetID . '/';
+        return  Yii::getAlias("@appdata/uploadedfiles/examination/") . $this->questionSetID . '/';
     }
 
     public function getFilePath()

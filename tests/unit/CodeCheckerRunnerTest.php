@@ -61,7 +61,7 @@ class CodeCheckerRunnerTest extends Unit
         $this->studentFile->task->imageName = 'imageName:latest';
         $this->studentFile->task->staticCodeAnalyzerTool = 'codechecker';
         $this->studentFile->task->codeCheckerCompileInstructions = 'g++ *.cpp';
-        $this->tester->copyDir(codecept_data_dir("appdata_samples"), Yii::$app->params['data_dir']);
+        $this->tester->copyDir(codecept_data_dir("appdata_samples"), Yii::getAlias("@appdata"));
 
         $dockerImageManagerMock = $this->createMock(DockerImageManager::class);
         $dockerImageManagerMock->method('alreadyBuilt')->willReturnOnConsecutiveCalls(true);
@@ -84,16 +84,16 @@ class CodeCheckerRunnerTest extends Unit
 
     protected function _after()
     {
-        $this->tester->deleteDir(Yii::$app->params['data_dir']);
+        $this->tester->deleteDir(Yii::getAlias("@appdata"));
     }
 
     private function getAndTestTmpPath(): string
     {
         $tmpFolderList = FileHelper::findDirectories(
-            Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/codechecker',
+            Yii::getAlias("@appdata/tmp/codechecker"),
             ['recursive' => false]
         );
-        $this->assertEquals(1, count($tmpFolderList), "{data_dir}/tmp/codechecker shouldn't be empty");
+        $this->assertEquals(1, count($tmpFolderList), "@appdata/tmp/codechecker shouldn't be empty");
         return $tmpFolderList[0];
     }
 
@@ -411,7 +411,7 @@ class CodeCheckerRunnerTest extends Unit
         $this->runner->run();
         $this->runner->deleteWorkDirectory();
 
-        $tmpFolderList = scandir(Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/tmp/codechecker');
-        $this->assertEquals(2, count($tmpFolderList), "{data_dir}/tmp/codechecker should be empty");
+        $tmpFolderList = scandir(Yii::getAlias("@appdata/tmp/codechecker"));
+        $this->assertEquals(2, count($tmpFolderList), "@appdata/tmp/codechecker should be empty");
     }
 }

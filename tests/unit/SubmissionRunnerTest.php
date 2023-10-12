@@ -40,14 +40,14 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
 
         $from = Yii::$app->basePath . '/tests/_data/appdata_samples/uploadedfiles/5007/stud02/stud02.zip';
 
-        FileHelper::createDirectory(Yii::$app->basePath . '/appdata_test/uploadedfiles/5007/stud02/', 0777, true);
-        $to = Yii::$app->basePath . '/appdata_test/uploadedfiles/5007/stud02/stud02.zip';
+        FileHelper::createDirectory(Yii::getAlias("@appdata/uploadedfiles/5007/stud02/"), 0777, true);
+        $to = Yii::getAlias("@appdata/uploadedfiles/5007/stud02/stud02.zip");
         copy($from, $to);
     }
 
     protected function _after()
     {
-        FileHelper::removeDirectory(Yii::$app->basePath . '/appdata_test/uploadedfiles/5007/');
+        FileHelper::removeDirectory(Yii::getAlias("@appdata/uploadedfiles/5007/"));
     }
 
     // tests
@@ -63,7 +63,7 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
                 ->run($this->studentfile, 8009, $this->studentfile->containerName);
             self::assertEquals(
                 2,
-                count(scandir(Yii::$app->basePath . '/appdata_test/tmp/docker')),
+                count(scandir(Yii::getAlias("@appdata/tmp/docker"))),
                 'Tmp dir should be empty after container start'
             );
             self::assertEquals($this->studentfile->containerName, $container->getContainerName());
@@ -79,7 +79,7 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
             });
             self::assertEquals(
                 2,
-                count(scandir(Yii::$app->basePath . '/appdata_test/tmp/docker')),
+                count(scandir(Yii::getAlias("@appdata/tmp/docker"))),
                 'Tmp dir should be empty after container start'
             );
         });

@@ -108,7 +108,7 @@ class GitController extends BaseRestController
             }
         } else {
             // Delete the previous zip file
-            $basepath = Yii::$app->basePath . '/' . Yii::$app->params['data_dir'] . '/uploadedfiles/' . $taskid . '/' . $student->neptun;
+            $basepath = Yii::getAlias("@appdata/uploadedfiles/$taskid/") . $student->neptun;
             $basefiles = FileHelper::findFiles($basepath, ['only' => ['*.zip'], 'recursive' => false]);
             if ($basefiles != null) {
                 unlink($basefiles[0]);
