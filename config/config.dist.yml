@@ -170,7 +170,7 @@ app:
         # Environment
         os: linux
         appType: Console
-        image: 'tmselte/evaluator:dotnet-6.0'
+        image: 'tmselte/evaluator:dotnet-7.0'
         # Auto Test
         autoTest: true
         compileInstructions: |
@@ -213,7 +213,7 @@ app:
       - name: 'Windows / .NET'
         # Environment
         os: windows
-        image: 'tmselte/evaluator:dotnet-6.0'
+        image: 'tmselte/evaluator:dotnet-7.0'
         # Auto Test
         autoTest: true
         appType: Console
@@ -256,7 +256,7 @@ app:
       - name: 'Windows / .NET + MAUI'
         # Environment
         os: windows
-        image: 'tmselte/evaluator:maui-6.0-windows'
+        image: 'tmselte/evaluator:maui-7.0-windows'
         # Auto Test
         autoTest: true
         appType: Console
