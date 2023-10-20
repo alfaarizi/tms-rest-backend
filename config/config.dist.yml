@@ -196,6 +196,7 @@ app:
           else
             readarray  -t -O "${#diagnostics[@]}" diagnostics < <(curl --fail --silent --show-error https://gitlab.com/tms-elte/backend-core/-/snippets/2518152/raw/main/diagnostics.txt | grep -v "^#")
           fi
+          /build.sh >/dev/null
           roslynator analyze $(find . -name "*.csproj") \
             --output roslynator.xml \
             --severity-level hidden \
@@ -239,6 +240,7 @@ app:
           } else {
             $diagnostics += curl.exe --fail --silent --show-error https://gitlab.com/tms-elte/backend-core/-/snippets/2518152/raw/main/diagnostics.txt | Where-Object { $_ -notmatch "^#" }
           }
+          C:\build.ps1 > $null
           roslynator analyze $projects `
             --output roslynator.xml `
             --severity-level hidden `
