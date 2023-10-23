@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.0.2](https://gitlab.com/tms-elte/backend-core/compare/v3.0.1...v3.0.2) (2023-10-23)
+
+### Bug Fixes
+
+* Build C# projects before static analysis ([fd159b](https://gitlab.com/tms-elte/backend-core/commit/fd159bd007e3852ef3ced66d6ae5887e1ee84844))
+
+
+---
+
 ## [3.0.1](https://gitlab.com/tms-elte/backend-core/compare/v3.0.0...v3.0.1) (2023-10-07)
 
 ### Bug Fixes
