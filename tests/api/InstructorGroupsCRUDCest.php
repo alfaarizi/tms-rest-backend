@@ -205,7 +205,7 @@ class InstructorGroupsCRUDCest
             ]
         );
 
-        $I->seeRecord(
+        $I->dontSeeRecord(
             InstructorGroup::class,
             [
                 'userID' => 1007,
