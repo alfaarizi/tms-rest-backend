@@ -135,13 +135,8 @@ class InstructorGroupsInstructorsCest
     public function deleteLastInstructor(ApiTester $I)
     {
         $I->sendDelete('/instructor/groups/2000/instructors/1007');
-        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
-        $I->seeResponseContainsJson(
-            [
-                'message' => 'Can not remove the last instructor.',
-            ]
-        );
-        $I->seeRecord(
+        $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
+        $I->cantSeeRecord(
             InstructorGroup::class,
             [
                 'groupID' => 2000,

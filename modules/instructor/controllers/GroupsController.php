@@ -246,34 +246,15 @@ class GroupsController extends BaseInstructorRestController
             );
         }
 
-        $transaction = Yii::$app->db->beginTransaction();
-        try {
-            if ($group->save()) {
-                // Create a new InstructorGroup to attach the instructor to the group.
-                $instructorGroup = new InstructorGroup(
-                    [
-                        'userID' => Yii::$app->user->id,
-                        'groupID' => $group->id,
-                    ]
-                );
-                if ($instructorGroup->save()) {
-                    $transaction->commit();
-                    $this->response->statusCode = 201;
-                    return $group;
-                } elseif ($instructorGroup->hasErrors()) {
-                    $transaction->rollBack();
-                    $this->response->statusCode = 422;
-                    return $instructorGroup->errors;
-                } else {
-                    throw new \yii\db\Exception(Yii::t('app', 'A database error occurred'));
-                }
-            } else {
-                throw new \yii\db\Exception(Yii::t('app', 'A database error occurred'));
-            }
-        } catch (Throwable $e) {
-            $transaction->rollBack();
-            throw new ServerErrorHttpException(Yii::t('app', 'Failed to add group. Message: ') . $e->getMessage());
+        if (!$group->save(false)) {
+            throw new ServerErrorHttpException(
+                Yii::t('app', 'Failed to add group. Message: ') .
+                Yii::t('app', 'A database error occurred')
+            );
         }
+
+        $this->response->statusCode = 201;
+        return $group;
     }
 
     /**
@@ -793,11 +774,6 @@ class GroupsController extends BaseInstructorRestController
             throw new BadRequestHttpException(
                 Yii::t('app', "You can't modify a group from a previous semester!")
             );
-        }
-
-        $allInstructorsOfThatGroup = InstructorGroup::findAll(['groupID' => $groupID]);
-        if (count($allInstructorsOfThatGroup) < 2) {
-            throw new BadRequestHttpException(Yii::t('app', 'Can not remove the last instructor.'));
         }
 
         // Remove the instructor

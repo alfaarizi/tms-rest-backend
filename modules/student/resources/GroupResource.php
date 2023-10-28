@@ -28,7 +28,8 @@ class GroupResource extends Group
             'instructorNames',
             'timezone',
             'canvasUrl',
-            'lastSyncTime'
+            'lastSyncTime',
+            'isExamGroup'
         ];
     }
 
