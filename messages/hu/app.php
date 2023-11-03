@@ -23,7 +23,6 @@ return [
     'Attachment' => 'Csatolmány',
     'Authentication failure' => 'Azonosítási hiba',
     'Category' => 'Kategória',
-    'Can not remove the last instructor.' => 'Nem törölheted az utolsó gyakorlatvezetőt.',
     'Canvas id' => 'Canvas id',
     'Canvas token' => 'Canvas token',
     'Canvas Course' => 'Canvas kurzus',
