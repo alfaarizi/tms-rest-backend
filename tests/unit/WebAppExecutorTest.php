@@ -196,8 +196,7 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
         });
 
         $mockObject->method('containerKill')->willThrowException(new Exception(''));
-        $this->specify("When shut down fails, keep web app in record", function () use ($mockObject) {
-
+        $this->specify("When shut down fails, keep web app in record", function () {
             $record = $this->tester->grabRecord(WebAppExecution::class, ['id' => 2]);
             $this->tester->expectThrowable(WebAppExecutionException::class, function () use ($record) {
                 $this->webAppExecutor->stopWebApplication($record);

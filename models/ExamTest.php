@@ -27,7 +27,7 @@ use yii\helpers\ArrayHelper;
  * @property-read string timezone
  *
  * @property ExamTestInstance[] $testinstances
- * @property ExamQuestionSet $questionset
+ * @property ExamQuestionSet $questionSet
  * @property Group $group
  */
 class ExamTest extends ActiveRecord implements IOpenApiFieldTypes

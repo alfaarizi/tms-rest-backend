@@ -464,8 +464,9 @@ class StudentFilesController extends BaseInstructorRestController
             GitManager::afterStatusUpdate($studentFile);
         }
 
+        $isCanvasSynced = Yii::$app->params['canvas']['enabled'] && !empty($studentFile->canvasID);
         // Upload to the canvas if synchronized
-        if (Yii::$app->params['canvas']['enabled'] && !empty($studentFile->canvasID)) {
+        if ($isCanvasSynced) {
             $user = User::findIdentity(Yii::$app->user->id);
             if (!$user->isAuthenticatedInCanvas) {
                 $this->response->statusCode = 401;
@@ -503,7 +504,7 @@ class StudentFilesController extends BaseInstructorRestController
         }
 
         // Upload to the canvas if synchronized
-        if (Yii::$app->params['canvas']['enabled'] && !empty($studentFile->canvasID)) {
+        if ($isCanvasSynced) {
             $canvas = new CanvasIntegration();
             if ($canvas->refreshCanvasToken($user)) {
                 $canvas->uploadGradeToCanvas($studentFile->id);
