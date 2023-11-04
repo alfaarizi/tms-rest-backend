@@ -35,6 +35,7 @@ use yii\web\IdentityInterface;
  * @property string $notificationTarget
  * @property-read boolean $isAuthenticatedInCanvas
  * @property-read string $notificationEmail
+ * @property-read string $authKey
  *
  * @property Group[] $groups
  * @property Subscription[] $subscriptions
@@ -129,7 +130,7 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
     /**
      * Finds an identity by the given ID.
      * @param integer $id the ID to be looked for
-     * @return IdentityInterface the identity object that matches the given ID.
+     * @return null|User the identity object that matches the given ID.
      */
     public static function findIdentity($id)
     {

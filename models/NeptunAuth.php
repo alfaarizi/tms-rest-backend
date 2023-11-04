@@ -18,6 +18,9 @@ use yii\base\NotSupportedException;
  * @property-read boolean $isAuthenticated Whether the identity is valid.
  * @property-read string $loginURL The login URL provided by SimpleSAMLphp.
  * @property-read string $logoutURL The logout URL provided by SimpleSAMLphp.
+ * @property-read string $displayName Displayable name of the identity.
+ * @property-read string $mail Email address of the identity.
+ * @property-read string $niifPersonOrgID Neptun code of the identity.
  */
 class NeptunAuth extends \yii\base\BaseObject implements RemoteAuthInterface
 {

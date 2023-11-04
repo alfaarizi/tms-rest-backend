@@ -116,6 +116,8 @@ class OASchema extends CodeGenerator
             }
         }
 
+        // This false positive error will be resolvable with phpstan 1.11
+        /** @phpstan-ignore-next-line */
         return !empty($requiredFields)
             ? $this->newCommentLine("required={{$this->generateList($requiredFields)}},", 4)
             : "";

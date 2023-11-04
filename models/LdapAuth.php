@@ -18,6 +18,10 @@ use yii\base\UnknownPropertyException;
  * @property-read string $isTeacher The teacher permission level for the identity.
  * @property-read string $isAdmin The administrator permission level for the identity.
  * @property-read boolean $isAuthenticated Whether the identity is valid.
+ * @property-read string $distinguishedname Unique entry identifier of the identity.
+ * @property-read string $l Neptun code of the identity.
+ * @property-read string $displayname Displayable name of the identity.
+ * @property-read string $mail Email address of the identity.
  */
 class LdapAuth extends \yii\base\BaseObject implements AuthInterface
 {
