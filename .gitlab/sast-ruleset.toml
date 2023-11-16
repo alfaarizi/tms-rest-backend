@@ -1,0 +1,14 @@
+[phpcs-security-audit]
+  [[phpcs-security-audit.ruleset]]
+    disable = true
+
+    [phpcs-security-audit.ruleset.identifier]
+    type = "phpcs_security_audit_source"
+    value = "PHPCS_SecurityAudit.BadFunctions.FilesystemFunctions.WarnFilesystem"
+
+  [[phpcs-security-audit.ruleset]]
+    disable = true
+
+    [phpcs-security-audit.ruleset.identifier]
+    type = "phpcs_security_audit_source"
+    value = "PHPCS_SecurityAudit.BadFunctions.CallbackFunctions.WarnCallbackFunctions"
