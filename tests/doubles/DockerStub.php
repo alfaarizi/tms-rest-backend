@@ -11,7 +11,9 @@ use Docker\API\Model\SystemInfo;
 use Docker\Docker;
 use Docker\Stream\DockerRawStream;
 use GuzzleHttp\Psr7\PumpStream;
+use GuzzleHttp\Psr7\Response;
 use Jane\OpenApiRuntime\Client\Client;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Stub to get around docker API calls.
@@ -89,9 +91,9 @@ class DockerStub extends Docker
         $this->inspectId = $id;
         $this->inspectQueryParams = $queryParameters;
 
-        $ret = new ContainersIdJsonGetResponse200();
-        $ret->setId($id);
-        return $ret;
+        $body = [];
+        $body['Id'] = $id;
+        return new Response(200, [], json_encode($body));
     }
 
     public int $execCount = 0;

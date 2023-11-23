@@ -16,7 +16,22 @@ use yii\base\Exception;
  */
 class SubmissionRunner
 {
+    private string $workingDirBasePath;
     private StudentFile $studentFile;
+
+    /**
+     * Creates the run instruction log path given to the specific os type
+     * @param string $os
+     * @return string
+     */
+    public static function getWebappRunLogPath(string $os): string
+    {
+        if ($os == 'linux') {
+            return '/test/run.log';
+        } else {
+            return 'C:\\test\\run.log';
+        }
+    }
 
     /**
      * Starts a docker container with the student's submission.
@@ -24,7 +39,7 @@ class SubmissionRunner
      * @param StudentFile $studentFile
      * @param int|null $hostPort optional host port to bind - ignored if not web app. Overrides builder configuration
      * @param string|null $containerName optional container name, if null the container name will be generated
-     * @param DockerContainerBuilder|null $builder optinal builder, if null container will be created with Task defaults
+     * @param DockerContainerBuilder|null $builder optional builder, if null container will be created with Task defaults
      *
      * @return docker\DockerContainer
      *
@@ -111,7 +126,7 @@ class SubmissionRunner
         if (!empty($this->studentFile->task->compileInstructions)) {
             $compileCommand = [
                 'timeout',
-                Yii::$app->params['evaluator']['compileTimeout'],
+                strval(Yii::$app->params['evaluator']['compileTimeout']),
                 '/bin/bash',
                 '/test/compile.sh'
             ];
@@ -142,12 +157,14 @@ class SubmissionRunner
     private function execWebAppRun(docker\DockerContainer $dockerContainer)
     {
         if (!empty($this->studentFile->task->runInstructions)) {
+            $logPath = SubmissionRunner::getWebappRunLogPath($this->studentFile->task->testOS);
+
             //No time out since web app can run for indefinite time
-            $runCommand = ['/bin/bash', '-c', '/test/run.sh'];
+            $runCommand = ['/bin/bash', '-c', "/test/run.sh >> $logPath"];
             if ($this->studentFile->task->testOS == 'windows') {
-                $runCommand = ['powershell C:\\test\\run.ps1'];
+                $runCommand = ["powershell C:\\test\\run.ps1 | Out-File -FilePath $logPath"];
             }
-            $runResult = $dockerContainer->executeCommand($runCommand);
+            $runResult = $dockerContainer->executeCommand($runCommand, false);
             if ($runResult['exitCode'] != 0) {
                 if ($this->studentFile->task->testOS == 'linux') {
                     $err = !empty($runResult['stderr']) ? $runResult['stderr'] : $runResult['stdout'];
@@ -180,6 +197,10 @@ class SubmissionRunner
             $this->copyFiles($dockerContainer);
 
             $dockerContainer->startContainer();
+
+            if ($this->studentFile->task->testOS === 'linux') {
+                $dockerContainer->executeCommand(['chmod', '+x', '/test/compile.sh', '/test/run.sh']);
+            }
 
             $this->execCompile($dockerContainer);
 

@@ -16,7 +16,9 @@ use DateTime;
 use DateTimeInterface;
 use Exception;
 use Yii;
+use yii\base\ErrorException;
 use yii\db\Transaction;
+use yii\helpers\FileHelper;
 
 class WebAppExecutor
 {
@@ -27,7 +29,6 @@ class WebAppExecutor
      */
     public static function isDockerHostLocal(string $os): bool
     {
-
         $dockerHost = Yii::$app->params['evaluator'][$os];
         if (1 == preg_match(
                 '/(unix:\/\/\/var\/run\/docker.sock|tcp:\/\/127.0.0.1|tcp:\/\/localhost)/i',
@@ -273,5 +274,40 @@ class WebAppExecutor
         $base = [];
         preg_match($regex, $url, $base);
         return $base[0];
+    }
+
+    /**
+     * Extracts the run instructions log from the webapp execution docker instance
+     * @param WebAppExecution $webAppExecution
+     * @return string contents of the run log
+     * @throws \yii\base\InvalidConfigException
+     * @throws ErrorException
+     */
+    public function fetchRunLog(WebAppExecution $webAppExecution): string
+    {
+        $tmpPath = null;
+        try {
+            $os = $webAppExecution->studentFile->task->testOS;
+            $container = DockerContainer::createForRunning($os, $webAppExecution->containerName);
+
+            $pathInContainer = SubmissionRunner::getWebappRunLogPath($os);
+            $containerName = $container->getContainerName();
+            $folderName = $containerName . '_' . Yii::$app->security->generateRandomString(4);
+            $tmpPath = Yii::getAlias("@appdata/tmp/webapprunlog/$folderName");
+            mkdir($tmpPath, 0755, true);
+
+            $tarPath = "$tmpPath/log.tar";
+            $container->downloadArchive($pathInContainer , $tarPath);
+
+            $phar = new \PharData($tarPath);
+            $phar->extractTo($tmpPath);
+            unset($phar);
+
+            return file_get_contents("$tmpPath/run.log");
+        } finally {
+            if (!is_null($tmpPath) && file_exists($tmpPath)) {
+                FileHelper::removeDirectory($tmpPath);
+            }
+        }
     }
 }

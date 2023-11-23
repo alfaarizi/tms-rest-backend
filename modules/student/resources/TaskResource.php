@@ -32,6 +32,7 @@ class TaskResource extends Task
             'autoTest',
             'passwordProtected',
             'canvasUrl',
+            'appType',
         ];
     }
 

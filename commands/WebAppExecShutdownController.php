@@ -6,7 +6,7 @@ use app\models\WebAppExecution;
 use app\modules\instructor\components\WebAppExecutor;
 use Yii;
 
-class WebAppController extends BaseController
+class WebAppExecShutdownController extends BaseController
 {
     /**
      * Shuts down expired web app containers
@@ -14,7 +14,7 @@ class WebAppController extends BaseController
      * @throws \app\modules\instructor\components\exception\WebAppExecutionException
      * @throws \yii\base\InvalidConfigException
      */
-    public function actionShutDownExpiredExecutions()
+    public function actionShutDownExpiredWebAppExecutions()
     {
         $expiredExecutions = WebAppExecution::find()->expired()->all();
 

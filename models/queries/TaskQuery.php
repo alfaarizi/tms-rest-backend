@@ -142,7 +142,6 @@ class TaskQuery extends ActiveQuery
         return $this
             ->andWhere(['autoTest' => 1])
             ->andWhere(['not', ['imageName' => null]])
-            ->andWhere(['not', ['compileInstructions' => null]])
-            ->andWhere(['not', ['appType' => Task::APP_TYPE_WEB]]);
+            ->andWhere(['not', ['compileInstructions' => null]]);
     }
 }

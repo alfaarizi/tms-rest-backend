@@ -121,11 +121,6 @@ class AssignmentTester
         //create image for the task
         //$this->results = $dockerImageManager->buildImageForTask($imageName);
 
-        // if no image is created, return
-        if (!$dockerImageManager->alreadyBuilt($imageName)) {
-            return;
-        }
-
         // create a container from the image
         $this->createContainerForTask($imageName, $containerName);
 

@@ -16,6 +16,7 @@ use yii\helpers\StringHelper;
  * @property integer $id
  * @property string $name
  * @property-read string $path
+ * @property-read string $reportPath
  * @property-read string $basePath
  * @property string $uploadTime
  * @property integer $taskID
@@ -143,7 +144,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
             }],
             [['uploadTime'], 'safe'],
             [['taskID', 'uploaderID', 'graderID'], 'integer'],
-            [['isAccepted'], 'string'],
+            [['isAccepted', 'reportPath'], 'string'],
             [['name'], 'string', 'max' => 200],
             [['grade'], 'number'],
             [['notes'], 'string'],
@@ -164,6 +165,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
             'path' => Yii::t('app', 'Path'),
+            'reportPath' => Yii::t('app', 'Report Path'),
             'uploadTime' => Yii::t('app', 'Upload Time'),
             'taskID' => Yii::t('app', 'Task ID'),
             'uploaderID' => Yii::t('app', 'Uploader ID'),
@@ -186,6 +188,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
             'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'name' => new OAProperty(['type' => 'string']),
             'path' => new OAProperty(['type' => 'string']),
+            'reportPath' => new OAProperty(['type' => 'string']),
             'uploadTime' => new OAProperty(['type' => 'string']),
             'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'uploaderID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
@@ -300,6 +303,15 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public function getPath(): string
     {
         return $this->basePath . '/' . $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReportPath(): string
+    {
+        $identifierLower = strtolower($this->uploader->neptun);
+        return Yii::getAlias("@appdata/webreports/$this->taskID/$identifierLower/reports.tar");
     }
 
     /**

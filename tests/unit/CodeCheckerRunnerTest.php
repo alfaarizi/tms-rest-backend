@@ -70,18 +70,6 @@ class CodeCheckerRunnerTest extends Unit
         $this->initRunner();
     }
 
-    public function testEvaluatorImageIsNotAvailable()
-    {
-        $dockerImageManagerMock = $this->createMock(DockerImageManager::class);
-        $dockerImageManagerMock->method('alreadyBuilt')->willReturn(false);
-        Yii::$container->set(DockerImageManager::class, $dockerImageManagerMock);
-        $this->initRunner();
-
-        $this->expectException(CodeCheckerRunnerException::class);
-
-        $this->runner->run();
-    }
-
     protected function _after()
     {
         $this->tester->deleteDir(Yii::getAlias("@appdata"));

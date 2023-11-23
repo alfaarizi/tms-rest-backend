@@ -85,12 +85,7 @@ abstract class AnalyzerRunner extends BaseObject
      */
     protected function beforeRun()
     {
-        if (!$this->dockerImageManager->alreadyBuilt($this->studentFile->task->imageName)) {
-            throw new CodeCheckerRunnerException(
-                Yii::t("app", "Evaluator Docker image is not available"),
-                CodeCheckerRunnerException::BEFORE_RUN_FAILURE
-            );
-        }
+        // NOOP
     }
 
     /**

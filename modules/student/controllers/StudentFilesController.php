@@ -35,6 +35,7 @@ class StudentFilesController extends BaseStudentRestController
             'upload' => ['POST'],
             'verify' => ['POST'],
             'auto-tester-results' => ['GET'],
+            'download-report' => ['GET'],
         ]);
     }
 
@@ -124,6 +125,52 @@ class StudentFilesController extends BaseStudentRestController
         PermissionHelpers::isItMyStudentFile($file);
 
         Yii::$app->response->sendFile($file->path, basename($file->path));
+    }
+
+    /**
+     * Download test report for student file
+     * @param int $id
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/student/student-files/{id}/download-report",
+     *     operationId="student::StudentFilesController::actionDownloadReport",
+     *     tags={"Student Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the file",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionDownloadReport($id)
+    {
+        $file = StudentFileResource::findOne($id);
+
+        if (is_null($file)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Student File not found.'));
+        }
+
+        PermissionHelpers::isItMyTask($file->taskID);
+        PermissionHelpers::isItMyStudentFile($file);
+
+        if (!file_exists($file->reportPath)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Test reports not exist for this student file.'));
+        }
+
+        Yii::$app->response->sendFile($file->reportPath, basename($file->reportPath));
     }
 
     /**

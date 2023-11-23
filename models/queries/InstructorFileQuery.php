@@ -40,4 +40,12 @@ class InstructorFileQuery extends ActiveQuery
     {
         return $this->andWhere(['category' => InstructorFile::CATEGORY_TESTFILE]);
     }
+
+    /**
+     * @return InstructorFileQuery
+     */
+    public function onlyWebAppTestSuites()
+    {
+        return $this->andWhere(['category' => InstructorFile::CATEGORY_WEB_TEST_SUITE]);
+    }
 }

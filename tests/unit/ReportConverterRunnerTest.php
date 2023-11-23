@@ -85,30 +85,6 @@ class ReportConverterRunnerTest extends Unit
         return $tmpFolderList[0];
     }
 
-    public function testEvaluatorImageIsNotAvailable()
-    {
-        $dockerImageManagerMock = $this->createMock(DockerImageManager::class);
-        $dockerImageManagerMock->method('alreadyBuilt')->willReturnOnConsecutiveCalls(false, true);
-        Yii::$container->set(DockerImageManager::class, $dockerImageManagerMock);
-        $this->initRunner();
-
-        $this->expectException(CodeCheckerRunnerException::class);
-
-        $this->runner->run();
-    }
-
-    public function testReportConverterImageIsNotAvailable()
-    {
-        $dockerImageManagerMock = $this->createMock(DockerImageManager::class);
-        $dockerImageManagerMock->method('alreadyBuilt')->willReturnOnConsecutiveCalls(true, false);
-        Yii::$container->set(DockerImageManager::class, $dockerImageManagerMock);
-        $this->initRunner();
-
-        $this->expectException(CodeCheckerRunnerException::class);
-
-        $this->runner->run();
-    }
-
     /**
      * @testWith ["linux"]
      *           ["windows"]

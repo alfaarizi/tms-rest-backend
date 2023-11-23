@@ -2,11 +2,11 @@
 
 namespace app\components\docker;
 
+use app\exceptions\DockerContainerException;
 use Docker\API\Exception\ContainerDeleteNotFoundException;
 use Docker\API\Model\ContainersCreatePostBody;
 use Docker\API\Model\ContainersCreatePostResponse201;
 use Docker\API\Model\ContainersIdExecPostBody;
-use Docker\API\Model\ContainersIdJsonGetResponse200;
 use Docker\API\Model\ExecIdStartPostBody;
 use Docker\API\Model\SystemInfo;
 use Docker\Docker;
@@ -39,15 +39,14 @@ class DockerContainer
     }
 
     private Docker $docker;
+    private DockerImageManager $dockerImageManager;
     private string $containerName;
     /**
      * @var ContainersCreatePostResponse201|ResponseInterface|null
      */
     private $containerCreateResult;
-    /**
-     * @var ContainersIdJsonGetResponse200|ResponseInterface|null
-     */
-    private $containerInspectResult;
+
+    private array $containerInspectResult;
 
     /**
      * Information about the Docker instance
@@ -63,6 +62,7 @@ class DockerContainer
      */
     public function __construct(string $os)
     {
+        $this->dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $os]);
         $this->docker = Yii::$container->get(Docker::class, ['os' => $os]);
         $this->systemInfo = $this->docker->systemInfo();
     }
@@ -75,9 +75,21 @@ class DockerContainer
      * @param ContainersCreatePostBody $containerConfig
      * @param string $containerName
      * @return void
+     * @throws DockerContainerException
      */
     public function createContainer(ContainersCreatePostBody $containerConfig, string $containerName)
     {
+        if (!$this->dockerImageManager->alreadyBuilt($containerConfig->getImage())) {
+            if (str_starts_with($containerConfig->getImage(), 'tms/')) {
+                throw new DockerContainerException(Yii::t(
+                    "app",
+                    "The requested local Docker image ({imageName}) is not available!",
+                    ["imageName" => $containerConfig->getImage()]
+                ));
+            }
+            $this->dockerImageManager->pullImage($containerConfig->getImage());
+        }
+
         //TODO: check is image already built, is it really needed?
         if (!$this->isContainerCreated()) {
             try {
@@ -122,8 +134,7 @@ class DockerContainer
             } catch (\Exception $e) {
                 // TODO: implement better logic for waiting on Docker containers to start on Windows with hyperv isolation
             }
-            $this->containerInspectResult =
-                $this->docker->containerInspect($this->containerCreateResult->getId());
+            $this->inspectContainer($this->containerCreateResult->getId());
         }
     }
 
@@ -136,20 +147,20 @@ class DockerContainer
      * @return array|null containing the <code>stdout</code>, <code>stderr</code> logs and the <code>exitCode</code>.
      * Or null if the container is not running
      */
-    public function executeCommand(array $commandDetails): ?array
+    public function executeCommand(array $commandDetails, bool $attachedMode = true): ?array
     {
         if (!$this->isContainerRunning()) {
             return null;
         }
         $execConfig = new ContainersIdExecPostBody();
-        $execConfig->setAttachStdout(true);
-        $execConfig->setAttachStderr(true);
+        $execConfig->setAttachStdout($attachedMode);
+        $execConfig->setAttachStderr($attachedMode);
         $execConfig->setCmd($commandDetails);
 
         $execCreateResult = $this->docker->containerExec($this->containerCreateResult->getId(), $execConfig);
 
         $execStartConfig = new ExecIdStartPostBody();
-        $execStartConfig->setDetach(false);
+        $execStartConfig->setDetach(!$attachedMode);
         $execStartConfig->setTty(false);
 
         /** @var \Docker\Stream\DockerRawStream $stream */
@@ -160,28 +171,33 @@ class DockerContainer
 
         $stdoutFull = "";
         $stderrFull = "";
-        $stream->onStdout(function ($stdout) use (&$stdoutFull) {
-            if (mb_strlen($stdoutFull) + mb_strlen($stdout) < 1024 * 1024) { // 1 MB should be enough
-                $stdoutFull .= $stdout;
-            } else {
-                throw new \OverflowException(Yii::t('app', 'Your solution exceeded the maximum output size.'));
-            }
-        });
-        $stream->onStderr(function ($stderr) use (&$stderrFull) {
-            if (mb_strlen($stderrFull) + mb_strlen($stderr) < 65000) { // StudentFile::errorMsg field is 65535 in size
-                $stderrFull .= $stderr;
-            } else {
-                throw new \OverflowException(Yii::t('app', 'Your solution exceeded the maximum error output size.'));
-            }
-        });
+        $exitCode = 0;
+        if ($attachedMode) {
+            $stream->onStdout(function ($stdout) use (&$stdoutFull) {
+                if (mb_strlen($stdoutFull) + mb_strlen($stdout) < 1024 * 1024) { // 1 MB should be enough
+                    $stdoutFull .= $stdout;
+                } else {
+                    throw new \OverflowException(Yii::t('app', 'Your solution exceeded the maximum output size.'));
+                }
+            });
+            $stream->onStderr(function ($stderr) use (&$stderrFull) {
+                if (mb_strlen($stderrFull) + mb_strlen($stderr) < 65000) { // StudentFile::errorMsg field is 65535 in size
+                    $stderrFull .= $stderr;
+                } else {
+                    throw new \OverflowException(
+                        Yii::t('app', 'Your solution exceeded the maximum error output size.')
+                    );
+                }
+            });
 
-        try {
-            $stream->wait();
-            $execFindResult = $this->docker->execInspect($execCreateResult->getId());
-            $exitCode = $execFindResult->getExitCode();
-        } catch (\OverflowException $ex) {
-            $stderrFull .= $ex->getMessage() . PHP_EOL;
-            $exitCode = -1;
+            try {
+                $stream->wait();
+                $execFindResult = $this->docker->execInspect($execCreateResult->getId());
+                $exitCode = $execFindResult->getExitCode();
+            } catch (\OverflowException $ex) {
+                $stderrFull .= $ex->getMessage() . PHP_EOL;
+                $exitCode = -1;
+            }
         }
 
         return [
@@ -241,9 +257,9 @@ class DockerContainer
     public function stopContainer()
     {
         if ($this->isContainerRunning()) {
-            $this->docker->containerKill($this->containerInspectResult->getId());
+            $this->docker->containerKill($this->containerInspectResult['Id']);
             try {
-                $this->docker->containerDelete($this->containerInspectResult->getId());
+                $this->docker->containerDelete($this->containerInspectResult['Id']);
             } catch (ContainerDeleteNotFoundException $e) {
                 Yii::info("Container [$this->containerName] already deleted", __METHOD__);
             }
@@ -254,7 +270,7 @@ class DockerContainer
                 Yii::info("Container [$this->containerName] already deleted", __METHOD__);
             }
         }
-        $this->containerInspectResult = null;
+        $this->containerInspectResult = [];
         $this->containerCreateResult = null;
     }
 
@@ -267,14 +283,13 @@ class DockerContainer
     }
 
     /**
-     * @return ContainersIdJsonGetResponse200|ResponseInterface|null
+     * @return array
      */
-    public function getContainerInspectResult()
+    public function getContainerInspectResult(): array
     {
         if (empty($this->containerInspectResult) && empty($this->containerCreateResult)) {
             try {
-                $inspect = $this->docker->containerInspect($this->containerName);
-                $this->containerInspectResult = $inspect;
+                $this->inspectContainer($this->containerName);
             } catch (\Exception $ignored) {
                 Yii::debug("Container inspect failed for container [$this->containerName]", __METHOD__);
                 //only to fetch inspect on pre-existing container
@@ -302,15 +317,27 @@ class DockerContainer
 
     private function isContainerRunning(): bool
     {
-        return ($this->containerInspectResult instanceof ContainersIdJsonGetResponse200)
-        || (
-            $this->containerInspectResult instanceof ResponseInterface
-            && $this->containerInspectResult->getStatusCode() == 200
-            );
+        return !empty($this->containerInspectResult);
     }
 
     /**
-     * TODO remove after !45 merged (https://gitlab.com/tms-elte/backend-core/-/merge_requests/45)
+     * Workaround of https://github.com/docker-php/docker-php/issues/348
+     * @param string $containerId
+     */
+    private function inspectContainer(string $containerId)
+    {
+        //fetch response workaround: https://github.com/docker-php/docker-php/issues/348
+        $containerInspect = $this->docker->containerInspect(
+            $this->containerName,
+            [],
+            Client::FETCH_RESPONSE
+        );
+
+        $contents = $containerInspect->getBody()->getContents();
+        $this->containerInspectResult = json_decode($contents, true);
+    }
+
+    /**
      * Extracts resources from container into a tar archive
      *
      * @param string $pathToResource path to resources to extract from the container
@@ -319,28 +346,27 @@ class DockerContainer
      */
     public function downloadArchive(string $pathToResource, string $destination)
     {
-        if ($this->isContainerCreated()) {
-            // The container must be stopped before uploading files when a Windows host with Hyper-V isolation is configured
-            $shouldStop = $this->systemInfo->getOSType() == 'windows' && $this->systemInfo->getIsolation() == 'hyperv';
-            if ($shouldStop) {
-                $this->docker->containerStop($this->containerCreateResult->getId());
-            }
+        $id = $this->getContainerInspectResult()['Id'];
+        // The container must be stopped before uploading files when a Windows host with Hyper-V isolation is configured
+        $shouldStop = $this->systemInfo->getOSType() == 'windows' && $this->systemInfo->getIsolation() == 'hyperv';
+        if ($shouldStop) {
+            $this->docker->containerStop($id);
+        }
 
-            $containerArchive = $this->docker->containerArchive(
-                $this->containerCreateResult->getId(),
-                ['path' => $pathToResource],
-                Client::FETCH_RESPONSE
-            );
-            file_put_contents($destination, $containerArchive->getBody()->getContents(), LOCK_EX);
+        $containerArchive = $this->docker->containerArchive(
+            $id,
+            ['path' => $pathToResource],
+            Client::FETCH_RESPONSE
+        );
+        file_put_contents($destination, $containerArchive->getBody()->getContents(), LOCK_EX);
 
-            if ($shouldStop) {
-                try {
-                    $this->docker->containerStart($this->containerCreateResult->getId());
-                } catch (\Exception $e) {
-                    // TODO: implement better logic for waiting on Docker containers to start on Windows with hyperv isolation
-                }
-                $this->containerInspectResult = $this->docker->containerInspect($this->containerCreateResult->getId());
+        if ($shouldStop) {
+            try {
+                $this->docker->containerStart($id);
+            } catch (\Exception $e) {
+                // TODO: implement better logic for waiting on Docker containers to start on Windows with hyperv isolation
             }
+            $this->containerInspectResult = $this->docker->containerInspect($id);
         }
     }
 }

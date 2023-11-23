@@ -3,7 +3,6 @@
 namespace app\modules\instructor\controllers;
 
 use app\components\RegexUtils;
-use app\components\SubmissionRunner;
 use app\models\StudentFile;
 use app\modules\instructor\components\exception\WebAppExecutionException;
 use app\modules\instructor\components\WebAppExecutor;
@@ -11,13 +10,11 @@ use app\modules\instructor\resources\SetupWebAppExecutionResource;
 use app\modules\instructor\resources\WebAppExecutionResource;
 use Exception;
 use Yii;
-use yii\base\ErrorException;
 use yii\web\BadRequestHttpException;
 use yii\web\ConflictHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
-use yii\web\UnprocessableEntityHttpException;
 
 
 /**
@@ -48,6 +45,7 @@ class WebAppExecutionController extends BaseInstructorRestController
                 'index' => ['GET'],
                 'create' => ['POST'],
                 'delete' => ['DELETE'],
+                'download-run-log' => ['GET'],
             ]
         );
     }
@@ -103,7 +101,6 @@ class WebAppExecutionController extends BaseInstructorRestController
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
-     * @throws UnprocessableEntityHttpException
      * @throws BadRequestHttpException
      *
      * @OA\Post(
@@ -150,12 +147,14 @@ class WebAppExecutionController extends BaseInstructorRestController
         }
         $this->validateGroupAccess($studentFile->task->groupID);
 
+        /*
         if (!$this->webAppExecutionEnabledForOs($studentFile->task->testOS)) {
             throw new BadRequestHttpException(
                 Yii::t('app', 'Web app execution not enabled for os: {os}',
                        ['os' => $studentFile->task->testOS])
             );
         }
+        */
 
         try {
             return $this->webAppExecutor->startWebApplication($studentFile, Yii::$app->user->id, $setupData);
@@ -166,7 +165,7 @@ class WebAppExecutionController extends BaseInstructorRestController
                 case WebAppExecutionException::$PREPARATION_FAILURE:
                     throw new ConflictHttpException($e->getMessageTranslated());
                 case WebAppExecutionException::$START_UP_FAILURE:
-                    throw new UnprocessableEntityHttpException($e->getMessageTranslated());
+                    throw new BadRequestHttpException($e->getMessageTranslated());
                 default:
                     throw $e;
             }
@@ -189,6 +188,13 @@ class WebAppExecutionController extends BaseInstructorRestController
      *     operationId="instructor::WebAppExecutionController::actionDelete",
      *     tags={"Instructor Web App Execution"},
      *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the web app execution",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
      *     @OA\Response(
      *         response=204,
      *         description="web app shut down",
@@ -220,6 +226,52 @@ class WebAppExecutionController extends BaseInstructorRestController
             Yii::error("Failed to shutdown web app [" . $webAppExecutionResource->id . "]", __METHOD__);
             throw new ServerErrorHttpException(Yii::t('app', 'Failed to shut down web application.'));
         }
+    }
+
+    /**
+     * Download the run log from the given web app execution instance
+     * @param $id
+     * @param string $id the webAppExecutionID
+     * @return void
+     * @throws \yii\base\InvalidConfigException
+     *
+     * @OA\Get(
+     *     path="/instructor/web-app-execution/{id}/download-run-log",
+     *     operationId="instructor::WebAppExecutionController::actionDownloadRunLog",
+     *     tags={"Instructor Web App Execution"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the web app execution",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionDownloadRunLog(string $id)
+    {
+        $webAppExecutionResource = WebAppExecutionResource::findOne(['id' => $id]);
+
+        if (is_null($webAppExecutionResource)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Running web app not found.'));
+        }
+
+        $this->validateGroupAccess($webAppExecutionResource->studentFile->task->groupID);
+
+        if (Yii::$app->user->id != $webAppExecutionResource->instructorID) {
+            throw new ForbiddenHttpException(Yii::t('app','User not allowed to shut down this instance.'));
+        }
+
+        $logs = $this->webAppExecutor->fetchRunLog($webAppExecutionResource);
+        Yii::$app->response->sendContentAsFile($logs, 'run.log')->send();
     }
 
     /**
