@@ -60,6 +60,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
             "GET <module:{$this->id}>/<controller:student-files>/<id>/download" => '<module>/<controller>/download',
             "POST <module:{$this->id}>/<controller:student-files>/<id>/start-code-compass" => '<module>/<controller>/start-code-compass',
             "POST <module:{$this->id}>/<controller:student-files>/<id>/stop-code-compass" => '<module>/<controller>/stop-code-compass',
+            "GET <module:{$this->id}>/<controller:student-files>/<id>/download-report" => '<module>/<controller>/download-report',
             "GET <module:{$this->id}>/<controller:instructor-files>/<id>/download" => '<module>/<controller>/download',
             "GET <module:{$this->id}>/<controller:student-files>/<id>/auto-tester-results" => '<module>/<controller>/auto-tester-results',
 
@@ -72,6 +73,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
             // instructor/exam-tests
             "<module:{$this->id}>/<controller:exam-tests>/<id>/duplicate" => '<module>/<controller>/duplicate',
             "<module:{$this->id}>/<controller:exam-tests>/<id>/finalize" => '<module>/<controller>/finalize',
+
+            // /instructor/web-app-execution
+            "<module:{$this->id}>/<controller:web-app-execution>/<id>/download-run-log" => '<module>/<controller>/download-run-log',
         ], false);
     }
 }

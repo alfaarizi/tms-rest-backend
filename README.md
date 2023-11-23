@@ -117,11 +117,22 @@ TMS communicates with Docker through the [Docker Engine API](https://docs.docker
 CodeChecker integration is part of the automated assignment evaluator, and it is ready to use for C/C++ programs if the evaluator and Docker daemon is configured.
 
 However, if you want to use an external code analyzer,
-the Docker images for CodeChecker Report Converter tool must be configured in `params.php` (`evaluator.reportConverterImage`).
-Then, the images must be pulled by the system administrator with the following command:
+the Docker images for CodeChecker Report Converter tool must be configured in the configuration (`app.evaluator.reportConverterImage`).
+Then, the system pulls the images automatically on the first usage, but they can be pulled manually with the following command:
 ~~~
 ./yii code-checker/pull-report-converter-image (linux|windows)
 ~~~
+
+#### Web Assigment Tester *(optional)*
+
+Automatic test cases can be written for web-based assignments with the Robot Framework. The Docker image for the framework must be configured in the config (`app.evaluator.webApp.linux`).
+Then, the system pulls the image automatically on the first usage, but it can be pulled manually with the following command:
+~~~
+./yii auto-tester/pull-web-tester-imageimage linux
+~~~
+
+**NOTE:** currently only Linux-based images are supported.
+
 
 #### Plagiarism detection *(optional)*
 

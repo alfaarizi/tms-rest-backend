@@ -2,6 +2,7 @@
 
 namespace app\tests\unit;
 
+use app\components\docker\DockerImageManager;
 use app\components\SubmissionRunner;
 use app\models\StudentFile;
 use app\tests\unit\fixtures\StudentFilesFixture;
@@ -35,6 +36,10 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
 
     protected function _before()
     {
+        $dockerImageManagerMock = $this->createMock(DockerImageManager::class);
+        $dockerImageManagerMock->method('alreadyBuilt')->willReturn(true);
+        Yii::$container->set(DockerImageManager::class, $dockerImageManagerMock);
+
         $this->submissionRunner = new SubmissionRunner();
         $this->studentfile = $this->tester->grabRecord(StudentFile::class, ['id' => 5]);
 

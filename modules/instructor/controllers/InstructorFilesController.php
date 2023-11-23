@@ -2,8 +2,13 @@
 
 namespace app\modules\instructor\controllers;
 
+use app\components\docker\DockerContainerBuilder;
+use app\components\docker\WebTesterContainer;
+use app\components\WebAssignmentTester;
 use app\exceptions\AddFailedException;
+use app\exceptions\DockerContainerException;
 use app\models\InstructorFile;
+use app\models\Task;
 use app\modules\instructor\resources\InstructorFileResource;
 use app\modules\instructor\resources\InstructorFilesUploadResultResource;
 use app\modules\instructor\resources\TaskResource;
@@ -19,6 +24,7 @@ use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
+use yii\web\UnprocessableEntityHttpException;
 use yii\web\UploadedFile;
 
 /**
@@ -74,6 +80,13 @@ class InstructorFilesController extends BaseInstructorRestController
      *        description="Include files with test file category",
      *        @OA\Schema(type="boolean", default=false),
      *     ),
+     *     @OA\Parameter(
+     *        name="includeWebTestSuites",
+     *        in="query",
+     *        required=false,
+     *        description="Include files with web test definitions",
+     *        @OA\Schema(type="boolean", default=false),
+     *     ),
      *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
      *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
      *     @OA\Parameter(ref="#/components/parameters/yii2_sort"),
@@ -89,7 +102,7 @@ class InstructorFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex($taskID, $includeAttachments = true, $includeTestFiles = false)
+    public function actionIndex($taskID, $includeAttachments = true, $includeTestFiles = false, $includeWebTestSuites = false)
     {
         $task = TaskResource::findOne($taskID);
 
@@ -105,6 +118,7 @@ class InstructorFilesController extends BaseInstructorRestController
         // boolean values in QS passes as strings
         $includeAttachments = filter_var($includeAttachments, FILTER_VALIDATE_BOOLEAN);
         $includeTestFiles = filter_var($includeTestFiles, FILTER_VALIDATE_BOOLEAN);
+        $includeWebTestSuites = filter_var($includeWebTestSuites, FILTER_VALIDATE_BOOLEAN);
 
         $categories = [];
         if ($includeAttachments) {
@@ -112,6 +126,9 @@ class InstructorFilesController extends BaseInstructorRestController
         }
         if ($includeTestFiles) {
             $categories[] = InstructorFile::CATEGORY_TESTFILE;
+        }
+        if ($includeWebTestSuites) {
+            $categories[] = InstructorFile::CATEGORY_WEB_TEST_SUITE;
         }
 
         $query = InstructorFileResource::find()
@@ -219,8 +236,9 @@ class InstructorFilesController extends BaseInstructorRestController
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
+        $task = TaskResource::findOne($upload->taskID);
         // Check semester
-        if (TaskResource::findOne($upload->taskID)->semesterID !== SemesterResource::getActualID()) {
+        if ($task->semesterID !== SemesterResource::getActualID()) {
             throw new BadRequestHttpException(
                 Yii::t('app', "You can't modify a task from a previous semester!")
             );
@@ -260,6 +278,10 @@ class InstructorFilesController extends BaseInstructorRestController
                         __METHOD__
                     );
                     throw new AddFailedException($instructorFile->name, ['path' => Yii::t("app", "Failed to save file. Error logged." )]);
+                }
+
+                if ($instructorFile->category == InstructorFile::CATEGORY_WEB_TEST_SUITE) {
+                    $this->verifyTestSanity($instructorFile, $task);
                 }
 
                 if ($instructorFile->save()) {
@@ -352,6 +374,42 @@ class InstructorFilesController extends BaseInstructorRestController
             throw new ServerErrorHttpException(Yii::t('app', 'Failed to remove InstructorFile') . ' StaleObjectException:' . $e->getMessage());
         } catch (\Throwable $e) {
             throw new ServerErrorHttpException(Yii::t('app', 'Failed to remove InstructorFile') . $e->getMessage());
+        }
+    }
+
+    /**
+     * @throws \PharException
+     * @throws UnprocessableEntityHttpException
+     * @throws \yii\base\Exception
+     * @throws ServerErrorHttpException
+     */
+    private function verifyTestSanity(InstructorFile $file, Task $task)
+    {
+        try {
+            $webTesterContainer = WebTesterContainer::createInstanceForValidation($task->testOS);
+        } catch (DockerContainerException $ex) {
+            throw new AddFailedException(
+                $file->name,
+                [Yii::t('app', 'Failed to setup container for file validation.')]
+            );
+        }
+
+        $tarPath = dirname($file->path) . '/suite.tar';
+        $phar = new \PharData($tarPath);
+        $phar->addFile($file->path, 'suite.robot');
+
+        try {
+            $result = $webTesterContainer->validateTestScript($tarPath);
+            if ($result['exitCode'] != 0) {
+                unlink($file->path);
+                throw new AddFailedException($file->name, [$result['stdout'] . PHP_EOL . $result['stderr']]);
+            }
+        } finally {
+            $webTesterContainer->tearDown();
+            if (file_exists($tarPath)) {
+                unset($phar);
+                \PharData::unlinkArchive($tarPath);
+            }
         }
     }
 }

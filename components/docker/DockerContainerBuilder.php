@@ -2,6 +2,7 @@
 
 namespace app\components\docker;
 
+use app\exceptions\DockerContainerException;
 use app\models\Task;
 use Docker\API\Model\ContainersCreatePostBody;
 use Docker\API\Model\HostConfig;
@@ -71,8 +72,9 @@ class DockerContainerBuilder
     private ?array $command;
     private ?string $workingDir;
     private bool $withTty = true;
-    private bool $networkApp = false;
     private array $portMappings = [];
+    private string $networkMode;
+    private array $envs = [];
 
     /**
      * Creates a container builder.
@@ -85,7 +87,6 @@ class DockerContainerBuilder
         $this->os = $os;
         $this->imageName = $imageName;
         if (!empty($webAppPort)) {
-            $this->networkApp = true;
             $this->portMappings[$webAppPort] = '';
         }
     }
@@ -137,12 +138,37 @@ class DockerContainerBuilder
      * @param int $hostPort
      * @return DockerContainerBuilder
      */
-    public function withHostPort(int $hostPort)
+    public function withHostPort(int $hostPort): DockerContainerBuilder
     {
-        if ($this->networkApp) {
+        if (!empty($this->portMappings)) {
             $webAppPort = array_keys($this->portMappings)[0];
             $this->portMappings[$webAppPort] = $hostPort;
         }
+        return $this;
+    }
+
+    /**
+     * Sets container network mode
+     * @param string $networkMode
+     * @return $this
+     *
+     * @see https://docs.docker.com/engine/reference/run/#network-settings
+     */
+    public function withNetworkMode(string $networkMode): DockerContainerBuilder
+    {
+        $this->networkMode = $networkMode;
+        return $this;
+    }
+
+    /**
+     * Sets an env variable in the container
+     * @param string $var
+     * @param string $value
+     * @return $this
+     */
+    public function withEnv(string $var, string $value): DockerContainerBuilder
+    {
+        $this->envs[] = "$var=$value";
         return $this;
     }
 
@@ -152,6 +178,7 @@ class DockerContainerBuilder
      * @param string|null $containerName if not set a random string will be generated with prefix: <i>tms_</i>
      * @return DockerContainer
      * @throws \yii\base\Exception if the container creation or start fails.
+     * @throws DockerContainerException
      */
     public function build(?string $containerName = null): DockerContainer
     {
@@ -181,20 +208,22 @@ class DockerContainerBuilder
         if (!empty($this->command)) {
             $config->setCmd($this->command);
         }
+        if (!empty($this->envs)) {
+            $config->setEnv($this->envs);
+        }
+
         return $config;
     }
 
     private function appendNetworkConfig(ContainersCreatePostBody $config): ContainersCreatePostBody
     {
-        if (!$this->networkApp) {
-            return $config;
-        }
-
         $exposedPorts = [];
         foreach (array_keys($this->portMappings) as $portToExpose) {
             $exposedPorts[$portToExpose . '/tcp'] = new \stdClass();
         }
-        $config->setExposedPorts(new \ArrayObject($exposedPorts));
+        if (!empty($exposedPorts)) {
+            $config->setExposedPorts(new \ArrayObject($exposedPorts));
+        }
 
         if (empty($config->getHostConfig())) {
             $hostConfig = new HostConfig();
@@ -211,7 +240,13 @@ class DockerContainerBuilder
                 $portBindings[$dockerPort . '/tcp'] = [$portBinding];
             }
         }
-        $hostConfig->setPortBindings(new \ArrayObject($portBindings));
+        if (!empty($portBindings)) {
+            $hostConfig->setPortBindings(new \ArrayObject($portBindings));
+        }
+
+        if (!empty($this->networkMode)) {
+            $hostConfig->setNetworkMode($this->networkMode);
+        }
 
         return $config;
     }

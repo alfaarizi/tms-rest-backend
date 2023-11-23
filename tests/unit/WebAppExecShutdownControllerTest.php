@@ -2,11 +2,11 @@
 
 namespace app\tests\unit;
 
-use app\commands\WebAppController;
+use app\commands\WebAppExecShutdownController;
 use app\models\WebAppExecution;
 use app\tests\unit\fixtures\WebAppExecutionFixture;
 
-class WebAppControllerTest extends \Codeception\Test\Unit
+class WebAppExecShutdownControllerTest extends \Codeception\Test\Unit
 {
     use \Codeception\Specify;
 
@@ -24,12 +24,12 @@ class WebAppControllerTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    private WebAppController $controller;
+    private WebAppExecShutdownController $controller;
 
 
     protected function _before()
     {
-        $this->controller = new WebAppController(null, null);
+        $this->controller = new WebAppExecShutdownController(null, null);
     }
 
     // tests
@@ -39,7 +39,7 @@ class WebAppControllerTest extends \Codeception\Test\Unit
             $this->tester->seeRecord(WebAppExecution::class, ['id' => 1]);
             $this->tester->canSeeRecord(WebAppExecution::class, ['id' => 2]);
 
-            $this->controller->actionShutDownExpiredExecutions();
+            $this->controller->actionShutDownExpiredWebAppExecutions();
 
             $this->tester->cantSeeRecord(WebAppExecution::class, ['id' => 1]);
             $this->tester->canSeeRecord(WebAppExecution::class, ['id' => 2]);

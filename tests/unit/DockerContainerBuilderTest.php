@@ -3,6 +3,7 @@
 namespace app\tests\unit;
 
 use app\components\docker\DockerContainerBuilder;
+use app\components\docker\DockerImageManager;
 use app\models\Task;
 use app\tests\doubles\DockerStub;
 use Docker\Docker;
@@ -19,6 +20,10 @@ class DockerContainerBuilderTest extends \Codeception\Test\Unit
 
     protected function _before()
     {
+        $dockerImageManagerMock = $this->createMock(DockerImageManager::class);
+        $dockerImageManagerMock->method('alreadyBuilt')->willReturn(true);
+        Yii::$container->set(DockerImageManager::class, $dockerImageManagerMock);
+
         $task = new Task();
         $task->testOS = 'linux';
         $task->appType = 'Web';
@@ -65,7 +70,9 @@ class DockerContainerBuilderTest extends \Codeception\Test\Unit
                 ->withHostPort(8009)
                 ->withWorkingDir('myDir')
                 ->withCommand(['myCmd'])
-                ->withTty(false);
+                ->withTty(false)
+                ->withEnv('FOO', 'BAR')
+                ->withNetworkMode("container:foo");
             $builder->build('myName');
 
             $config = $this->dockerStub->createPostBody;
@@ -75,6 +82,8 @@ class DockerContainerBuilderTest extends \Codeception\Test\Unit
             self::assertEquals('myDir', $config->getWorkingDir());
             self::assertStringStartsWith('myName', $this->dockerStub->createQueryParams['name']);
             self::assertEquals('80/tcp', $this->getExposedPort($config));
+            self::assertEquals('FOO=BAR', $config->getEnv()[0]);
+            self::assertEquals('container:foo', $config->getHostConfig()->getNetworkMode());
 
             $portBindings = $this->getPortBindings($config);
             $exposedPort = array_key_first($portBindings);

@@ -76,11 +76,13 @@ app:
         # gateway url
         url: ''
       linux:
+        robotFrameworkImage: 'ghcr.io/marketsquare/robotframework-browser/rfbrowser-stable:12.3.0'
         # reserved ports for on linux docker host
         reservedPorts:
           from: 8080
           to: 8089
       windows:
+        robotFrameworkImage: ''
         # reserved ports for on windows docker host
         reservedPorts:
           from: 9090

@@ -33,11 +33,17 @@ class InstructorFile extends File implements IOpenApiFieldTypes
     public const CATEGORY_TESTFILE = 'Test file';
 
     /**
+     * Test file category for files of test suite definitions for web tasks
+     */
+    public const CATEGORY_WEB_TEST_SUITE = 'Web test suite';
+
+    /**
      * Array of supported category types for an InstructorFile.
      */
     private const CATEGORY_TYPES = [
         self::CATEGORY_ATTACHMENT,
         self::CATEGORY_TESTFILE,
+        self::CATEGORY_WEB_TEST_SUITE
     ];
 
     /**
@@ -157,6 +163,15 @@ class InstructorFile extends File implements IOpenApiFieldTypes
     public function getIsTestFile()
     {
         return $this->category == self::CATEGORY_TESTFILE;
+    }
+
+    /**
+     * Returns whether the instructor file is a web test suite.
+     * @return bool
+     */
+    public function getIsWebTestSuite(): bool
+    {
+        return $this->category == self::CATEGORY_WEB_TEST_SUITE;
     }
 
     public function getTranslatedCategory()

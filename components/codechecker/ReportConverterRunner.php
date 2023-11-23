@@ -31,13 +31,6 @@ class ReportConverterRunner extends AnalyzerRunner
                 CodeCheckerRunnerException::BEFORE_RUN_FAILURE
             );
         }
-
-        if (!$this->dockerImageManager->alreadyBuilt($imageName)) {
-            throw new CodeCheckerRunnerException(
-                Yii::t("app", "CodeChecker Report Converter Docker image is not available"),
-                CodeCheckerRunnerException::BEFORE_RUN_FAILURE
-            );
-        }
     }
 
     protected function addAnalyzeInstructionsToTar(EvaluatorTarBuilder $tarBuilder): void

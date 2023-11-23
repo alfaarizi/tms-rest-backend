@@ -238,6 +238,7 @@ return [
     "Failed to remove task. This task can not be removed anymore, there is uploaded solution!"
     => "Beadandó feladat törlése sikertelen. Olyan feladatot nem lehet törölni, amihez már van feltöltött megoldás!",
     "Local Docker images can't be updated from registry." => "Lokális Docker képek nem frissíthetőek a registryből",
+    "The requested local Docker image ({imageName}) is not available locally!" => "A keresett lokális Docker kép ({imageName}) nem elérhető!",
 
     "You can't modify notes from a previous semester!" => "Előző szemeszterből származó megjegyzéseket nem lehet módosítani!",
     "Failed to update note on subscription. Message:" => "Nem sikerült frissíteni a megyjegyzést a feliratkozáson. Üzenet:",
@@ -497,5 +498,11 @@ return [
     'Platform not supported for web application testing.' => 'A platform nem támogatott webalkalmazás tesztelésre.',
     'File prepare failed' => 'Fájlok előkészítése sikertelen',
     'Container initialization failed' => 'Konténer inicializálása sikertelen',
-    'Synchronization problem occurred due to corrupted submissions. {count} submission(s) was corrupted. The corrupted files were not synchronized.' => 'Szinkronizációs probléma merült fel sérült beadandók miatt. {count} beadandó volt sérült. A sérült fájlokat nem szinkronizáltuk.'
+    'Synchronization problem occurred due to corrupted submissions. {count} submission(s) was corrupted. The corrupted files were not synchronized.' => 'Szinkronizációs probléma merült fel sérült beadandók miatt. {count} beadandó volt sérült. A sérült fájlokat nem szinkronizáltuk.',
+
+    //Web App Test
+    "Web test suite" => "Web tesztek",
+    "Test reports not exist for this student file." => "Ehhez a beadandóhoz nem készült teszt riport.",
+    "Check web reports for details." => "A részleteket megtalálod a web test riportban.",
+    'Failed to setup container for file validation.' => 'A konténer elindítása sikertelen volt az fájl ellenőrzéséhez.'
 ];

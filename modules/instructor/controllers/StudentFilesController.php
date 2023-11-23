@@ -50,6 +50,7 @@ class StudentFilesController extends BaseInstructorRestController
             'start-code-compass' => ['POST'],
             'stop-code-compass' => ['POST'],
             'auto-tester-results' => ['GET'],
+            'download-report' => ['GET'],
         ]);
     }
 
@@ -563,6 +564,57 @@ class StudentFilesController extends BaseInstructorRestController
         );
     }
 
+
+    /**
+     * Download test report for student file
+     * @param int $id
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     *  @OA\Get(
+     *     path="/instructor/student-files/{id}/downloadReport",
+     *     operationId="instructor::StudentFilesController::actionDownloadReport",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the file",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionDownloadReport($id)
+    {
+        $studentFile = StudentFileResource::findOne($id);
+
+        if (is_null($studentFile)) {
+            throw new NotFoundHttpException(Yii::t('app', 'StudentFile not found'));
+        }
+
+        // Authorization check
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $studentFile->task->groupID])) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
+        }
+
+        if (!file_exists($studentFile->reportPath)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Test reports not exist for this student file.'));
+        }
+
+        Yii::$app->response->sendFile(
+            $studentFile->reportPath,
+            $studentFile->uploader->neptun . '_report.tar'
+        );
+    }
 
     /**
      * Send all solutions of the task zipped to the client

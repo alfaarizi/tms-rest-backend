@@ -26,6 +26,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
     {
         $app->getUrlManager()->addRules([
             "<module:{$this->id}>/<controller:(instructor-files|student-files)>/<id>/download" => '<module>/<controller>/download',
+            "<module:{$this->id}>/<controller:(student-files)>/<id>/download-report" => '<module>/<controller>/download-report',
 
             "GET <module:{$this->id}>/<controller:(student-files)>/<id>/auto-tester-results" => '<module>/<controller>/auto-tester-results',
 

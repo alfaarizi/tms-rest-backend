@@ -16,6 +16,7 @@ use app\tests\unit\fixtures\WebAppExecutionFixture;
 use Docker\API\Model\ContainersIdJsonGetResponse200;
 use Docker\API\Model\SystemInfo;
 use Docker\Docker;
+use GuzzleHttp\Psr7\Response;
 use Yii;
 use yii\db\Exception;
 
@@ -180,8 +181,10 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
 
     public function testStopWebApplication()
     {
-        $response200 = new ContainersIdJsonGetResponse200();
-        $response200->setId('foo');
+        $body = [];
+        $body['Id'] = 'foo';
+        $response200 = new Response(200, [], json_encode($body));
+
         $mockObject = $this->makeEmpty(DockerStub::class);
         $mockObject->method('systemInfo')->willReturn(new SystemInfo());
         $mockObject->method('containerInspect')->willReturn($response200);
@@ -195,6 +198,13 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
             $this->tester->cantSeeRecord(WebAppExecution::class, ['id' => 1]);
         });
 
+        $body = [];
+        $body['Id'] = 'foo';
+        $response200 = new Response(200, [], json_encode($body));
+        $mockObject = $this->makeEmpty(DockerStub::class);
+        $mockObject->method('systemInfo')->willReturn(new SystemInfo());
+        $mockObject->method('containerInspect')->willReturn($response200);
+        Yii::$container->set(Docker::class, $mockObject);
         $mockObject->method('containerKill')->willThrowException(new Exception(''));
         $this->specify("When shut down fails, keep web app in record", function () {
             $record = $this->tester->grabRecord(WebAppExecution::class, ['id' => 2]);
