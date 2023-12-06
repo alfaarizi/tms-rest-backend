@@ -93,12 +93,12 @@ class AccessToken extends ActiveRecord
             throw new TokenExpiredException("You cannot refresh an expired token");
         }
 
-        $this->validUntil = static::calculateNewValidation();
+        $this->validUntil = self::calculateNewValidation();
         $this->save();
     }
 
     /**
-     * @param User user
+     * @param User $user
      * @return AccessToken
      * @throws \yii\base\Exception
      * Creates access token for the given user. Token is not saved to the database automatically!
@@ -114,7 +114,7 @@ class AccessToken extends ActiveRecord
         $randomString = Yii::$app->security->generateRandomString(self::IMAGE_TOKEN_LENGTH);
         $authToken->imageToken = "{$user->neptun}-{$randomString}";
 
-        $authToken->validUntil = static::calculateNewValidation();
+        $authToken->validUntil = self::calculateNewValidation();
 
         return $authToken;
     }

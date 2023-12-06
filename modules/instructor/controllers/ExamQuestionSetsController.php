@@ -418,12 +418,16 @@ class ExamQuestionSetsController extends BaseInstructorRestController
         $copy->save();
         $batchAnswers = array();
         $answerAttr = ['id', 'text', 'correct', 'questionID'];
-        foreach ($questionSet->getQuestions()->all() as $question) {
+        /** @var ExamQuestion[] $questions */
+        $questions = $questionSet->getQuestions()->all();
+        foreach ($questions as $question) {
             $copyQuestion = new ExamQuestion();
             $copyQuestion->text = $question->text;
             $copyQuestion->questionsetID = $copy->id;
             $copyQuestion->save();
-            foreach ($question->getAnswers()->all() as $answer) {
+            /** @var ExamAnswer[] $answers */
+            $answers = $question->getAnswers()->all();
+            foreach ($answers as $answer) {
                 $batchAnswers[] = [null, $answer->text, $answer->correct, $copyQuestion->id];
             }
         }

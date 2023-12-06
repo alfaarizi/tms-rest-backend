@@ -2,7 +2,9 @@
 
 namespace app\components;
 
+use app\models\StudentFile;
 use app\models\Task;
+use app\models\User;
 use Yii;
 use yii\helpers\Console;
 
@@ -86,8 +88,8 @@ class DueSubmissionDigester
      * Input structure: tasks with due deadlines (task->group->subscription->user)
      * Output structure: student->array of (due task, student file of task)
      *
-     * @param array $tasks tasks with due deadlines (task->group->subscription->user)
-     * @return array ["student_neptun_code" => ["user" => <user data>, "data" => ["task" => <task data>, "studentFile" => <studentfile data if any> ]] ]
+     * @param Task[] $tasks tasks with due deadlines (task->group->subscription->user)
+     * @return array<string, array{'user': User, 'data': array<int, array{'task': Task, 'studentFile': StudentFile|null}>}> The outermost array is keyed by Neptun code
      */
     private function transformMailData(array $tasks): array
     {

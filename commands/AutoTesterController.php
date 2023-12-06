@@ -55,6 +55,7 @@ class AutoTesterController extends BaseController
                 }
 
                 // Find the oldest untested studentFile.
+                /** @var null|StudentFile $studentFile */
                 $studentFile = StudentFile::find()
                     ->notTested($IDs)
                     ->orderBy(['uploadCount' => SORT_ASC, 'uploadTime' => SORT_ASC])
@@ -67,6 +68,7 @@ class AutoTesterController extends BaseController
                 }
                 if ($studentFile->task->appType == Task::APP_TYPE_CONSOLE) {
                     // Get the test cases for the task.
+                    /** @var TestCase[] $testCases */
                     $testCases = TestCase::find()
                         ->where(['taskID' => $studentFile->taskID])
                         ->all();

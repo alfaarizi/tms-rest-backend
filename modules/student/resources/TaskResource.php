@@ -6,6 +6,7 @@ use app\components\GitManager;
 use app\components\openapi\generators\OAItems;
 use app\components\openapi\generators\OAProperty;
 use app\models\Task;
+use app\models\User;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
@@ -87,7 +88,9 @@ class TaskResource extends Task
     public function getGitInfo(): ?array
     {
         if (Yii::$app->params['versionControl']['enabled'] && $this->isVersionControlled) {
-            $path = GitManager::getWriteableUserRepositoryUrl($this->id, Yii::$app->user->identity->neptun);
+            /** @var User $user */
+            $user = Yii::$app->user->identity;
+            $path = GitManager::getWriteableUserRepositoryUrl($this->id, $user->neptun);
             // TODO: move usage information creation to the frontend. This function should only return the path.
             $usage = 'git clone ' . $path;
 

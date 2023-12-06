@@ -57,7 +57,7 @@ class StudentFileResource extends \app\models\StudentFile
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getGraderName(): string
     {

@@ -3,6 +3,7 @@
 namespace app\modules\student\controllers;
 
 use app\models\ExamAnswer;
+use app\models\ExamQuestion;
 use app\models\ExamTest;
 use app\models\ExamTestInstance;
 use app\modules\student\resources\ExamResultQuestionResource;
@@ -302,6 +303,7 @@ class ExamTestInstancesController extends BaseStudentRestController
         }
 
         //Shuffle questions if necessary
+        /** @var ExamQuestion[] $questions */
         $questions = $testInstance->getQuestions()->all();
         if ($testInstance->test->shuffled) {
             shuffle($questions);
@@ -326,16 +328,14 @@ class ExamTestInstancesController extends BaseStudentRestController
             $questionResources[] = $questionResource;
 
             //Shuffle answers if necessary
+            /** @var ExamAnswer[] $tmp */
+            $tmp = $question->getAnswers()->all();
             if ($testInstance->test->shuffled) {
-                $tmp = $question->getAnswers()->all();
-                $questionResource->answers = array_map(function($i) {
-                    return new ExamWriterAnswerResource($i->id, $i->text);
-                }, $tmp);
-            } else {
-                $questionResource->answers = array_map(function($i) {
-                    return new ExamWriterAnswerResource($i->id, $i->text);
-                }, $question->getAnswers()->all());
+                shuffle($tmp);
             }
+            $questionResource->answers = array_map(function ($i) {
+                return new ExamWriterAnswerResource($i->id, $i->text);
+            }, $tmp);
         }
 
         Yii::info(
@@ -477,13 +477,17 @@ class ExamTestInstancesController extends BaseStudentRestController
 
             // Increase score for each question that didn't have a correct answer,
             // if the student did not answer it
-            foreach ($testInstance->getQuestions()->all() as $question) {
+            /** @var ExamQuestion[] $questions */
+            $questions = $testInstance->getQuestions()->all();
+            foreach ($questions as $question) {
                 if ($question->getCorrectAnswers()->count() == 0 &&
                     count(array_filter($submittedAnswers, function($answer) use ($question) {
                         if (is_null($answer->answerID) || $answer->answerID == "") {
                             return false;
                         }
-                        return $answer->getAnswer()->one()->questionID == $question->id;
+                        /** @var ExamAnswer $ans */
+                        $ans = $answer->getAnswer()->one();
+                        return $ans->questionID == $question->id;
                     })) == 0) {
                     $score++;
                 }

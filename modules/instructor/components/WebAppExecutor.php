@@ -161,7 +161,8 @@ class WebAppExecutor
 
         if ($studentFile->task->appType != Task::APP_TYPE_WEB) {
             Yii::error(
-                "Only [Web] Task types are executable studentFile [$studentFile->id] is og type [$studentFile->task->appType]");
+            /** @phpstan-ignore-next-line */
+                "Only [Web] Task types are executable studentFile [$studentFile->id] is of type [$studentFile->task->appType]");
             throw new WebAppExecutionException(Yii::t('app', 'Only Web application task types are executable.'), WebAppExecutionException::$PREPARATION_FAILURE);
         }
 

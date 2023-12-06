@@ -98,7 +98,7 @@ class CodeCompassInstance extends \yii\db\ActiveRecord implements IOpenApiFieldT
         ];
     }
 
-    public static function find()
+    public static function find(): CodeCompassInstanceQuery
     {
         return new CodeCompassInstanceQuery(get_called_class());
     }

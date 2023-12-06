@@ -24,7 +24,7 @@ use yii\helpers\ArrayHelper;
  * @property string $availableuntil
  * @property int $groupID
  * @property int $questionsetID
- * @property-read string timezone
+ * @property-read string $timezone
  *
  * @property ExamTestInstance[] $testinstances
  * @property ExamQuestionSet $questionSet
@@ -202,7 +202,7 @@ class ExamTest extends ActiveRecord implements IOpenApiFieldTypes
             throw new \LengthException(Yii::t('app', 'The selected group is empty. Please add at least one student!'));
         }
 
-
+        /** @var User[] $users */
         $users = User::find()->where(['in', 'id', $subscriptions])->all();
 
         $batchTests = array();
@@ -221,6 +221,7 @@ class ExamTest extends ActiveRecord implements IOpenApiFieldTypes
             Yii::$app->db->createCommand()->batchInsert(ExamTestInstance::tableName(), $testAttr, $batchTests)->execute();
 
             //Shuffle array of questions and slice the first n where n is the question amount
+            /** @var ExamQuestion[] $questions */
             $questions = ExamQuestion::find()->where(['questionsetID' => $this->questionsetID])->all();
             shuffle($questions);
             $chosen = array_slice($questions, 0, $this->questionamount);

@@ -28,7 +28,7 @@ class AddFailedException extends \yii\base\UserException
      * @param string $identifier;
      * @param mixed $cause
      * @param int $code
-     * @param Throwable|null $previous
+     * @param \Throwable|null $previous
      */
     public function __construct($identifier, $cause, $code = 0, \Throwable $previous = null)
     {

@@ -5,6 +5,8 @@ namespace app\components;
 use app\components\docker\DockerImageManager;
 use app\components\docker\EvaluatorTarBuilder;
 use app\exceptions\EvaluatorTarBuilderException;
+use app\models\StudentFile;
+use app\models\TestCase;
 use app\models\TestResult;
 use Yii;
 use Docker\Docker;
@@ -20,27 +22,27 @@ use ForceUTF8\Encoding;
 class AssignmentTester
 {
     /**
-     * @property array An array containing the test results.
+     * @var array An array containing the test results
      */
     private $results;
 
     /**
-     * @property \app\models\StudentFile The uploaded student solution.
+     * @var StudentFile The uploaded student solution.
      */
     private $studentFile;
 
     /**
-     * @property \app\models\TestCase[] The test cases to be run.
+     * @var TestCase[] The test cases to be run.
      */
     private $testCases;
 
     /**
-     * @property string The docker connection socket.
+     * @var string The docker connection socket.
      */
     private $socket;
 
     /**
-     * @property \Docker\Docker The docker connection.
+     * @var Docker The docker connection.
      */
     private $docker;
 
@@ -67,7 +69,7 @@ class AssignmentTester
     /**
      *  Constructor
      *
-     * @param \app\models\StudentFile $studentFile
+     * @param StudentFile $studentFile
      * @param \app\models\TestCase[] $testCases
      * @param string|null $socket the socket of the Docker daemon to connect
      */
@@ -107,7 +109,6 @@ class AssignmentTester
     /**
      * Runs the testCases on the studentfile.
      *
-     * @return array an array with the test results.
      * @throws \Throwable
      */
     public function test(): void

@@ -18,7 +18,7 @@ class StaticAnalyzerToolResource extends Model implements IOpenApiFieldTypes
      */
     public $title;
     /**
-     * @var
+     * @var string
      */
     public $outputPath;
 

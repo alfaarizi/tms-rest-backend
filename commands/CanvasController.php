@@ -33,7 +33,7 @@ class CanvasController extends BaseController
 
     /**
      * Runs the automatic synchronization with Canvas, prioritizing groups not synchronized for the longest time
-     * @param null $count Number of groups to synchronize (zero for all)
+     * @param int $count Number of groups to synchronize (zero for all)
      */
     public function actionSynchronizePrioritized($count = 1)
     {

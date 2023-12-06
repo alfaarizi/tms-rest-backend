@@ -300,6 +300,7 @@ class CanvasIntegration
     private function sendEmailsAboutErrors(Group $group): void
     {
         $originalLanguage = Yii::$app->language;
+        /** @var User[] $instructors */
         $instructors = $group->getInstructors()->all();
         foreach ($instructors as $instructor) {
             if (!empty($instructor->notificationEmail)) {
@@ -442,12 +443,13 @@ class CanvasIntegration
             foreach ($out as $canvasEnrollment) {
                 $instructor = $this->saveCanvasUser($canvasEnrollment['user']);
                 if ($instructor !== null) {
+                    /** @var null|InstructorGroup $instructorGroup */
                     $instructorGroup = InstructorGroup::find()->andWhere(['groupID' => $group->id])->andWhere(['userID' => $instructor->id])->one();
                     if (empty($instructorGroup)) {
                         $instructorGroup = $this->saveInstructorGroup($instructor->id, $group->id);
                     }
                     if ($instructorGroup !== null) {
-                        array_push($groups, $instructorGroup->id);
+                        array_push($groups, $instructorGroup->groupID);
                     }
                 }
             }
@@ -479,6 +481,7 @@ class CanvasIntegration
             $name = $canvasUser["name"];
             $neptun = strval($canvasUser["id"]);
         }
+        /** @var null|User $user */
         $user = User::find()->orWhere(['canvasID' => $canvasUser["id"]])->orWhere(['neptun' => $neptun])->one();
         if (empty($user)) {
             $user = new User();
@@ -515,6 +518,7 @@ class CanvasIntegration
             ]
         );
 
+        /** @var Task[] $tasks */
         $tasks = $group->getTasks()->all();
         foreach ($tasks as $task) {
             $studentFile = new StudentFile();
@@ -667,6 +671,7 @@ class CanvasIntegration
      */
     private function saveTask(array $assignment, Group $group): ?int
     {
+        /** @var null|Task $task */
         $task = $group->getTasks()->where(['canvasID' => $assignment['id']])->one();
         // Create new task if it was not synchronized before
         if (empty($task)) {

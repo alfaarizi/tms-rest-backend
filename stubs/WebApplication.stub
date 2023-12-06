@@ -1,0 +1,12 @@
+<?php
+
+namespace yii\web;
+
+/**
+ * @property-read \app\models\NeptunUser $user
+ * @property-read \app\components\openapi\SchemaGenerator $swagger
+*/
+class Application
+{
+
+}
