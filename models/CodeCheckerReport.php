@@ -26,7 +26,7 @@ use Yii;
  *
  * @property-read CodeCheckerResult $result
  *
- * @property-read string viewerLink
+ * @property-read string $viewerLink
  */
 class CodeCheckerReport extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {

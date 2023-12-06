@@ -78,7 +78,9 @@ class CoursesController extends BaseInstructorRestController
         $courseMap = [];
         // Get courses from InstructorCourses
         if ($instructor) {
-            foreach (InstructorCourse::find()->where(['userID' => Yii::$app->user->id])->all() as $ic) {
+            /** @var InstructorCourse[] $instructorCourses */
+            $instructorCourses = InstructorCourse::find()->where(['userID' => Yii::$app->user->id])->all();
+            foreach ($instructorCourses as $ic) {
                 $course = $ic->course;
                 $courseMap[$course->id] = new CourseResource($course);
             }

@@ -14,6 +14,7 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\StaleObjectException;
 use yii\helpers\FileHelper;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
@@ -178,7 +179,7 @@ class PlagiarismBasefileController extends BaseInstructorRestController
 
     /**
      * Upload new base files
-     * @return array|InstructorFilesUploadResultResource
+     * @return array|UploadPlagiarismBasefileResultResource
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException

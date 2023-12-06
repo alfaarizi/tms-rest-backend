@@ -51,6 +51,7 @@ class NotificationController extends BaseController
         }
 
         // Load data
+        /** @var StudentFile[] $newSolutions */
         $newSolutions = $query->all();
         $count = count($newSolutions);
 
@@ -74,8 +75,8 @@ class NotificationController extends BaseController
             $table->setHeaders(['Neptun', 'Name', 'Status', 'Upload Time', 'Instructor Name']);
 
             $rows = [];
+            /** @var StudentFile $solution */
             foreach ($newSolutions as $solution) {
-                /** @var \app\models\StudentFile $solution */
                 foreach ($solution->task->group->instructors as $instructor) {
                     if (strlen($neptun) && strtolower($neptun) != strtolower($instructor->neptun)) {
                         continue;

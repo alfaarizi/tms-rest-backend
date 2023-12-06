@@ -182,7 +182,7 @@ class Plagiarism extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 
     /**
      * Get the [[PlagiarismBasefile]] objects connected to this plagiarism check.
-     * @return \app\models\BaseFile[]
+     * @return PlagiarismBasefile[]
      */
     public function getBaseFiles(): array
     {

@@ -50,6 +50,7 @@ class DockerStub extends Docker
         $this->stopCount++;
         $this->stopId = $id;
         $this->stopQueryParams = $queryParameters;
+        return null;
     }
 
     public int $deleteCount = 0;
@@ -60,6 +61,7 @@ class DockerStub extends Docker
         $this->deleteCount++;
         $this->deleteId = $id;
         $this->deleteQueryParams = $queryParameters;
+        return null;
     }
 
     public int $killCount = 0;
@@ -70,6 +72,7 @@ class DockerStub extends Docker
         $this->killCount++;
         $this->killId = $id;
         $this->killQueryParams = $queryParameters;
+        return null;
     }
 
     public int $startCount = 0;
@@ -80,6 +83,7 @@ class DockerStub extends Docker
         $this->startCount++;
         $this->startId = $id;
         $this->startQueryParams = $queryParameters;
+        return null;
     }
 
     public int $inspectCount = 0;
@@ -148,6 +152,7 @@ class DockerStub extends Docker
         $this->putId = $id;
         $this->putInputStream = $inputStream;
         $this->putQueryParam = $queryParameters;
+        return null;
     }
 
     public int $infoCount = 0;

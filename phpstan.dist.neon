@@ -1,5 +1,5 @@
 parameters:
-  level: 1
+  level: 2
   paths:
     - behaviors
     - commands
@@ -18,5 +18,10 @@ parameters:
         - tests/_support
     analyseAndScan:
         - tests/_output
+        - models/NeptunAuth.php
   bootstrapFiles:
     - vendor/yiisoft/yii2/Yii.php
+  stubFiles:
+    - stubs/BaseYii.stub
+    - stubs/ConsoleApplication.stub
+    - stubs/WebApplication.stub

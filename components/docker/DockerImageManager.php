@@ -97,7 +97,8 @@ class DockerImageManager extends BaseObject
     public function inspectImage(string $imageName): \Docker\API\Model\Image
     {
         /** @var \Docker\API\Model\Image $imageInfo */
-        return $this->docker->imageInspect($imageName);
+        $imageInfo = $this->docker->imageInspect($imageName);
+        return $imageInfo;
     }
 
     /**

@@ -1,0 +1,11 @@
+<?php
+
+namespace yii;
+
+class BaseYii
+{
+    // TODO this can be removed when the backend is upgraded to at least Yii 2.0.49
+    // see: https://github.com/yiisoft/yii2/commit/e40fb70fa85650c1c2a892f17edfb90d45d0459e
+    /** @var web\Application|console\Application $app */
+    public static $app;
+}

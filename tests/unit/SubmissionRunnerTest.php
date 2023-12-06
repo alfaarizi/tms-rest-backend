@@ -80,7 +80,7 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
 
             $this->tester->expectThrowable(\Throwable::class, function () {
                 $this->submissionRunner
-                    ->run($this->studentfile, 8009, $this->studentfile->task->containerName);
+                    ->run($this->studentfile, 8009, $this->studentfile->containerName);
             });
             self::assertEquals(
                 2,

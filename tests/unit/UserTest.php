@@ -116,6 +116,7 @@ class UserTest extends \Codeception\Test\Unit
                 $this->assertNull(User::findByConfirmationCode($confirmationCode));
                 $user->save();
                 $user2 = User::findByConfirmationCode($confirmationCode);
+                $this->assertNotNull($user2);
                 $this->assertEquals($user->id, $user2->id);
                 $this->assertNotNull($confirmationCode);
                 $user->markAttributeDirty('customEmail');

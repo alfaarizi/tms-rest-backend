@@ -18,12 +18,13 @@ class PermissionHelpers
      */
     public static function isItMyTask($id)
     {
+        /** @var Subscription[] $subscriptions */
+        $subscriptions = Subscription::find()->select('groupID')->where(['userID' => Yii::$app->user->id])->all();
         $myGroups = array_map(
             function ($o) {
                 return $o->groupID;
             },
-            Subscription::find()->select('groupID')
-                ->where(['userID' => Yii::$app->user->id])->all()
+            $subscriptions
         );
 
         $rightCheck = Task::find()->where(

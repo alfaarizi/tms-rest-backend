@@ -692,6 +692,7 @@ class StudentFilesController extends BaseInstructorRestController
                 ]
             );
         } else {
+            /** @var StudentFileResource[] $files */
             $files = StudentFileResource::find()
                 ->andWhere(['taskID' => $taskID])
                 ->andWhere(['not', ['isAccepted' => StudentFile::IS_ACCEPTED_NO_SUBMISSION]])

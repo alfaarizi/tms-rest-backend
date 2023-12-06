@@ -318,9 +318,9 @@ class Moss {
 
     /**
      * Upload a file to the server
-     * @param  socket $handle A handle from fsockopen
-     * @param  string $file   The Path of the file
-     * @param  int $id     0 = Basefile, incrementing for every normal file
+     * @param resource $handle A handle from fsockopen
+     * @param string $file   The Path of the file
+     * @param int $id     0 = Basefile, incrementing for every normal file
      * @return void
      */
     private function uploadFile($handle, $file, $id){

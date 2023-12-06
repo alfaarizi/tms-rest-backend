@@ -31,10 +31,10 @@ use yii\helpers\FileHelper;
  * The class that is responsible for starting and stopping CodeCompass webservers
  * in docker containers.
  *
- * @property-read string containerId
- * @property-read string errorLogs
- * @property-read string codeCompassUsername
- * @property-read string codeCompassPassword
+ * @property-read string $containerId
+ * @property-read string $errorLogs
+ * @property-read string $codeCompassUsername
+ * @property-read string $codeCompassPassword
  */
 class CodeCompass extends BaseObject
 {

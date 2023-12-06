@@ -19,8 +19,8 @@ use yii\db\ActiveQuery;
  * @property string|null $stdout
  * @property string|null $stderr
  * @property string|null $runnerErrorMessage
- * @property-read string|null htmlReportsDirPath
- * @property-read string|null translatedStatus
+ * @property-read string|null $htmlReportsDirPath
+ * @property-read string|null $translatedStatus
  *
  * @property CodeCheckerReport[] $codeCheckerReports
  * @property StudentFile $studentFile

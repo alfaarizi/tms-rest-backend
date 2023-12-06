@@ -16,7 +16,10 @@ class NeptunUser extends \yii\web\User
     public $semester;
 
     /**
-     *  Setup the user cookies after the login.
+     * Setup the user cookies after the login.
+     * @param User $identity
+     * @param bool $cookieBased
+     * @param int $duration
      */
     protected function afterLogin($identity, $cookieBased, $duration)
     {

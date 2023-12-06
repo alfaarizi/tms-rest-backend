@@ -54,6 +54,7 @@ class CodeCompassInstancesTest extends Unit
     public function testGetStudentFile()
     {
         $instance = CodeCompassInstance::findOne(['id' => 1]);
+        /** @var null|StudentFile $studentFile */
         $studentFile = $instance->getStudentFile()->one();
         $this->assertNotNull($studentFile, 'The student file should not be null!');
         $this->assertEquals(1, $studentFile->id);
