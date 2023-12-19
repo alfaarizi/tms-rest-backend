@@ -1,4 +1,4 @@
-# Default image (https://hub.docker.com/r/mcserep/php)
+# Default image
 image: registry.gitlab.com/tms-elte/docker-images/php:7.4
 
 # Stages: lint -> test -> docs -> deploy
