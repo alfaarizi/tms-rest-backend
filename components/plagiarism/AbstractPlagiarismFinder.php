@@ -62,10 +62,13 @@ abstract class AbstractPlagiarismFinder
 
     protected function setupTemporaryFiles(): void
     {
-        // Create a folder to the plagiarism validation.
-        if (!file_exists($this->plagiarismPath)) {
-            FileHelper::createDirectory($this->plagiarismPath, 0755, true);
+        // Delete possible leftover extraction from a previous, aborted attempt.
+        if (file_exists($this->plagiarismPath)) {
+            $this->deleteTemporaryFiles();
         }
+
+        // Create a folder to the plagiarism validation.
+        FileHelper::createDirectory($this->plagiarismPath, 0755, true);
 
         $zip = new \ZipArchive();
         $languageCounter = [];
