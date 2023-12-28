@@ -5,9 +5,11 @@ namespace app\models;
 use app\components\openapi\generators\OAList;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
+use app\components\plagiarism\AbstractPlagiarismFinder;
 use app\components\plagiarism\JPlagPlagiarismFinder;
 use app\components\plagiarism\MossPlagiarismFinder;
 use yii\db\ActiveQuery;
+use yii\helpers\FileHelper;
 
 /**
  * This is the model class for table "plagiarisms".
@@ -187,5 +189,20 @@ class Plagiarism extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public function getBaseFiles(): array
     {
         return $this->hasBaseFiles ? PlagiarismBasefile::findAll(explode(',', $this->baseFileIDs)) : [];
+    }
+
+    /** {@inheritdoc} */
+    public function beforeDelete()
+    {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+
+        $resultPath = AbstractPlagiarismFinder::getResultDirectory($this->id);
+        if (file_exists($resultPath)) {
+            FileHelper::removeDirectory($resultPath);
+        }
+
+        return true;
     }
 }
