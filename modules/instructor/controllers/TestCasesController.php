@@ -60,8 +60,6 @@ class TestCasesController extends BaseInstructorRestController
 
     /**
      * Get test cases for a task
-     * @param $taskID
-     * @return ActiveDataProvider
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -95,7 +93,7 @@ class TestCasesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex($taskID)
+    public function actionIndex(int $taskID): ActiveDataProvider
     {
         $task = TaskResource::findOne($taskID);
 
@@ -197,7 +195,6 @@ class TestCasesController extends BaseInstructorRestController
 
     /**
      * Update a test case
-     * @param int $id
      * @return TestCaseResource|array
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
@@ -238,7 +235,7 @@ class TestCasesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionUpdate($id)
+    public function actionUpdate(int $id)
     {
         $model = TestCaseResource::findOne($id);
 
@@ -276,7 +273,6 @@ class TestCasesController extends BaseInstructorRestController
 
     /**
      * Delete a test case
-     * @param int $id
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
      * @throws \Throwable
@@ -308,7 +304,7 @@ class TestCasesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id): void
     {
         $model = TestCaseResource::findOne($id);
 

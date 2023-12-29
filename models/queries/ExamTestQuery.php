@@ -32,7 +32,7 @@ class ExamTestQuery extends ActiveQuery
         return $this->andWhere(['in', 'groupID', $groups]);
     }
 
-    public function forSemester($semesterID)
+    public function forSemester(int $semesterID)
     {
         return $this->andWhere(
             [

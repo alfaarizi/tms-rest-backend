@@ -28,8 +28,6 @@ class InstructorFilesController extends BaseStudentRestController
 
     /**
      * Lists public instructor files for a task
-     * @param int $taskID
-     * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -60,7 +58,7 @@ class InstructorFilesController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex($taskID)
+    public function actionIndex(int $taskID): ActiveDataProvider
     {
         $task = TaskResource::findOne($taskID);
 
@@ -105,7 +103,7 @@ class InstructorFilesController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionDownload($id)
+    public function actionDownload(int $id): void
     {
         $file = InstructorFileResource::findOne($id);
 

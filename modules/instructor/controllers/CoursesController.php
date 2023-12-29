@@ -25,9 +25,6 @@ class CoursesController extends BaseInstructorRestController
 
     /**
      * Lists available courses for the current user
-     * @param bool $instructor
-     * @param bool $forGroups
-     * @return ArrayDataProvider
      *
      *  @OA\Get(
      *     path="/instructor/courses",
@@ -69,11 +66,8 @@ class CoursesController extends BaseInstructorRestController
      *     @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionIndex($instructor = true, $forGroups = false)
+    public function actionIndex(bool $instructor = true, bool $forGroups = false): ArrayDataProvider
     {
-        $instructor = filter_var($instructor, FILTER_VALIDATE_BOOLEAN);
-        $forGroups = filter_var($forGroups, FILTER_VALIDATE_BOOLEAN);
-
         // Collect unique courses
         $courseMap = [];
         // Get courses from InstructorCourses

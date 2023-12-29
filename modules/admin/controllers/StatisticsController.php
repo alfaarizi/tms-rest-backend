@@ -27,8 +27,6 @@ class StatisticsController extends BaseAdminRestController
 
     /**
      * List statistics for administrators
-     * @param int $semesterID
-     * @return StatisticsResource
      * @throws NotFoundHttpException
      *
      * @OA\Get(
@@ -54,7 +52,7 @@ class StatisticsController extends BaseAdminRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex(int $semesterID)
+    public function actionIndex(int $semesterID): StatisticsResource
     {
         $semester = Semester::findOne($semesterID);
         if (is_null($semester)) {

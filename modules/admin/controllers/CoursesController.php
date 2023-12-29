@@ -84,8 +84,6 @@ class CoursesController extends BaseAdminActiveController
 
     /**
      * List lecturers for the given course
-     * @param int $courseID
-     * @return ArrayDataProvider
      * @throws NotFoundHttpException
      *
      * @OA\Get(
@@ -106,7 +104,7 @@ class CoursesController extends BaseAdminActiveController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionListLecturers($courseID)
+    public function actionListLecturers(int $courseID): ArrayDataProvider
     {
         $course = CourseResource::findOne($courseID);
 
@@ -130,8 +128,7 @@ class CoursesController extends BaseAdminActiveController
 
     /**
      * Add lecturers to a course
-     * @param $courseID
-     * @return array|array[]
+     * @return UsersAddedResource|array
      * @throws NotFoundHttpException
      * @OA\Post(
      *     path="/admin/courses/{courseID}/lecturers",
@@ -156,7 +153,7 @@ class CoursesController extends BaseAdminActiveController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionAddLecturers($courseID)
+    public function actionAddLecturers(int $courseID)
     {
         $course = CourseResource::findOne($courseID);
 
@@ -176,11 +173,10 @@ class CoursesController extends BaseAdminActiveController
     }
 
     /**
-     * @param $neptunCodes
-     * @param $courseID
-     * @return UsersAddedResource
+     * @param string[] $neptunCodes
+     * @param int $courseID
      */
-    private function processLecturers($neptunCodes, $courseID): UsersAddedResource
+    private function processLecturers(array $neptunCodes, int $courseID): UsersAddedResource
     {
         // Email notifications
         $messages = [];
@@ -245,8 +241,6 @@ class CoursesController extends BaseAdminActiveController
 
     /**
      * Remove a lecturer from the given course
-     * @param int $courseID
-     * @param int $userID
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
      * @throws Throwable
@@ -280,7 +274,7 @@ class CoursesController extends BaseAdminActiveController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionDeleteLecturer($courseID, $userID)
+    public function actionDeleteLecturer(int $courseID, int $userID): void
     {
         $ic = InstructorCourse::findOne(['courseID' => $courseID, 'userID' => $userID]);
 

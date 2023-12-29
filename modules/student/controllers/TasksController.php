@@ -28,8 +28,7 @@ class TasksController extends BaseStudentRestController
 
     /**
      * List tasks for the given group
-     * @param int $groupID
-     * @return array
+     * @return ActiveDataProvider[]
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @OA\Get(
@@ -63,7 +62,7 @@ class TasksController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionIndex($groupID)
+    public function actionIndex(int $groupID): array
     {
         $group = GroupResource::findOne($groupID);
 
@@ -94,8 +93,6 @@ class TasksController extends BaseStudentRestController
 
     /**
      * View task
-     * @param int $id
-     * @return TaskResource|array|null
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -125,7 +122,7 @@ class TasksController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionView($id)
+    public function actionView(int $id): TaskResource
     {
         $task = TaskResource::find()
             ->withStudentFilesForUser(Yii::$app->user->id)

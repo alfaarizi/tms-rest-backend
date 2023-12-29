@@ -27,7 +27,7 @@ use yii\web\ServerErrorHttpException;
  */
 class CanvasController extends BaseInstructorRestController
 {
-    private $canvas;
+    private CanvasIntegration $canvas;
 
     /**
      * @param Action $action
@@ -194,7 +194,7 @@ class CanvasController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionSetup($groupID)
+    public function actionSetup(int $groupID)
     {
         $group = Group::findOne($groupID);
 
@@ -280,7 +280,7 @@ class CanvasController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionSync($groupID)
+    public function actionSync(int $groupID): void
     {
         $group = Group::findOne($groupID);
 
@@ -413,7 +413,7 @@ class CanvasController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionSections($courseID)
+    public function actionSections(int $courseID)
     {
         $user = User::findIdentity(Yii::$app->user->id);
         if (!$user->isAuthenticatedInCanvas) {

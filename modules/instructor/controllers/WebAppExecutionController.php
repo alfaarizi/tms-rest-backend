@@ -53,8 +53,6 @@ class WebAppExecutionController extends BaseInstructorRestController
     /**
      * Get running execution of web application started by the current user
      *
-     * @param $studentFileID
-     * @return WebAppExecutionResource|null
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -82,7 +80,7 @@ class WebAppExecutionController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      *  ),
      */
-    public function actionIndex($studentFileID)
+    public function actionIndex(int $studentFileID): ?WebAppExecutionResource
     {
         $studentFile = StudentFile::findOne($studentFileID);
         $this->validateGroupAccess($studentFile->task->groupID);
@@ -177,8 +175,6 @@ class WebAppExecutionController extends BaseInstructorRestController
 
     /**
      * Shutdown Web App Execution
-     * @param $id
-     * @return void
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
@@ -206,7 +202,7 @@ class WebAppExecutionController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id): void
     {
         $webAppExecutionResource = WebAppExecutionResource::findOne(['id' => $id]);
 
@@ -230,9 +226,6 @@ class WebAppExecutionController extends BaseInstructorRestController
 
     /**
      * Download the run log from the given web app execution instance
-     * @param $id
-     * @param string $id the webAppExecutionID
-     * @return void
      * @throws \yii\base\InvalidConfigException
      *
      * @OA\Get(
@@ -256,7 +249,7 @@ class WebAppExecutionController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionDownloadRunLog(string $id)
+    public function actionDownloadRunLog(int $id): void
     {
         $webAppExecutionResource = WebAppExecutionResource::findOne(['id' => $id]);
 
@@ -277,7 +270,7 @@ class WebAppExecutionController extends BaseInstructorRestController
     /**
      * @throws ForbiddenHttpException
      */
-    private function validateGroupAccess($groupID)
+    private function validateGroupAccess(int $groupID): void
     {
         if (!Yii::$app->user->can('manageGroup', ['groupID' => $groupID])) {
             throw new ForbiddenHttpException(

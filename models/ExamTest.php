@@ -17,7 +17,7 @@ use yii\helpers\ArrayHelper;
  * @property int $id
  * @property string $name
  * @property int $questionamount
- * @property bool $duration
+ * @property int $duration
  * @property bool $shuffled
  * @property int $unique
  * @property string $availablefrom
