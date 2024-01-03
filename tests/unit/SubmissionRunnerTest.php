@@ -53,6 +53,7 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
     protected function _after()
     {
         FileHelper::removeDirectory(Yii::getAlias("@appdata/uploadedfiles/5007/"));
+        FileHelper::removeDirectory(Yii::getAlias("@tmp"));
     }
 
     // tests
@@ -68,7 +69,7 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
                 ->run($this->studentfile, 8009, $this->studentfile->containerName);
             self::assertEquals(
                 2,
-                count(scandir(Yii::getAlias("@appdata/tmp/docker"))),
+                count(scandir(Yii::getAlias("@tmp/docker"))),
                 'Tmp dir should be empty after container start'
             );
             self::assertEquals($this->studentfile->containerName, $container->getContainerName());
@@ -84,7 +85,7 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
             });
             self::assertEquals(
                 2,
-                count(scandir(Yii::getAlias("@appdata/tmp/docker"))),
+                count(scandir(Yii::getAlias("@tmp/docker"))),
                 'Tmp dir should be empty after container start'
             );
         });

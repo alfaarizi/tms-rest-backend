@@ -96,7 +96,7 @@ class SubmissionRunner
     private function copyFiles(docker\DockerContainer $dockerContainer)
     {
         $tarBuilder = new EvaluatorTarBuilder(
-            Yii::getAlias("@appdata/tmp/docker/"),
+            Yii::getAlias("@tmp/docker/"),
             Yii::$app->security->generateRandomString(4)
         );
         $task = $this->studentFile->task;

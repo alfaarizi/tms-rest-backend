@@ -12,6 +12,7 @@ class EvaluatorTarBuilderTest extends \Codeception\Test\Unit
     protected \UnitTester $tester;
     private EvaluatorTarBuilder $builder;
     private string $basePath;
+    private string $tempPath;
 
     public function _fixtures(): array
     {
@@ -26,8 +27,9 @@ class EvaluatorTarBuilderTest extends \Codeception\Test\Unit
     {
         $this->tester->copyDir(codecept_data_dir("appdata_samples"), Yii::getAlias("@appdata"));
         $this->basePath = Yii::getAlias("@appdata");
+        $this->tempPath = Yii::getAlias("@tmp");
         $this->builder = new EvaluatorTarBuilder(
-            $this->basePath . '/tmp',
+            $this->tempPath . '/',
             'test'
         );
     }
@@ -35,31 +37,32 @@ class EvaluatorTarBuilderTest extends \Codeception\Test\Unit
     protected function _after()
     {
         $this->tester->deleteDir(Yii::getAlias("@appdata"));
+        $this->tester->deleteDir(Yii::getAlias("@tmp"));
     }
 
     public function testWithSubmission()
     {
         $this->builder->withSubmission($this->basePath . '/uploadedfiles/5001/stud01/stud01.zip');
-        $this->tester->assertFileExists($this->basePath . '/tmp/test/submission/solution.txt');
+        $this->tester->assertFileExists($this->tempPath . '/test/submission/solution.txt');
     }
 
     public function testWittInstructorTestFiles()
     {
         $this->builder->withInstructorTestFiles(5007);
-        $this->tester->assertFileExists($this->basePath . '/tmp/test/test_files/file2.txt');
-        $this->tester->assertFileExists($this->basePath . '/tmp/test/test_files/file3.txt');
+        $this->tester->assertFileExists($this->tempPath . '/test/test_files/file2.txt');
+        $this->tester->assertFileExists($this->tempPath . '/test/test_files/file3.txt');
     }
 
     public function testWithTextFile()
     {
         $this->builder->withTextFile('file.txt', 'test');
-        $this->tester->assertFileExists($this->basePath . '/tmp/test/file.txt');
+        $this->tester->assertFileExists($this->tempPath . '/test/file.txt');
     }
 
     public function testWithTextFileEmptySkip()
     {
         $this->builder->withTextFile('file.txt', null, true);
-        $this->tester->assertFileNotExists($this->basePath . '/tmp/test/file.txt');
+        $this->tester->assertFileNotExists($this->tempPath . '/test/file.txt');
     }
 
     public function testWithTextFileEmpty()
@@ -79,12 +82,12 @@ class EvaluatorTarBuilderTest extends \Codeception\Test\Unit
         $this->builder->withTextFile('file.txt', 'test');
         $this->builder->buildTar();
 
-        $this->tester->assertFileExists($this->basePath . '/tmp/test');
-        $this->tester->assertFileExists($this->basePath . '/tmp/test.tar');
+        $this->tester->assertFileExists($this->tempPath . '/test');
+        $this->tester->assertFileExists($this->tempPath . '/test.tar');
 
         $this->builder->cleanup();
 
-        $this->tester->assertFileNotExists($this->basePath . '/tmp/test');
-        $this->tester->assertFileNotExists($this->basePath . '/tmp/test.tar');
+        $this->tester->assertFileNotExists($this->tempPath . '/test');
+        $this->tester->assertFileNotExists($this->tempPath . '/test.tar');
     }
 }

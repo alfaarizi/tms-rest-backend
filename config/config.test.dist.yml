@@ -1,6 +1,8 @@
 app:
-  # Directory for data storage (uploadedfiles, tmp, plagiarism)
+  # Directory for data storage (uploadedfiles, plagiarism)
   data_dir: appdata_test
+  # Directory for temporary storage
+  temp_dir: ''
   # Moss user id for plagiarism detection
   mossId: '123456789'
   # Automated evaluator configuration

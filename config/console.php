@@ -4,6 +4,9 @@ use Symfony\Component\Yaml\Yaml;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 
+require_once(__DIR__ . '/../components/ConfigurationHelper.php');
+use app\components\ConfigurationHelper;
+
 if (!file_exists(__DIR__ . '/../config.yml')) {
     throw new InvalidConfigException('Configuration file config.yml does not exist, read the documentation!');
 }
@@ -36,6 +39,7 @@ $fullConfig = [
         '@npm'   => '@vendor/npm-asset',
         '@tests' => '@app/tests',
         '@appdata' => '@app/' . $params['data_dir'],
+        '@tmp' => ConfigurationHelper::checkTempPath($params['temp_dir']),
     ],
     'components' => [
         'db' => $db,

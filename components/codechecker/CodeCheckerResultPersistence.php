@@ -175,7 +175,7 @@ class CodeCheckerResultPersistence extends BaseObject
     private function createWorkDir(): string
     {
         try {
-            $workDir = Yii::getAlias("@appdata/tmp/codechecker/")
+            $workDir = Yii::getAlias("@tmp/codechecker/")
                 . Yii::$app->security->generateRandomString(4)
                 . '/';
             FileHelper::createDirectory($workDir, 0755, true);
