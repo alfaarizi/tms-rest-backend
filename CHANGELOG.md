@@ -4,6 +4,21 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.1.0](https://gitlab.com/tms-elte/backend-core/compare/v3.0.2...v3.1.0) (2024-01-03)
+
+### Features
+
+* Added automated testing for web applications ([020986](https://gitlab.com/tms-elte/backend-core/commit/020986029cc9ad44420e8397ad1ffa7bb2944f1c))
+* Customizable temp folder with the configuration file ([c0c63a](https://gitlab.com/tms-elte/backend-core/commit/c0c63a04f4aa6a378bf408d87ffd81f7c89ca6fc))
+
+### Bug Fixes
+
+* Clean up plagiarism results upon delete ([0ba6c5](https://gitlab.com/tms-elte/backend-core/commit/0ba6c5e61d8a740a8e164bf9f021d57af1a95271))
+* Remove leftover files of possibly failed previous plagiarism checks ([0c12ea](https://gitlab.com/tms-elte/backend-core/commit/0c12ea84cd5cf153c79c6c8fdd3919d3a6357d0f))
+
+
+---
+
 ## [3.0.2](https://gitlab.com/tms-elte/backend-core/compare/v3.0.1...v3.0.2) (2023-10-23)
 
 ### Bug Fixes
