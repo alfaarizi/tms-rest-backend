@@ -80,6 +80,7 @@ class InstructorStudentFilesCest
     public function _after(ApiTester $I)
     {
         $I->deleteDir(Yii::getAlias("@appdata"));
+        $I->deleteDir(Yii::getAlias("@tmp"));
     }
 
     public function listForTaskNotFound(ApiTester $I)
@@ -392,7 +393,7 @@ class InstructorStudentFilesCest
         $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5001, 'onlyUngraded' => false]);
         $I->seeResponseCodeIs(HttpCode::OK);
 
-        $zipPath = Yii::getAlias("@appdata/tmp/");
+        $zipPath = Yii::getAlias("@tmp/");
         if (!file_exists($zipPath)) {
             FileHelper::createDirectory($zipPath, 0755, true);
         }
@@ -412,7 +413,7 @@ class InstructorStudentFilesCest
         $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5001, 'onlyUngraded' => true]);
         $I->seeResponseCodeIs(HttpCode::OK);
 
-        $zipPath = Yii::getAlias("@appdata/tmp/");
+        $zipPath = Yii::getAlias("@tmp/");
         if (!file_exists($zipPath)) {
             FileHelper::createDirectory($zipPath, 0755, true);
         }

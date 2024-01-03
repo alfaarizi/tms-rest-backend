@@ -203,7 +203,7 @@ class AssignmentTester
      */
     private function copyFiles(string $containerName)
     {
-        $tarBuilder = new EvaluatorTarBuilder(Yii::getAlias("@appdata/tmp/docker/"), strval($this->studentFile->id));
+        $tarBuilder = new EvaluatorTarBuilder(Yii::getAlias("@tmp/docker/"), strval($this->studentFile->id));
         $task = $this->studentFile->task;
         $ext = $task->testOS == 'windows' ? '.ps1' : '.sh';
         try {

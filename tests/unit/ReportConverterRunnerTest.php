@@ -73,15 +73,16 @@ class ReportConverterRunnerTest extends Unit
     protected function _after()
     {
         $this->tester->deleteDir(Yii::getAlias("@appdata"));
+        $this->tester->deleteDir(Yii::getAlias("@tmp"));
     }
 
     private function getAndTestTmpPath(): string
     {
         $tmpFolderList = FileHelper::findDirectories(
-            Yii::getAlias("@appdata/tmp/codechecker"),
+            Yii::getAlias("@tmp/codechecker"),
             ['recursive' => false]
         );
-        $this->assertEquals(1, count($tmpFolderList), "@appdata/tmp/codechecker shouldn't be empty");
+        $this->assertEquals(1, count($tmpFolderList), "@tmp/codechecker shouldn't be empty");
         return $tmpFolderList[0];
     }
 
@@ -215,8 +216,8 @@ class ReportConverterRunnerTest extends Unit
         $this->runner->run();
         $this->runner->deleteWorkDirectory();
 
-        $tmpFolderList = scandir(Yii::getAlias("@appdata/tmp/codechecker"));
-        $this->assertEquals(2, count($tmpFolderList), "@appdata/tmp/codechecker should be empty");
+        $tmpFolderList = scandir(Yii::getAlias("@tmp/codechecker"));
+        $this->assertEquals(2, count($tmpFolderList), "@tmp/codechecker should be empty");
     }
 
     public function testPassedRunLinux()

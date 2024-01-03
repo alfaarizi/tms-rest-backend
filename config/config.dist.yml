@@ -18,8 +18,10 @@ mail:
   #   dsn: 'smtp://user:pass@smtp.example.com:25'
 
 app:
-  # Directory for data storage (uploadedfiles, tmp, plagiarism)
+  # Directory for data storage (uploadedfiles, plagiarism)
   data_dir: appdata
+  # Directory for temporary storage
+  temp_dir: ''
   # Administrator email address
   adminEmail: admin@example.com
   # Notification sender email address

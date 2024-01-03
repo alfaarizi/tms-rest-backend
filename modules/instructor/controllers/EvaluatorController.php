@@ -132,7 +132,7 @@ class EvaluatorController extends BaseInstructorRestController
             return $task->errors;
         }
 
-        $sourcedir = Yii::getAlias("@appdata/tmp/instructor/") . $task->groupID . '/' . $task->id . '/autotest/';
+        $sourcedir = Yii::getAlias("@tmp/instructor/") . $task->groupID . '/' . $task->id . '/autotest/';
 
         // Create tmp dir for the given groupID and taskID
         if (file_exists($sourcedir)) {
