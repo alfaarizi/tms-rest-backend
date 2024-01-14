@@ -930,16 +930,30 @@ class CanvasIntegration
             $grader = User::findOne(['canvasID' => $submission['grader_id']]);
             $tmsFile->graderID = $grader->id ?? null;
             if (!empty($submission['submission_comments'])) {
+                $originalLanguage = Yii::$app->language;
+
                 foreach (array_reverse($submission['submission_comments']) as $comment) {
-                    if (
-                        $comment['author_id'] == $submission['grader_id'] &&
-                        strpos($comment['comment'], 'TMS auto') !== 0 &&
-                        strpos($comment['comment'], 'A TMS auto') !== 0
-                    ) {
-                        $tmsFile->notes = Encoding::toUTF8($comment['comment']);
-                        break;
+                    if ($comment['author_id'] == $submission['grader_id']) {
+                        // A "human" comment is not a TMS auto-generated comment.
+                        $isHumanComment = true;
+
+                        foreach (array_keys(Yii::$app->params['supportedLocale']) as $lang) {
+                            Yii::$app->language = $lang;
+                            $msg1 = Yii::t('app', 'TMS automatic tester result:');
+                            $msg2 = Yii::t('app', 'TMS static code analyzer result:');
+                            if (strpos($comment['comment'], $msg1) === 0 || strpos($comment['comment'], $msg2) === 0) {
+                                $isHumanComment = false;
+                                break;
+                            }
+                        }
+
+                        if ($isHumanComment) {
+                            $tmsFile->notes = Encoding::toUTF8($comment['comment']);
+                            break;
+                        }
                     }
                 }
+                Yii::$app->language = $originalLanguage;
             }
         }
 
