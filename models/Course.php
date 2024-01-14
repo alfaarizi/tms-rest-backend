@@ -34,7 +34,7 @@ class Course extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         return [
             [['name'], 'required'],
             [['name'], 'string', 'max' => 100],
-            [['code'], 'string', 'max' => 15]
+            [['code'], 'string', 'max' => 30]
         ];
     }
 
