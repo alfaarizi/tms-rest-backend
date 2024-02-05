@@ -193,6 +193,7 @@ if (YII_ENV_DEV) {
             'Common' => 'app\\resources',
             'Student' => 'app\\modules\\student\\resources',
             'Instructor' => 'app\\modules\\instructor\\resources',
+            'Admin' => 'app\\modules\\admin\\resources',
         ],
     ];
 }

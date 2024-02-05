@@ -56,7 +56,7 @@ class StatisticsResource extends Model implements IOpenApiFieldTypes
             'testedSubmissionCountPerSemester' => new OAProperty(['type' => 'integer']),
             'submissionsUnderTestingCount' => new OAProperty(['type' => 'integer']),
             'submissionsToBeTested' => new OAProperty(['type' => 'integer']),
-            'diskFree' => new OAProperty(new OAProperty(['type' => 'number', 'format' => 'float'])),
+            'diskFree' => new OAProperty(['type' => 'number', 'format' => 'float']),
         ];
     }
 }
