@@ -4,6 +4,20 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.2.0](https://gitlab.com/tms-elte/backend-core/compare/v3.1.0...v3.2.0) (2024-02-05)
+
+### Features
+
+* Increased max length of course code to 30 ([e6884d](https://gitlab.com/tms-elte/backend-core/commit/e6884db64db6570c9b41d75b92f3666d55f91e43))
+* Notification management on the backend ([367e70](https://gitlab.com/tms-elte/backend-core/commit/367e704af927533cc4e81c9c584e816d375ce7a3))
+
+### Bug Fixes
+
+* Treat static analysis summary comments in Canvas as auto-generated comments ([325133](https://gitlab.com/tms-elte/backend-core/commit/32513398349d27e4bf59be7edfc9f2151d80d601))
+
+
+---
+
 ## [3.1.0](https://gitlab.com/tms-elte/backend-core/compare/v3.0.2...v3.1.0) (2024-01-03)
 
 ### Features
