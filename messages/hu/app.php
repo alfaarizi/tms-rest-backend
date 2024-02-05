@@ -500,6 +500,17 @@ return [
     'Container initialization failed' => 'Konténer inicializálása sikertelen',
     'Synchronization problem occurred due to corrupted submissions. {count} submission(s) was corrupted. The corrupted files were not synchronized.' => 'Szinkronizációs probléma merült fel sérült beadandók miatt. {count} beadandó volt sérült. A sérült fájlokat nem szinkronizáltuk.',
 
+    // Notifications
+    "Start time" => "Kezdési idő",
+    "End time" => "Befejezési idő",
+    "Is available for all users" => "Elérhető minden felhasználó számára",
+    "Dismissable" => "Elrejthető",
+    "End time must be after start time" => "A befejezési időnek a kezdési idő után kell lennie",
+    "The combination of  Notification ID and User ID has already been taken." => "Ez az értesítés, felhasználó kombináció már foglalt.",
+    "Notification not found." => "Az értesítés nem található.",
+    "Notification is not dismissable." => "Az értesítés nem elrejthető.",
+    "Failed to dismiss notification." => "Az értesítés elrejtése sikertelen.",
+
     //Web App Test
     "Web test suite" => "Web tesztek",
     "Test reports not exist for this student file." => "Ehhez a beadandóhoz nem készült teszt riport.",
