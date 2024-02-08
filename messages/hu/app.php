@@ -363,6 +363,7 @@ return [
     'Failed to create or start Docker container' => 'A Docker konténer létrehozása vagy elindítása sikertelen volt',
     'Failed to copy project files to the Report Converter container' => 'Nem sikerült a fájlokat átmásolni a Report Converter konténerbe',
     'Failed to run the Report Converter tool' => 'A Report Converter eszköz futtatása sikertelen volt',
+    'Search text is too short' => 'A keresett szöveg túl rövid',
     // CodeChecker Task Fields
     'Static Code Analysis' => 'Statikus kódanalízis',
     'Static Code Analyzer Tool' => 'Statikus kódelemző eszköz',

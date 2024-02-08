@@ -9,6 +9,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\web\BadRequestHttpException;
 use yii\web\IdentityInterface;
 
 /**
@@ -161,6 +162,30 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
         } else {
             return null;
         }
+    }
+
+    /**
+     * Searches the users that match the given text
+     *
+     * @param string $text the text to be looked for
+     * @return User[] all users that match the given text
+     * @throws BadRequestHttpException
+     */
+    public static function search(string $text): array
+    {
+        // text has to be at least 3 characters long to avoid too many results
+        if (strlen($text) < 3) {
+            throw new BadRequestHttpException(Yii::t('app', 'Search text is too short'));
+        }
+
+        $lowerCaseText = mb_strtolower($text);
+        return static::find()->where(
+            [
+                'or',
+                ['like', 'LOWER(neptun)', $lowerCaseText],
+                ['like', 'LOWER(name)', $lowerCaseText]
+            ]
+        )->all();
     }
 
     /**
