@@ -5,6 +5,7 @@ namespace app\tests\unit;
 use app\models\MockAuth;
 use app\models\User;
 use app\tests\unit\fixtures\UserFixture;
+use yii\web\BadRequestHttpException;
 
 /**
  * Unit tests for the User model.
@@ -182,5 +183,65 @@ class UserTest extends \Codeception\Test\Unit
         $user_2 = User::createOrUpdate($authModel);
         $this->assertEquals($user_1->id, $user_2->id);
         $this->assertEquals($count + 1, User::find()->count());
+    }
+
+    /**
+     * @throws BadRequestHttpException
+     */
+    public function testSearchNoResult()
+    {
+        $result = User::search("bla");
+        $this->assertEmpty($result);
+    }
+
+    public function testSearchTooShortText()
+    {
+        $this->expectException(BadRequestHttpException::class);
+        User::search("s");
+    }
+
+    /**
+     * @throws BadRequestHttpException
+     */
+    public function testSearchResultPrefixName()
+    {
+        $result = User::search("student");
+        $this->assertEquals(6, count($result));
+    }
+
+    /**
+     * @throws BadRequestHttpException
+     */
+    public function testSearchResultPostfixName()
+    {
+        $result = User::search("ThrEe");
+        $this->assertEquals(2, count($result));
+    }
+
+    /**
+     * @throws BadRequestHttpException
+     */
+    public function testSearchResultPrefixNeptun()
+    {
+        $result = User::search("batma");
+        $this->assertEquals(1, count($result));
+    }
+
+    /**
+     * @throws BadRequestHttpException
+     */
+    public function testSearchResultMiddleNeptun()
+    {
+        $result = User::search("atma");
+        $this->assertEquals(1, count($result));
+    }
+
+    /**
+     * @throws BadRequestHttpException
+     */
+    public function testSearchResultPostfixNeptun()
+    {
+        $result = User::search("tman");
+        $this->assertEquals(1, count($result));
     }
 }
