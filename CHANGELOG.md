@@ -4,6 +4,16 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.3.0](https://gitlab.com/tms-elte/backend-core/compare/v3.2.0...v3.3.0) (2024-02-13)
+
+### Features
+
+* Add User search endpoint ([84ecb3](https://gitlab.com/tms-elte/backend-core/commit/84ecb3c1225ab27b1e41b3af603dae60c3f634d9))
+* Upgrading .NET-based evaluator templates to .NET 8. ([02807a](https://gitlab.com/tms-elte/backend-core/commit/02807a0d3ba0c99e1f9d8faca09fdb3f361ac867))
+
+
+---
+
 ## [3.2.0](https://gitlab.com/tms-elte/backend-core/compare/v3.1.0...v3.2.0) (2024-02-05)
 
 ### Features
