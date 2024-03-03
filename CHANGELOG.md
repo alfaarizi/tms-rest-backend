@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.3.1](https://gitlab.com/tms-elte/backend-core/compare/v3.3.0...v3.3.1) (2024-03-03)
+
+### Bug Fixes
+
+* Handle external data directory properly for version controlled tasks ([5f5056](https://gitlab.com/tms-elte/backend-core/commit/5f5056d58e6bdb11a5a18d10cd3f14a0865087da))
+
+
+---
+
 ## [3.3.0](https://gitlab.com/tms-elte/backend-core/compare/v3.2.0...v3.3.0) (2024-02-13)
 
 ### Features
