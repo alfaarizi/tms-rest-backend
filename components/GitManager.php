@@ -327,13 +327,15 @@ exit \$rc";
      * Commit new submission
      * @throws GitException
      */
-    public static function uploadToRepo(string $repopath, string $zipPath): void
+    public static function uploadToRepo(string $repoPath, string $zipPath): void
     {
-        $repo = new GitRepository("$repopath.git");
+        $repoPath = realpath($repoPath);
+        $zipPath = realpath($zipPath);
+        $repo = new GitRepository("$repoPath/.git");
 
         // Delete all files and directories from repo
-        $oldfiles = FileHelper::findFiles($repopath, ['except' => ['/.git/']]);
-        $olddirectories = FileHelper::findDirectories($repopath, ['except' => ['/.git/']]);
+        $oldfiles = FileHelper::findFiles($repoPath, ['except' => ['/.git/']]);
+        $olddirectories = FileHelper::findDirectories($repoPath, ['except' => ['/.git/']]);
         rsort($olddirectories);
         foreach ($oldfiles as $of) {
             unlink($of);
@@ -346,7 +348,7 @@ exit \$rc";
         $zip = new ZipArchive();
         $res = $zip->open($zipPath);
         if ($res) {
-            $zip->extractTo($repopath);
+            $zip->extractTo($repoPath);
             $zip->close();
         }
 
