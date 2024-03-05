@@ -1,0 +1,7 @@
+/appdata/
+/runtime/
+/vendor/
+.idea/
+.git/
+.gitignore
+.dockerignore

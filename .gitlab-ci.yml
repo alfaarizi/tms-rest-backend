@@ -215,3 +215,51 @@ codecov:
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
     - ./codecov -f tests/_output/coverage.xml -t ${CODECOV_TOKEN}
+
+# Docker image build
+.docker-login: &docker-login
+  - docker version
+  # Login to Docker Hub and GitLab Container Registry
+  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  - docker login -u "$DOCKERHUB_USER" -p "$DOCKERHUB_TOKEN"
+
+.docker:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    IMAGE_TAG: $CI_COMMIT_REF_NAME
+  before_script:
+    - *docker-login
+  script:
+    # Build Docker image
+    - docker build . --pull -t "tmselte/backend-core:$IMAGE_TAG" -t "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
+    # Push Docker image to registries
+    - docker push "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
+    - docker push "tmselte/backend-core:$IMAGE_TAG"
+
+docker_latest:
+  extends: .docker
+  variables:
+    IMAGE_TAG: latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_NAMESPACE == "tms-elte"
+
+docker_nightly:
+  extends: .docker
+  variables:
+    IMAGE_TAG: nightly
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" && $CI_PROJECT_NAMESPACE == "tms-elte"
+
+docker_version:
+  extends: .docker
+  variables:
+    IMAGE_TAG: $CI_COMMIT_TAG
+  before_script:
+    - *docker-login
+    # Remove v prefix from tag
+    - IMAGE_TAG=${IMAGE_TAG#v}
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /^v[^-].*$/ && $CI_PROJECT_NAMESPACE == "tms-elte"'
