@@ -27,6 +27,7 @@ class GroupResource extends Group
             'course',
             'instructorNames',
             'timezone',
+            'isCanvasCourse',
             'canvasUrl',
             'lastSyncTime',
             'isExamGroup'
