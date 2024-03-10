@@ -295,6 +295,61 @@ class CanvasIntegration
     }
 
     /**
+     * Get the given submission data for the logged-in user from canvas and save in the database
+     * @param Task $task the selected task
+     */
+    public function synchronizeSubmission(Task $task): void
+    {
+        $group = $task->group;
+        $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
+        $user = User::findIdentity(Yii::$app->user->id);
+
+        if (!empty($group->canvasCourseID) && !empty($user->canvasID)) {
+            //if the number is -1, get submission from the course
+            if ($group->canvasSectionID == -1) {
+                $response = $client->createRequest()
+                    ->setMethod('GET')
+                    ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/assignments/' . $task->canvasID . '/submissions/' . $user->canvasID)
+                    ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                    ->setData([
+                                  'include[]' => 'submission_comments',
+                              ])
+                    ->send();
+            } else {
+                $response = $client->createRequest()
+                    ->setMethod('GET')
+                    ->setUrl('api/v1/sections/' . $group->canvasSectionID . '/assignments/' . $task->canvasID . '/submissions/' . $user->canvasID)
+                    ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                    ->setData([
+                                  'include[]' => 'submission_comments',
+                              ])
+                    ->send();
+            }
+
+            if (!$response->isOk) {
+                $errorMsg = 'Fetching submission from Canvas failed.';
+                Yii::error(
+                    $errorMsg . PHP_EOL .
+                    "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}, taskID: {$task->id}, userID: {$user->id}",
+                    __METHOD__
+                );
+                throw new CanvasRequestException($response->statusCode, $errorMsg);
+            }
+
+            $submission = $response->data;
+            $tmsFile = $this->saveSubmission($submission, $task);
+            if ($tmsFile != null && $tmsFile->id > 0) {
+                if ($tmsFile->isAccepted == StudentFile::IS_ACCEPTED_CORRUPTED) {
+                    throw new CanvasRequestException(500, Yii::t(
+                        'app',
+                        'Synchronization problem occurred due to corrupted submission. The corrupted file was not synchronized.',
+                    ));
+                }
+            }
+        }
+    }
+
+    /**
      * sending emails to the relevant instructors about the canvas errors, which occurred during canvas sync
      */
     private function sendEmailsAboutErrors(Group $group): void

@@ -20,6 +20,7 @@ class TaskResource extends Task
     {
         return [
             'id',
+            'groupID',
             'name',
             'category',
             'translatedCategory',

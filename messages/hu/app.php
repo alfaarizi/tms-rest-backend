@@ -500,6 +500,7 @@ return [
     'File prepare failed' => 'Fájlok előkészítése sikertelen',
     'Container initialization failed' => 'Konténer inicializálása sikertelen',
     'Synchronization problem occurred due to corrupted submissions. {count} submission(s) was corrupted. The corrupted files were not synchronized.' => 'Szinkronizációs probléma merült fel sérült beadandók miatt. {count} beadandó volt sérült. A sérült fájlokat nem szinkronizáltuk.',
+    'Synchronization problem occurred due to corrupted submission. The corrupted file was not synchronized.' => 'Szinkronizációs probléma merült fel sérült beadandó miatt. A sérült fájlt nem szinkronizáltuk.',
 
     // Notifications
     "Start time" => "Kezdési idő",
