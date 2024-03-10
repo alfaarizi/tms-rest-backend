@@ -67,7 +67,7 @@ To enable Git version controller submissions, beside enabling the feature in the
 In case of Apache 2 webserver, the following configuration shall be placed in the main configuration file (`apache2.conf` on Linux, `httpd.conf` on Windows), or preferably in a separate and included config file:
 
 ```apacheconf
-SetEnv GIT_PROJECT_ROOT "path/to/backend-core/uploadedfiles"
+SetEnv GIT_PROJECT_ROOT "path/to/backend-core/appdata/uploadedfiles"
 SetEnv GIT_HTTP_EXPORT_ALL
 SetEnv REMOTE_USER $REDIRECT_REMOTE_USER
 
@@ -95,7 +95,7 @@ ScriptAlias /git/ "/usr/lib/git-core/git-http-backend/"
 </LocationMatch>
 ```
 
-**NOTE:** the *ScriptAlias* `/git/` must match the `versionControl.basePath` in `config/params.php`.
+**NOTE:** the *ScriptAlias* `/git/` must match the `versionControl.basePath` in `config.yml`.
 
 **NOTE:** ensure that `mod_cgi`, `mod_alias`, and `mod_env` are enabled in Apache, required by the Git HTTP backend.
 
@@ -140,7 +140,7 @@ There are currently two supported plagiarism detectors: Moss and JPlag. Both can
 
 ##### Moss
 
-[Moss](https://theory.stanford.edu/~aiken/moss/) is an online service. After registering as described on the website, all you need to do is setting your user ID (search for `$userid` in the Perl script they sent back) in the `mossId` key in `config/params.php`. As simple it is, it is not uncommon that Moss is unavailable. To reduce the impact of outages, plagiarism check results are automatically downloaded, so merely looking at the results doesn't require the Moss server to be up, but running checks doesn't work during Moss downtime.
+[Moss](https://theory.stanford.edu/~aiken/moss/) is an online service. After registering as described on the website, all you need to do is setting your user ID (search for `$userid` in the Perl script they sent back) in the `mossId` key in `config.yml`. As simple it is, it is not uncommon that Moss is unavailable. To reduce the impact of outages, plagiarism check results are automatically downloaded, so merely looking at the results doesn't require the Moss server to be up, but running checks doesn't work during Moss downtime.
 
 ##### JPlag
 
@@ -184,7 +184,7 @@ BACKGROUND JOBS
 ------------
 
 TMS has various background jobs which has to be performed regularly on the server-side to operate the system properly.
-The interval and the arguments of the background jobs can be configured in the `config/params.php` file.
+The interval and the arguments of the background jobs can be configured through the `scheduling` section in the `config.yml` file.
 
 In case of a (Linux based) production environment you shall add a single cronjob to your crontab file to check for background jobs to execute every minute.
 This way new background jobs introduced in future versions of TMS will be automatically scheduled on your instance.
