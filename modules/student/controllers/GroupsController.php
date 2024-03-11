@@ -26,9 +26,6 @@ class GroupsController extends BaseStudentRestController
 
     /**
      * Lists groups for the current student in the given semester
-     * @param int $semesterID
-     * @return ActiveDataProvider
-     *
      *
      * @OA\Get(
      *     path="/student/groups",
@@ -55,7 +52,7 @@ class GroupsController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex($semesterID)
+    public function actionIndex(int $semesterID): ActiveDataProvider
     {
         $userID = Yii::$app->user->id;
         $query = GroupResource::find()
@@ -69,8 +66,6 @@ class GroupsController extends BaseStudentRestController
 
     /**
      * View a group
-     * @param int $id
-     * @return GroupResource|null
      * @throws NotFoundHttpException
      * @throws \yii\web\ForbiddenHttpException
      *
@@ -100,7 +95,7 @@ class GroupsController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionView($id)
+    public function actionView(int $id): GroupResource
     {
         $group = GroupResource::findOne($id);
         if (is_null($group)) {

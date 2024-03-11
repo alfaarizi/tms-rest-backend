@@ -56,8 +56,6 @@ class StudentFilesController extends BaseInstructorRestController
 
     /**
      * List student files for a task
-     * @param int $taskID
-     * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -89,7 +87,7 @@ class StudentFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionListForTask($taskID)
+    public function actionListForTask(int $taskID): ActiveDataProvider
     {
         $task = TaskResource::findOne($taskID);
 
@@ -115,9 +113,6 @@ class StudentFilesController extends BaseInstructorRestController
 
     /**
      * List student files for a task, then export the list to a spreadsheet
-     * @param int $taskID
-     * @param string $format
-     * @return \yii\web\Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -152,7 +147,7 @@ class StudentFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionExportSpreadsheet($taskID, $format)
+    public function actionExportSpreadsheet(int $taskID, string $format): \yii\web\Response
     {
         $task = TaskResource::findOne($taskID);
 
@@ -225,12 +220,8 @@ class StudentFilesController extends BaseInstructorRestController
 
     /**
      * Creates a xlsx file from the given DataProvider
-     * @param string $name
-     * @param BaseDataProvider $dataProvider
-     * @param array $columns
-     * @return \yii\web\Response
      */
-    private function exportToXlsx($name, $dataProvider, $columns)
+    private function exportToXlsx(string $name, BaseDataProvider $dataProvider, array $columns): \yii\web\Response
     {
         $exporter = new Spreadsheet(
             [
@@ -242,13 +233,9 @@ class StudentFilesController extends BaseInstructorRestController
     }
 
     /**
-     * Creates a cvs file from the given DataProvider
-     * @param string $name
-     * @param BaseDataProvider $dataProvider
-     * @param array $columns
-     * @return \yii\web\Response
+     * Creates a csv file from the given DataProvider
      */
-    private function exportToCsv($name, $dataProvider, $columns)
+    private function exportToCsv(string $name, BaseDataProvider $dataProvider, array $columns): \yii\web\Response
     {
         $exporter = new CsvGrid(
             [
@@ -261,9 +248,6 @@ class StudentFilesController extends BaseInstructorRestController
 
     /**
      * List student files for a group and a student
-     * @param int $groupID
-     * @param int $uploaderID
-     * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -303,7 +287,7 @@ class StudentFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionListForStudent($groupID, $uploaderID)
+    public function actionListForStudent(int $groupID, int $uploaderID): ActiveDataProvider
     {
         $group = GroupResource::findOne($groupID);
         $student = UserResource::findOne($uploaderID);
@@ -335,8 +319,6 @@ class StudentFilesController extends BaseInstructorRestController
 
     /**
      * Get information about an uploaded file
-     * @param int $id
-     * @return StudentFileResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -365,7 +347,7 @@ class StudentFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionView($id)
+    public function actionView(int $id): StudentFileResource
     {
         $studentFile = StudentFileResource::findOne($id);
 
@@ -383,7 +365,6 @@ class StudentFilesController extends BaseInstructorRestController
 
     /**
      * Grade solution (update student file)
-     * @param int $id
      * @return StudentFileResource|array
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
@@ -428,7 +409,7 @@ class StudentFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionUpdate($id)
+    public function actionUpdate(int $id)
     {
         $studentFile = StudentFileResource::findOne($id);
 
@@ -519,7 +500,6 @@ class StudentFilesController extends BaseInstructorRestController
 
     /**
      * Download a student file
-     * @param int $id
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -545,7 +525,7 @@ class StudentFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionDownload($id)
+    public function actionDownload(int $id): void
     {
         $studentFile = StudentFileResource::findOne($id);
 
@@ -567,7 +547,6 @@ class StudentFilesController extends BaseInstructorRestController
 
     /**
      * Download test report for student file
-     * @param int $id
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -593,7 +572,7 @@ class StudentFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionDownloadReport($id)
+    public function actionDownloadReport(int $id): void
     {
         $studentFile = StudentFileResource::findOne($id);
 
@@ -657,10 +636,8 @@ class StudentFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionDownloadAllFiles($taskID, $onlyUngraded = false)
+    public function actionDownloadAllFiles(int $taskID, bool $onlyUngraded = false): void
     {
-        $onlyUngraded = filter_var($onlyUngraded, FILTER_VALIDATE_BOOLEAN);
-
         $task = TaskResource::findOne($taskID);
 
         if (is_null($task)) {
@@ -720,8 +697,6 @@ class StudentFilesController extends BaseInstructorRestController
     /**
      * Start a CodeCompass container
      *
-     * @param int $id
-     * @return StudentFileResource
      * @throws ConflictHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -842,8 +817,6 @@ class StudentFilesController extends BaseInstructorRestController
     /**
      * Stops a CodeCompass container
      *
-     * @param int $id
-     * @return StudentFileResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
@@ -920,8 +893,7 @@ class StudentFilesController extends BaseInstructorRestController
 
     /**
      * Get information about an uploaded file
-     * @param int $id
-     * @return array
+     * @return AutoTesterResultResource[]
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -950,7 +922,7 @@ class StudentFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionAutoTesterResults($id)
+    public function actionAutoTesterResults(int $id): array
     {
         $studentFile = StudentFileResource::findOne($id);
 

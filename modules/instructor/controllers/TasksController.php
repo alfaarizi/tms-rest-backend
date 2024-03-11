@@ -66,7 +66,6 @@ class TasksController extends BaseInstructorRestController
 
     /**
      * List tasks for the given group
-     * @param int $groupID
      * @return ActiveDataProvider[]
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -102,7 +101,7 @@ class TasksController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionIndex($groupID)
+    public function actionIndex(int $groupID): array
     {
         $group = GroupResource::findOne($groupID);
 
@@ -137,8 +136,6 @@ class TasksController extends BaseInstructorRestController
 
     /**
      * View Task
-     * @param $id
-     * @return TaskResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -160,7 +157,7 @@ class TasksController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionView($id)
+    public function actionView(int $id): TaskResource
     {
         $task = TaskResource::findOne($id);
 
@@ -319,7 +316,6 @@ class TasksController extends BaseInstructorRestController
 
     /**
      * Update a task
-     * @param int $id
      * @return TaskResource|array
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
@@ -353,7 +349,7 @@ class TasksController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionUpdate($id)
+    public function actionUpdate(int $id)
     {
         // Get the task.
         $task = TaskResource::findOne($id);
@@ -449,7 +445,6 @@ class TasksController extends BaseInstructorRestController
 
     /**
      * Remove a task
-     * @param int $id
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -473,7 +468,7 @@ class TasksController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id): void
     {
         // Fetch the entities.
         $task = TaskResource::findOne($id);
@@ -570,10 +565,9 @@ class TasksController extends BaseInstructorRestController
      * Filter tasks by courseID and semester.
      * This action is mainly used in plagiarism check form.
      * @param int|string $courseID
-     * @param mixed $myTasks
+     * @param bool $myTasks
      * @param int $semesterFromID
      * @param int $semesterToID
-     * @return ActiveDataProvider
      *
      * @OA\Get (
      *     path="/instructor/tasks/list-for-course",
@@ -620,9 +614,8 @@ class TasksController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionListForCourse($courseID, $myTasks, $semesterFromID, $semesterToID)
+    public function actionListForCourse($courseID, bool $myTasks, int $semesterFromID, int $semesterToID): ActiveDataProvider
     {
-        $myTasks = filter_var($myTasks, FILTER_VALIDATE_BOOLEAN);
         $groupQuery = Group::find();
         if ($courseID != 'All') {
             $groupQuery = $groupQuery->where(['courseID' => $courseID]);
@@ -654,7 +647,6 @@ class TasksController extends BaseInstructorRestController
 
     /**
      * List students for the given task ids
-     * @return ArrayDataProvider
      * @throws NotFoundHttpException
      *
      * @OA\Post(
@@ -684,7 +676,7 @@ class TasksController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionListUsers()
+    public function actionListUsers(): ArrayDataProvider
     {
         $values = Yii::$app->request->post('ids', []);
         $studentsMap = [];
@@ -724,7 +716,6 @@ class TasksController extends BaseInstructorRestController
      * Updates CodeCompass parser properties for a task
      *
      * @param int $id the id of the task
-     * @return TaskResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException

@@ -62,7 +62,6 @@ class ExamQuestionSetsController extends BaseInstructorRestController
 
     /**
      * Get all questions sets
-     * @return ActiveDataProvider
      *
      * @OA\Get(
      *     path="/instructor/exam-question-sets",
@@ -82,7 +81,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex()
+    public function actionIndex(): ActiveDataProvider
     {
         // Question sets for owned courses
         $questionSetsByCourse = ExamQuestionSetResource::find()
@@ -103,8 +102,6 @@ class ExamQuestionSetsController extends BaseInstructorRestController
 
     /**
      * Get a question set
-     * @param $id
-     * @return ExamQuestionSetResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -126,7 +123,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionView($id)
+    public function actionView(int $id): ExamQuestionSetResource
     {
         $questionSet = ExamQuestionSetResource::findOne($id);
 
@@ -210,7 +207,6 @@ class ExamQuestionSetsController extends BaseInstructorRestController
 
     /**
      * Update a question set
-     * @param int $id
      * @return ExamQuestionSetResource|array
      * @throws ConflictHttpException
      * @throws ForbiddenHttpException
@@ -245,7 +241,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionUpdate($id)
+    public function actionUpdate(int $id)
     {
         $questionSet = ExamQuestionSetResource::findOne($id);
 
@@ -328,7 +324,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id): void
     {
         $questionSet = ExamQuestionSetResource::findOne($id);
 
@@ -361,9 +357,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
     }
 
     /**
-     * Copy a question set, it's questions and answers
-     * @param int $id
-     * @return ExamQuestionSetResource
+     * Copy a question set, its questions and answers
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws \yii\db\Exception
@@ -395,7 +389,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDuplicate($id)
+    public function actionDuplicate(int $id): ExamQuestionSetResource
     {
         $questionSet = ExamQuestionSetResource::findOne($id);
         if (is_null($questionSet)) {
@@ -438,8 +432,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
 
     /**
      * List uploaded images for a question set
-     * @param int $id
-     * @return array
+     * @return ExamImageResource[]
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -470,7 +463,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionListImages($id)
+    public function actionListImages(int $id): array
     {
         $questionSet = ExamQuestionSetResource::findOne($id);
 
@@ -520,8 +513,6 @@ class ExamQuestionSetsController extends BaseInstructorRestController
 
     /**
      * Upload images to question set
-     * @param int $id
-     * @return ExamImageUploadResultResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws Exception
@@ -560,7 +551,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionUploadImages($id)
+    public function actionUploadImages(int $id): ExamImageUploadResultResource
     {
         $questionSet = ExamQuestionSetResource::findOne($id);
 
@@ -627,8 +618,6 @@ class ExamQuestionSetsController extends BaseInstructorRestController
     }
 
     /**
-     * @param int $id
-     * @param string $filename
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -661,7 +650,7 @@ class ExamQuestionSetsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionRemoveImage($id, $filename)
+    public function actionRemoveImage(int $id, string $filename): void
     {
         $questionSet = ExamQuestionSetResource::findOne($id);
 

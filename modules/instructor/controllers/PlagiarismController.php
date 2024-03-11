@@ -59,8 +59,6 @@ class PlagiarismController extends BaseInstructorRestController
 
     /**
      * List plagiarism checks from the given semester
-     * @param $semesterID
-     * @return ActiveDataProvider
      *
      * @OA\Get(
      *     path="/instructor/plagiarism",
@@ -87,7 +85,7 @@ class PlagiarismController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex($semesterID)
+    public function actionIndex(int $semesterID): ActiveDataProvider
     {
         // Collect the instructor's plagiarism validations.
         return new ActiveDataProvider(
@@ -110,8 +108,6 @@ class PlagiarismController extends BaseInstructorRestController
 
     /**
      * View a plagiarism check
-     * @param $id
-     * @return PlagiarismResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -133,7 +129,7 @@ class PlagiarismController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionView($id)
+    public function actionView(int $id): PlagiarismResource
     {
         $model = PlagiarismResource::findOne($id);
 
@@ -300,7 +296,6 @@ class PlagiarismController extends BaseInstructorRestController
 
     /**
      * Update a plagiarism check
-     * @param int $id
      * @return PlagiarismResource|array
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
@@ -334,7 +329,7 @@ class PlagiarismController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionUpdate($id)
+    public function actionUpdate(int $id)
     {
         $model = PlagiarismResource::findOne($id);
 
@@ -368,7 +363,6 @@ class PlagiarismController extends BaseInstructorRestController
 
     /**
      * Delete a plagiarism check
-     * @param int $id
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -390,7 +384,7 @@ class PlagiarismController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id): void
     {
         $model = PlagiarismResource::findOne($id);
 

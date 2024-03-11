@@ -44,10 +44,6 @@ class ExamTestInstancesController extends BaseStudentRestController
 
     /**
      * Get the list of the test instances
-     * @param int $semesterID
-     * @param int $submitted
-     * @param boolean $future
-     * @return ActiveDataProvider
      * @throws BadRequestHttpException
      *
      * @OA\Get(
@@ -93,11 +89,8 @@ class ExamTestInstancesController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionIndex($semesterID, $submitted, $future = false)
+    public function actionIndex(int $semesterID, bool $submitted, bool $future = false): ActiveDataProvider
     {
-        $submitted = filter_var($submitted, FILTER_VALIDATE_BOOLEAN);
-        $future = filter_var($future, FILTER_VALIDATE_BOOLEAN);
-
         if ($submitted && $future) {
             throw new BadRequestHttpException(Yii::t('app', "Future tests can not be submitted"));
         }
@@ -134,8 +127,6 @@ class ExamTestInstancesController extends BaseStudentRestController
 
     /**
      * Get a test instance
-     * @param int $id
-     * @return ExamTestInstanceResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -164,7 +155,7 @@ class ExamTestInstancesController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionView($id)
+    public function actionView(int $id): ExamTestInstanceResource
     {
         $testInstance = ExamTestInstanceResource::findOne($id);
 
@@ -187,8 +178,6 @@ class ExamTestInstancesController extends BaseStudentRestController
 
     /**
      * List the questions with the results for a submitted test instance
-     * @param int $id
-     * @return ActiveDataProvider
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -222,7 +211,7 @@ class ExamTestInstancesController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionResults($id)
+    public function actionResults(int $id): ActiveDataProvider
     {
         $instance = ExamTestInstanceResource::findOne($id);
 
@@ -249,8 +238,6 @@ class ExamTestInstancesController extends BaseStudentRestController
     /**
      * Start writing a test instance.
      * This actions sets the starting time and returns with the questions and possible answers.
-     * @param int $id
-     * @return ExamWriterResource
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -282,7 +269,7 @@ class ExamTestInstancesController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionStartWrite($id)
+    public function actionStartWrite(int $id): ExamWriterResource
     {
         $testInstance = ExamTestInstance::findOne($id);
 
@@ -349,8 +336,7 @@ class ExamTestInstancesController extends BaseStudentRestController
     /**
      * Finish writing the test instance.
      * This actions saves the results for the current test and calculates the score.
-     * @param int $id
-     * @return ExamTestInstanceResource
+     * @return ExamTestInstanceResource|array
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -393,7 +379,7 @@ class ExamTestInstancesController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionFinishWrite($id)
+    public function actionFinishWrite(int $id)
     {
         $testInstance = ExamTestInstanceResource::findOne($id);
 
@@ -522,7 +508,7 @@ class ExamTestInstancesController extends BaseStudentRestController
         }
     }
 
-    private function calcDuration($testInstance) {
+    private function calcDuration(ExamTestInstance $testInstance): int {
         // Time left is set to remaining duration unless the test becomes unavailable sooner
         $spent = (time() - strtotime($testInstance->starttime)) * 1000;
         $timeLeft = (strtotime($testInstance->test->availableuntil) - time()) * 1000;

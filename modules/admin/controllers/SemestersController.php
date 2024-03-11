@@ -27,7 +27,6 @@ class SemestersController extends BaseAdminRestController
 
     /**
      * Get the next semester
-     * @return SemesterResource
      *
      * @OA\Get(
      *     path="/admin/semesters/get-next",
@@ -46,7 +45,7 @@ class SemestersController extends BaseAdminRestController
      *     @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionGetNext()
+    public function actionGetNext(): SemesterResource
     {
         $semester = new SemesterResource();
         $semester->name = SemesterResource::calculateNextSemesterName();
@@ -56,7 +55,6 @@ class SemestersController extends BaseAdminRestController
     /**
      * Add next semester.
      * It checks if the semester is already exists, if not it saves the new one.
-     * @return SemesterResource
      * @throws ConflictHttpException
      * @throws ServerErrorHttpException
      *
@@ -78,7 +76,7 @@ class SemestersController extends BaseAdminRestController
      *     @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionAddNext()
+    public function actionAddNext(): SemesterResource
     {
         $semesterName = SemesterResource::calculateNextSemesterName();
         $semesterName = str_replace("-", "/", $semesterName);

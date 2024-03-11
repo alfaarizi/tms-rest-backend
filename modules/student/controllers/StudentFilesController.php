@@ -41,8 +41,6 @@ class StudentFilesController extends BaseStudentRestController
 
     /**
      * Get information about an uploaded file
-     * @param int $id
-     * @return StudentFileResource|null
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -72,7 +70,7 @@ class StudentFilesController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionView($id)
+    public function actionView(int $id): StudentFileResource
     {
         $file = StudentFileResource::findOne($id);
 
@@ -88,7 +86,6 @@ class StudentFilesController extends BaseStudentRestController
 
     /**
      * Download a student file
-     * @param int $id
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -114,7 +111,7 @@ class StudentFilesController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionDownload($id)
+    public function actionDownload(int $id): void
     {
         $file = StudentFileResource::findOne($id);
 
@@ -129,7 +126,6 @@ class StudentFilesController extends BaseStudentRestController
 
     /**
      * Download test report for student file
-     * @param int $id
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -155,7 +151,7 @@ class StudentFilesController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionDownloadReport($id)
+    public function actionDownloadReport(int $id): void
     {
         $file = StudentFileResource::findOne($id);
 
@@ -257,14 +253,10 @@ class StudentFilesController extends BaseStudentRestController
 
     /**
      * Save the files to the disk (and to the git repository)
-     * @param StudentFileResource|mixed $prevStudentFile
-     * @param UploadedFile $newFile
-     * @param int $taskID
-     * @return StudentFileResource
      * @throws ServerErrorHttpException
      * @throws \Cz\Git\GitException
      */
-    private function saveFile($prevStudentFile, $newFile, $taskID, $versionControlled)
+    private function saveFile(StudentFileResource $prevStudentFile, UploadedFile $newFile, int $taskID, bool $versionControlled): StudentFileResource
     {
         /** @var User $user */
         $user = Yii::$app->user->identity;
@@ -415,8 +407,7 @@ class StudentFilesController extends BaseStudentRestController
 
     /**
      * Get information about an uploaded file's autotester result
-     * @param int $id
-     * @return array
+     * @return AutoTesterResultResource[]
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -446,7 +437,7 @@ class StudentFilesController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionAutoTesterResults($id)
+    public function actionAutoTesterResults(int $id): array
     {
         $file = StudentFileResource::findOne($id);
 

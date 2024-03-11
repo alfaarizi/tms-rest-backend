@@ -66,7 +66,7 @@ class ExamAnswersController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex($questionID)
+    public function actionIndex(int $questionID): ActiveDataProvider
     {
         $question = ExamQuestionResource::findOne($questionID);
         if (is_null($question)) {
@@ -154,7 +154,6 @@ class ExamAnswersController extends BaseInstructorRestController
 
     /**
      * Update an answer
-     * @param int $id
      * @return ExamAnswerResource|array
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -196,7 +195,7 @@ class ExamAnswersController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionUpdate($id)
+    public function actionUpdate(int $id)
     {
         $answer = ExamAnswerResource::findOne($id);
 
@@ -232,8 +231,6 @@ class ExamAnswersController extends BaseInstructorRestController
 
     /**
      * Delete an answer
-     * @param int $id
-     * @return void|BadRequestHttpException
      * @throws ConflictHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -264,7 +261,7 @@ class ExamAnswersController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id): void
     {
         $answer = ExamAnswerResource::findOne($id);
 

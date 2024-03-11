@@ -153,7 +153,7 @@ class PlagiarismBasefileController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionDownload(int $id)
+    public function actionDownload(int $id): void
     {
         $file = PlagiarismBasefileResource::findOne($id);
 
@@ -274,7 +274,6 @@ class PlagiarismBasefileController extends BaseInstructorRestController
 
     /**
      * Delete a base file
-     * @param int $id
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
      * @throws BadRequestHttpException
@@ -300,7 +299,7 @@ class PlagiarismBasefileController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDelete(int $id)
+    public function actionDelete(int $id): void
     {
         $file = PlagiarismBasefileResource::findOne($id);
         if (is_null($file)) {

@@ -23,9 +23,6 @@ class ExamTestInstancesController extends BaseInstructorRestController
 
     /**
      * List test instances for the given test
-     * @param int $testID
-     * @param null|bool $submitted
-     * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -65,7 +62,7 @@ class ExamTestInstancesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex($testID, $submitted = null)
+    public function actionIndex(int $testID, ?bool $submitted = null): ActiveDataProvider
     {
         $test = ExamTestResource::findOne($testID);
 
@@ -83,7 +80,7 @@ class ExamTestInstancesController extends BaseInstructorRestController
 
         // If submitted is defined, add condition to the query
         if (!is_null($submitted)) {
-            $query->andWhere(["submitted" => filter_var($submitted, FILTER_VALIDATE_BOOLEAN)]);
+            $query->andWhere(["submitted" => $submitted]);
         }
 
         return new ActiveDataProvider(

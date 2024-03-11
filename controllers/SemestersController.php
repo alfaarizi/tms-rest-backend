@@ -24,7 +24,6 @@ class SemestersController extends BaseRestController
 
     /**
      * List semesters
-     * @return ActiveDataProvider
      *
      * @OA\Get(
      *     path="/common/semesters",
@@ -44,7 +43,7 @@ class SemestersController extends BaseRestController
      *     @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionIndex()
+    public function actionIndex(): ActiveDataProvider
     {
         $query = SemesterResource::find()
             ->orderBy(['id' => SORT_DESC]);

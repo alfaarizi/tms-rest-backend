@@ -47,10 +47,6 @@ class InstructorFilesController extends BaseInstructorRestController
 
     /**
      * List instructor files for a task
-     * @param int $taskID
-     * @param bool $includeAttachments
-     * @param bool $includeTestFiles
-     * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -102,7 +98,7 @@ class InstructorFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionIndex($taskID, $includeAttachments = true, $includeTestFiles = false, $includeWebTestSuites = false)
+    public function actionIndex(int $taskID, bool $includeAttachments = true, bool $includeTestFiles = false, bool $includeWebTestSuites = false): ActiveDataProvider
     {
         $task = TaskResource::findOne($taskID);
 
@@ -114,11 +110,6 @@ class InstructorFilesController extends BaseInstructorRestController
         if (!Yii::$app->user->can('manageGroup', ['groupID' => $task->groupID])) {
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
-
-        // boolean values in QS passes as strings
-        $includeAttachments = filter_var($includeAttachments, FILTER_VALIDATE_BOOLEAN);
-        $includeTestFiles = filter_var($includeTestFiles, FILTER_VALIDATE_BOOLEAN);
-        $includeWebTestSuites = filter_var($includeWebTestSuites, FILTER_VALIDATE_BOOLEAN);
 
         $categories = [];
         if ($includeAttachments) {
@@ -145,7 +136,6 @@ class InstructorFilesController extends BaseInstructorRestController
 
     /**
      * Download an instructor file
-     * @param int $id
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -171,7 +161,7 @@ class InstructorFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionDownload($id)
+    public function actionDownload(int $id): void
     {
         $file = InstructorFileResource::findOne($id);
 
@@ -308,7 +298,6 @@ class InstructorFilesController extends BaseInstructorRestController
 
     /**
      * Delete an instructor file
-     * @param int $id
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
@@ -337,7 +326,7 @@ class InstructorFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id): void
     {
         $file = InstructorFileResource::findOne($id);
 
@@ -383,7 +372,7 @@ class InstructorFilesController extends BaseInstructorRestController
      * @throws \yii\base\Exception
      * @throws ServerErrorHttpException
      */
-    private function verifyTestSanity(InstructorFile $file, Task $task)
+    private function verifyTestSanity(InstructorFile $file, Task $task): void
     {
         try {
             $webTesterContainer = WebTesterContainer::createInstanceForValidation($task->testOS);

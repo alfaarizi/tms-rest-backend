@@ -38,7 +38,7 @@ class ImagesController extends BaseRestController
      * Fetches an exam image
      * @param int $id The id of the questionset.
      * @param string $filename The filename of the image.
-     * @param null $imageToken
+     * @param string|null $imageToken
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -77,7 +77,7 @@ class ImagesController extends BaseRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionViewExamImage($id, $filename, $imageToken = null)
+    public function actionViewExamImage(int $id, string $filename, ?string $imageToken = null): void
     {
         $this->checkImageToken($imageToken);
 
@@ -93,10 +93,9 @@ class ImagesController extends BaseRestController
 
     /**
      * Validates imageToken
-     * @param string|null $imageToken
      * @throws ForbiddenHttpException
      */
-    private function checkImageToken($imageToken)
+    private function checkImageToken(?string $imageToken): void
     {
         if (is_null($imageToken)) {
             throw new ForbiddenHttpException(

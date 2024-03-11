@@ -103,8 +103,6 @@ class ExamTestsController extends BaseInstructorRestController
 
     /**
      * View a test
-     * @param int $id
-     * @return ExamTestResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -127,7 +125,7 @@ class ExamTestsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionView($id)
+    public function actionView(int $id): ExamTestResource
     {
         $test = ExamTestResource::findOne($id);
 
@@ -223,7 +221,6 @@ class ExamTestsController extends BaseInstructorRestController
 
     /**
      * Update a test
-     * @param int $id
      * @return ExamTestResource|array
      * @throws ConflictHttpException
      * @throws ForbiddenHttpException
@@ -257,7 +254,7 @@ class ExamTestsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionUpdate($id)
+    public function actionUpdate(int $id)
     {
         $test = ExamTestResource::findOne($id);
 
@@ -290,7 +287,6 @@ class ExamTestsController extends BaseInstructorRestController
 
     /**
      * Create a new test
-     * @param int $id
      * @throws ConflictHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -314,7 +310,7 @@ class ExamTestsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id): void
     {
         $test = ExamTestResource::findOne($id);
 
@@ -341,7 +337,6 @@ class ExamTestsController extends BaseInstructorRestController
 
     /**
      * Copy a test
-     * @param int $id
      * @return ExamTestResource|array
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -373,7 +368,7 @@ class ExamTestsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionDuplicate($id)
+    public function actionDuplicate(int $id)
     {
         $test = ExamTestResource::findOne($id);
 
@@ -453,7 +448,7 @@ class ExamTestsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
      */
-    public function actionFinalize($id)
+    public function actionFinalize(int $id): void
     {
         $test = ExamTest::findOne($id);
 

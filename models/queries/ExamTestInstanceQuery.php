@@ -34,7 +34,7 @@ class ExamTestInstanceQuery extends \yii\db\ActiveQuery
         return $this->andWhere(['userID' => $userID]);
     }
 
-    public function onlySubmitted($submitted)
+    public function onlySubmitted(bool $submitted)
     {
         return $this->andWhere(['submitted' => $submitted]);
     }

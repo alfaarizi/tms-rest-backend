@@ -40,8 +40,6 @@ class ExamQuestionsController extends BaseInstructorRestController
 
     /**
      * Get questions from a question set
-     * @param int $questionsetID
-     * @return ActiveDataProvider
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
@@ -73,7 +71,7 @@ class ExamQuestionsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionListForSet($questionsetID)
+    public function actionListForSet(int $questionsetID): ActiveDataProvider
     {
         $set = ExamQuestionSetResource::findOne($questionsetID);
 
@@ -151,7 +149,7 @@ class ExamQuestionsController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionListForTest($testID, $userID = null)
+    public function actionListForTest(int $testID, ?int $userID = null)
     {
         $test = ExamTestResource::findOne($testID);
 
