@@ -83,10 +83,9 @@ class StudentExamTestInstanceCest
                     [
                         'name' => 'string',
                         'duration' => 'integer',
-                        'groupNumber' => 'integer',
-                        'courseName' => 'string',
                         'availablefrom' => 'string',
                         'availableuntil' => 'string',
+                        'groupID' => 'integer',
                     ],
             ],
             '$.[*]'
@@ -128,10 +127,9 @@ class StudentExamTestInstanceCest
                     [
                         'name' => 'string',
                         'duration' => 'integer',
-                        'groupNumber' => 'integer',
-                        'courseName' => 'string',
                         'availablefrom' => 'string',
                         'availableuntil' => 'string',
+                        'groupID' => 'integer',
                     ],
             ],
             '$.[*]'
@@ -177,10 +175,9 @@ class StudentExamTestInstanceCest
                     [
                         'name' => 'string',
                         'duration' => 'integer',
-                        'groupNumber' => 'integer',
-                        'courseName' => 'string',
                         'availablefrom' => 'string',
                         'availableuntil' => 'string',
+                        'groupID' => 'integer',
                     ],
             ],
             '$.[*]'
@@ -237,10 +234,9 @@ class StudentExamTestInstanceCest
                     [
                         'name' => 'string',
                         'duration' => 'integer',
-                        'groupNumber' => 'integer',
-                        'courseName' => 'string',
                         'availablefrom' => 'string',
                         'availableuntil' => 'string',
+                        'groupID' => 'integer',
                     ],
             ]
         );
@@ -448,10 +444,9 @@ class StudentExamTestInstanceCest
                     [
                         'name' => 'string',
                         'duration' => 'integer',
-                        'groupNumber' => 'integer',
-                        'courseName' => 'string',
                         'availablefrom' => 'string',
                         'availableuntil' => 'string',
+                        'groupID' => 'integer',
                     ],
             ]
         );
@@ -514,10 +509,9 @@ class StudentExamTestInstanceCest
                     [
                         'name' => 'string',
                         'duration' => 'integer',
-                        'groupNumber' => 'integer',
-                        'courseName' => 'string',
                         'availablefrom' => 'string',
                         'availableuntil' => 'string',
+                        'groupID' => 'integer',
                     ],
             ]
         );
