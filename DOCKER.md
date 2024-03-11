@@ -68,6 +68,11 @@ E.g. to seed the sample dataset:
 docker exec tms-backend-core-container ./yii setup/sample
 ```
 
+### Version controlled tasks
+
+Git support for the Apache2 webserver is preconfigured in the image
+You should neither change the default URL of the Git repositories (`/git/`), or the default location of the appdata directory (`/var/www/html/backend-core/appdata`), as these location are expected by the Apache2 webserver.
+
 MULTI-CONTAINER ENVIRONMENT
 ------------------
 

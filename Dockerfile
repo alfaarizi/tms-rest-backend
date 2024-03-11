@@ -9,9 +9,15 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
     sed "s/^upload_max_filesize.*/upload_max_filesize = 10M/g" && \
     sed "s/^post_max_size.*/post_max_size = 12M/g"
 
+# Configure Git's SmartHTTP support in Apache2
+COPY docker/apache2-tms.conf /etc/apache2/conf-available/tms.conf
+RUN a2enconf tms
+
 # Copy project
 WORKDIR /var/www/html/backend-core
 COPY . .
+RUN mkdir runtime    && chown www-data:www-data runtime
+RUN mkdir web/assets && chown www-data:www-data web/assets
 
 # Install Composer dependencies
 RUN composer install --prefer-dist --no-ansi --no-interaction
