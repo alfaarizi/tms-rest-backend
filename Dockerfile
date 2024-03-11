@@ -4,6 +4,11 @@ FROM tmselte/php:7.4
 RUN apt-get update -y
 RUN apt-get install -y cron
 
+# Set up a production configuration for PHP
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
+    sed "s/^upload_max_filesize.*/upload_max_filesize = 10M/g" && \
+    sed "s/^post_max_size.*/post_max_size = 12M/g"
+
 # Copy project
 WORKDIR /var/www/html/backend-core
 COPY . .
