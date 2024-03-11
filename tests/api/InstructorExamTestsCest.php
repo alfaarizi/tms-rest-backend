@@ -28,12 +28,7 @@ class InstructorExamTestsCest
         'unique' => 'integer',
         'availablefrom' => 'string',
         'availableuntil' => 'string',
-        'courseName' => 'string',
-        'groupNumber' => 'integer',
-        'courseID' => 'integer',
         'groupID' => 'integer',
-        'questionsetID' => 'integer',
-        'semesterID' => 'integer',
     ];
 
     public function _fixtures()
@@ -126,13 +121,8 @@ class InstructorExamTestsCest
                 'unique' => 1,
                 'availablefrom' => "2021-02-01T10:00:00+01:00",
                 'availableuntil' => "2021-02-01T11:00:00+01:00",
-                'courseName' => 'Java',
-                'groupNumber' => 1,
-                'courseID' => 4000,
                 'groupID' => 2000,
                 'questionsetID' => 1,
-                'timezone' => 'Europe/Budapest',
-                'semesterID' => 3001,
             ]
         );
     }
@@ -219,13 +209,8 @@ class InstructorExamTestsCest
                 'unique' => 1,
                 'availablefrom' => $from,
                 'availableuntil' => $until,
-                'courseName' => 'Java',
-                'groupNumber' => 1,
-                'courseID' => 4000,
-                'groupID' => 2000,
                 'questionsetID' => 1,
-                'timezone' => 'Europe/Budapest',
-                'semesterID' => 3001,
+                'groupID' => 2000,
             ]
         );
 
@@ -320,13 +305,8 @@ class InstructorExamTestsCest
                 'unique' => 1,
                 'availablefrom' => $from,
                 'availableuntil' => $until,
-                'courseName' => 'Java',
-                'groupNumber' => 1,
-                'courseID' => 4000,
-                'groupID' => 2000,
                 'questionsetID' => 1,
-                'timezone' => 'Europe/Budapest',
-                'semesterID' => 3001,
+                'groupID' => 2000,
             ]
         );
 
@@ -397,13 +377,8 @@ class InstructorExamTestsCest
                 'unique' => 1,
                 'availablefrom' => $test->availablefrom,
                 'availableuntil' => $test->availableuntil,
-                'courseName' => 'Java',
-                'groupNumber' => 1,
-                'courseID' => 4000,
-                'groupID' => 2000,
                 'questionsetID' => 1,
-                'timezone' => 'Europe/Budapest',
-                'semesterID' => 3001,
+                'groupID' => 2000,
             ]
         );
 

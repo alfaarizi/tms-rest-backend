@@ -19,19 +19,14 @@ class ExamTestResource extends ExamTest
             'unique',
             'availablefrom',
             'availableuntil',
-            'courseName',
-            'groupNumber',
-            'courseID',
             'groupID',
             'questionsetID',
-            'timezone',
-            'semesterID',
         ];
     }
 
     public function extraFields()
     {
-        return [];
+        return ['group'];
     }
 
     public function fieldTypes(): array
@@ -39,47 +34,9 @@ class ExamTestResource extends ExamTest
         return ArrayHelper::merge(
             parent::fieldTypes(),
             [
-                'courseName' => new OAProperty(['type' => 'string']),
-                'groupNumber' => new OAProperty(['type' => 'integer']),
-                'courseID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
-                'groupID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
-                'questionsetID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
-                'timezone' => new OAProperty(['type' => 'string']),
-                'semesterID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+                'group' => new OAProperty(['ref'=> '#/components/schemas/Instructor_ExamTestResource_Read']),
             ]
         );
-    }
-
-    /**
-     * @return string
-     */
-    public function getCourseName()
-    {
-        return $this->group->course->name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCourseID()
-    {
-        return $this->group->courseID;
-    }
-
-    /**
-     * @return int
-     */
-    public function getGroupNumber()
-    {
-        return $this->group->number;
-    }
-
-    /**
-     * @return int
-     */
-    public function getSemesterID()
-    {
-        return $this->group->semesterID;
     }
 
     /**
@@ -90,12 +47,8 @@ class ExamTestResource extends ExamTest
         return $this->hasMany(ExamTestInstanceResource::class, ['testID' => 'id']);
     }
 
-    /**
-     * Timezone of the group
-     * @return string
-     */
-    public function getTimezone()
+    public function getGroup(): \yii\db\ActiveQuery
     {
-        return $this->group->timezone;
+        return $this->hasOne(GroupResource::class, ['id' => 'groupID']);
     }
 }

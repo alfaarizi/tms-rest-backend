@@ -14,14 +14,13 @@ class ExamTestResource extends \app\models\ExamTest
             'availablefrom',
             'availableuntil',
             'duration',
-            'groupNumber',
-            'courseName'
+            'groupID'
         ];
     }
 
     public function extraFields()
     {
-        return [];
+        return ['group'];
     }
 
     public function fieldTypes(): array
@@ -29,20 +28,13 @@ class ExamTestResource extends \app\models\ExamTest
         return ArrayHelper::merge(
             parent::fieldTypes(),
             [
-                'courseName' => new OAProperty(['type' => 'string']),
-                'groupNumber' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+                'group' => new OAProperty(['ref'=> '#/components/schemas/Student_ExamTestResource_Read']),
             ]
         );
     }
 
-
-    public function getGroupNumber()
+    public function getGroup(): \yii\db\ActiveQuery
     {
-        return $this->group->number;
-    }
-
-    public function getCourseName()
-    {
-        return $this->group->course->name;
+        return $this->hasOne(GroupResource::class, ['id' => 'groupID']);
     }
 }
