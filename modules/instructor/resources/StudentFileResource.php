@@ -3,7 +3,9 @@
 namespace app\modules\instructor\resources;
 
 use app\components\GitManager;
+use app\models\IpAddress;
 use app\components\openapi\generators\OAProperty;
+use app\components\openapi\generators\OAItems;
 use app\modules\instructor\resources\CodeCheckerResultResource;
 use Yii;
 use app\models\StudentFile;
@@ -37,7 +39,8 @@ class StudentFileResource extends StudentFile
             'delay',
             'uploadCount',
             'verified',
-            'codeCompassID'
+            'codeCompassID',
+            'ipAddresses'
         ];
     }
 
@@ -52,7 +55,7 @@ class StudentFileResource extends StudentFile
             'task',
             'execution',
             'codeCompass',
-            'codeCheckerResult'
+            'codeCheckerResult',
         ];
     }
 
@@ -71,6 +74,7 @@ class StudentFileResource extends StudentFile
                 'codeCompass' => new OAProperty(['ref' => '#/components/schemas/Instructor_CodeCompassInstanceResource_Read']),
                 'codeCompassID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
                 'codeCheckerResult' => new OAProperty(['ref' => '#/components/schemas/Instructor_CodeCheckerResultResource_Read']),
+                'ipAddresses' => new OAProperty(['type' => 'array', new OAItems(['type' => 'string'])])
             ]
         );
     }
@@ -160,5 +164,19 @@ class StudentFileResource extends StudentFile
     public function getCodeCheckerResult(): ActiveQuery
     {
         return $this->hasOne(CodeCheckerResultResource::class, ['id' => 'codeCheckerResultID']);
+    }
+
+    
+    /**
+     * @return array
+     */
+    public function getIpAddresses(): array
+    {
+        $adresses = IpAddress::find()
+            ->select('ipAddress')
+            ->where(['studentFileId' => $this->id])
+            ->distinct()
+            ->all();
+        return ArrayHelper::getColumn($adresses, 'ipAddress');
     }
 }
