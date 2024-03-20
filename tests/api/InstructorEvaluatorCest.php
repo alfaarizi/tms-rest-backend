@@ -1,6 +1,6 @@
 <?php
 
-namespace tests\api;
+namespace app\tests\api;
 
 use ApiTester;
 use app\models\StudentFile;
