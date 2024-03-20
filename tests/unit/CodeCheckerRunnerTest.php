@@ -1,6 +1,6 @@
 <?php
 
-namespace unit;
+namespace app\tests\unit;
 
 use app\components\codechecker\CodeCheckerRunner;
 use app\components\docker\DockerContainer;

@@ -1,6 +1,6 @@
 <?php
 
-namespace unit;
+namespace app\tests\unit;
 
 use app\commands\CodeCheckerController;
 use app\components\codechecker\AnalyzerRunner;

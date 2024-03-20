@@ -1,4 +1,4 @@
-# Default image
+# Default image (https://gitlab.com/tms-elte/docker-images/container_registry)
 image: registry.gitlab.com/tms-elte/docker-images/php:7.4
 
 # Stages: lint -> test -> docs -> deploy
@@ -20,43 +20,53 @@ include:
   - template: Jobs/Secret-Detection.gitlab-ci.yml
   - template: Jobs/SAST.gitlab-ci.yml
 
-.db:
-  # Variables
+.setup-nodb:
+  before_script: &setup-nodb-before-script
+    # Run Composer
+    - composer install --prefer-dist --no-ansi --no-interaction
+    # Configure application
+    - cp -f config/config.ci.yml config.yml
+    - cp -f config/config.ci.yml config.test.yml
+
+.setup-db:
+  extends: .setup-nodb
+  before_script:
+    - *setup-nodb-before-script
+    # Initialize database
+    - php tests/bin/yii migrate --interactive=0
+ 
+.service-mariadb:
   variables:
-    # Configure mysql environment variables (https://hub.docker.com/r/_/mysql/)
+    # Configure mariadb environment variables (https://hub.docker.com/_/mariadb/)
+    MYSQL_HOST: mariadb
     MYSQL_USER: tms
     MYSQL_PASSWORD: tms
     MYSQL_DATABASE: tms
     MYSQL_ROOT_PASSWORD: v7tqfR9U
 
-  # Services: http://docs.gitlab.com/ee/ci/docker/using_docker_images.html#what-is-a-service
-  # Examples: http://docs.gitlab.com/ce/ci/services/README.html
+  # Services: https://docs.gitlab.com/ee/ci/services/
   services:
-    - mariadb:10.4
-
-.test:
-  extends: .db
-  # Variables
+    - name: mariadb:10.3
+      alias: db
+    
+.service-mysql:
   variables:
-    # Enable code coverage for Xdebug
-    XDEBUG_MODE: develop,coverage
+    # Configure mysql environment variables (https://hub.docker.com/_/mysql/)
+    MYSQL_HOST: mysql
+    MYSQL_USER: tms
+    MYSQL_PASSWORD: tms
+    MYSQL_DATABASE: tms
+    MYSQL_ROOT_PASSWORD: v7tqfR9U
 
-  # Executed before every job
-  before_script:
-  # Run Composer
-  - composer install --prefer-dist --no-ansi --no-interaction
-  # Configure application
-  - cp -f config/config.ci.yml config.yml
-  - cp -f config/config.ci.yml config.test.yml
-  # Initialize application
-  - php tests/bin/yii migrate --interactive=0
+  # Services: https://docs.gitlab.com/ee/ci/services/
+  services:
+    - name: mysql:8.0
+      alias: db
 
 # PHPCS linter
 phpcs:
   stage: lint
-  before_script:
-    # Run Composer
-    - composer install --prefer-dist --no-ansi --no-interaction
+  extends: .setup-nodb
   script:
     - composer lint -- -n --report=full
   allow_failure: true
@@ -77,11 +87,12 @@ phpstan:
       codequality: phpstan.json
 
 # Codeception tests & coverage reports
-# PHP 7.4
-codecept_7.4:
+.codecept:
   stage: test
-  extends: .test
-  image: registry.gitlab.com/tms-elte/docker-images/php:7.4
+  extends: .setup-db
+  variables:
+    # Enable code coverage for Xdebug
+    XDEBUG_MODE: develop,coverage
   script:
     - composer test -- --no-ansi --xml --coverage --coverage-text --coverage-xml --coverage-cobertura
   coverage: '/^\s*Lines:\s*\d+.\d+\%/'
@@ -97,14 +108,30 @@ codecept_7.4:
           path: tests/_output/cobertura.xml
       junit:
           - tests/_output/report.xml
+          
+# PHP 7.4 with MariaDB
+codecept-7.4-mariadb:
+  stage: test
+  extends:
+    - .codecept
+    - .service-mariadb
+  image: registry.gitlab.com/tms-elte/docker-images/php:7.4
 
-
+# PHP 7.4 with MySQL
+codecept-7.4-mysql:
+  stage: test
+  extends:
+    - .codecept
+    - .service-mysql
+  image: registry.gitlab.com/tms-elte/docker-images/php:7.4
+  
 # Generates OpenApi docs in yaml and json format then packages it with swagger-ui
 openapi:
   # The schema generator requires active database connection
-  extends: .test
+  extends:
+    - .setup-db
+    - .service-mariadb
   stage: docs
-
   script:
     - cp -r components/openapi/swagger-ui-ci swagger-ui
     - php yii open-api/generate-docs json > swagger-ui/openapi-docs.json
@@ -131,6 +158,7 @@ phpdoc:
 # Collect generated docs and deploy them to GitLab Pages
 pages:
   stage: deploy
+  image: ubuntu:20.04
   script:
     # Copy all docs to the public folder
     - mkdir public
@@ -209,6 +237,7 @@ deploy_production:
 # Upload code coverage report to CodeCov
 codecov:
   stage: deploy
+  image: ubuntu:20.04
   before_script:
     - 'which curl || ( apt-get update -yqq && apt-get install -yqq curl)'
   script:

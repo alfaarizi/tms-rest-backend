@@ -1,6 +1,6 @@
 <?php
 
-namespace unit;
+namespace app\tests\unit;
 
 use app\models\CodeCompassInstance;
 use app\models\StudentFile;

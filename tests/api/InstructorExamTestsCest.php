@@ -1,8 +1,9 @@
 <?php
 
-namespace tests\api;
+namespace app\tests\api;
 
 use ApiTester;
+use app\tests\DateFormat;
 use DateTime;
 use Yii;
 use app\models\ExamTest;
@@ -182,8 +183,8 @@ class InstructorExamTestsCest
 
     public function createValid(ApiTester $I)
     {
-        $from = date(DateTime::ATOM);
-        $until = date(DateTime::ATOM, strtotime('+1 day'));
+        $from = new \DateTime();
+        $until = new \DateTime('+1 day');
         $I->sendPost(
             '/instructor/exam-tests',
             [
@@ -192,8 +193,8 @@ class InstructorExamTestsCest
                 'duration' => 90,
                 'shuffled' => 0,
                 'unique' => 1,
-                'availablefrom' => $from,
-                'availableuntil' => $until,
+                'availablefrom' => $from->format(\DateTime::ATOM),
+                'availableuntil' => $until->format(\DateTime::ATOM),
                 'questionsetID' => 1,
                 'groupID' => 2000,
             ]
@@ -207,8 +208,8 @@ class InstructorExamTestsCest
                 'duration' => 90,
                 'shuffled' => 0,
                 'unique' => 1,
-                'availablefrom' => $from,
-                'availableuntil' => $until,
+                'availablefrom' => $from->format(\DateTime::ATOM),
+                'availableuntil' => $until->format(\DateTime::ATOM),
                 'questionsetID' => 1,
                 'groupID' => 2000,
             ]
@@ -222,8 +223,8 @@ class InstructorExamTestsCest
                 'duration' => 90,
                 'shuffled' => 0,
                 'unique' => 1,
-                'availablefrom' => $from,
-                'availableuntil' => $until,
+                'availablefrom' => $from->format(DateFormat::MYSQL),
+                'availableuntil' => $until->format(DateFormat::MYSQL),
                 'questionsetID' => 1,
                 'groupID' => 2000,
             ]
@@ -284,14 +285,14 @@ class InstructorExamTestsCest
 
     public function updateValid(ApiTester $I)
     {
-        $from = date(DateTime::ATOM);
-        $until = date(DateTime::ATOM, strtotime('+1 day'));
+        $from = new \DateTime();
+        $until = new \DateTime('+1 day');
         $I->sendPatch(
             '/instructor/exam-tests/10',
             [
                 'name' => 'Updated',
-                'availablefrom' => $from,
-                'availableuntil' => $until,
+                'availablefrom' => $from->format(\DateTime::ATOM),
+                'availableuntil' => $until->format(\DateTime::ATOM),
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -303,8 +304,8 @@ class InstructorExamTestsCest
                 'duration' => 30,
                 'shuffled' => 1,
                 'unique' => 1,
-                'availablefrom' => $from,
-                'availableuntil' => $until,
+                'availablefrom' => $from->format(\DateTime::ATOM),
+                'availableuntil' => $until->format(\DateTime::ATOM),
                 'questionsetID' => 1,
                 'groupID' => 2000,
             ]
@@ -314,8 +315,8 @@ class InstructorExamTestsCest
             ExamTest::class,
             [
                 'name' => 'Updated',
-                'availablefrom' => $from,
-                'availableuntil' => $until
+                'availablefrom' => $from->format(DateFormat::MYSQL),
+                'availableuntil' => $until->format(DateFormat::MYSQL)
             ]
         );
     }
@@ -390,8 +391,10 @@ class InstructorExamTestsCest
                 'duration' => 110,
                 'shuffled' => 1,
                 'unique' => 1,
-                'availablefrom' => $test->availablefrom,
-                'availableuntil' => $test->availableuntil,
+                'availablefrom' => \DateTime::createFromFormat(\DateTime::ATOM, $test->availablefrom)
+                    ->format(DateFormat::MYSQL),
+                'availableuntil' => \DateTime::createFromFormat(\DateTime::ATOM, $test->availableuntil)
+                    ->format(DateFormat::MYSQL),
                 'questionsetID' => 1,
                 'groupID' => 2000,
             ]

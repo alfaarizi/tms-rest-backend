@@ -1,10 +1,11 @@
 <?php
 
-namespace api;
+namespace app\tests\api;
 
 use ApiTester;
 use app\models\Notification;
 use app\models\NotificationUser;
+use app\tests\DateFormat;
 use app\tests\unit\fixtures\AccessTokenFixture;
 use Codeception\Util\HttpCode;
 use app\tests\unit\fixtures\NotificationFixture;
@@ -110,14 +111,14 @@ class AdminNotificationsCest
 
     public function createValid(ApiTester $I)
     {
-        $startTime = date(\DateTime::ATOM, strtotime('+1 day'));
-        $endTime = date(\DateTime::ATOM, strtotime('+2 day'));
+        $startTime = new \DateTime('+1 day');
+        $endTime = new \DateTime('+2 day');
         $I->sendPost(
             '/admin/notifications',
             [
                 'message' => 'Created',
-                'startTime' => $startTime,
-                'endTime' => $endTime,
+                'startTime' => $startTime->format(\DateTime::ATOM),
+                'endTime' => $endTime->format(\DateTime::ATOM),
                 'dismissable' => true,
                 'isAvailableForAll' => true,
             ]
@@ -127,8 +128,8 @@ class AdminNotificationsCest
         $I->seeResponseContainsJson(
             [
                 'message' => 'Created',
-                'startTime' => $startTime,
-                'endTime' => $endTime,
+                'startTime' => $startTime->format(\DateTime::ATOM),
+                'endTime' => $endTime->format(\DateTime::ATOM),
                 'dismissable' => true,
                 'isAvailableForAll' => true,
             ]
@@ -137,8 +138,8 @@ class AdminNotificationsCest
             Notification::class,
             [
                 'message' => 'Created',
-                'startTime' => $startTime,
-                'endTime' => $endTime,
+                'startTime' => $startTime->format(DateFormat::MYSQL),
+                'endTime' => $endTime->format(DateFormat::MYSQL),
                 'dismissable' => true,
                 'isAvailableForAll' => true,
             ]
