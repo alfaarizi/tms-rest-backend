@@ -8,6 +8,7 @@ use app\models\User;
 use app\modules\student\resources\StudentFileUploadResource;
 use app\modules\student\resources\VerifyItemResource;
 use app\resources\AutoTesterResultResource;
+use app\models\IpAddress;
 use Yii;
 use app\modules\student\resources\TaskResource;
 use app\modules\student\helpers\PermissionHelpers;
@@ -308,6 +309,10 @@ class StudentFilesController extends BaseStudentRestController
                 "{$studentFile->task->name} ($taskID)",
                 __METHOD__
             );
+            $ipAddress = new IpAddress();
+            $ipAddress->studentFileId = $studentFile->id;
+            $ipAddress->ipAddress = $this->request->userIP;
+            if(!$ipAddress->save()) throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
             return $studentFile;
         } else {
             throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
