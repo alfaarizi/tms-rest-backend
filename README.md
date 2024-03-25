@@ -241,6 +241,13 @@ There are multiple ways to access the OpenAPI documentation for the project:
 - CLI interface in a local development server: the `yii open-api/generate-docs (yaml|json)` command writes the documentation to `stdout` in the desired output format. It also prints warnings to `stderr`.
 
 
+CONTAINERIZATION
+------------
+
+The project contains a Dockerfile to build an image for usage in production. See the [DOCKER.md](DOCKER.md) for details.
+
+In case you are interested in setting up a containerized development environment for TMS, please refer to the [TMS Compose](https://gitlab.com/tms-elte/compose) guide instead.
+
 CONTRIBUTING
 ------------
 

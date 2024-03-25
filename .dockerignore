@@ -1,0 +1,8 @@
+/appdata/
+/runtime/
+/vendor/
+/web/assets/
+.idea/
+.git/
+.gitignore
+.dockerignore
