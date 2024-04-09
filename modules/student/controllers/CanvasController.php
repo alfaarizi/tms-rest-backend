@@ -65,6 +65,7 @@ class CanvasController extends BaseStudentRestController
      * @throws ServerErrorHttpException
      * @throws CanvasRequestException
      * @throws ForbiddenHttpException
+     * @throws BadRequestHttpException
      *
      * @OA\Post(
      *     path="/student/canvas/sync-submission",
@@ -109,6 +110,13 @@ class CanvasController extends BaseStudentRestController
         // Setup is required before synchronization
         if (!$group->isCanvasCourse) {
             throw new ConflictHttpException(Yii::t('app', 'Synchronization is not configured for this group.'));
+        }
+
+        // Only Canvas tasks can be synchronized
+        if ($task->category != Task::CATEGORY_TYPE_CANVAS_TASKS) {
+            throw new BadRequestHttpException(
+                Yii::t('app', 'This operation can only be performed on a canvas synchronized task!')
+            );
         }
 
         // Use original synchronizer when syncing group manually, else error

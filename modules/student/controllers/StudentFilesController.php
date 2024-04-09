@@ -4,6 +4,7 @@ namespace app\modules\student\controllers;
 
 use app\components\GitManager;
 use app\models\StudentFile;
+use app\models\Task;
 use app\models\User;
 use app\modules\student\resources\StudentFileUploadResource;
 use app\modules\student\resources\VerifyItemResource;
@@ -223,9 +224,9 @@ class StudentFilesController extends BaseStudentRestController
         PermissionHelpers::checkIfTaskAvailable($task);
 
         // Canvas synchronization check
-        if ($task->group->isCanvasCourse) {
+        if ($task->category == Task::CATEGORY_TYPE_CANVAS_TASKS) {
             throw new BadRequestHttpException(
-                Yii::t('app', 'This operation cannot be performed on a canvas synchronized course!')
+                Yii::t('app', 'This operation cannot be performed on a canvas synchronized task!')
             );
         }
 

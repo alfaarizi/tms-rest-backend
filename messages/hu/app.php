@@ -166,6 +166,8 @@ return [
     'The changes will be saved' => 'A változtatások mentésre kerülnek.',
     'This method will override the previously attached one!' => 'Ez a művelet felülírja az előzőleg csatoltat!',
     'This operation cannot be performed on a canvas synchronized course!' => 'Ez a művelet nem hajtható végre canvassal szinkronizált kurzuson!',
+    'This operation cannot be performed on a canvas synchronized task!' => 'Ez a művelet nem hajtható végre canvassal szinkronizált beadandón!',
+    'This operation can only be performed on a canvas synchronized task!' => 'Ez a művelet csak canvassal szinkronizált beadandón hajtható végre!',
     'Canvas synchronization is disabled! Contact the administrator for more information.' => 'A Canvas szinkronizáció ki van kapcsolva! Contact the administrator for more information.',
     'The synchronization is disabled if a task or user is assigned to the group!' => 'A szinkronizáció nem engedélyezett, ha a csoporthoz van feladat vagy felhasználó hozzárendelve!',
     'Canvas login failed' => 'Canvas bejelentkezés sikertelen volt',

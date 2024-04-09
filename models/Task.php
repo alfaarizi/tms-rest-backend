@@ -92,6 +92,11 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     }
 
     /**
+     * Category type for Canvas tasks.
+     */
+    public const CATEGORY_TYPE_CANVAS_TASKS = 'Canvas tasks';
+
+    /**
      * Array of supported category types for a Task.
      */
     private const CATEGORY_TYPES = [
@@ -99,7 +104,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         'Larger tasks',
         'Classwork tasks',
         'Exams',
-        'Canvas tasks'
+        self::CATEGORY_TYPE_CANVAS_TASKS
     ];
 
     public const TEST_OS = [

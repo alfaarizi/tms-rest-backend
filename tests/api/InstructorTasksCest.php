@@ -299,7 +299,7 @@ class InstructorTasksCest
         $I->seeEmailIsSent(0);
     }
 
-    public function updateTaskFromCanvasCourse(ApiTester $I)
+    public function updateCanvasTask(ApiTester $I)
     {
         $I->sendPatch(
             '/instructor/tasks/5006',
@@ -310,7 +310,7 @@ class InstructorTasksCest
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
         $I->seeResponseContainsJson(
             [
-                'message' => 'This operation cannot be performed on a canvas synchronized course!'
+                'message' => 'This operation cannot be performed on a canvas synchronized task!'
             ]
         );
         $I->seeRecord(Task::class, ['id' => 5006, 'name' => 'Task 7']);
@@ -327,6 +327,39 @@ class InstructorTasksCest
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->seeResponseMatchesJsonType(['string'], '$.[*]');
         $I->cantSeeRecord(Task::class, ['name' => 'Updated']);
+        $I->seeEmailIsSent(0);
+    }
+
+    public function updateRegularTaskInCanvasGroup(ApiTester $I)
+    {
+        $I->sendPatch(
+            '/instructor/tasks/5018',
+            [
+                'name' => 'Updated1',
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                'id' => 5018,
+                'name' => 'Updated1',
+                'category' => 'Larger tasks',
+                'translatedCategory' => 'Larger tasks',
+                'description' => 'Description',
+                'hardDeadline' => '2021-03-08T10:00:00+01:00',
+                'softDeadline' => null,
+                'available' => null,
+                'autoTest' => 0,
+                'isVersionControlled' => 0,
+                'groupID' => 2005,
+                'semesterID' => 3001,
+                'creatorName' => 'Teacher Two',
+            ]
+        );
+
+        $I->seeRecord(Task::class, ['name' => 'Updated1']);
         $I->seeEmailIsSent(0);
     }
 
@@ -436,16 +469,23 @@ class InstructorTasksCest
         $I->seeRecord(Task::class, ['id' => 5005]);
     }
 
-    public function deleteFromCanvasCourse(ApiTester $I)
+    public function deleteCanvasTask(ApiTester $I)
     {
         $I->sendDelete('/instructor/tasks/5006');
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
         $I->seeResponseContainsJson(
             [
-                'message' => 'This operation cannot be performed on a canvas synchronized course!'
+                'message' => 'This operation cannot be performed on a canvas synchronized task!'
             ]
         );
         $I->seeRecord(Task::class, ['id' => 5006]);
+    }
+
+    public function deleteRegularTaskFromCanvasGroup(ApiTester $I)
+    {
+        $I->sendDelete('/instructor/tasks/5018');
+        $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
+        $I->cantSeeRecord(Task::class, ['id' => 5018]);
     }
 
 
