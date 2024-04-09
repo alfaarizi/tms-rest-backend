@@ -8,6 +8,7 @@ use app\models\Group;
 use app\models\InstructorFile;
 use app\models\StudentFile;
 use app\models\Subscription;
+use app\models\Task;
 use app\models\TestCase;
 use app\modules\instructor\resources\GroupResource;
 use app\modules\instructor\resources\SetupCodeCompassParserResource;
@@ -375,9 +376,9 @@ class TasksController extends BaseInstructorRestController
         }
 
         // Canvas synchronization check
-        if ($task->group->isCanvasCourse) {
+        if ($task->category == Task::CATEGORY_TYPE_CANVAS_TASKS) {
             throw new BadRequestHttpException(
-                Yii::t('app', 'This operation cannot be performed on a canvas synchronized course!')
+                Yii::t('app', 'This operation cannot be performed on a canvas synchronized task!')
             );
         }
 
@@ -485,9 +486,9 @@ class TasksController extends BaseInstructorRestController
         }
 
         // Canvas synchronization check
-        if ($task->group->isCanvasCourse) {
+        if ($task->category == Task::CATEGORY_TYPE_CANVAS_TASKS) {
             throw new BadRequestHttpException(
-                Yii::t('app', 'This operation cannot be performed on a canvas synchronized course!')
+                Yii::t('app', 'This operation cannot be performed on a canvas synchronized task!')
             );
         }
 

@@ -64,11 +64,11 @@ class AdminStatisticsCest
         $I->seeResponseContainsJson(
             [
                 'groupsCount' => 11,
-                'tasksCount' => 18,
+                'tasksCount' => 19,
                 'submissionsCount' => 20,
                 'testedSubmissionCount' => 7,
                 'groupsCountPerSemester' => 8,
-                'tasksCountPerSemester' => 17,
+                'tasksCountPerSemester' => 18,
                 'submissionsCountPerSemester' => 19,
                 'testedSubmissionCountPerSemester' => 7,
                 'submissionsUnderTestingCount' => 1,
@@ -87,11 +87,11 @@ class AdminStatisticsCest
         $I->seeResponseContainsJson(
             [
                 'groupsCount' => 11,
-                'tasksCount' => 18,
+                'tasksCount' => 19,
                 'submissionsCount' => 20,
                 'testedSubmissionCount' => 7,
                 'groupsCountPerSemester' => 8,
-                'tasksCountPerSemester' => 17,
+                'tasksCountPerSemester' => 18,
                 'submissionsCountPerSemester' => 19,
                 'testedSubmissionCountPerSemester' => 7,
                 'submissionsUnderTestingCount' => 1,

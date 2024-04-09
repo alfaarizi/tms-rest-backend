@@ -276,4 +276,17 @@ return [
         'autoTest' => 1,
         'showFullErrorMsg' => 0,
     ],
+    'task19_regular_canvas_group' => [
+        'id' => 5018,
+        'name' => 'Task 19',
+        'semesterID' => 3001,
+        'groupID' => 2005,
+        'hardDeadline' => '2021-03-08 10:00:00',
+        'category' => 'Larger tasks',
+        'description' => 'Description',
+        'createrID' => 1007,
+        'isVersionControlled' => 0,
+        'autoTest' => 0,
+        'showFullErrorMsg' => 0,
+    ],
 ];

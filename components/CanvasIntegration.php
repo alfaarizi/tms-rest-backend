@@ -703,10 +703,11 @@ class CanvasIntegration
             }
         } while ($morePages);
 
-        // delete tasks and submissions recursively
+        // delete canvas tasks and submissions recursively
         $condition = ['AND',
         ['NOT', ['id' => $taskIds]],
-        ['groupID' => $group->id]
+        ['groupID' => $group->id],
+        ['category' => Task::CATEGORY_TYPE_CANVAS_TASKS],
         ];
         $tasksToRemove = Task::find()->where($condition)->all();
         foreach ($tasksToRemove as $task) {
@@ -831,69 +832,76 @@ class CanvasIntegration
         $countSyncProblems = 0;
 
         foreach ($group->tasks as $task) {
-            $studentFileIds = [];
+            // Only synchronize submissions of Canvas tasks
+            if ($task->category == Task::CATEGORY_TYPE_CANVAS_TASKS) {
+                $studentFileIds = [];
 
-            $page = 1;
+                $page = 1;
 
-            do {
-                //if the number is -1, get all submissions to the course
-                if ($group->canvasSectionID == -1) {
-                    $response = $client->createRequest()
-                        ->setMethod('GET')
-                        ->setUrl('api/v1/courses/' . $group->canvasCourseID . '/assignments/' . $task->canvasID . '/submissions')
-                        ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
-                        ->setData([
-                            'include[]' => 'submission_comments',
-                            'page' => $page++,
-                            'per_page' => 50
-                        ])
-                        ->send();
-                } else {
-                    $response = $client->createRequest()
-                        ->setMethod('GET')
-                        ->setUrl('api/v1/sections/' . $group->canvasSectionID . '/assignments/' . $task->canvasID . '/submissions')
-                        ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
-                        ->setData([
-                            'include[]' => 'submission_comments',
-                            'page' => $page++,
-                            'per_page' => 50
-                        ])
-                        ->send();
-                }
+                do {
+                    //if the number is -1, get all submissions to the course
+                    if ($group->canvasSectionID == -1) {
+                        $response = $client->createRequest()
+                            ->setMethod('GET')
+                            ->setUrl(
+                                'api/v1/courses/' . $group->canvasCourseID . '/assignments/' . $task->canvasID . '/submissions'
+                            )
+                            ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                            ->setData([
+                                          'include[]' => 'submission_comments',
+                                          'page' => $page++,
+                                          'per_page' => 50
+                                      ])
+                            ->send();
+                    } else {
+                        $response = $client->createRequest()
+                            ->setMethod('GET')
+                            ->setUrl(
+                                'api/v1/sections/' . $group->canvasSectionID . '/assignments/' . $task->canvasID . '/submissions'
+                            )
+                            ->setHeaders(['Authorization' => 'Bearer ' . $group->synchronizer->canvasToken])
+                            ->setData([
+                                          'include[]' => 'submission_comments',
+                                          'page' => $page++,
+                                          'per_page' => 50
+                                      ])
+                            ->send();
+                    }
 
-                if (!$response->isOk) {
-                    $errorMsg = 'Fetching submissions from Canvas failed.';
-                    array_push($this->syncErrorMsgs, $errorMsg);
-                    Yii::error(
-                        $errorMsg . PHP_EOL .
-                        "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
-                        __METHOD__
-                    );
-                    throw new CanvasRequestException($response->statusCode, $errorMsg);
-                }
+                    if (!$response->isOk) {
+                        $errorMsg = 'Fetching submissions from Canvas failed.';
+                        array_push($this->syncErrorMsgs, $errorMsg);
+                        Yii::error(
+                            $errorMsg . PHP_EOL .
+                            "Course: {$group->course->name}, group number: {$group->number}, groupID: {$group->id}",
+                            __METHOD__
+                        );
+                        throw new CanvasRequestException($response->statusCode, $errorMsg);
+                    }
 
-                $out = $response->data;
-                $morePages = !empty($response->data);
+                    $out = $response->data;
+                    $morePages = !empty($response->data);
 
-                foreach ($out as $submission) {
-                    $tmsFile = $this->saveSubmission($submission, $task);
-                    if ($tmsFile != null && $tmsFile->id > 0) {
-                        array_push($studentFileIds, $tmsFile->id);
-                        if ($tmsFile->isAccepted == StudentFile::IS_ACCEPTED_CORRUPTED) {
-                            $countSyncProblems++;
+                    foreach ($out as $submission) {
+                        $tmsFile = $this->saveSubmission($submission, $task);
+                        if ($tmsFile != null && $tmsFile->id > 0) {
+                            array_push($studentFileIds, $tmsFile->id);
+                            if ($tmsFile->isAccepted == StudentFile::IS_ACCEPTED_CORRUPTED) {
+                                $countSyncProblems++;
+                            }
                         }
                     }
-                }
-            } while ($morePages);
+                } while ($morePages);
 
-            // Remove old submissions not belonging to a current student of the group
-            $condition = ['AND',
-                ['NOT', ['id' => $studentFileIds]],
-                ['taskID' => $task->id]
-            ];
-            $submissionsToRemove = StudentFile::find()->where($condition)->all();
-            foreach ($submissionsToRemove as $sf) {
-                $sf->delete();
+                // Remove old submissions not belonging to a current student of the group
+                $condition = ['AND',
+                    ['NOT', ['id' => $studentFileIds]],
+                    ['taskID' => $task->id]
+                ];
+                $submissionsToRemove = StudentFile::find()->where($condition)->all();
+                foreach ($submissionsToRemove as $sf) {
+                    $sf->delete();
+                }
             }
         }
 
