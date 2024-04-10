@@ -64,8 +64,8 @@ class PlagiarismCest
 
     public function _before(ApiTester $I)
     {
-        $I->deleteDir(Yii::getAlias("@tmp"));
-        $I->copyDir(codecept_data_dir('appdata_samples'), Yii::getAlias("@tmp"));
+        $I->deleteDir(Yii::getAlias("@appdata"));
+        $I->copyDir(codecept_data_dir('appdata_samples'), Yii::getAlias("@appdata"));
         $I->amBearerAuthenticated("TEACH2;VALID");
         Yii::$app->language = 'en-US';
     }
