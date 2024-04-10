@@ -14,11 +14,11 @@ class JPlagPlagiarismFinderTest extends \Codeception\Test\Unit
 {
     protected \UnitTester $tester;
 
-    private string $appdata_dir;
+    private string $tmpDir;
 
     protected function _before()
     {
-        $this->appdata_dir = Yii::getAlias("@appdata");
+        $this->tmpDir = Yii::getAlias("@tmp");
         $this->tester->deleteDir(Yii::getAlias("@appdata"));
         $this->tester->copyDir(codecept_data_dir('appdata_samples'), Yii::getAlias("@appdata"));
         Yii::$app->params['jplag'] = [
@@ -60,7 +60,7 @@ class JPlagPlagiarismFinderTest extends \Codeception\Test\Unit
         $finder = $this->getFinder('plagiarism9');
         $finder->start();
         $this->assertEquals(
-            "java -jar /dev/null  -new '{$this->appdata_dir}/plagiarism/9/5009/' -l 'cpp' -bc '{$this->appdata_dir}/plagiarism/9/basefiles' -t '1' -r '{$this->appdata_dir}/plagiarism/plagiarism-result/9/result'",
+            "java -jar /dev/null  -new '{$this->tmpDir}/plagiarism/9/5009/' -l 'cpp' -bc '{$this->tmpDir}/plagiarism/9/basefiles' -t '1' -r '{$this->tmpDir}/plagiarism/plagiarism-result/9/result'",
             $finder->command
         );
     }

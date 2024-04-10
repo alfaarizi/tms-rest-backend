@@ -27,8 +27,8 @@ class InstructorPlagiarismResultCest
 
     public function _before(ApiTester $I)
     {
-        $I->deleteDir(Yii::getAlias("@appdata"));
-        $I->copyDir(codecept_data_dir('appdata_samples'), Yii::getAlias("@appdata"));
+        $I->deleteDir(Yii::getAlias("@tmp"));
+        $I->copyDir(codecept_data_dir('appdata_samples'), Yii::getAlias("@tmp"));
         Yii::$app->params['jplag'] = [
             'jre' => 'java',
             'jar' => '/dev/null',
@@ -39,7 +39,7 @@ class InstructorPlagiarismResultCest
     public function _after(ApiTester $I)
     {
         unset(Yii::$app->params['jplag']);
-        $I->deleteDir(Yii::getAlias("@appdata"));
+        $I->deleteDir(Yii::getAlias("@tmp"));
     }
 
     public function indexNotFound(ApiTester $I)
@@ -65,7 +65,7 @@ class InstructorPlagiarismResultCest
         $I->sendGet('/instructor/plagiarism-result', ['id' => 7, 'token' => 'ad9e9bcd00632c86b547a1db0f3c9502']);
         $I->seeResponseCodeIs(HttpCode::OK);
 
-        $I->openFile(Yii::getAlias("@appdata/plagiarism/plagiarism-result/7/index.html"));
+        $I->openFile(Yii::getAlias("@tmp/plagiarism/plagiarism-result/7/index.html"));
         $I->seeFileContentsEqual(str_replace("\r", '', $I->grabResponse()));
     }
 
@@ -75,7 +75,7 @@ class InstructorPlagiarismResultCest
         $I->seeResponseCodeIs(HttpCode::OK);
 
         $I->assertStringEqualsFile(
-            Yii::getAlias("@appdata/plagiarism/plagiarism-result/9/result.zip"),
+            Yii::getAlias("@tmp/plagiarism/plagiarism-result/9/result.zip"),
             $I->grabResponse()
         );
     }
@@ -115,7 +115,7 @@ class InstructorPlagiarismResultCest
         $I->sendGet('/instructor/plagiarism-result/frame', ['id' => 7, 'token' => 'ad9e9bcd00632c86b547a1db0f3c9502', 'number' => 0, 'side' => 'top']);
         $I->seeResponseCodeIs(HttpCode::OK);
 
-        $I->openFile(Yii::getAlias("@appdata/plagiarism/plagiarism-result/7/match0-top.html"));
+        $I->openFile(Yii::getAlias("@tmp/plagiarism/plagiarism-result/7/match0-top.html"));
         $I->seeFileContentsEqual(str_replace("\r", '', $I->grabResponse()));
     }
 
