@@ -38,8 +38,8 @@ abstract class AbstractPlagiarismFinder
     public function __construct(Plagiarism $plagiarism)
     {
         $this->plagiarism = $plagiarism;
-        $dataDir = Yii::getAlias("@tmp");
-        $this->plagiarismPath = "$dataDir/plagiarism/{$plagiarism->id}";
+        $tempDir = Yii::getAlias("@tmp");
+        $this->plagiarismPath = "$tempDir/plagiarism/{$plagiarism->id}";
     }
 
     /**
