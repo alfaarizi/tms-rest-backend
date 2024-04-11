@@ -4,6 +4,19 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [3.4.0](https://gitlab.com/tms-elte/backend-core/compare/v3.3.1...v3.4.0) (2024-04-11)
+
+### Features
+
+* Added containerization support ([951d1f](https://gitlab.com/tms-elte/backend-core/commit/951d1fadc7e67f7b9d98fc52a2442d4394fd316b))
+* Place plagiarism intermediate data into the temp directory ([172239](https://gitlab.com/tms-elte/backend-core/commit/1722396e36c92049216c116e9ad08ae10559901b))
+* Regular task for Canvas synchronized groups ([2ef848](https://gitlab.com/tms-elte/backend-core/commit/2ef84885ba9f9bdc546fdc4b1739e8aba815430f))
+* Store IP log for user submissions ([2733f9](https://gitlab.com/tms-elte/backend-core/commit/2733f9e2ff21a5d5e1e25f6018248f3e7ce26952))
+* Student initiated Canvas synchronization ([1041dc](https://gitlab.com/tms-elte/backend-core/commit/1041dc2e3f4eba4016e0594c0c2f4c867f517172))
+
+
+---
+
 ## [3.3.1](https://gitlab.com/tms-elte/backend-core/compare/v3.3.0...v3.3.1) (2024-03-03)
 
 ### Bug Fixes
