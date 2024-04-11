@@ -213,7 +213,7 @@ deploy_staging:
 deploy_production:
   extends: .deploy
   variables:
-    DEPLOY_PATH: /var/www/tms/backend-core/
+    DEPLOY_PATH: /var/www/tms_prod/backend-core/
   script:
     - ssh-add <(echo "$CD_PRIVATE_KEY")
     - |
