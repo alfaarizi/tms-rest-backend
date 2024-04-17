@@ -139,8 +139,6 @@ class StudentFileResource extends StudentFile
         }
         if (!$this->isVersionControlled) {
             return Yii::t('app', 'Not version controlled');
-        } elseif ($this->uploadTime == null) {
-            return Yii::t('app', 'No file uploaded');
         }
 
         return GitManager::getReadonlyUserRepositoryUrl($this->taskID, $this->uploader->neptun);
