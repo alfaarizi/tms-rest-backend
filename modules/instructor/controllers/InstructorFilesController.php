@@ -235,9 +235,9 @@ class InstructorFilesController extends BaseInstructorRestController
         }
 
         // Canvas synchronization check
-        if ($group->isCanvasCourse && $upload->category == InstructorFile::CATEGORY_ATTACHMENT) {
+        if ($task->category == Task::CATEGORY_TYPE_CANVAS_TASKS && $upload->category == InstructorFile::CATEGORY_ATTACHMENT) {
             throw new BadRequestHttpException(
-                Yii::t('app', 'This operation cannot be performed on a canvas synchronized course!')
+                Yii::t('app', 'This operation cannot be performed on a canvas synchronized task!')
             );
         }
 
@@ -347,9 +347,9 @@ class InstructorFilesController extends BaseInstructorRestController
         }
 
         // Canvas synchronization check
-        if ($file->task->group->isCanvasCourse && $file->category == InstructorFile::CATEGORY_ATTACHMENT) {
+        if ($file->task->category == Task::CATEGORY_TYPE_CANVAS_TASKS && $file->category == InstructorFile::CATEGORY_ATTACHMENT) {
             throw new BadRequestHttpException(
-                Yii::t('app', 'This operation cannot be performed on a canvas synchronized course!')
+                Yii::t('app', 'This operation cannot be performed on a canvas synchronized task!')
             );
         }
 
