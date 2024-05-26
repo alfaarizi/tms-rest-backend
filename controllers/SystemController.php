@@ -2,9 +2,11 @@
 
 namespace app\controllers;
 
+use app\components\DateTimeHelpers;
 use app\resources\PrivateSystemInfoResource;
 use app\resources\PublicSystemInfoResource;
 use app\resources\SemesterResource;
+use Exception;
 use Yii;
 use yii\helpers\ArrayHelper;
 use app\components\UnitConverterHelper;
@@ -78,6 +80,7 @@ class SystemController extends BaseRestController
      *     ),
      *     @OA\Response(response=500, ref="#/components/responses/500"),
      * )
+     * @throws Exception
      */
     public function actionPrivateInfo(): PrivateSystemInfoResource
     {
@@ -88,6 +91,7 @@ class SystemController extends BaseRestController
         $resource->isVersionControlEnabled = Yii::$app->params['versionControl']['enabled'];
         $resource->isCanvasEnabled = Yii::$app->params['canvas']['enabled'];
         $resource->isCodeCompassEnabled = Yii::$app->params['codeCompass']['enabled'];
+        $resource->serverDateTime = DateTimeHelpers::getCurrentTime();
         $resource->actualSemester = SemesterResource::findOne(['actual' => 1]);
         return $resource;
     }

@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use DateTimeInterface;
 use Exception;
 use Yii;
 use DateTime;
@@ -30,5 +31,14 @@ class DateTimeHelpers
             $ret .= ' (' . $timezone . ')';
         }
         return $ret;
+    }
+
+    /**
+     * Returns the current datetime in the server's timezone
+     * @return string Current datetime in the server's timezone
+     */
+    public static function getCurrentTime(): string
+    {
+        return (new DateTime('now'))->format(DateTimeInterface::ATOM);
     }
 }
