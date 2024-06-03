@@ -22,13 +22,13 @@ return [
     "answer4" => [
         "id" => 4,
         "text" => "Answer 4",
-        "correct" => 1,
+        "correct" => 0,
         "questionID" => 1,
     ],
     "answer5" => [
         "id" => 5,
         "text" => "Answer 5",
-        "correct" => 1,
+        "correct" => 0,
         "questionID" => 1,
     ],
 
@@ -36,7 +36,7 @@ return [
     "answer6" => [
         "id" => 6,
         "text" => "Answer 1",
-        "correct" => 1,
+        "correct" => 0,
         "questionID" => 2,
     ],
     "answer7" => [
@@ -62,7 +62,7 @@ return [
     "answer10" => [
         "id" => 10,
         "text" => "Answer 1",
-        "correct" => 1,
+        "correct" => 0,
         "questionID" => 3,
     ],
     "answer11" => [
@@ -84,6 +84,7 @@ return [
         "questionID" => 3,
     ],
 
+
     "answer14" => [
         "id" => 14,
         "text" => "Answer 1",
@@ -91,10 +92,17 @@ return [
         "questionID" => 5,
     ],
 
+
     "answer15" => [
         "id" => 15,
         "text" => "Answer 1",
         "correct" => 1,
+        "questionID" => 6,
+    ],
+    "answer16" => [
+        "id" => 16,
+        "text" => "Answer 2",
+        "correct" => 0,
         "questionID" => 6,
     ]
 ];

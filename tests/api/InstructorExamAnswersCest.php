@@ -92,13 +92,13 @@ class InstructorExamAnswersCest
                 [
                     "id" => 4,
                     "text" => "Answer 4",
-                    "correct" => 1,
+                    "correct" => 0,
                     "questionID" => 1,
                 ],
                 [
                     "id" => 5,
                     "text" => "Answer 5",
-                    "correct" => 1,
+                    "correct" => 0,
                     "questionID" => 1,
                 ],
             ]
@@ -155,8 +155,19 @@ class InstructorExamAnswersCest
         $I->seeResponseCodeIs(HttpCode::CONFLICT);
     }
 
-    public function createValid(ApiTester $I)
+    public function createValidCorrect(ApiTester $I)
     {
+        // there is already a correct answer to this question
+        $I->seeRecord(
+            ExamAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+
         $I->sendPost(
             '/instructor/exam-answers',
             [
@@ -172,6 +183,60 @@ class InstructorExamAnswersCest
                 'questionID' => 6,
                 'text' => 'Created',
                 'correct' => 1
+            ]
+        );
+
+        // the initially correct other answer should be set to not correct
+        // because only one correct answer should be for a question
+        $I->seeRecord(
+            ExamAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 0,
+                "questionID" => 6,
+            ]
+        );
+    }
+    public function createValidNotCorrect(ApiTester $I)
+    {
+        // there is already a correct answer to this question
+        $I->seeRecord(
+            ExamAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+
+        $I->sendPost(
+            '/instructor/exam-answers',
+            [
+                'questionID' => 6,
+                'text' => 'Created',
+                'correct' => 0
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeResponseMatchesJsonType(self::ANSWER_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                'questionID' => 6,
+                'text' => 'Created',
+                'correct' => 0
+            ]
+        );
+
+        // there is still a correct answer to this question
+        $I->seeRecord(
+            ExamAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 6,
             ]
         );
     }
@@ -274,6 +339,72 @@ class InstructorExamAnswersCest
                 'id' => 15,
                 'text' => 'Updated',
                 'correct' => 1,
+                "questionID" => 6,
+            ]
+        );
+    }
+
+    public function updateValidCorrectToCorrect(ApiTester $I)
+    {
+        $I->sendPatch(
+            '/instructor/exam-answers/15',
+            [
+                'text' => 'Updated',
+                "correct" => 1,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+
+
+        $I->seeResponseMatchesJsonType(self::ANSWER_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                "id" => 15,
+                "text" => "Updated",
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+    }
+
+    public function updateValidIncorrectToCorrect(ApiTester $I)
+    {
+        // other answer that was correct initially
+        $I->seeRecord(
+            ExamAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+        $I->sendPatch(
+            '/instructor/exam-answers/16',
+            [
+                'text' => 'Updated',
+                'correct' => 1,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+
+        $I->seeResponseMatchesJsonType(self::ANSWER_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                "id" => 16,
+                "text" => "Updated",
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+
+        // other answer that was correct has changed to incorrect
+        $I->seeRecord(
+            ExamAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 0,
                 "questionID" => 6,
             ]
         );
