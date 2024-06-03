@@ -6,6 +6,7 @@ use app\models\ExamTestInstanceQuestion;
 use app\modules\instructor\resources\ExamAnswerResource;
 use Yii;
 use app\modules\instructor\resources\ExamQuestionResource;
+use app\models\ExamQuestion;
 use app\resources\SemesterResource;
 use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
@@ -144,6 +145,11 @@ class ExamAnswersController extends BaseInstructorRestController
             throw new ConflictHttpException(Yii::t('app', 'Cannot add answer because a test that contains it was finalized'));
         }
 
+        // there should be only one correct answer
+        if ($answer->correct) {
+            $this->setOtherAnswersToIncorrect($answer);
+        }
+
         if ($answer->save(false)) {
             $this->response->statusCode = 201;
             return $answer;
@@ -222,6 +228,11 @@ class ExamAnswersController extends BaseInstructorRestController
             throw new ConflictHttpException(Yii::t('app', 'Cannot update answer because a test that contains it was finalized'));
         }
 
+        // there should be only one correct answer
+        if ($answer->correct) {
+            $this->setOtherAnswersToIncorrect($answer);
+        }
+
         if ($answer->save(false)) {
             return $answer;
         } else {
@@ -288,6 +299,24 @@ class ExamAnswersController extends BaseInstructorRestController
             throw new ConflictHttpException(Yii::t('app', 'Cannot delete answer because it appears in a test instance'));
         } catch (\yii\base\ErrorException $e) {
             throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
+        }
+    }
+
+    /**
+     * @throws ServerErrorHttpException
+     */
+    private function setOtherAnswersToIncorrect(ExamAnswerResource $answer)
+    {
+        if ($answer->correct) {
+            $question = ExamQuestion::findOne($answer->questionID);
+            foreach ($question->answers as $otherAnswer) {
+                if ($otherAnswer->id != $answer->id && $otherAnswer->correct) {
+                    $otherAnswer->correct = false;
+                    if (!$otherAnswer->save(false)) {
+                        throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
+                    }
+                }
+            }
         }
     }
 }
