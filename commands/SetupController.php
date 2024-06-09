@@ -2,6 +2,7 @@
 
 namespace app\commands;
 
+use app\models\CourseCode;
 use app\models\InstructorGroup;
 use app\models\Semester;
 use app\models\Course;
@@ -206,11 +207,23 @@ class SetupController extends BaseController
         $course = new Course();
         $course->id = 1;
         $course->name = $name;
-        $course->code = $code;
+
         if ($course->save()) {
             $this->stdout("Successfully inserted initial course '$name'." . PHP_EOL, Console::FG_GREEN);
         } else {
             $this->stdout("Failed to insert initial course '$name'." . PHP_EOL, Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        $courseCode = new CourseCode();
+        $courseCode->id = 1;
+        $courseCode->courseId = 1;
+        $courseCode->code = $code;
+
+        if ($courseCode->save()) {
+            $this->stdout("Successfully inserted initial course '$name'." . PHP_EOL, Console::FG_GREEN);
+        } else {
+            $this->stdout("Failed to insert initial course code '$name'." . PHP_EOL, Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
 

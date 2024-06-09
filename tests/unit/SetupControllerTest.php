@@ -4,6 +4,7 @@ namespace app\tests\unit;
 
 use app\commands\SetupController;
 use app\models\Course;
+use app\models\CourseCode;
 use app\models\ExamAnswer;
 use app\models\ExamQuestion;
 use app\models\ExamQuestionSet;
@@ -97,7 +98,11 @@ class SetupControllerTest extends \Codeception\Test\Unit
         $this->tester->seeRecord(Course::class, [
             'id' => 1,
             'name' => 'Development of web based applications',
-            'code' => 'IP-08bWAFEG'
+        ]);
+        $this->tester->seeRecord(CourseCode::class, [
+            'id' => 1,
+            'courseId' => 1,
+            'code' => ['IP-08bWAFEG']
         ]);
         $this->tester->seeRecord(Group::class, [
             'id' => 1,

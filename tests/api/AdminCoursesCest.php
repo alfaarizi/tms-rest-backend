@@ -4,8 +4,10 @@ namespace app\tests\api;
 
 use ApiTester;
 use app\models\Course;
+use app\models\CourseCode;
 use app\models\InstructorCourse;
 use app\tests\unit\fixtures\AccessTokenFixture;
+use app\tests\unit\fixtures\CourseCodeFixture;
 use app\tests\unit\fixtures\CourseFixture;
 use app\tests\unit\fixtures\InstructorCourseFixture;
 use Codeception\Util\HttpCode;
@@ -15,7 +17,7 @@ class AdminCoursesCest
     public const COURSE_SCHEMA = [
         'id' => 'integer',
         'name' => 'string',
-        'code' => 'string'
+        'codes' => 'array'
     ];
 
     public const USER_SCHEMA = [
@@ -36,6 +38,9 @@ class AdminCoursesCest
             'instructorcourses' => [
                 'class' => InstructorCourseFixture::class,
             ],
+            'codes' => [
+                'class' => CourseCodeFixture::class,
+            ],
         ];
     }
 
@@ -54,17 +59,17 @@ class AdminCoursesCest
                 [
                     'id' => 4000,
                     'name' => 'Java',
-                    'code' => 1,
+                    'codes' => ['1'],
                 ],
                 [
                     'id' => 4001,
                     'name' => 'C++',
-                    'code' => 2,
+                    'codes' => ['2'],
                 ],
                 [
                     'id' => 4002,
                     'name' => 'C#',
-                    'code' => 3,
+                    'codes' => ['3'],
                 ],
             ]
         );
@@ -79,7 +84,7 @@ class AdminCoursesCest
             [
                 'id' => 4000,
                 'name' => 'Java',
-                'code' => 1,
+                'codes' => [1],
             ]
         );
     }
@@ -96,7 +101,7 @@ class AdminCoursesCest
             '/admin/courses',
             [
                 'name' => 'Created',
-                'code' => '10'
+                'codes' => ['10']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::CREATED);
@@ -104,13 +109,18 @@ class AdminCoursesCest
         $I->seeResponseContainsJson(
             [
                 'name' => 'Created',
-                'code' => '10'
+                'codes' => ['10']
             ]
         );
         $I->seeRecord(
             Course::class,
             [
                 'name' => 'Created',
+            ]
+        );
+        $I->seeRecord(
+            CourseCode::class,
+            [
                 'code' => '10'
             ]
         );
@@ -122,7 +132,7 @@ class AdminCoursesCest
             '/admin/courses',
             [
                 'name' => '',
-                'code' => '10'
+                'codes' => ['10']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
@@ -130,7 +140,6 @@ class AdminCoursesCest
             Course::class,
             [
                 'name' => '',
-                'code' => '10'
             ]
         );
     }
@@ -147,7 +156,7 @@ class AdminCoursesCest
             '/admin/courses/4000',
             [
                 'name' => '',
-                'code' => '10'
+                'codes' => ['10']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
@@ -156,6 +165,12 @@ class AdminCoursesCest
             [
                 'id' => 4000,
                 'name' => 'Java',
+            ]
+        );
+        $I->seeRecord(
+            CourseCode::class,
+            [
+                'courseId' => 4000,
                 'code' => 1
             ]
         );
@@ -167,7 +182,7 @@ class AdminCoursesCest
             '/admin/courses/4000',
             [
                 'name' => 'Updated',
-                'code' => 'Updated'
+                'codes' => ['Updated']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -175,7 +190,7 @@ class AdminCoursesCest
             [
                 'id' => 4000,
                 'name' => 'Updated',
-                'code' => 'Updated'
+                'codes' => ['Updated']
             ]
         );
         $I->seeRecord(
@@ -183,6 +198,11 @@ class AdminCoursesCest
             [
                 'id' => 4000,
                 'name' => 'Updated',
+            ]
+        );
+        $I->seeRecord(
+            CourseCode::class,
+            [
                 'code' => 'Updated'
             ]
         );

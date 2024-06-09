@@ -6,6 +6,7 @@ use ApiTester;
 use app\models\ExamQuestionSet;
 use app\tests\unit\fixtures\AccessTokenFixture;
 use app\tests\unit\fixtures\AnswerFixture;
+use app\tests\unit\fixtures\CourseCodeFixture;
 use app\tests\unit\fixtures\QuestionFixture;
 use app\tests\unit\fixtures\SubmittedAnswerFixture;
 use app\tests\unit\fixtures\TestInstanceFixture;
@@ -21,7 +22,7 @@ class InstructorExamQuestionSetCest
         'course' => [
             'id' => 'integer',
             'name' => 'string',
-            'code' => 'string'
+            'codes' => 'array'
         ]
     ];
 
@@ -51,6 +52,9 @@ class InstructorExamQuestionSetCest
             ],
             "submittedanswers" => [
                 'class' => SubmittedAnswerFixture::class
+            ],
+            'codes' => [
+                'class' => CourseCodeFixture::class,
             ],
         ];
     }
@@ -84,7 +88,7 @@ class InstructorExamQuestionSetCest
                     'course' => [
                         'id' => 4000,
                         'name' => 'Java',
-                        'code' => '1'
+                        'codes' => ['1']
                     ]
                 ],
                 [
@@ -93,7 +97,7 @@ class InstructorExamQuestionSetCest
                     'course' => [
                         'id' => 4000,
                         'name' => 'Java',
-                        'code' => '1'
+                        'codes' => ['1']
                     ]
                 ],
                 [
@@ -102,7 +106,7 @@ class InstructorExamQuestionSetCest
                     'course' => [
                         'id' => 4000,
                         'name' => 'Java',
-                        'code' => '1'
+                        'codes' => ['1']
                     ]
                 ]
             ]
@@ -137,7 +141,7 @@ class InstructorExamQuestionSetCest
                 'course' => [
                     'id' => 4000,
                     'name' => 'Java',
-                    'code' => '1'
+                    'codes' => ['1']
                 ]
             ]
         );
@@ -184,7 +188,7 @@ class InstructorExamQuestionSetCest
                 'course' => [
                     'id' => 4000,
                     'name' => 'Java',
-                    'code' => '1'
+                    'codes' => ['1']
                 ]
             ]
         );
@@ -270,7 +274,7 @@ class InstructorExamQuestionSetCest
                 'course' => [
                     'id' => 4000,
                     'name' => 'Java',
-                    'code' => '1'
+                    'codes' => ['1']
                 ]
             ]
         );
