@@ -4,6 +4,7 @@ namespace app\tests\api;
 
 use ApiTester;
 use app\tests\unit\fixtures\AccessTokenFixture;
+use app\tests\unit\fixtures\CourseCodeFixture;
 use app\tests\unit\fixtures\CourseFixture;
 use app\tests\unit\fixtures\GroupFixture;
 use app\tests\unit\fixtures\InstructorCourseFixture;
@@ -14,7 +15,7 @@ class InstructorCoursesCest
     public const COURSE_SCHEMA = [
         'id' => 'integer',
         'name' => 'string',
-        'code' => 'string'
+        'codes' => 'array'
     ];
 
     public function _fixtures()
@@ -35,6 +36,9 @@ class InstructorCoursesCest
             'instructorcourses' => [
                 'class' => InstructorCourseFixture::class,
             ],
+            'codes' => [
+                'class' => CourseCodeFixture::class,
+            ],
         ];
     }
 
@@ -53,12 +57,12 @@ class InstructorCoursesCest
                 [
                     'id' => 4001,
                     'name' => 'C++',
-                    'code' => 2,
+                    'codes' => ['2'],
                 ],
                 [
                     'id' => 4002,
                     'name' => 'C#',
-                    'code' => 3,
+                    'codes' => ['3'],
                 ],
             ]
         );
@@ -80,12 +84,12 @@ class InstructorCoursesCest
                 [
                     'id' => 4000,
                     'name' => 'Java',
-                    'code' => 1,
+                    'codes' => ['1'],
                 ],
                 [
                     'id' => 4002,
                     'name' => 'C#',
-                    'code' => 3,
+                    'codes' => ['3'],
                 ],
             ]
         );
@@ -107,17 +111,17 @@ class InstructorCoursesCest
                 [
                     'id' => 4000,
                     'name' => 'Java',
-                    'code' => 1,
+                    'codes' => ['1'],
                 ],
                 [
                     'id' => 4001,
                     'name' => 'C++',
-                    'code' => 2,
+                    'codes' => ['2'],
                 ],
                 [
                     'id' => 4002,
                     'name' => 'C#',
-                    'code' => 3,
+                    'codes' => ['3'],
                 ],
             ]
         );

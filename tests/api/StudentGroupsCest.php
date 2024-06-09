@@ -4,6 +4,7 @@ namespace app\tests\api;
 
 use ApiTester;
 use app\tests\unit\fixtures\AccessTokenFixture;
+use app\tests\unit\fixtures\CourseCodeFixture;
 use app\tests\unit\fixtures\GroupFixture;
 use app\tests\unit\fixtures\SubscriptionFixture;
 use app\tests\unit\fixtures\TaskFixture;
@@ -17,7 +18,7 @@ class StudentGroupsCest
         'course' => [
             'id' => 'integer',
             'name' => 'string',
-            'code' => 'string|null'
+            'codes' => 'array'
         ],
         'instructorNames' => 'array'
     ];
@@ -36,7 +37,10 @@ class StudentGroupsCest
             ],
             'subscriptions' => [
                 'class' => SubscriptionFixture::class
-            ]
+            ],
+            'codes' => [
+                'class' => CourseCodeFixture::class,
+            ],
         ];
     }
 
@@ -60,7 +64,7 @@ class StudentGroupsCest
                     "course" => [
                         "id" => 4000,
                         "name" => "Java",
-                        "code" => "1"
+                        "codes" => ["1"]
                     ],
                     "instructorNames" => [
                         "Teacher Two"
@@ -72,7 +76,7 @@ class StudentGroupsCest
                     "course" => [
                         "id" => 4002,
                         "name" => "C#",
-                        "code" => "3"
+                        "codes" => ["3"]
                     ],
                     "instructorNames" => [
                         "Teacher One"
@@ -84,7 +88,7 @@ class StudentGroupsCest
                     "course" => [
                         "id" => 4000,
                         "name" => "Java",
-                        "code" => "1"
+                        "codes" => ["1"]
                     ],
                     "instructorNames" => [
                         "Teacher Two",
@@ -130,7 +134,7 @@ class StudentGroupsCest
                 "course" => [
                     "id" => 4000,
                     "name" => "Java",
-                    "code" => "1"
+                    "codes" => ["1"]
                 ],
                 "instructorNames" => [
                     "Teacher Two"

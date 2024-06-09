@@ -18,7 +18,7 @@ class CourseResource extends \app\models\Course
         return [
             'id',
             'name',
-            'code',
+            'codes',
             'lecturerNames'
         ];
     }
@@ -35,6 +35,7 @@ class CourseResource extends \app\models\Course
     {
         $types = parent::fieldTypes();
 
+        $types['codes'] = new OAProperty(['type' => 'array', new OAItems(['type' => 'string'])]);
         $types['lecturerNames'] = new OAProperty(['type' => 'array', new OAItems(['type' => 'string'])]);
 
         return $types;
@@ -48,5 +49,15 @@ class CourseResource extends \app\models\Course
         return array_map(function ($user) {
             return $user->name;
         }, $this->lecturers);
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function getCodes()
+    {
+        return array_map(function ($courseCode) {
+            return $courseCode->code;
+        }, $this->courseCodes);
     }
 }

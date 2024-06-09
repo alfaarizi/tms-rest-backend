@@ -4,12 +4,15 @@ namespace app\modules\admin\controllers;
 
 use app\exceptions\AddFailedException;
 use app\models\Course;
+use app\models\CourseCode;
 use app\models\InstructorCourse;
+use app\modules\admin\resources\CreateUpdateCourseResource;
 use app\resources\AddUsersListResource;
 use app\resources\CourseResource;
 use app\resources\UserAddErrorResource;
 use app\resources\UserResource;
 use app\resources\UsersAddedResource;
+use Exception;
 use Throwable;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -68,6 +71,8 @@ class CoursesController extends BaseAdminActiveController
         $actions = parent::actions();
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
         unset($actions['delete']);
+        unset($actions['create']);
+        unset($actions['update']);
         return $actions;
     }
 
@@ -118,11 +123,13 @@ class CoursesController extends BaseAdminActiveController
             $users[] = new UserResource($ic->user);
         }
 
-        return new ArrayDataProvider([
-            'allModels' => $users,
-            'modelClass' => UserResource::class,
-            'pagination' => false
-        ]);
+        return new ArrayDataProvider(
+            [
+             'allModels' => $users,
+             'modelClass' => UserResource::class,
+             'pagination' => false
+            ]
+        );
     }
 
 
@@ -289,6 +296,133 @@ class CoursesController extends BaseAdminActiveController
         }
     }
 
+
+    /**
+     * @return Course|null|array
+     * @throws ServerErrorHttpException
+     * @OA\Post(
+     *      path="/admin/courses",
+     *      operationId="admin::CoursesController::actionCreate",
+     *      summary="Create a new course",
+     *      tags={"Admin Courses"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *      @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *      @OA\RequestBody(
+     *          description="new course",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/Common_CourseResource_ScenarioDefault"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="new course created",
+     *          @OA\JsonContent(ref="#/components/schemas/Common_CourseResource_Read"),
+     *      ),
+     *     @OA\Response(response=401, ref="#/components/responses/401"),
+     *     @OA\Response(response=422, ref="#/components/responses/422"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     *  ),
+     */
+    public function actionCreate()
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+
+        try {
+            $resource = new CreateUpdateCourseResource();
+            $resource->load(Yii::$app->request->post(), '');
+
+            $course = new CourseResource();
+            $course->name = $resource->name;
+            $this->response->statusCode = 201;
+            $validationErrors = $this->saveCourse($course, $resource->codes);
+            if (!empty($validationErrors)) {
+                $this->response->statusCode = 422;
+                return $validationErrors;
+            }
+            $transaction->commit();
+            return $course;
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw new ServerErrorHttpException(Yii::t('app', "Couldn't save new course."));
+        }
+    }
+
+   /**
+     * @OA\Put(
+     *      path="/admin/courses/{id}",
+     *      operationId="admin::CoursesController::actionUpdate",
+     *      summary="Update a course",
+     *      tags={"Admin Courses"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *      @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *      @OA\RequestBody(
+     *          description="updated course",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/Common_CourseResource_ScenarioDefault"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="course updated",
+     *          @OA\JsonContent(ref="#/components/schemas/Common_CourseResource_Read"),
+     *      ),
+     *     @OA\Response(response=401, ref="#/components/responses/401"),
+     *     @OA\Response(response=404, ref="#/components/responses/404"),
+     *     @OA\Response(response=422, ref="#/components/responses/422"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     *  ),
+     * @param int $id
+     * @return Course|null|array
+     * @throws ServerErrorHttpException
+     */
+
+    public function actionUpdate(int $id)
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $resource = new CreateUpdateCourseResource();
+            $resource->load(Yii::$app->request->post(), '');
+
+            $course = CourseResource::findOne(['id' => $id]);
+            $course->name = $resource->name;
+            $validationErrors = $this->saveCourse($course, $resource->codes);
+            if (!empty($validationErrors)) {
+                $this->response->statusCode = 422;
+                return $validationErrors;
+            }
+
+            $transaction->commit();
+            return $course;
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw new ServerErrorHttpException(Yii::t('app', "Couldn't update course."));
+        }
+    }
+
+    private function saveCourse(Course $course, array $codes) : ?array
+    {
+        if ($course->save()) {
+            CourseCode::deleteAll(['courseId' => $course->id]);
+            foreach ($codes as $code) {
+                $courseCode = new CourseCode();
+                $courseCode->courseId = $course->id;
+                $courseCode->code = $code;
+                if (!$courseCode->save()) {
+                    $this->response->statusCode = 422;
+                    return $courseCode->errors;
+                }
+            }
+        } else {
+            $this->response->statusCode = 422;
+            return $course->errors;
+        }
+        return [];
+    }
+
     /**
      * Annotate ActiveController actions
      *
@@ -326,57 +460,6 @@ class CoursesController extends BaseAdminActiveController
      *     ),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
      *    @OA\Response(response=404, ref="#/components/responses/404"),
-     *    @OA\Response(response=500, ref="#/components/responses/500"),
-     * ),
-     *
-     * @OA\Post(
-     *     path="/admin/courses",
-     *     operationId="admin::CoursesController::actionCreate",
-     *     summary="Create a new course",
-     *     tags={"Admin Courses"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
-     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
-     *     @OA\RequestBody(
-     *         description="new course",
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(ref="#/components/schemas/Common_CourseResource_ScenarioDefault"),
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="new course created",
-     *         @OA\JsonContent(ref="#/components/schemas/Common_CourseResource_Read"),
-     *     ),
-     *    @OA\Response(response=401, ref="#/components/responses/401"),
-     *    @OA\Response(response=422, ref="#/components/responses/422"),
-     *    @OA\Response(response=500, ref="#/components/responses/500"),
-     * ),
-     *
-     * @OA\Put(
-     *     path="/admin/courses/{id}",
-     *     operationId="admin::CoursesController::actionUpdate",
-     *     summary="Update a course",
-     *     tags={"Admin Courses"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
-     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
-     *     @OA\RequestBody(
-     *         description="updated course",
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(ref="#/components/schemas/Common_CourseResource_ScenarioDefault"),
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="course updated",
-     *         @OA\JsonContent(ref="#/components/schemas/Common_CourseResource_Read"),
-     *     ),
-     *    @OA\Response(response=401, ref="#/components/responses/401"),
-     *    @OA\Response(response=404, ref="#/components/responses/404"),
-     *    @OA\Response(response=422, ref="#/components/responses/422"),
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */

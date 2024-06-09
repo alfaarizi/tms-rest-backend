@@ -11,10 +11,11 @@ use Yii;
  *
  * @property integer $id
  * @property string $name
- * @property string $code
  *
  * @property InstructorCourse[] $instructorCourses
  * @property User[] $lecturers
+ * @property CourseCode[] $courseCodes
+ *
  */
 class Course extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
@@ -34,7 +35,6 @@ class Course extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         return [
             [['name'], 'required'],
             [['name'], 'string', 'max' => 100],
-            [['code'], 'string', 'max' => 30]
         ];
     }
 
@@ -46,7 +46,6 @@ class Course extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         return [
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
-            'code' => Yii::t('app', 'Code')
         ];
     }
 
@@ -55,7 +54,6 @@ class Course extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         return [
             'id' => new OAProperty(['type' => 'integer']),
             'name' => new OAProperty(['type' => 'string']),
-            'code' => new OAProperty(['type' => 'string']),
         ];
     }
 
@@ -74,5 +72,10 @@ class Course extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     {
         return $this->hasMany(User::class, ['id' => 'userID'])
             ->viaTable('{{%instructor_courses}}', ['courseID' => 'id']);
+    }
+
+    public function getCourseCodes()
+    {
+        return $this->hasMany(CourseCode::class, ['courseId' => 'id']);
     }
 }

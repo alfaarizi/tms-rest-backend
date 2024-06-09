@@ -3,6 +3,7 @@
 namespace app\tests\api;
 
 use ApiTester;
+use app\tests\unit\fixtures\CourseCodeFixture;
 use Yii;
 use app\models\Group;
 use app\models\InstructorGroup;
@@ -20,7 +21,7 @@ class InstructorGroupsCRUDCest
     public const COURSE_SCHEMA = [
         'id' => 'integer',
         'name' => 'string',
-        'code' => 'string'
+        'codes' => 'array'
     ];
 
     public const GROUP_SCHEMA = [
@@ -60,6 +61,9 @@ class InstructorGroupsCRUDCest
             ],
             'instructorctorgroups' => [
                 'class' => InstructorGroupFixture::class,
+            ],
+            'codes' => [
+                'class' => CourseCodeFixture::class,
             ],
         ];
     }
@@ -133,7 +137,7 @@ class InstructorGroupsCRUDCest
                 'course' => [
                     'id' => 4000,
                     'name' => 'Java',
-                    'code' => '1'
+                    'codes' => ['1']
                 ],
                 'isExamGroup' => '0',
                 'semesterID' => 3001
@@ -188,7 +192,7 @@ class InstructorGroupsCRUDCest
                 'course' => [
                     'id' => 4000,
                     'name' => 'Java',
-                    'code' => '1'
+                    'codes' => ['1']
                 ],
                 'isExamGroup' => '1',
                 'semesterID' => 3001
@@ -297,7 +301,7 @@ class InstructorGroupsCRUDCest
                 'course' => [
                     'id' => '4000',
                     'name' => 'Java',
-                    'code' => '1'
+                    'codes' => ['1']
                 ],
                 'isExamGroup' => '1',
                 'semesterID' => '3001',
