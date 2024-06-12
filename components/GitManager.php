@@ -6,8 +6,8 @@ use app\models\StudentFile;
 use app\models\Subscription;
 use app\models\Task;
 use app\models\User;
-use Cz\Git\GitException;
-use Cz\Git\GitRepository;
+use CzProject\GitPhp\GitException;
+use CzProject\GitPhp\Git;
 use Yii;
 use yii\base\ErrorException;
 use yii\helpers\FileHelper;
@@ -36,7 +36,9 @@ class GitManager
             $repopath = Yii::getAlias("@appdata/uploadedfiles/$id/$neptun/$randstring/");
             $reposym = Yii::getAlias("@appdata/uploadedfiles/$id/$neptun/$randstring2");
             if (!is_dir($repopath . '.git')) {
-                $repo = GitRepository::init($repopath);
+                $git = new Git();
+
+                $repo = $git->init($repopath);
                 // Create a symlink for instructors
                 if (PHP_OS_FAMILY === "Windows") {
                     // relative paths on windows are not supported for symlinks
@@ -45,11 +47,11 @@ class GitManager
                     symlink($randstring, $reposym);
                 }
                 // Create the appropriate settings for the repo
-                $repo->execute(['config', 'receive.denyNonFastForwards', 'true']);
-                $repo->execute(['config', 'receive.denyDeletes', 'true']);
-                $repo->execute(['config', 'receive.denyCurrentBranch', 'updateInstead']);
-                $repo->execute(['config', 'user.name', $student->name ?? $student->neptun]);
-                $repo->execute(['config', 'user.email', $student->email ?? '<>']);
+                $repo->execute('config', 'receive.denyNonFastForwards', 'true');
+                $repo->execute('config', 'receive.denyDeletes', 'true');
+                $repo->execute('config', 'receive.denyCurrentBranch', 'updateInstead');
+                $repo->execute('config', 'user.name', $student->name ?? $student->neptun);
+                $repo->execute('config', 'user.email', $student->email ?? '<>');
                 // Create pre-receive git hook
                 $a = rename($repopath . '.git/hooks/pre-receive.sample', $repopath . '.git/hooks/pre-receive');
                 $originalLanguage = Yii::$app->language;
@@ -83,10 +85,11 @@ class GitManager
         $repopath = Yii::getAlias("@appdata/uploadedfiles/$taskId/all/$randstring/");
         FileHelper::createDirectory($repopath, 0775, true);
 
-        $repo = GitRepository::init($repopath);
+        $git = new Git();
+        $repo = $git->init($repopath);
         // Create the appropriate settings for the repo
-        $repo->execute(['config', 'user.name', 'TMS']);
-        $repo->execute(['config', 'user.email', Yii::$app->params['systemEmail']]);
+        $repo->execute('config', 'user.name', 'TMS');
+        $repo->execute('config', 'user.email', Yii::$app->params['systemEmail']);
         $repo->commit(Yii::t('app', 'Repository created'), ['--allow-empty']);
     }
 
@@ -103,8 +106,9 @@ class GitManager
             return;
         }
 
-        $taskRepo = new GitRepository($taskRepoPath);
-        $taskRepo->execute(['submodule', 'add', self::getReadonlyUserRepositoryUrl($taskID, $neptun), $neptun]);
+        $git = new Git();
+        $taskRepo = $git->open($taskRepoPath);
+        $taskRepo->execute('submodule', 'add', self::getReadonlyUserRepositoryUrl($taskID, $neptun), $neptun);
         $taskRepo->addAllChanges();
         $taskRepo->commit(Yii::t('app', 'Added git submodule: {repoName}', ['repoName' => $neptun]));
     }
@@ -123,9 +127,10 @@ class GitManager
             return;
         }
 
-        $taskRepo = new GitRepository($taskRepoPath);
-        $taskRepo->execute(['submodule', 'deinit', $neptun]);
-        $taskRepo->execute(['rm', '-f', $neptun]);
+        $git = new Git();
+        $taskRepo = $git->open($taskRepoPath);
+        $taskRepo->execute('submodule', 'deinit', $neptun);
+        $taskRepo->execute('rm', '-f', $neptun);
         $taskRepo->addAllChanges();
         $taskRepo->commit(Yii::t('app', 'Removed git submodule: {repoName}', ['repoName' => $neptun]));
         FileHelper::removeDirectory(self::getTaskLevelRepoDirectoryPath($taskID) . '/.git/modules/' . $neptun);
@@ -331,7 +336,8 @@ exit \$rc";
     {
         $repoPath = realpath($repoPath);
         $zipPath = realpath($zipPath);
-        $repo = new GitRepository("$repoPath/.git");
+        $git = new Git();
+        $repo = $git->open("$repoPath/.git");
 
         // Delete all files and directories from repo
         $oldfiles = FileHelper::findFiles($repoPath, ['except' => ['/.git/']]);
