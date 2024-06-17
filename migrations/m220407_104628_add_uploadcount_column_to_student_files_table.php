@@ -1,6 +1,6 @@
 <?php
 
-use Cz\Git\GitRepository;
+use CzProject\GitPhp\Git;
 use yii\db\Migration;
 use yii\db\Query;
 use yii\helpers\FileHelper;
@@ -93,13 +93,14 @@ class m220407_104628_add_uploadcount_column_to_student_files_table extends Migra
                 $dirs = FileHelper::findDirectories($basePath, ['recursive' => false]);
                 rsort($dirs);
                 $repoPath = $basePath . basename($dirs[0]) . '/';
-                $repo = new GitRepository("$repoPath.git");
+                $git = new Git();
+                $repo = $git->open("$repoPath.git");
 
                 // check if for some reason there is no commit in the repository
-                $lastCommit = $repo->execute(['rev-list', '-n', '1', '--all']);
+                $lastCommit = $repo->execute('rev-list', '-n', '1', '--all');
                 if (!empty($lastCommit)) {
                     // get commit count
-                    $result = $repo->execute(['rev-list', '--count', 'HEAD']);
+                    $result = $repo->execute('rev-list', '--count', 'HEAD');
 
                     $this->update('{{%student_files}}', ['uploadCount' => intval($result[0], 10), ['id' => $file['id']]]);
                 }

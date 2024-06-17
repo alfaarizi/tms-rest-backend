@@ -177,7 +177,7 @@ class StudentFilesController extends BaseStudentRestController
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
-     * @throws \Cz\Git\GitException
+     * @throws \CzProject\GitPhp\GitException
      *
      * @OA\Post(
      *     path="/student/student-files/upload",
@@ -256,7 +256,7 @@ class StudentFilesController extends BaseStudentRestController
     /**
      * Save the files to the disk (and to the git repository)
      * @throws ServerErrorHttpException
-     * @throws \Cz\Git\GitException
+     * @throws \CzProject\GitPhp\GitException
      */
     private function saveFile(StudentFileResource $prevStudentFile, UploadedFile $newFile, int $taskID, bool $versionControlled): StudentFileResource
     {

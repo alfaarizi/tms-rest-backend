@@ -31,7 +31,7 @@
         "yii2tech/spreadsheet": "^1.0",
         "yii2tech/csv-grid": "^1.0",
         "caseyamcl/guzzle_retry_middleware": "^2.8",
-        "czproject/git-php": "^3.17",
+        "czproject/git-php": "^4.0.3",
         "docker-php/docker-php": "^2.0.0",
         "jane-php/open-api-runtime": "4.2",
         "symfony/serializer": "5.4.12",
