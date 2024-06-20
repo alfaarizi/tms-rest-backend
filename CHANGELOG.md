@@ -4,6 +4,27 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.1](https://gitlab.com/tms-elte/backend-core/compare/v3.4.0...v4.0.0-alpha.1) (2024-06-20)
+
+### ⚠ BREAKING CHANGES
+
+* Support multiple course codes ([5048e4](https://gitlab.com/tms-elte/backend-core/commit/5048e454d7b9358985329e073ec61793a505ae7b))
+
+### Features
+
+* Add server time to private system response ([8f2a72](https://gitlab.com/tms-elte/backend-core/commit/8f2a723ef6bdb3835bfcda41696cc369678b5849))
+* Include IP addresses into Excel exports for tasks ([4c0109](https://gitlab.com/tms-elte/backend-core/commit/4c01095703a5e69c08442179e611c2616b18f859))
+* Updated git-php version to 4.2.0 ([077027](https://gitlab.com/tms-elte/backend-core/commit/077027f6458e011582223d2c18ebe063f502688d))
+
+### Bug Fixes
+
+* Exam questions should only have 1 correct answer ([76e96d](https://gitlab.com/tms-elte/backend-core/commit/76e96d55c123069f225e0f4a0f0a282fba43e428))
+* Incorrect git repository path for non-submitted solutions ([6eed17](https://gitlab.com/tms-elte/backend-core/commit/6eed1771234804cc289503f42f149776093b0940))
+* Instructor files can not be added to regular tasks in canvas synced courses ([f0b26d](https://gitlab.com/tms-elte/backend-core/commit/f0b26dc67711b94b6b9433fa25453874ace3711d))
+
+
+---
+
 ## [3.4.0](https://gitlab.com/tms-elte/backend-core/compare/v3.3.1...v3.4.0) (2024-04-11)
 
 ### Features
