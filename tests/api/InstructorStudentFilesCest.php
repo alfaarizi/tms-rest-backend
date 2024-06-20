@@ -141,7 +141,7 @@ class InstructorStudentFilesCest
         $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 5001, 'format' => 'csv']);
         $I->seeResponseCodeIs(HttpCode::OK);
         // Contains headers
-        $I->seeResponseContains('"Name","NEPTUN","Upload Time","Is Accepted","Grade","Grade","Notes","Graded By"');
+        $I->seeResponseContains('"Name","NEPTUN","Upload Time","Is Accepted","Grade","Grade","Notes","Graded By","IP addresses"');
         // Contains correct students
         $I->seeResponseContains('STUD02');
         $I->seeResponseContains('STUD02');
