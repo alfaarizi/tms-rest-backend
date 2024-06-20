@@ -207,6 +207,13 @@ class StudentFilesController extends BaseInstructorRestController
                 'header' => Yii::t('app', 'Graded By'),
                 'attribute' => 'grader.name',
             ],
+            [
+                'header' => Yii::t('app', 'IP addresses'),
+                'value' => function ($model) {
+                    /** @var $model StudentFile */
+                    return implode(', ', $model->ipAddresses);
+                }
+            ],
         ];
 
         if ($format == 'xlsx') {

@@ -143,6 +143,7 @@ return [
     'Synchronizing with canvas' => 'Szinkronizálás a canvassal',
     'Grade' => 'Értékelés',
     'Notes' => 'Megjegyzés',
+    'IP addresses' => 'IP címek',
     'Successfully logged in.' => 'Sikeresen bejelentkezett.',
     'Successfully added.' => 'Sikeresen hozzáadódott.',
     'Task' => 'Beadandó',
