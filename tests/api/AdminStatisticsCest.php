@@ -17,13 +17,16 @@ class AdminStatisticsCest
         'tasksCount' => 'integer',
         'submissionsCount' => 'integer',
         'testedSubmissionCount' => 'integer',
-        'groupsCountPerSemester' => 'integer',
-        'tasksCountPerSemester' => 'integer',
-        'submissionsCountPerSemester' => 'integer',
-        'testedSubmissionCountPerSemester' => 'integer',
         'submissionsUnderTestingCount' => 'integer',
         'submissionsToBeTested' => 'integer',
         'diskFree' => 'float|integer|null'
+    ];
+
+    public const STATS_SEMESTER_SCHEMA = [
+        'groupsCount' => 'integer',
+        'tasksCount' => 'integer',
+        'submissionsCount' => 'integer',
+        'testedSubmissionCount' => 'integer'
     ];
 
     public function _fixtures()
@@ -67,10 +70,6 @@ class AdminStatisticsCest
                 'tasksCount' => 19,
                 'submissionsCount' => 20,
                 'testedSubmissionCount' => 7,
-                'groupsCountPerSemester' => 8,
-                'tasksCountPerSemester' => 18,
-                'submissionsCountPerSemester' => 19,
-                'testedSubmissionCountPerSemester' => 7,
                 'submissionsUnderTestingCount' => 1,
                 'submissionsToBeTested' => 1,
             ]
@@ -90,10 +89,6 @@ class AdminStatisticsCest
                 'tasksCount' => 19,
                 'submissionsCount' => 20,
                 'testedSubmissionCount' => 7,
-                'groupsCountPerSemester' => 8,
-                'tasksCountPerSemester' => 18,
-                'submissionsCountPerSemester' => 19,
-                'testedSubmissionCountPerSemester' => 7,
                 'submissionsUnderTestingCount' => 1,
                 'submissionsToBeTested' => 1,
                 'diskFree' => null,
@@ -101,9 +96,24 @@ class AdminStatisticsCest
         );
     }
 
-    public function semesterNotFound(ApiTester $I)
+    public function viewSemester(ApiTester $I)
     {
-        $I->sendGet('/admin/statistics', ['semesterID' => -1]);
+        $I->sendGet('/admin/statistics/view', ['semesterID' => 3001]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::STATS_SEMESTER_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                'groupsCount' => 8,
+                'tasksCount' => 18,
+                'submissionsCount' => 19,
+                'testedSubmissionCount' => 7,
+            ]
+        );
+    }
+
+    public function viewSemesterNotFound(ApiTester $I)
+    {
+        $I->sendGet('/admin/statistics/view', ['semesterID' => -1]);
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 }
