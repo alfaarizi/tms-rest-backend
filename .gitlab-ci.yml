@@ -90,7 +90,6 @@ phpstan:
 .codecept:
   stage: test
   extends: .setup-db
-  tags: ['elte']
   variables:
     # Enable code coverage for Xdebug
     XDEBUG_MODE: develop,coverage
