@@ -60,7 +60,7 @@ include:
 
   # Services: https://docs.gitlab.com/ee/ci/services/
   services:
-    - name: mysql:8.0
+    - name: mysql:8.0.34
       alias: db
 
 # PHPCS linter
@@ -90,7 +90,6 @@ phpstan:
 .codecept:
   stage: test
   extends: .setup-db
-  tags: ['elte']
   variables:
     # Enable code coverage for Xdebug
     XDEBUG_MODE: develop,coverage
