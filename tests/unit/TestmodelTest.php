@@ -29,7 +29,7 @@ class TestmodelTest extends \Codeception\Test\Unit
         $test = new ExamTest();
         $test->name = 'Test';
         $test->unique = 1;
-        $test->shuffled = 1;
+        $test->shuffled = true;
         $test->duration = 110;
         $test->questionamount = 1;
         $test->availablefrom = date('Y-m-d H:i:s', strtotime('+1 day', time()));

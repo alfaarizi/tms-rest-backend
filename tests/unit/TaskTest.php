@@ -111,7 +111,7 @@ class TaskTest extends \Codeception\Test\Unit
             $this->task->appType = null;
             $this->assertFalse(
                 $this->task->validate('appType'),
-                'Port ust be set'
+                'Port must be set'
             );
 
             $this->task->imageName = null;
@@ -133,7 +133,7 @@ class TaskTest extends \Codeception\Test\Unit
             $this->assertTrue($this->task->validate('port'), 'port must be set');
             $this->task->port = -1;
             $this->assertFalse($this->task->validate('port'), 'port must be >= 0');
-            $this->task->appType = 99999;
+            $this->task->port = 99999;
             $this->assertFalse($this->task->validate('port'), 'port must be <= 65353');
         });
 

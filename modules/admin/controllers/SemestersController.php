@@ -87,7 +87,7 @@ class SemestersController extends BaseAdminRestController
             try {
                 $actualSemester = SemesterResource::findOne(['actual' => 1]);
                 if ($actualSemester != null) {
-                    $actualSemester->actual = 0;
+                    $actualSemester->actual = false;
                     $actualSemester->save();
                 }
                 $semester = new SemesterResource();

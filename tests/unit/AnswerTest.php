@@ -27,7 +27,7 @@ class AnswerTest extends \Codeception\Test\Unit
     {
         $answer = new ExamAnswer();
         $answer->text = 'Answer';
-        $answer->correct = 1;
+        $answer->correct = true;
         $answer->questionID = 1;
         $this->assertTrue($answer->validate(), "Answer created with correct parameters should be valid.");
     }

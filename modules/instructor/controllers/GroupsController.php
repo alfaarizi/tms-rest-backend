@@ -461,7 +461,7 @@ class GroupsController extends BaseInstructorRestController
         // Create the new entry based on the original one.
         $actualSemester = Semester::getActualID();
         $group = new Group($groupToDuplicate);
-        $group->id = null;
+        unset($group->id);
         $group->semesterID = $actualSemester;
         $group->number = null;
 
@@ -485,7 +485,7 @@ class GroupsController extends BaseInstructorRestController
                 $tasksToDuplicate = Task::findAll(['groupID' => $groupToDuplicate->id]);
                 foreach ($tasksToDuplicate as $taskToDuplicate) {
                     $task = new Task($taskToDuplicate);
-                    $task->id = null;
+                    unset($task->id);
                     $task->groupID = $group->id;
                     $task->semesterID = $actualSemester;
 
@@ -496,7 +496,7 @@ class GroupsController extends BaseInstructorRestController
                         $directoryPaths[] = $directoryPath;
                         foreach ($filesToDuplicate as $fileToDuplicate) {
                             $file = new InstructorFile($fileToDuplicate);
-                            $file->id = null;
+                            unset($file->id);
                             $file->taskID = $task->id;
 
                             $filePath = $directoryPath . $fileToDuplicate->name;

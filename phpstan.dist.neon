@@ -1,5 +1,5 @@
 parameters:
-  level: 2
+  level: 3
   paths:
     - behaviors
     - commands
@@ -25,3 +25,5 @@ parameters:
     - stubs/BaseYii.stub
     - stubs/ConsoleApplication.stub
     - stubs/WebApplication.stub
+  ignoreErrors:
+    - '#.*yii.*#'

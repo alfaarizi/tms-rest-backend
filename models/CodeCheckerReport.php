@@ -14,7 +14,7 @@ use Yii;
  * @property int $id
  * @property int $resultID
  * @property string $reportHash
- * @property string|null $filePath
+ * @property string $filePath
  * @property int $line
  * @property int $column
  * @property string $checkerName
@@ -45,9 +45,9 @@ class CodeCheckerReport extends \yii\db\ActiveRecord implements IOpenApiFieldTyp
     {
         return [
             [['resultID', 'reportHash', 'line', 'column', 'checkerName', 'analyzerName', 'severity', 'category'], 'required'],
-            [['line', 'column'], 'integer'],
+            [['line', 'column', 'resultID'], 'integer'],
             [['message'], 'string'],
-            [['resultID', 'reportHash', 'filePath', 'checkerName', 'analyzerName', 'severity', 'category'], 'string', 'max' => 255],
+            [['reportHash', 'filePath', 'checkerName', 'analyzerName', 'severity', 'category'], 'string', 'max' => 255],
             [['resultID'], 'exist', 'skipOnError' => true, 'targetClass' => CodeCheckerResult::class, 'targetAttribute' => ['resultID' => 'id']],
         ];
     }

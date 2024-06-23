@@ -4,7 +4,6 @@ namespace app\tests\doubles;
 
 use Docker\API\Model\ContainersCreatePostBody;
 use Docker\API\Model\ContainersCreatePostResponse201;
-use Docker\API\Model\ContainersIdJsonGetResponse200;
 use Docker\API\Model\ExecIdJsonGetResponse200;
 use Docker\API\Model\IdResponse;
 use Docker\API\Model\SystemInfo;
@@ -117,7 +116,8 @@ class DockerStub extends Docker
     public int $execStartCount = 0;
     public string $execStartId;
     public \Docker\API\Model\ExecIdStartPostBody $execStartConfig;
-    public function execStart(string $id, \Docker\API\Model\ExecIdStartPostBody $execStartConfig, string $fetch = self::FETCH_OBJECT)
+
+    public function execStart(string $id, \Docker\API\Model\ExecIdStartPostBody $execStartConfig, string $fetch = self::FETCH_OBJECT): DockerRawStream
     {
         $this->execStartCount++;
         $this->execStartId = $id;

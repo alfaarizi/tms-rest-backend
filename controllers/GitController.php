@@ -87,7 +87,7 @@ class GitController extends BaseRestController
             $studentfile->grade = null;
             $studentfile->notes = "";
             $studentfile->uploadTime = date('Y-m-d H:i:s');
-            $studentfile->isVersionControlled = 1;
+            $studentfile->isVersionControlled = true;
             $studentfile->uploadCount = 1;
             $studentfile->verified = true;
             // Save it to the db.

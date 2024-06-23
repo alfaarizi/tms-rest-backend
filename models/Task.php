@@ -19,30 +19,30 @@ use yii\helpers\FileHelper;
  * @property integer $semesterID
  * @property integer $groupID
  * @property string $category
- * @property resource $description
+ * @property string $description
  * @property string $softDeadline
  * @property string $hardDeadline
  * @property string $available
  * @property integer $createrID
  * @property boolean $isVersionControlled
- * @property integer $autoTest
+ * @property boolean $autoTest
  * @property string $testOS
- * @property integer $showFullErrorMsg
- * @property string $imageName
+ * @property boolean $showFullErrorMsg
+ * @property string|null $imageName
  * @property string $compileInstructions
  * @property string $runInstructions
- * @property string $codeCompassCompileInstructions
- * @property string $codeCompassPackagesInstallInstructions
+ * @property string|null $codeCompassCompileInstructions
+ * @property string|null $codeCompassPackagesInstallInstructions
  * @property integer $canvasID
- * @property integer $port
- * @property string $appType
- * @property string $password
+ * @property integer|null $port
+ * @property string|null $appType
+ * @property string|null $password
  * @property boolean $staticCodeAnalysis
- * @property string $staticCodeAnalyzerTool
- * @property string $staticCodeAnalyzerInstructions
- * @property string $codeCheckerCompileInstructions
- * @property string $codeCheckerToggles
- * @property string $codeCheckerSkipFile
+ * @property string|null $staticCodeAnalyzerTool
+ * @property string|null $staticCodeAnalyzerInstructions
+ * @property string|null $codeCheckerCompileInstructions
+ * @property string|null $codeCheckerToggles
+ * @property string|null $codeCheckerSkipFile
  *
  * @property InstructorFile[] $instructorFiles
  * @property StudentFile[] $studentFiles

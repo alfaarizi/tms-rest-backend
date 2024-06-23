@@ -15,7 +15,7 @@ use app\models\User;
  * @property int $id
  * @property string $starttime
  * @property string $finishtime
- * @property int $submitted
+ * @property boolean $submitted
  * @property int $score
  * @property int $userID
  * @property int $testID

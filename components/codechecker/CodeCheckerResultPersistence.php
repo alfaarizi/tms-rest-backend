@@ -227,12 +227,12 @@ class CodeCheckerResultPersistence extends BaseObject
 
     /**
      * Maps a report from the CodeChecker JSON output then saves it to the database
-     * @param string $resultID The id of the current CodeCheckerResult record
+     * @param int $resultID The id of the current CodeCheckerResult record
      * @param array $resultJson The parsed contents of the JSON file
      * @return void
      * @throws CodeCheckerPersistenceException
      */
-    private function saveReportsToDb(string $resultID, array $resultJson): void
+    private function saveReportsToDb(int $resultID, array $resultJson): void
     {
         foreach ($resultJson as $report) {
             $model = new CodeCheckerReport();

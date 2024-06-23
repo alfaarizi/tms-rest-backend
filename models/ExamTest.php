@@ -209,7 +209,7 @@ class ExamTest extends ActiveRecord implements IOpenApiFieldTypes
         foreach ($users as $user) {
             $testInstance = new ExamTestInstance();
             $testInstance->score = 0;
-            $testInstance->submitted = 0;
+            $testInstance->submitted = false;
             $testInstance->userID = $user->id;
             $testInstance->testID = $this->id;
             $batchTests[] = $testInstance->attributes;

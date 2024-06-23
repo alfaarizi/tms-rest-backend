@@ -372,7 +372,7 @@ class StudentFilesController extends BaseInstructorRestController
 
     /**
      * Grade solution (update student file)
-     * @return StudentFileResource|array
+     * @return StudentFileResource|array|null
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -798,7 +798,7 @@ class StudentFilesController extends BaseInstructorRestController
         $codeCompassInstance->studentFileId = $id;
         $codeCompassInstance->containerId = $codeCompass->containerId;
         $codeCompassInstance->status = CodeCompassInstance::STATUS_STARTING;
-        $codeCompassInstance->port = $selectedPort;
+        $codeCompassInstance->port = (int) $selectedPort;
         $codeCompassInstance->instanceStarterUserId = Yii::$app->user->id;
         $codeCompassInstance->creationTime = date('Y-m-d H:i:s');
         $codeCompassInstance->save(false);

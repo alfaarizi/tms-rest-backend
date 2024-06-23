@@ -27,8 +27,8 @@ use yii\web\IdentityInterface;
  * @property bool $isStudent
  * @property bool $isFaculty
  * @property bool $isAdmin
- * @property string $canvasToken
- * @property string $refreshToken
+ * @property string|null $canvasToken
+ * @property string|null $refreshToken
  * @property string $canvasTokenExpiry
  * @property boolean $customEmailConfirmed
  * @property string $customEmailConfirmationCode
@@ -143,9 +143,9 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
      *
      * @param mixed $token the token to be looked for
      * @param mixed $type the type of the token.
-     * @return IdentityInterface the identity object that matches the given token.
+     * @return IdentityInterface|null the identity object that matches the given token.
      */
-    public static function findIdentityByAccessToken($token, $type = null)
+    public static function findIdentityByAccessToken($token, $type = null): ?IdentityInterface
     {
         $accessToken = AccessToken::findOne($token);
 
@@ -179,6 +179,7 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
         }
 
         $lowerCaseText = mb_strtolower($text);
+
         return static::find()->where(
             [
                 'or',

@@ -138,7 +138,7 @@ class SetupController extends BaseController
         $submission->uploaderID = $uploaderID;
         $submission->isAccepted = $isAccepted;
         $submission->autoTesterStatus = $autoTesterStatus;
-        $submission->verified = 1;
+        $submission->verified = true;
         $submission->uploadCount = 1;
         $submission->grade = null;
         $submission->graderID = $graderID;
@@ -337,7 +337,7 @@ class SetupController extends BaseController
             for ($j = 0; $j < 5; ++$j) {
                 $answer = new ExamAnswer();
                 $answer->text = "Answer " . ($j + 1);
-                $answer->correct = ($j == 1) ? 1 : 0;
+                $answer->correct = ($j == 1);
                 $answer->questionID = $question->id;
                 $answer->save();
             }
@@ -349,7 +349,7 @@ class SetupController extends BaseController
         $test->name = "Quick questions";
         $test->questionamount = ExamQuestion::find()->count();
         $test->duration = 60;
-        $test->shuffled = 1;
+        $test->shuffled = true;
         $test->unique = 0;
         $test->questionsetID = 1;
         $test->groupID = 1;
@@ -361,7 +361,7 @@ class SetupController extends BaseController
         $test2->name = "Exam";
         $test2->questionamount = ExamQuestion::find()->count();
         $test2->duration = 60;
-        $test2->shuffled = 1;
+        $test2->shuffled = true;
         $test2->unique = 0;
         $test2->questionsetID = 1;
         $test2->groupID = 1;

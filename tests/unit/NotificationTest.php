@@ -60,26 +60,26 @@ class NotificationTest extends \Codeception\Test\Unit
         $this->notification->message = 'foo';
         $this->notification->startTime = '2020-01-01T00:00:00+01:00';
         $this->notification->endTime = '2020-01-01T00:00:00+01:00';
-        $this->notification->dismissable = 1;
-        $this->notification->isAvailableForAll = 1;
+        $this->notification->dismissable = true;
+        $this->notification->isAvailableForAll = true;
 
         $this->specify("All fields should be set in Notification", function () {
-            $this->notification->message = null;
+            unset($this->notification->message);
             $this->assertFalse($this->notification->validate('message'), "Message should be required");
 
             $this->notification->endTime = '2019-12-31T23:59:59+01:00';
             $this->assertFalse($this->notification->validate('endTime'), "End time should be after start time");
 
-            $this->notification->startTime = null;
+            unset($this->notification->startTime);
             $this->assertFalse($this->notification->validate('startTime'), "Start time should be required");
 
-            $this->notification->endTime = null;
+            unset($this->notification->endTime);
             $this->assertFalse($this->notification->validate('endTime'), "End time should be required");
 
-            $this->notification->dismissable = null;
+            unset($this->notification->dismissable);
             $this->assertFalse($this->notification->validate('dismissable'), "Dismissable should be required");
 
-            $this->notification->isAvailableForAll = null;
+            unset($this->notification->isAvailableForAll);
             $this->assertFalse($this->notification->validate('isAvailableForAll'), "Is available for all should be required");
         });
 
@@ -88,10 +88,10 @@ class NotificationTest extends \Codeception\Test\Unit
         $this->notificationUser->notificationID = 4000;
 
         $this->specify("All fields should be set in NotificationUser", function () {
-            $this->notificationUser->userID = null;
+            unset($this->notificationUser->userID);
             $this->assertFalse($this->notificationUser->validate('userID'), "User ID should be required");
 
-            $this->notificationUser->notificationID = null;
+            unset($this->notificationUser->notificationID);
             $this->assertFalse($this->notificationUser->validate('notificationID'), "Notification ID should be required");
         });
     }
