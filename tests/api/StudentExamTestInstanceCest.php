@@ -416,7 +416,7 @@ class StudentExamTestInstanceCest
             \app\models\ExamTestInstance::class,
             [
                 'id' => 8,
-                'submitted' => 1,
+                'submitted' => true,
                 'score' => 0,
                 //'finishtime' => date("Y-m-d H:i:s")
             ]
@@ -458,7 +458,7 @@ class StudentExamTestInstanceCest
             \app\models\ExamTestInstance::class,
             [
                 'id' => 9,
-                'submitted' => 0,
+                'submitted' => false,
                 'score' => 0,
                 'finishtime' => null
             ]
@@ -478,7 +478,7 @@ class StudentExamTestInstanceCest
             \app\models\ExamTestInstance::class,
             [
                 'id' => 9,
-                'submitted' => 1,
+                'submitted' => true,
                 'score' => 1,
                 //'finishtime' => date("Y-m-d H:i:s")
             ]

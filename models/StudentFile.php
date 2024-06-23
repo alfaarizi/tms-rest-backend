@@ -14,24 +14,24 @@ use yii\helpers\StringHelper;
  * This is the model class for table "studentFiles".
  *
  * @property integer $id
- * @property string $name
+ * @property string|null $name
  * @property-read string $path
  * @property-read string $reportPath
  * @property-read string $basePath
- * @property string $uploadTime
+ * @property string|null $uploadTime
  * @property integer $taskID
  * @property integer $uploaderID
  * @property string $isAccepted
  * @property boolean $isVersionControlled
- * @property float $grade
+ * @property float|null $grade
  * @property string $notes
  * @property integer $graderID
  * @property string $autoTesterStatus
- * @property string $errorMsg
+ * @property string|null $errorMsg
  * @property integer $canvasID
  * @property integer $uploadCount
  * @property boolean $verified
- * @property string $codeCheckerResultID
+ * @property integer|null $codeCheckerResultID
  * @property-read string $containerName
  * @property-read array $ipAddresses
  * @property-read string $safeErrorMsg

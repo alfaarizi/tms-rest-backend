@@ -95,7 +95,6 @@ class TasksController extends BaseStudentRestController
      * View task
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
-     *
      * @OA\Get(
      *     path="/student/tasks/{id}",
      *     operationId="student::TasksFilesController::actionView",

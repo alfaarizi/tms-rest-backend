@@ -334,6 +334,7 @@ class CodeCompass extends BaseObject
         $containerConfig->setWorkingDir(self::PROJECT_DIRECTORY);
         $containerConfig->setCmd(['/bin/bash']);
 
+        /** @var ArrayObject<string, stdClass> $ports*/
         $ports = new ArrayObject();
         $ports['6251/tcp'] = new stdClass();
 
@@ -343,6 +344,7 @@ class CodeCompass extends BaseObject
         $portBinding->setHostPort($this->_port);
         $portBinding->setHostIp('0.0.0.0');
 
+        /** @var ArrayObject<string, array<int, PortBinding>> $portMap*/
         $portMap = new ArrayObject();
         $portMap['6251/tcp'] = [$portBinding];
 

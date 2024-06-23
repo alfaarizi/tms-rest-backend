@@ -7,6 +7,7 @@ use Docker\API\Exception\ContainerDeleteNotFoundException;
 use Docker\API\Model\ContainersCreatePostBody;
 use Docker\API\Model\ContainersCreatePostResponse201;
 use Docker\API\Model\ContainersIdExecPostBody;
+use Docker\API\Model\ContainersIdJsonGetResponse200;
 use Docker\API\Model\ExecIdStartPostBody;
 use Docker\API\Model\SystemInfo;
 use Docker\Docker;
@@ -46,7 +47,10 @@ class DockerContainer
      */
     private $containerCreateResult;
 
-    private array $containerInspectResult;
+    /**
+     * @var ContainersIdJsonGetResponse200|ResponseInterface|null
+     */
+    private $containerInspectResult;
 
     /**
      * Information about the Docker instance
@@ -270,7 +274,7 @@ class DockerContainer
                 Yii::info("Container [$this->containerName] already deleted", __METHOD__);
             }
         }
-        $this->containerInspectResult = [];
+        $this->containerInspectResult = null;
         $this->containerCreateResult = null;
     }
 
@@ -283,9 +287,9 @@ class DockerContainer
     }
 
     /**
-     * @return array
+     * @return ContainersIdJsonGetResponse200|ResponseInterface|null
      */
-    public function getContainerInspectResult(): array
+    public function getContainerInspectResult()
     {
         if (empty($this->containerInspectResult) && empty($this->containerCreateResult)) {
             try {

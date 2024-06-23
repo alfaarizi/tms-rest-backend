@@ -9,7 +9,7 @@ use Yii;
  *
  * @property integer $id
  * @property string $name
- * @property integer $actual
+ * @property boolean $actual
  *
  * @property Subscription[] $subscriptions
  * @property Task[] $tasks

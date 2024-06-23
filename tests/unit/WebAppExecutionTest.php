@@ -51,20 +51,18 @@ class WebAppExecutionTest extends \Codeception\Test\Unit
     // tests
     public function testValidation()
     {
-
-
         $this->specify('port must be set', function () {
-            $this->webAppExecution->port = null;
+            unset($this->webAppExecution->port);
             $this->assertFalse($this->webAppExecution->validate());
         });
 
         $this->specify('studentFileID must be set', function () {
-            $this->webAppExecution->studentFileID = null;
+            unset($this->webAppExecution->studentFileID);
             $this->assertFalse($this->webAppExecution->validate());
         });
 
         $this->specify('instructorID must be set', function () {
-            $this->webAppExecution->instructorID = null;
+            unset($this->webAppExecution->instructorID);
             $this->assertFalse($this->webAppExecution->validate());
         });
 

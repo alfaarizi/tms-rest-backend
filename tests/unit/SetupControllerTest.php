@@ -168,7 +168,7 @@ class SetupControllerTest extends \Codeception\Test\Unit
         ]);
         $this->tester->seeRecord(ExamTestInstance::class, [
             'score' => 0,
-            'submitted' => 0,
+            'submitted' => false,
             'userID' => 10,
             'testID' => 2
         ]);

@@ -8,12 +8,13 @@ use app\components\openapi\IOpenApiFieldTypes;
 use app\models\queries\GroupQuery;
 use app\validators\TimeZoneValidator;
 use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "groups".
  *
  * @property integer $id
- * @property integer $number
+ * @property integer|null $number
  * @property integer $courseID
  * @property integer $semesterID
  * @property integer $synchronizerID
@@ -36,7 +37,7 @@ use Yii;
  * @property User[] $instructors
  * @property User $synchronizer
  */
-class Group extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
+class Group extends ActiveRecord implements IOpenApiFieldTypes
 {
     public const SCENARIO_CREATE = 'create';
     public const SCENARIO_UPDATE = 'update';
@@ -202,9 +203,9 @@ class Group extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 
     /**
      * @param int $nth The nth task to query.
-     * @return \app\models\Task
+     * @return array|ActiveRecord
      */
-    public function getNthTask($nth = 1)
+    public function getNthTask(int $nth = 1)
     {
         return $this->hasMany(Task::class, ['groupID' => 'id'])
             ->orderBy('hardDeadline')

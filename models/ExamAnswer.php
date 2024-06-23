@@ -12,7 +12,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property int $id
  * @property string $text
- * @property int $correct
+ * @property boolean $correct
  * @property int $questionID
  *
  * @property ExamQuestion $question

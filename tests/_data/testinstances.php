@@ -3,7 +3,7 @@
 return [
     'testinstance1' => [
         'id' => 1,
-        'submitted' => 1,
+        'submitted' => true,
         'starttime' => date('Y-m-d H:i:s', strtotime('-1 minute')),
         'finishtime' => date('Y-m-d H:i:s', time() + 120),
         'score' => 0,
@@ -12,7 +12,7 @@ return [
     ],
     'testinstance2' => [
         'id' => 2,
-        'submitted' => 0,
+        'submitted' => false,
         'starttime' => null,
         'finishtime' => null,
         'score' => 0,
@@ -21,7 +21,7 @@ return [
     ],
     'testinstance3' => [
         'id' => 3,
-        'submitted' => 0,
+        'submitted' => false,
         'starttime' => null,
         'finishtime' => null,
         'score' => 0,
@@ -30,7 +30,7 @@ return [
     ],
     'testinstance4' => [
         'id' => 4,
-        'submitted' => 0,
+        'submitted' => false,
         'starttime' => null,
         'finishtime' => null,
         'score' => 0,
@@ -39,7 +39,7 @@ return [
     ],
     'testinstance5' => [
         'id' => 5,
-        'submitted' => 1,
+        'submitted' => true,
         'starttime' => date('Y-m-d H:i:s'),
         'finishtime' => date('Y-m-d H:i:s', time() + 120),
         'score' => 0,
@@ -48,7 +48,7 @@ return [
     ],
     'testinstance6' => [
         'id' => 6,
-        'submitted' => 1,
+        'submitted' => true,
         'starttime' => date('Y-m-d H:i:s'),
         'finishtime' => date('Y-m-d H:i:s', time() + 120),
         'score' => 0,
@@ -57,7 +57,7 @@ return [
     ],
     'testinstance7' => [
         'id' => 7,
-        'submitted' => 0,
+        'submitted' => false,
         'starttime' => null,
         'finishtime' => null,
         'score' => 0,
@@ -66,7 +66,7 @@ return [
     ],
     'testinstance8' => [
         'id' => 8,
-        'submitted' => 0,
+        'submitted' => false,
         'starttime' => date('Y-m-d H:i:s', strtotime('-1 day')),
         'finishtime' => null,
         'score' => 0,
@@ -75,7 +75,7 @@ return [
     ],
     'testinstance9' => [
         'id' => 9,
-        'submitted' => 0,
+        'submitted' => false,
         'starttime' => date('Y-m-d H:i:s', strtotime('-1 minute')),
         'finishtime' => null,
         'score' => 0,
@@ -84,7 +84,7 @@ return [
     ],
     'testinstance10' => [
         'id' => 10,
-        'submitted' => 0,
+        'submitted' => false,
         'starttime' => date('Y-m-d H:i:s', time() + 240),
         'finishtime' => null,
         'score' => 0,
