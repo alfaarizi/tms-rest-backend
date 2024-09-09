@@ -94,7 +94,7 @@ app:
       - name: 'Linux / gcc'
         # Environment
         os: linux
-        image: 'tmselte/evaluator:gcc-ubuntu-20.04'
+        image: 'tmselte/evaluator:cpp-ubuntu-24.04'
         # Auto Test
         autoTest: true
         appType: Console
@@ -122,7 +122,7 @@ app:
       - name: 'Linux / g++'
         # Environment
         os: linux
-        image: 'tmselte/evaluator:gcc-ubuntu-20.04'
+        image: 'tmselte/evaluator:cpp-ubuntu-24.04'
         # Auto Test
         autoTest: true
         appType: Console
