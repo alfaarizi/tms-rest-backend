@@ -6,15 +6,12 @@ use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
 use app\models\Model;
 
-class StatisticsResource extends Model implements IOpenApiFieldTypes
+class StatisticsSemesterResource extends Model implements IOpenApiFieldTypes
 {
     public int $groupsCount;
     public int $tasksCount;
     public int $submissionsCount;
     public int $testedSubmissionCount;
-    public int $submissionsUnderTestingCount;
-    public int $submissionsToBeTested;
-    public ?float $diskFree;
 
     /**
      * @inheritdoc
@@ -26,9 +23,6 @@ class StatisticsResource extends Model implements IOpenApiFieldTypes
             'tasksCount',
             'submissionsCount',
             'testedSubmissionCount',
-            'submissionsUnderTestingCount',
-            'submissionsToBeTested',
-            'diskFree'
         ];
     }
 
@@ -42,9 +36,6 @@ class StatisticsResource extends Model implements IOpenApiFieldTypes
             'tasksCount' => new OAProperty(['type' => 'integer']),
             'submissionsCount' => new OAProperty(['type' => 'integer']),
             'testedSubmissionCount' => new OAProperty(['type' => 'integer']),
-            'submissionsUnderTestingCount' => new OAProperty(['type' => 'integer']),
-            'submissionsToBeTested' => new OAProperty(['type' => 'integer']),
-            'diskFree' => new OAProperty(['type' => 'number', 'format' => 'float']),
         ];
     }
 }
