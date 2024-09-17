@@ -262,7 +262,7 @@ app:
       - name: 'Windows / .NET + MAUI'
         # Environment
         os: windows
-        image: 'tmselte/evaluator:maui-7.0-windows'
+        image: 'tmselte/evaluator:maui-8.0-windows'
         # Auto Test
         autoTest: true
         appType: Console
