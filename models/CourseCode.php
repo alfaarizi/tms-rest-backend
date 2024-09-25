@@ -29,9 +29,10 @@ class CourseCode extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public function rules()
     {
         return [
-            [['code'], 'required'],
-            [['code'], 'string'],
-            [['courseId'], 'integer']
+            [['code', 'courseId'], 'required'],
+            [['code'], 'string', 'min' => 1, 'max' => 30],
+            [['courseId'], 'integer'],
+            [['code', 'courseId'], 'unique', 'targetAttribute' => ['code', 'courseId']]
         ];
     }
 
