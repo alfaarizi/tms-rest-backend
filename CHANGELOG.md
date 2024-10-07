@@ -4,6 +4,25 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.2](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.1...v4.0.0-alpha.2) (2024-10-08)
+
+### ⚠ BREAKING CHANGES
+
+* Separate StatisticsResource into 2 resources ([71f306](https://gitlab.com/tms-elte/backend-core/commit/71f306ec33768ca6b57ba907826887ec3ae1f7c5))
+
+### Features
+
+* Upgrading gcc/g++ based evaluator templates to Ubuntu 24.04 ([d8def7](https://gitlab.com/tms-elte/backend-core/commit/d8def7520388b7f7f6d8e7954402121d9c237ec0))
+* Upgrading MAUI-based evaluator templates to .NET 8. ([76def5](https://gitlab.com/tms-elte/backend-core/commit/76def5b60d85b1469efbd45d0bdd76e8e7206c95))
+
+### Bug Fixes
+
+* Add validation rules for course code fields ([d6cdc5](https://gitlab.com/tms-elte/backend-core/commit/d6cdc51053d76bb86b47957daefee4f8ac789a97))
+* Improve Neptun code format validation ([9d4d88](https://gitlab.com/tms-elte/backend-core/commit/9d4d8854c85adba8cfa79e28f536ee350664cf05))
+
+
+---
+
 ## [4.0.0-alpha.1](https://gitlab.com/tms-elte/backend-core/compare/v3.4.0...v4.0.0-alpha.1) (2024-06-20)
 
 ### ⚠ BREAKING CHANGES
