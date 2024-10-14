@@ -26,6 +26,7 @@ class CommonSystemCest
     public const PRIVATE_SETTINGS_SCHEMA = [
         'uploadMaxFilesize' => 'integer',
         'postMaxSize' => 'integer',
+        'maxWebAppRunTime' => 'integer',
         'isAutoTestEnabled' => 'boolean',
         'isVersionControlEnabled' => 'boolean',
         'isCanvasEnabled' => 'boolean',
