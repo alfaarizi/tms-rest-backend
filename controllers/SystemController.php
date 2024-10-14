@@ -91,6 +91,7 @@ class SystemController extends BaseRestController
         $resource->isVersionControlEnabled = Yii::$app->params['versionControl']['enabled'];
         $resource->isCanvasEnabled = Yii::$app->params['canvas']['enabled'];
         $resource->isCodeCompassEnabled = Yii::$app->params['codeCompass']['enabled'];
+        $resource->maxWebAppRunTime = Yii::$app->params['evaluator']['webApp']['maxWebAppRunTime'];
         $resource->serverDateTime = DateTimeHelpers::getCurrentTime();
         $resource->actualSemester = SemesterResource::findOne(['actual' => 1]);
         return $resource;
