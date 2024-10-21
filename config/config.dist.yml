@@ -231,32 +231,10 @@ app:
         # Static Code Analysis
         staticCodeAnalysis: true
         staticCodeAnalyzerTool: roslynator
-        staticCodeAnalyzerInstructions: |
-          $ErrorActionPreference = "Stop"
-          $projects = Get-ChildItem -Path .\ -Filter *.csproj -Recurse -File -Name
-          if ($projects.Count -eq 0) {
-            Write-Error -Message "No C# projects found." -Category InvalidData
-            exit 1
-          }
-          $diagnostics = @("--supported-diagnostics")
-          if (Test-Path -Path C:\test\test_files\diagnostics.txt) {
-            $diagnostics += Get-Content -Path C:\test\test_files\diagnostics.txt | Where-Object { $_ -notmatch "^#" }
-          } else {
-            $diagnostics += curl.exe --fail --silent --show-error https://gitlab.com/tms-elte/backend-core/-/snippets/2518152/raw/main/diagnostics.txt | Where-Object { $_ -notmatch "^#" }
-          }
-          C:\build.ps1 > $null
-          roslynator analyze $projects `
-            --output roslynator.xml `
-            --severity-level hidden `
-            --ignore-analyzer-references `
-            --analyzer-assemblies $env:ANALYZERS_DIR `
-            --report-suppressed-diagnostics `
-            $diagnostics
-          $roslynatorExitCode = $LASTEXITCODE
-          if (Test-Path -Path "roslynator.xml") {
-            exit 1
-          }
-          exit $roslynatorExitCode
+        staticCodeAnalyzerInstructions: |          
+          C:\analyze.ps1
+          # Built-in script that performs default analysis (with Roslynator) and optionally architectural analysis.
+          # Add -Arch MV or -Arch MVVM to perform architectural analysis for MV/MVVM architecture.
         codeCheckerSkipFile: ''
 
       - name: 'Windows / .NET + MAUI'
@@ -273,32 +251,10 @@ app:
         # Static Code Analysis
         staticCodeAnalysis: true
         staticCodeAnalyzerTool: roslynator
-        staticCodeAnalyzerInstructions: |
-          $ErrorActionPreference = "Stop"
-          $projects = Get-ChildItem -Path .\ -Filter *.csproj -Recurse -File -Name
-          if ($projects.Count -eq 0) {
-            Write-Error -Message "No C# projects found." -Category InvalidData
-            exit 1
-          }
-          $diagnostics = @("--supported-diagnostics")
-          if (Test-Path -Path C:\test\test_files\diagnostics.txt) {
-            $diagnostics += Get-Content -Path C:\test\test_files\diagnostics.txt | Where-Object { $_ -notmatch "^#" }
-          } else {
-            $diagnostics += curl.exe --fail --silent --show-error https://gitlab.com/tms-elte/backend-core/-/snippets/2518152/raw/main/diagnostics.txt | Where-Object { $_ -notmatch "^#" }
-          }
-          C:\build.ps1 > $null
-          roslynator analyze $projects `
-            --output roslynator.xml `
-            --severity-level hidden `
-            --ignore-analyzer-references `
-            --analyzer-assemblies $env:ANALYZERS_DIR `
-            --report-suppressed-diagnostics `
-            $diagnostics
-          $roslynatorExitCode = $LASTEXITCODE
-          if (Test-Path -Path "roslynator.xml") {
-            exit 1
-          }
-          exit $roslynatorExitCode
+        staticCodeAnalyzerInstructions: |          
+          C:\analyze.ps1
+          # Built-in script that performs default analysis (with Roslynator) and optionally architectural analysis.
+          # Add -Arch MV or -Arch MVVM to perform architectural analysis for MV/MVVM architecture.
         codeCheckerSkipFile: ''
     supportedStaticAnalyzerTools:
       # Template for tool configuration
