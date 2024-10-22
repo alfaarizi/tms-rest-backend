@@ -28,13 +28,13 @@ class GitManager
     public static function createUserRepository(Task $task, User $student): void
     {
         $id = $task->id;
-        $neptun = strtolower($student->neptun);
-        if (!is_dir(Yii::getAlias("@appdata/uploadedfiles/$id/$neptun/"))) {
+        $userCode = strtolower($student->userCode);
+        if (!is_dir(Yii::getAlias("@appdata/uploadedfiles/$id/$userCode/"))) {
             // Set uniqe string to prevent students to clone other repositories
             $randstring = 'w' . substr(str_shuffle(MD5(microtime())), 0, 25);
             $randstring2 = 'r' . substr(str_shuffle(MD5(microtime())), 0, 25);
-            $repopath = Yii::getAlias("@appdata/uploadedfiles/$id/$neptun/$randstring/");
-            $reposym = Yii::getAlias("@appdata/uploadedfiles/$id/$neptun/$randstring2");
+            $repopath = Yii::getAlias("@appdata/uploadedfiles/$id/$userCode/$randstring/");
+            $reposym = Yii::getAlias("@appdata/uploadedfiles/$id/$userCode/$randstring2");
             if (!is_dir($repopath . '.git')) {
                 $git = new Git();
 
@@ -50,7 +50,7 @@ class GitManager
                 $repo->execute('config', 'receive.denyNonFastForwards', 'true');
                 $repo->execute('config', 'receive.denyDeletes', 'true');
                 $repo->execute('config', 'receive.denyCurrentBranch', 'updateInstead');
-                $repo->execute('config', 'user.name', $student->name ?? $student->neptun);
+                $repo->execute('config', 'user.name', $student->name ?? $student->userCode);
                 $repo->execute('config', 'user.email', $student->email ?? '<>');
                 // Create pre-receive git hook
                 $a = rename($repopath . '.git/hooks/pre-receive.sample', $repopath . '.git/hooks/pre-receive');
@@ -72,7 +72,7 @@ class GitManager
                 Yii::$app->language = $originalLanguage;
             }
         }
-        self::addUserSubModuleToTaskRepository($id, $neptun);
+        self::addUserSubModuleToTaskRepository($id, $userCode);
     }
 
     /**
@@ -97,9 +97,9 @@ class GitManager
      * Add the user repository to the common task repository as a git submodule
      * @throws GitException
      */
-    private static function addUserSubModuleToTaskRepository(int $taskID, string $neptun): void
+    private static function addUserSubModuleToTaskRepository(int $taskID, string $userCode): void
     {
-        $neptun = strtolower($neptun);
+        $userCode = strtolower($userCode);
         $taskRepoPath = self::getTaskLevelRepoDirectoryPath($taskID);
 
         if ($taskRepoPath === null) {
@@ -108,9 +108,9 @@ class GitManager
 
         $git = new Git();
         $taskRepo = $git->open($taskRepoPath);
-        $taskRepo->execute('submodule', 'add', self::getReadonlyUserRepositoryUrl($taskID, $neptun), $neptun);
+        $taskRepo->execute('submodule', 'add', self::getReadonlyUserRepositoryUrl($taskID, $userCode), $userCode);
         $taskRepo->addAllChanges();
-        $taskRepo->commit(Yii::t('app', 'Added git submodule: {repoName}', ['repoName' => $neptun]));
+        $taskRepo->commit(Yii::t('app', 'Added git submodule: {repoName}', ['repoName' => $userCode]));
     }
 
     /**
@@ -118,9 +118,9 @@ class GitManager
      * @throws GitException
      * @throws ErrorException thrown when the submodule directory cannot be removed
      */
-    public static function removeUserFromTaskRepository(int $taskID, string $neptun): void
+    public static function removeUserFromTaskRepository(int $taskID, string $userCode): void
     {
-        $neptun = strtolower($neptun);
+        $userCode = strtolower($userCode);
         $taskRepoPath = self::getTaskLevelRepoDirectoryPath($taskID);
 
         if ($taskRepoPath === null) {
@@ -129,11 +129,11 @@ class GitManager
 
         $git = new Git();
         $taskRepo = $git->open($taskRepoPath);
-        $taskRepo->execute('submodule', 'deinit', $neptun);
-        $taskRepo->execute('rm', '-f', $neptun);
+        $taskRepo->execute('submodule', 'deinit', $userCode);
+        $taskRepo->execute('rm', '-f', $userCode);
         $taskRepo->addAllChanges();
-        $taskRepo->commit(Yii::t('app', 'Removed git submodule: {repoName}', ['repoName' => $neptun]));
-        FileHelper::removeDirectory(self::getTaskLevelRepoDirectoryPath($taskID) . '/.git/modules/' . $neptun);
+        $taskRepo->commit(Yii::t('app', 'Removed git submodule: {repoName}', ['repoName' => $userCode]));
+        FileHelper::removeDirectory(self::getTaskLevelRepoDirectoryPath($taskID) . '/.git/modules/' . $userCode);
     }
 
     /**
@@ -169,29 +169,29 @@ class GitManager
     /**
      * Get read-only repository address for the given task and user pair
      */
-    public static function getReadonlyUserRepositoryUrl(int $taskID, string $neptun): string
+    public static function getReadonlyUserRepositoryUrl(int $taskID, string $userCode): string
     {
-        $neptun = strtolower($neptun);
-        $userRepoPath = Yii::getAlias("@appdata/uploadedfiles/$taskID/") . strtolower($neptun) . '/';
+        $userCode = strtolower($userCode);
+        $userRepoPath = Yii::getAlias("@appdata/uploadedfiles/$taskID/") . strtolower($userCode) . '/';
         $dirs = FileHelper::findDirectories($userRepoPath, ['recursive' => false]);
         rsort($dirs);
         $path = Yii::$app->params['versionControl']['basePath'] . '/' . $taskID . '/'
-            . strtolower($neptun) . '/' . basename($dirs[1]);
+            . strtolower($userCode) . '/' . basename($dirs[1]);
         return Yii::$app->request->hostInfo . $path;
     }
 
     /**
      * Get writeable repository address for the given task and user pair
      */
-    public static function getWriteableUserRepositoryUrl(int $taskID, string $neptun): string
+    public static function getWriteableUserRepositoryUrl(int $taskID, string $userCode): string
     {
-        $neptun = strtolower($neptun);
+        $userCode = strtolower($userCode);
         // Search for random string id directory
-        $path = Yii::getAlias("@appdata/uploadedfiles/$taskID/$neptun/");
+        $path = Yii::getAlias("@appdata/uploadedfiles/$taskID/$userCode/");
         $dirs = FileHelper::findDirectories($path, ['recursive' => false]);
         rsort($dirs);
         return Yii::$app->request->hostInfo . Yii::$app->params['versionControl']['basePath'] . '/'
-            . $taskID . '/' . $neptun . '/' . basename($dirs[0]);
+            . $taskID . '/' . $userCode . '/' . basename($dirs[0]);
     }
 
     /**
@@ -255,7 +255,7 @@ exit \$rc";
     public static function afterTaskUpdate(Task $task, Subscription $subscription): void
     {
         $repopath = Yii::getAlias("@appdata/uploadedfiles/") . $task->id . '/'
-            . strtolower($subscription->user->neptun) . '/';
+            . strtolower($subscription->user->userCode) . '/';
         $dirs = FileHelper::findDirectories($repopath, ['recursive' => false]);
         rsort($dirs);
         $repopath = $repopath . basename($dirs[0]) . '/';
@@ -276,7 +276,7 @@ exit \$rc";
     public static function afterStatusUpdate(StudentFile $studentFile): void
     {
         $repopath = Yii::getAlias("@appdata/uploadedfiles/") . $studentFile->taskID . '/'
-            . strtolower($studentFile->uploader->neptun) . '/';
+            . strtolower($studentFile->uploader->userCode) . '/';
         $dirs = FileHelper::findDirectories($repopath, ['recursive' => false]);
         rsort($dirs);
         $repopath = $repopath . basename($dirs[0]) . '/';
@@ -299,7 +299,7 @@ exit \$rc";
     {
         // Find the unique string
         $student = User::findOne($studentid);
-        $basepath = Yii::getAlias("@appdata/uploadedfiles/$taskid/") . $student->neptun . '/';
+        $basepath = Yii::getAlias("@appdata/uploadedfiles/$taskid/") . $student->userCode . '/';
         $dirs = FileHelper::findDirectories($basepath, ['recursive' => false]);
         rsort($dirs);
         $repopath = $basepath .  basename($dirs[0]) . '/';
@@ -308,7 +308,7 @@ exit \$rc";
         $directories = FileHelper::findDirectories($repopath, ['except' => ['.git/']]);
         // Zip every file
         $zip = new ZipArchive();
-        $res = $zip->open($basepath . '/' . $student->neptun . '.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $res = $zip->open($basepath . '/' . $student->userCode . '.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
         if ($res) {
             $anyfile = false;
 

@@ -23,7 +23,7 @@ class AdminCoursesCest
     public const USER_SCHEMA = [
         'id' => 'integer',
         'name' => 'string',
-        'neptun' => 'string',
+        'userCode' => 'string',
     ];
 
     public function _fixtures()
@@ -223,12 +223,12 @@ class AdminCoursesCest
             [
                 [
                     'id' => 1006,
-                    'neptun' => 'TEACH1',
+                    'userCode' => 'TEACH1',
                     'name' => 'Teacher One',
                 ],
                 [
                     'id' => 1007,
-                    'neptun' => 'TEACH2',
+                    'userCode' => 'TEACH2',
                     'name' => 'Teacher Two',
                 ],
             ]
@@ -278,7 +278,7 @@ class AdminCoursesCest
         $I->sendPost(
             '/admin/courses/4000/lecturers',
             [
-                'neptunCodes' => ['TEACH0', 'TEACH1', 'TEACH2', 'TEACH3']
+                'userCodes' => ['TEACH0', 'TEACH1', 'TEACH2', 'TEACH3']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::MULTI_STATUS);
@@ -290,12 +290,12 @@ class AdminCoursesCest
         $I->seeResponseContainsJson(
             [
                 'addedUsers' => [
-                    ['neptun' => 'TEACH1'],
-                    ['neptun' => 'TEACH3'],
+                    ['userCode' => 'TEACH1'],
+                    ['userCode' => 'TEACH3'],
                 ],
                 'failed' => [
-                    ['neptun' => 'TEACH0'],
-                    ['neptun' => 'TEACH2'],
+                    ['userCode' => 'TEACH0'],
+                    ['userCode' => 'TEACH2'],
                 ],
             ]
         );
@@ -310,7 +310,7 @@ class AdminCoursesCest
         $I->seeResponseMatchesJsonType(
             [
                 [
-                    'neptun' => 'string',
+                    'userCode' => 'string',
                     'cause' => 'string|array'
                 ]
             ],

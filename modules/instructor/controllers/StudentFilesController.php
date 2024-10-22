@@ -180,8 +180,8 @@ class StudentFilesController extends BaseInstructorRestController
                 'attribute' => 'uploader.name',
             ],
             [
-                'header' => 'NEPTUN',
-                'attribute' => 'uploader.neptun',
+                'header' => 'User code',
+                'attribute' => 'uploader.userCode',
             ],
             [
                 'header' => Yii::t('app', 'Upload Time'),
@@ -547,7 +547,7 @@ class StudentFilesController extends BaseInstructorRestController
 
         Yii::$app->response->sendFile(
             $studentFile->path,
-            $studentFile->uploader->neptun . '.' . pathinfo($studentFile->name, PATHINFO_EXTENSION)
+            $studentFile->uploader->userCode . '.' . pathinfo($studentFile->name, PATHINFO_EXTENSION)
         );
     }
 
@@ -598,7 +598,7 @@ class StudentFilesController extends BaseInstructorRestController
 
         Yii::$app->response->sendFile(
             $studentFile->reportPath,
-            $studentFile->uploader->neptun . '_report.tar'
+            $studentFile->uploader->userCode . '_report.tar'
         );
     }
 
@@ -691,8 +691,8 @@ class StudentFilesController extends BaseInstructorRestController
         $zip->open($zipPath, \ZIPARCHIVE::CREATE | \ZIPARCHIVE::OVERWRITE);
 
         foreach ($files as $file) {
-            $neptun = $file->uploader->neptun;
-            $zip->addFile($file->path, $neptun . '.zip');
+            $userCode = $file->uploader->userCode;
+            $zip->addFile($file->path, $userCode . '.zip');
         }
         $zip->close();
 

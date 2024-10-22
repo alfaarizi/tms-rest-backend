@@ -79,7 +79,7 @@ $fullConfig = [
             ],
         ],
         'user' => [
-            'class' => 'app\models\NeptunUser',
+            'class' => 'app\models\TmsUser',
             'identityClass' => 'app\models\User',
             'enableSession' => false,
         ],

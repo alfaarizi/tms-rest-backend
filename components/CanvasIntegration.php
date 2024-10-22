@@ -127,7 +127,7 @@ class CanvasIntegration
                 }
             }
         } else {
-            Yii::warning("Failed to refresh Canvas token for user {$user->neptun} (ID: #{$user->id}).", __METHOD__);
+            Yii::warning("Failed to refresh Canvas token for user {$user->userCode} (ID: #{$user->id}).", __METHOD__);
 
             try {
                 $responseJson = Json::decode($response->content);
@@ -138,13 +138,13 @@ class CanvasIntegration
                 ) {
                     $user->canvasToken = $user->refreshToken = null;
                     $user->save();
-                    Yii::info("Deleting Canvas token for user {$user->neptun} (ID: #{$user->id}).", __METHOD__);
+                    Yii::info("Deleting Canvas token for user {$user->userCode} (ID: #{$user->id}).", __METHOD__);
                 } else {
-                    Yii::error("Refreshing Canvas token for user {$user->neptun} (ID: #{$user->id}) failed." .
+                    Yii::error("Refreshing Canvas token for user {$user->userCode} (ID: #{$user->id}) failed." .
                            "Error: {$responseJson['error']}. Description: {$responseJson['error_description']}", __METHOD__);
                 }
             } catch (InvalidArgumentException $e) {
-                Yii::error("Refreshing Canvas token for user {$user->neptun} (ID: #{$user->id}) failed." .
+                Yii::error("Refreshing Canvas token for user {$user->userCode} (ID: #{$user->id}) failed." .
                        "Error: {$response->content}", __METHOD__);
             }
         }
@@ -213,7 +213,7 @@ class CanvasIntegration
                 ])
                 ->send();
             if (!$response->isOk) {
-                Yii::error("Fetching courses from Canvas failed for user {$user->neptun} (ID: #{$user->id}).", __METHOD__);
+                Yii::error("Fetching courses from Canvas failed for user {$user->userCode} (ID: #{$user->id}).", __METHOD__);
                 throw new CanvasRequestException($response->statusCode, 'Fetching courses from Canvas failed.');
             }
 
@@ -531,24 +531,24 @@ class CanvasIntegration
         $matches = null;
         if (preg_match("/^(.+) +\(([A-Za-z0-9]{6})\)$/", $canvasUser["name"], $matches)) {
             $name = $matches[1];
-            $neptun = $matches[2];
+            $userCode = $matches[2];
         } else {
             $name = $canvasUser["name"];
-            $neptun = strval($canvasUser["id"]);
+            $userCode = strval($canvasUser["id"]);
         }
         /** @var null|User $user */
-        $user = User::find()->orWhere(['canvasID' => $canvasUser["id"]])->orWhere(['neptun' => $neptun])->one();
+        $user = User::find()->orWhere(['canvasID' => $canvasUser["id"]])->orWhere(['userCode' => $userCode])->one();
         if (empty($user)) {
             $user = new User();
             $user->name = $name;
-            $user->neptun = $neptun;
+            $user->userCode = $userCode;
         } elseif (empty($user->name)) {
             $user->name = $name;
         }
 
         $user->canvasID = $canvasUser["id"];
         if (!$user->save()) {
-            $errorMsg = "Saving or updating Canvas user with name '$name' and Neptun ID '$neptun' failed.";
+            $errorMsg = "Saving or updating Canvas user with name '$name' and userCode ID '$userCode' failed.";
             array_push($this->syncErrorMsgs, $errorMsg);
             Yii::error($errorMsg .
                 "Message: " . VarDumper::dumpAsString($user->firstErrors), __METHOD__);
@@ -797,7 +797,7 @@ class CanvasIntegration
                             __METHOD__
                         );
                     } else {
-                        $errorMsg = "Creating blank solution for user {$subscription->user->neptun} (ID: {$subscription->userID}) on Task #{$task->id} failed.";
+                        $errorMsg = "Creating blank solution for user {$subscription->user->userCode} (ID: {$subscription->userID}) on Task #{$task->id} failed.";
                         array_push($this->syncErrorMsgs, $errorMsg);
                         Yii::error(
                             $errorMsg .
@@ -953,7 +953,7 @@ class CanvasIntegration
 
             if (is_null($tmsFile)) {
                 // Should not occur since there should be a 'No submission' record even for non-submitted solutions.
-                Yii::error("Solution for user {$user->neptun} (ID: #{$user->id}) on Task #{$task->id} not found.", __METHOD__);
+                Yii::error("Solution for user {$user->userCode} (ID: #{$user->id}) on Task #{$task->id} not found.", __METHOD__);
                 return null;
             }
 
@@ -965,7 +965,7 @@ class CanvasIntegration
             // Canvas file upload by student is invalid or corrupted
             if ($canvasFile['size'] == 0) { // deliberately == 0, so it checks for null as well
                 if (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
-                    $this->saveCanvasFile($task->id, $canvasFile['display_name'], Yii::$app->basePath . StudentFile::PATH_OF_CORRUPTED_FILE, $user->neptun);
+                    $this->saveCanvasFile($task->id, $canvasFile['display_name'], Yii::$app->basePath . StudentFile::PATH_OF_CORRUPTED_FILE, $user->userCode);
                     $tmsFile->name = $canvasFile['display_name'];
                     $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
                     $tmsFile->isAccepted = StudentFile::IS_ACCEPTED_CORRUPTED;
@@ -975,7 +975,7 @@ class CanvasIntegration
                 }
             } else {
                 if (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
-                    $this->saveCanvasFile($task->id, $canvasFile['display_name'], $canvasFile['url'], $user->neptun);
+                    $this->saveCanvasFile($task->id, $canvasFile['display_name'], $canvasFile['url'], $user->userCode);
                     $tmsFile->name = $canvasFile['display_name'];
                     $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
                     $tmsFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
@@ -1022,7 +1022,7 @@ class CanvasIntegration
 
         try {
             if (!$tmsFile->save()) {
-                $errorMsg = "Saving solution for user {$user->neptun} (ID: #{$user->id}) on Task #{$task->id} failed.";
+                $errorMsg = "Saving solution for user {$user->userCode} (ID: #{$user->id}) on Task #{$task->id} failed.";
                 array_push($this->syncErrorMsgs, $errorMsg);
                 Yii::error(
                     $errorMsg .
@@ -1034,7 +1034,7 @@ class CanvasIntegration
         } catch (\yii\db\Exception $ex) {
             $tmsFile->notes = Encoding::fixUTF8($tmsFile->notes);
             if (!$tmsFile->save()) {
-                $errorMsg = "Saving solution for user {$user->neptun} (ID: #{$user->id}) on Task #{$task->id} failed.";
+                $errorMsg = "Saving solution for user {$user->userCode} (ID: #{$user->id}) on Task #{$task->id} failed.";
                 array_push($this->syncErrorMsgs, $errorMsg);
                 Yii::error(
                     $errorMsg .
@@ -1083,14 +1083,14 @@ class CanvasIntegration
      * @param int $taskID the id of given task
      * @param string $name the name of the file
      * @param string $url the file download link
-     * @param string $neptun the neptun of the uploader
+     * @param string $userCode the userCode of the uploader
      */
-    private function saveCanvasFile(int $taskID, string $name, string $url, string $neptun): void
+    private function saveCanvasFile(int $taskID, string $name, string $url, string $userCode): void
     {
         // Get the dest path.
-        $path = Yii::getAlias("@appdata/uploadedfiles/$taskID/") . strtolower($neptun) . '/';
+        $path = Yii::getAlias("@appdata/uploadedfiles/$taskID/") . strtolower($userCode) . '/';
 
-        $this->deleteCanvasFiles($taskID, $neptun);
+        $this->deleteCanvasFiles($taskID, $userCode);
 
         // Create new folder if not exists
         if (!file_exists($path)) {
@@ -1105,12 +1105,12 @@ class CanvasIntegration
     /**
      * Delete saved files from given folder
      * @param int $taskID the id of given task
-     * @param string $neptun Neptun ID of the uploader
+     * @param string $userCode userCode ID of the uploader
      */
-    private function deleteCanvasFiles(int $taskID, string $neptun): void
+    private function deleteCanvasFiles(int $taskID, string $userCode): void
     {
         // Get the dest path.
-        $path = Yii::getAlias("@appdata/uploadedfiles/$taskID/") . strtolower($neptun) . '/';
+        $path = Yii::getAlias("@appdata/uploadedfiles/$taskID/") . strtolower($userCode) . '/';
 
         // Delete files from given folder
         if (file_exists($path)) {

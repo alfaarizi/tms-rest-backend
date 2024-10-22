@@ -47,7 +47,7 @@ class UsersController extends BaseRestController
     /**
      * Search for users by a substring
      * @param string $text The substring
-     * @return ArrayDataProvider List of users that contain the substring either in their names or Neptun codes
+     * @return ArrayDataProvider List of users that contain the substring either in their names or user codes
      *         and that have student role
      * @throws BadRequestHttpException
      * @OA\Get(
@@ -90,7 +90,7 @@ class UsersController extends BaseRestController
     /**
      * Search for users by a substring
      * @param string $text The substring
-     * @return ArrayDataProvider List of users that contain the substring either in their names or Neptun codes
+     * @return ArrayDataProvider List of users that contain the substring either in their names or user codes
      *         and that have faculty role
      * @throws BadRequestHttpException
      * @OA\Get(

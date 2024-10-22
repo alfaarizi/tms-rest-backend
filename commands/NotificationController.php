@@ -16,10 +16,10 @@ class NotificationController extends BaseController
      * Sends digest email notifications to instructors about new student solutions.
      *
      * @param int $hours Time interval to analyze.
-     * @param null $neptun Instructor to analyze. (Null for all.)
+     * @param null $userCode Instructor to analyze. (Null for all.)
      * @return int Error code.
      */
-    public function actionDigestInstructors($hours = 24, $neptun = null)
+    public function actionDigestInstructors($hours = 24, $userCode = null)
     {
         // Query
         $query = StudentFile::find()
@@ -43,11 +43,11 @@ class NotificationController extends BaseController
                            'sf.uploadTime',
                            new Expression('DATE_SUB(NOW(), INTERVAL :digest HOUR)', [':digest' => $hours])
                        ])
-            ->orderBy('u.neptun')
+            ->orderBy('u.userCode')
             ->addOrderBy('sf.uploadTime');
 
-        if (strlen($neptun)) {
-            $query = $query->andWhere(['u.neptun' => $neptun]);
+        if (strlen($userCode)) {
+            $query = $query->andWhere(['u.userCode' => $userCode]);
         }
 
         // Load data
@@ -72,18 +72,18 @@ class NotificationController extends BaseController
 
             // Show data
             $table = new Table();
-            $table->setHeaders(['Neptun', 'Name', 'Status', 'Upload Time', 'Instructor Name']);
+            $table->setHeaders(['userCode', 'Name', 'Status', 'Upload Time', 'Instructor Name']);
 
             $rows = [];
             /** @var StudentFile $solution */
             foreach ($newSolutions as $solution) {
                 foreach ($solution->task->group->instructors as $instructor) {
-                    if (strlen($neptun) && strtolower($neptun) != strtolower($instructor->neptun)) {
+                    if (strlen($userCode) && strtolower($userCode) != strtolower($instructor->userCode)) {
                         continue;
                     }
 
                     $rows[] = [
-                        $solution->uploader->neptun,
+                        $solution->uploader->userCode,
                         $solution->uploader->name,
                         $solution->isAccepted,
                         $solution->uploadTime,
@@ -106,27 +106,27 @@ class NotificationController extends BaseController
                 $solutionsByInstructor = [];
                 foreach ($newSolutions as $solution) {
                     foreach ($solution->task->group->instructors as $instructor) {
-                        if (strlen($neptun) && strtolower($neptun) != strtolower($instructor->neptun)) {
+                        if (strlen($userCode) && strtolower($userCode) != strtolower($instructor->userCode)) {
                             continue;
                         }
 
-                        $instructors[$instructor->neptun] = $instructor;
-                        $solutionsByInstructor[$instructor->neptun][] = $solution;
+                        $instructors[$instructor->userCode] = $instructor;
+                        $solutionsByInstructor[$instructor->userCode][] = $solution;
                     }
                 }
 
                 $messages = [];
                 $origLanguage = Yii::$app->language;
-                foreach ($solutionsByInstructor as $neptun => $solutions) {
+                foreach ($solutionsByInstructor as $userCode => $solutions) {
                     /** @var \app\models\StudentFile[] $solutions */
-                    if (!empty($instructors[$neptun]->notificationEmail)) {
-                        Yii::$app->language = $instructors[$neptun]->locale;
+                    if (!empty($instructors[$userCode]->notificationEmail)) {
+                        Yii::$app->language = $instructors[$userCode]->locale;
                         $messages[] = Yii::$app->mailer->compose('instructor/digestSolution', [
                             'solutions' => $solutions,
                             'hours' => $hours,
                         ])
                             ->setFrom(Yii::$app->params['systemEmail'])
-                            ->setTo($instructors[$neptun]->notificationEmail)
+                            ->setTo($instructors[$userCode]->notificationEmail)
                             ->setSubject(Yii::t('app/mail', 'Submitted solutions'));
                     }
                 }
@@ -160,9 +160,9 @@ class NotificationController extends BaseController
 
         if (!$sendEmails) {
             $this->stdout("The following student(s) has oncoming deadline(s):" .  PHP_EOL, Console::FG_GREEN);
-            foreach ($result as $neptun => $mailContent) {
+            foreach ($result as $userCode => $mailContent) {
                 $count = count($mailContent['data']);
-                $this->stdout("Student $neptun has $count oncoming deadline(s)." .  PHP_EOL, Console::FG_GREEN);
+                $this->stdout("Student $userCode has $count oncoming deadline(s)." .  PHP_EOL, Console::FG_GREEN);
             }
         }
         return ExitCode::OK;

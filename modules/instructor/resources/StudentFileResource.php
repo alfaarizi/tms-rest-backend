@@ -141,7 +141,7 @@ class StudentFileResource extends StudentFile
             return Yii::t('app', 'Not version controlled');
         }
 
-        return GitManager::getReadonlyUserRepositoryUrl($this->taskID, $this->uploader->neptun);
+        return GitManager::getReadonlyUserRepositoryUrl($this->taskID, $this->uploader->userCode);
     }
 
     /**

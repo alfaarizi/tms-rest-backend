@@ -3,7 +3,7 @@
 namespace yii\web;
 
 /**
- * @property-read \app\models\NeptunUser $user
+ * @property-read \app\models\TmsUser $user
  * @property-read \app\components\openapi\SchemaGenerator $swagger
 */
 class Application

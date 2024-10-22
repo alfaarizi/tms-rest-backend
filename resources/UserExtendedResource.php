@@ -17,7 +17,7 @@ class UserExtendedResource extends \app\models\User
     {
         return [
             'name',
-            'neptun',
+            'userCode',
             'email',
             'customEmail',
             'locale',

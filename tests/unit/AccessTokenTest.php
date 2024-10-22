@@ -39,12 +39,12 @@ class AccessTokenTest extends Unit
     public function testGetUser()
     {
         $token0 = AccessToken::findOne(['token' => 'BATMAN;12345']);
-        $this->assertTrue($token0->user->neptun === "BATMAN");
+        $this->assertTrue($token0->user->userCode === "BATMAN");
     }
 
     public function testCreateForUser()
     {
-        $user = User::findOne(['neptun' => 'STUD02']);
+        $user = User::findOne(['userCode' => 'STUD02']);
         $token = AccessToken::createForUser($user);
 
         $length = strlen($token->token);

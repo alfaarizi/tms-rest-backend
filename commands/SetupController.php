@@ -91,29 +91,29 @@ class SetupController extends BaseController
         $authManager = \Yii::$app->authManager;
 
         $default_name = 'administrator01';
-        $default_neptun = 'admr01';
+        $default_userCode = 'admr01';
 
         if ($this->interactive) {
             $name = Console::prompt("Administrator name:", [
                 'required' => true,
                 'default' => $default_name,
             ]);
-            $neptun = Console::prompt("Administrator identifier:", [
+            $userCode = Console::prompt("Administrator identifier:", [
                 'required' => true,
-                'default' => $default_neptun,
+                'default' => $default_userCode,
             ]);
         } else {
             $name = $default_name;
-            $neptun = $default_neptun;
+            $userCode = $default_userCode;
         }
 
         $administrator = new User();
         $administrator->id = 1;
-        $administrator->neptun = $neptun;
+        $administrator->userCode = $userCode;
         $administrator->name = $name;
         if ($administrator->save()) {
             $authManager->assign($authManager->getRole('admin'), $administrator->id);
-            $this->stdout("Successfully inserted administrator with identifier: '$administrator->neptun'." . PHP_EOL, Console::FG_GREEN);
+            $this->stdout("Successfully inserted administrator with identifier: '$administrator->userCode'." . PHP_EOL, Console::FG_GREEN);
         } else {
             $this->stdout("Failed to insert administrator." . PHP_EOL, Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
@@ -128,11 +128,11 @@ class SetupController extends BaseController
      *
      * @throws Exception
      */
-    private function seedSubmission(int $uploaderID, string $neptun, int $taskID, string $isAccepted, ?int $graderID, string $autoTesterStatus): void
+    private function seedSubmission(int $uploaderID, string $userCode, int $taskID, string $isAccepted, ?int $graderID, string $autoTesterStatus): void
     {
-        $dirname = Yii::getAlias("@appdata/uploadedfiles/$taskID/$neptun");
+        $dirname = Yii::getAlias("@appdata/uploadedfiles/$taskID/$userCode");
         $submission = new StudentFile();
-        $submission->name = $neptun . ".zip";
+        $submission->name = $userCode . ".zip";
         $submission->uploadTime = date('Y-m-d H:i:s');
         $submission->taskID = $taskID;
         $submission->uploaderID = $uploaderID;
@@ -172,14 +172,14 @@ class SetupController extends BaseController
         for ($i = 1; $i < 4; $i++) {
             $instructor = new User();
             $instructor->id = $i + 1;
-            $instructor->neptun = 'inst0' . $i;
+            $instructor->userCode = 'inst0' . $i;
             $instructor->name = 'instructor0' . $i;
             $instructor->email = 'instructor0' . $i . '@example.com';
             if ($instructor->save()) {
                 $authManager->assign($authManager->getRole('faculty'), $instructor->id);
-                $this->stdout("Successfully inserted instructor with neptun '$instructor->neptun'." . PHP_EOL, Console::FG_GREEN);
+                $this->stdout("Successfully inserted instructor with userCode '$instructor->userCode'." . PHP_EOL, Console::FG_GREEN);
             } else {
-                $this->stdout("Failed to insert instructor with neptun '$instructor->neptun'." . PHP_EOL, Console::FG_RED);
+                $this->stdout("Failed to insert instructor with userCode '$instructor->userCode'." . PHP_EOL, Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         }
@@ -188,14 +188,14 @@ class SetupController extends BaseController
         for ($i = 1; $i < 7; $i++) {
             $student = new User();
             $student->id = $i + 4;
-            $student->neptun = 'stud0' . $i;
+            $student->userCode = 'stud0' . $i;
             $student->name = 'student0' . $i;
             $student->email = 'student0' . $i . '@example.com';
             if ($student->save()) {
                 $authManager->assign($authManager->getRole('student'), $student->id);
-                $this->stdout("Successfully inserted student with neptun '$student->neptun'." . PHP_EOL, Console::FG_GREEN);
+                $this->stdout("Successfully inserted student with userCode '$student->userCode'." . PHP_EOL, Console::FG_GREEN);
             } else {
-                $this->stdout("Failed to insert student with neptun '$student->neptun'." . PHP_EOL, Console::FG_RED);
+                $this->stdout("Failed to insert student with userCode '$student->userCode'." . PHP_EOL, Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         }
@@ -250,9 +250,9 @@ class SetupController extends BaseController
             $instructorGroup->groupID = 1;
 
             if ($instructorGroup->save()) {
-                $this->stdout("Successfully inserted initial group instructor for '{$instructorGroup->user->neptun}'." . PHP_EOL, Console::FG_GREEN);
+                $this->stdout("Successfully inserted initial group instructor for '{$instructorGroup->user->userCode}'." . PHP_EOL, Console::FG_GREEN);
             } else {
-                $this->stdout("Failed to insert initial group instructor permission for '{$instructorGroup->user->neptun}'." . PHP_EOL, Console::FG_RED);
+                $this->stdout("Failed to insert initial group instructor permission for '{$instructorGroup->user->userCode}'." . PHP_EOL, Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         }
@@ -268,9 +268,9 @@ class SetupController extends BaseController
             $subscription->isAccepted = 1;
             $subscription->notes = 'Notes';
             if ($subscription->save()) {
-                $this->stdout("Successfully inserted initial student course subscription for '{$subscription->user->neptun}'." . PHP_EOL, Console::FG_GREEN);
+                $this->stdout("Successfully inserted initial student course subscription for '{$subscription->user->userCode}'." . PHP_EOL, Console::FG_GREEN);
             } else {
-                $this->stdout("Failed to insert initial student course subscription for '{$subscription->user->neptun}'." . PHP_EOL, Console::FG_RED);
+                $this->stdout("Failed to insert initial student course subscription for '{$subscription->user->userCode}'." . PHP_EOL, Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         }
@@ -284,7 +284,7 @@ class SetupController extends BaseController
             $task->groupID = 1;
             $task->hardDeadline = date('Y-m-d H:i:s', strtotime("+$i week"));
             $task->category = 'Smaller tasks';
-            $task->createrID = User::findOne(['neptun' => 'inst01'])->id;
+            $task->createrID = User::findOne(['userCode' => 'inst01'])->id;
             $task->description = '';
 
             if ($task->save()) {

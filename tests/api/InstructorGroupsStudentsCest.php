@@ -21,7 +21,7 @@ class InstructorGroupsStudentsCest
     public const USER_SCHEMA = [
         'id' => 'integer',
         'name' => 'string|null',
-        'neptun' => 'string',
+        'userCode' => 'string',
     ];
 
     public function _fixtures()
@@ -77,13 +77,13 @@ class InstructorGroupsStudentsCest
         $I->seeResponseMatchesJsonType(self::USER_SCHEMA, '$.[*]');
         $I->seeResponseContainsJson(
             [
-                ['neptun' => 'STUD01'],
-                ['neptun' => 'STUD02'],
-                ['neptun' => 'STUD03'],
+                ['userCode' => 'STUD01'],
+                ['userCode' => 'STUD02'],
+                ['userCode' => 'STUD03'],
             ]
         );
-        $I->cantSeeResponseContainsJson([['neptun' => 'STUD04']]);
-        $I->cantSeeResponseContainsJson([['neptun' => 'STUD05']]);
+        $I->cantSeeResponseContainsJson([['userCode' => 'STUD04']]);
+        $I->cantSeeResponseContainsJson([['userCode' => 'STUD05']]);
     }
 
     public function deleteStudentNotFound(ApiTester $I)
@@ -284,7 +284,7 @@ class InstructorGroupsStudentsCest
         $I->sendPost(
             '/instructor/groups/0/students',
             [
-                'neptunCodes' => ['STUD01']
+                'userCodes' => ['STUD01']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
@@ -295,7 +295,7 @@ class InstructorGroupsStudentsCest
         $I->sendPost(
             '/instructor/groups/2005/students',
             [
-                'neptunCodes' => ['STUD01']
+                'userCodes' => ['STUD01']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
@@ -311,7 +311,7 @@ class InstructorGroupsStudentsCest
         $I->sendPost(
             '/instructor/groups/2007/students',
             [
-                'neptunCodes' => ['STUD01']
+                'userCodes' => ['STUD01']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
@@ -322,7 +322,7 @@ class InstructorGroupsStudentsCest
         $I->sendPost(
             '/instructor/groups/2010/students',
             [
-                'neptunCodes' => ['TEACH02']
+                'userCodes' => ['TEACH02']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
@@ -349,7 +349,7 @@ class InstructorGroupsStudentsCest
         $I->sendPost(
             '/instructor/groups/2000/students',
             [
-                'neptunCodes' => ['STUD00', 'STUD01', 'STUD02', 'STUD03', 'STUD04', 'STUD05']
+                'userCodes' => ['STUD00', 'STUD01', 'STUD02', 'STUD03', 'STUD04', 'STUD05']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::MULTI_STATUS);
@@ -358,14 +358,14 @@ class InstructorGroupsStudentsCest
         $I->seeResponseContainsJson(
             [
                 'addedUsers' => [
-                    ['neptun' => 'stud00'],
-                    ['neptun' => 'STUD04'],
-                    ['neptun' => 'STUD05'],
+                    ['userCode' => 'stud00'],
+                    ['userCode' => 'STUD04'],
+                    ['userCode' => 'STUD05'],
                 ],
                 'failed' => [
-                    ['neptun' => 'STUD01'],
-                    ['neptun' => 'STUD02'],
-                    ['neptun' => 'STUD03'],
+                    ['userCode' => 'STUD01'],
+                    ['userCode' => 'STUD02'],
+                    ['userCode' => 'STUD03'],
                 ],
             ]
         );
@@ -381,7 +381,7 @@ class InstructorGroupsStudentsCest
         $I->seeResponseMatchesJsonType(
             [
                 [
-                    'neptun' => 'string',
+                    'userCode' => 'string',
                     'cause' => 'string|array'
                 ]
             ],
@@ -400,7 +400,7 @@ class InstructorGroupsStudentsCest
         $I->seeRecord(Subscription::class, ['userID' => 1005, 'groupID' => 2000, 'semesterID' => 3001, 'isAccepted' => 1]);
 
         // Check for new user
-        $newUser = $I->grabRecord(User::class, ['neptun' => 'stud00']);
+        $newUser = $I->grabRecord(User::class, ['userCode' => 'stud00']);
         $I->seeRecord(
             Subscription::class,
             ['userID' => $newUser->id, 'groupID' => 2000, 'semesterID' => 3001, 'isAccepted' => 1]

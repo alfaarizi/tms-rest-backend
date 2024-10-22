@@ -95,7 +95,7 @@ class AuthController extends BaseRestController
 
         if ($authModel->isAuthenticated) {
             $user = User::createOrUpdate($authModel);
-            Yii::info("$user->name ($user->neptun) logged in", __METHOD__);
+            Yii::info("$user->name ($user->userCode) logged in", __METHOD__);
             $accessToken = AccessToken::createForUser($user);
             $accessToken->save();
 
@@ -155,7 +155,7 @@ class AuthController extends BaseRestController
         }
 
         $authModel = new MockAuth(
-            $model->neptun,
+            $model->userCode,
             $model->name,
             $model->email,
             $model->isStudent,
@@ -163,7 +163,7 @@ class AuthController extends BaseRestController
             $model->isAdmin
         );
 
-        $user = User::findOne(['neptun' => $authModel->id]);
+        $user = User::findOne(['userCode' => $authModel->id]);
         if (!is_null($user)) {
             Yii::$app->authManager->revokeAll($user->id);
         }
@@ -171,7 +171,7 @@ class AuthController extends BaseRestController
         $user = User::createOrUpdate($authModel);
         $accessToken = AccessToken::createForUser($user);
         $accessToken->save();
-        Yii::info("$user->name ($user->neptun) logged in", __METHOD__);
+        Yii::info("$user->name ($user->userCode) logged in", __METHOD__);
 
         $loginResponse = new LoginResponseResource();
         $loginResponse->accessToken = $accessToken->token;

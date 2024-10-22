@@ -79,7 +79,7 @@ return [
             'rules' => $rules,
         ],
         'user' => [
-            'class' => 'app\models\NeptunUser',
+            'class' => 'app\models\TmsUser',
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => false,
             'enableSession' => false,

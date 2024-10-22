@@ -179,7 +179,7 @@ return [
     'TMS static code analyzer result: ' => 'A TMS statikus kódelemző eredménye: ',
     'No issues were found in the uploaded submission.' => 'Nem találhatóak problémák a feltölött megoldásban.',
     '{count} issue(s) were found in the uploaded submission. Visit TMS ({url}) for more information.' => '{count} hiba található a feltöltött megoldásban. Látogasson el a TMS oldalára ({url}) további információért.',
-    'Type neptun here' => 'neptun',
+    'Type userCode here' => 'userCode',
     'Unknown' => 'Ismeretlen',
     'Update' => 'Frissítés',
     'Upload' => 'Feltöltés',

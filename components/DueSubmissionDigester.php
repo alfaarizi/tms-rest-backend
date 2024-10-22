@@ -46,13 +46,13 @@ class DueSubmissionDigester
 
         $messages = [];
         $origLanguage = Yii::$app->language;
-        foreach ($mailData as $neptun => $data) {
+        foreach ($mailData as $userCode => $data) {
             if (empty($data['user']->notificationEmail)) {
-                $this->console->stdout("Skipping mail sending for $neptun due to notifications turned off" . PHP_EOL);
+                $this->console->stdout("Skipping mail sending for $userCode due to notifications turned off" . PHP_EOL);
                 continue;
             }
 
-            $this->console->stdout("Send notification mail to student $neptun" . PHP_EOL);
+            $this->console->stdout("Send notification mail to student $userCode" . PHP_EOL);
             Yii::$app->language = $data['user']->locale;
             $messages[] = Yii::$app->mailer->compose('student/digestOncomingDeadlines', [
                 'data' => $data['data'],
@@ -89,7 +89,7 @@ class DueSubmissionDigester
      * Output structure: student->array of (due task, student file of task)
      *
      * @param Task[] $tasks tasks with due deadlines (task->group->subscription->user)
-     * @return array<string, array{'user': User, 'data': array<int, array{'task': Task, 'studentFile': StudentFile|null}>}> The outermost array is keyed by Neptun code
+     * @return array<string, array{'user': User, 'data': array<int, array{'task': Task, 'studentFile': StudentFile|null}>}> The outermost array is keyed by userCode code
      */
     private function transformMailData(array $tasks): array
     {
@@ -103,13 +103,13 @@ class DueSubmissionDigester
                 $idx = array_key_first($submission);
                 $submission = empty($submission) ? null : $submission[$idx];
                 if (empty($submission) || in_array($submission->isAccepted, ['Failed', 'Rejected'])) {
-                    if (!array_key_exists($student->neptun, $result)) {
-                        $result[$student->neptun] = [
+                    if (!array_key_exists($student->userCode, $result)) {
+                        $result[$student->userCode] = [
                             'user' => $student,
                             'data' => [],
                         ];
                     }
-                    $result[$student->neptun]['data'][] = [
+                    $result[$student->userCode]['data'][] = [
                         'task' => $task,
                         'studentFile' => $submission
                     ];

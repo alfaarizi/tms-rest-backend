@@ -33,7 +33,7 @@ class CommonUserSettingsCest
         $I->seeResponseContainsJson(
             [
                 'name' => 'Bruce Wayne',
-                'neptun' => 'BATMAN',
+                'userCode' => 'BATMAN',
                 'email' => 'batman@nanana.hu',
                 'customEmail' => null,
                 'locale' => 'en-US',
@@ -53,7 +53,7 @@ class CommonUserSettingsCest
             '/common/user-settings',
             [
                 'name' => 'Bud Spencer',
-                'neptun' => 'BUD001',
+                'userCode' => 'BUD001',
                 'email' => 'bud.spencer@example.org',
                 'customEmail' => 'carlo.pedersoli@example.org',
                 'locale' => 'hu',
@@ -65,7 +65,7 @@ class CommonUserSettingsCest
         $I->seeResponseContainsJson(
             [
                 'name' => 'Bruce Wayne',
-                'neptun' => 'BATMAN',
+                'userCode' => 'BATMAN',
                 'email' => 'batman@nanana.hu',
                 'customEmail' => 'carlo.pedersoli@example.org',
                 'locale' => 'hu',
@@ -76,7 +76,7 @@ class CommonUserSettingsCest
         $I->seeRecord(
             User::class,
             [
-                'neptun' => 'BATMAN',
+                'userCode' => 'BATMAN',
                 'name' => 'Bruce Wayne',
                 'email' => 'batman@nanana.hu',
                 'customEmail' => 'carlo.pedersoli@example.org',
@@ -94,7 +94,7 @@ class CommonUserSettingsCest
             '/common/user-settings',
             [
                 'name' => 'Bud Spencer',
-                'neptun' => 'BUD001',
+                'userCode' => 'BUD001',
                 'email' => 'bud.spencer@example.org',
                 'customEmail' => 'carlo.pedersoli@example.org',
                 // `qaa` is a private use language tag per BCP 47 [1], section 2.2.1

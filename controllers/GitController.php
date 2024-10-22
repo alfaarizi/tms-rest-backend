@@ -83,7 +83,7 @@ class GitController extends BaseRestController
             $studentfile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
             $studentfile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
             $studentfile->uploaderID = $studentid;
-            $studentfile->name = strtolower($student->neptun) . '.zip';
+            $studentfile->name = strtolower($student->userCode) . '.zip';
             $studentfile->grade = null;
             $studentfile->notes = "";
             $studentfile->uploadTime = date('Y-m-d H:i:s');
@@ -108,7 +108,7 @@ class GitController extends BaseRestController
             }
         } else {
             // Delete the previous zip file
-            $basepath = Yii::getAlias("@appdata/uploadedfiles/$taskid/") . $student->neptun;
+            $basepath = Yii::getAlias("@appdata/uploadedfiles/$taskid/") . $student->userCode;
             $basefiles = FileHelper::findFiles($basepath, ['only' => ['*.zip'], 'recursive' => false]);
             if ($basefiles != null) {
                 unlink($basefiles[0]);
@@ -116,7 +116,7 @@ class GitController extends BaseRestController
             // Zip the files from the solution
             GitManager::createZip($taskid, $studentid);
             // Set details
-            $studentfile->name = strtolower($student->neptun) . '.zip';
+            $studentfile->name = strtolower($student->userCode) . '.zip';
             $studentfile->uploadTime = date('Y-m-d H:i:s');
             $studentfile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
             $studentfile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;

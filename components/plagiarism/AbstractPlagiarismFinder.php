@@ -81,7 +81,7 @@ abstract class AbstractPlagiarismFinder
             // Open the zip for reading.
             $res = $zip->open($zipfile);
             if ($res === true) {
-                $path = $this->plagiarismPath . '/' . $studentFile->taskID . '/' . strtolower($studentFile->uploader->neptun);
+                $path = $this->plagiarismPath . '/' . $studentFile->taskID . '/' . strtolower($studentFile->uploader->userCode);
                 if (!file_exists($path)) {
                     FileHelper::createDirectory($path, 0755, true);
                 }

@@ -34,8 +34,8 @@ class UserTest extends \Codeception\Test\Unit
         $user = new User();
         $this->assertFalse($user->validate());
 
-        // Only Neptun code is required.
-        $user->neptun = 'BAMTAN';
+        // Only user code is required.
+        $user->userCode = 'BAMTAN';
         $this->assertTrue($user->validate());
 
         // Email address must be valid if defined.
@@ -54,8 +54,8 @@ class UserTest extends \Codeception\Test\Unit
         $user->scenario = User::SCENARIO_SETTINGS;
         $this->assertFalse($user->validate());
 
-        // Neptun code is still not enough.
-        $user->neptun = 'BATMAN';
+        // User code is still not enough.
+        $user->userCode = 'BATMAN';
         $this->assertFalse($user->validate());
 
         // Defining locale and notifications target is enough.
@@ -99,12 +99,12 @@ class UserTest extends \Codeception\Test\Unit
             [ 'oldEmail' => 'poseidon@olympos.gr', 'email' => 'poseidon@olympos.gr', 'confirmation' => false ],
         ];
         foreach ($tests as $case) {
-            $prevUser = User::findOne(['neptun' => 'POSEID']);
+            $prevUser = User::findOne(['userCode' => 'POSEID']);
             if ($prevUser) {
                 $prevUser->delete();
             }
             $user = new User();
-            $user->neptun = 'POSEID';
+            $user->userCode = 'POSEID';
             $user->customEmail = $case['oldEmail'];
             $user->save();
             $this->assertNull($user->getConfirmationCodeIfNecessary());
@@ -132,7 +132,7 @@ class UserTest extends \Codeception\Test\Unit
         $officialAddress = 'batman@inf.elte.hu';
         $customAddress = 'batman@nanana.hu';
         $user = new User();
-        $user->neptun = 'BATMAN';
+        $user->userCode = 'BATMAN';
         // There’s no data yet. This is perfectly valid; it should
         // return null instead of throwing some exception.
         $this->assertNull($user->notificationEmail);
@@ -221,7 +221,7 @@ class UserTest extends \Codeception\Test\Unit
     /**
      * @throws BadRequestHttpException
      */
-    public function testSearchResultPrefixNeptun()
+    public function testSearchResultPrefixUserCode()
     {
         $result = User::search("batma");
         $this->assertEquals(1, count($result));
@@ -230,7 +230,7 @@ class UserTest extends \Codeception\Test\Unit
     /**
      * @throws BadRequestHttpException
      */
-    public function testSearchResultMiddleNeptun()
+    public function testSearchResultMiddleUserCode()
     {
         $result = User::search("atma");
         $this->assertEquals(1, count($result));
@@ -239,7 +239,7 @@ class UserTest extends \Codeception\Test\Unit
     /**
      * @throws BadRequestHttpException
      */
-    public function testSearchResultPostfixNeptun()
+    public function testSearchResultPostfixUserode()
     {
         $result = User::search("tman");
         $this->assertEquals(1, count($result));

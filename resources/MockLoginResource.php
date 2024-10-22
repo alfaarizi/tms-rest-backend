@@ -12,7 +12,7 @@ use yii\base\Model;
  */
 class MockLoginResource extends Model implements IOpenApiFieldTypes
 {
-    public $neptun;
+    public $userCode;
     public $name;
     public $email;
     public $isStudent = true;
@@ -25,7 +25,7 @@ class MockLoginResource extends Model implements IOpenApiFieldTypes
     public function rules()
     {
         return [
-            [['neptun', 'name', 'email'], 'required'],
+            [['userCode', 'name', 'email'], 'required'],
             ['email', 'email'],
             [['isStudent', 'isTeacher', 'isAdmin'], 'boolean'],
         ];
@@ -34,7 +34,7 @@ class MockLoginResource extends Model implements IOpenApiFieldTypes
     public function attributeLabels()
     {
         return [
-            'neptun' => Yii::t('app', 'Neptun'),
+            'userCode' => Yii::t('app', 'UserCode'),
             'name' => Yii::t('app', 'Name'),
             'email' => Yii::t('app', 'Email'),
             'isStudent' => Yii::t('app', 'Student access'),
@@ -46,7 +46,7 @@ class MockLoginResource extends Model implements IOpenApiFieldTypes
     public function fieldTypes(): array
     {
         return [
-            'neptun' => new OAProperty(['type' => 'string', 'example' => 'batman']),
+            'userCode' => new OAProperty(['type' => 'string', 'example' => 'batman']),
             'name' => new OAProperty(['type' => 'string', 'example' => 'Bruce Wayne']),
             'email' => new OAProperty(['type' => 'string', 'example' => 'batman@nanana.hu']),
             'isStudent' => new OAProperty(['type' => 'boolean', 'example' => 'true']),

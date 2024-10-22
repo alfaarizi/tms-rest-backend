@@ -35,7 +35,7 @@ class InstructorGroupsCRUDCest
     public const USER_SCHEMA = [
         'id' => 'integer',
         'name' => 'string',
-        'neptun' => 'string',
+        'userCode' => 'string',
     ];
 
     public function _fixtures()

@@ -294,7 +294,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public function getBasePath(): string
     {
         return Yii::getAlias("@appdata/uploadedfiles/") .
-            $this->taskID . '/' . strtolower($this->uploader->neptun);
+            $this->taskID . '/' . strtolower($this->uploader->userCode);
     }
 
     /**
@@ -310,7 +310,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
      */
     public function getReportPath(): string
     {
-        $identifierLower = strtolower($this->uploader->neptun);
+        $identifierLower = strtolower($this->uploader->userCode);
         return Yii::getAlias("@appdata/webreports/$this->taskID/$identifierLower/reports.tar");
     }
 
@@ -413,7 +413,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
             ->select(['prefix'])
             ->andWhere(['category' => 'app\modules\student\controllers\StudentFilesController::saveFile'])
             ->andWhere(['level' => 4])
-            ->andWhere(['like', 'prefix', "({$this->uploader->neptun})"])
+            ->andWhere(['like', 'prefix', "({$this->uploader->userCode})"])
             ->andWhere(['like', 'message', 'A new solution has been uploaded for%', false])
             ->andWhere(['like', 'message', "%({$this->taskID})", false])
             ->distinct()

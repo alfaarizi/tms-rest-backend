@@ -17,7 +17,7 @@ class InstructorGroupsInstructorsCest
     public const USER_SCHEMA = [
         'id' => 'integer',
         'name' => 'string',
-        'neptun' => 'string',
+        'userCode' => 'string',
     ];
 
     public function _fixtures()
@@ -66,13 +66,13 @@ class InstructorGroupsInstructorsCest
         $I->seeResponseMatchesJsonType(self::USER_SCHEMA, '$.[*]');
         $I->seeResponseContainsJson(
             [
-                ['neptun' => 'TEACH2'],
-                ['neptun' => 'TEACH3'],
-                ['neptun' => 'TEACH4'],
+                ['userCode' => 'TEACH2'],
+                ['userCode' => 'TEACH3'],
+                ['userCode' => 'TEACH4'],
             ]
         );
-        $I->cantSeeResponseContainsJson([['neptun' => 'TEACH1']]);
-        $I->cantSeeResponseContainsJson([['neptun' => 'TEACH5']]);
+        $I->cantSeeResponseContainsJson([['userCode' => 'TEACH1']]);
+        $I->cantSeeResponseContainsJson([['userCode' => 'TEACH5']]);
     }
 
     public function deleteInstructorNotFound(ApiTester $I)
@@ -163,7 +163,7 @@ class InstructorGroupsInstructorsCest
         $I->sendPost(
             '/instructor/groups/0/instructors',
             [
-                'neptunCodes' => ['TEACH02']
+                'userCodes' => ['TEACH02']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
@@ -175,7 +175,7 @@ class InstructorGroupsInstructorsCest
         $I->sendPost(
             '/instructor/groups/6/instructors',
             [
-                'neptunCodes' => ['TEACH02']
+                'userCodes' => ['TEACH02']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
@@ -192,7 +192,7 @@ class InstructorGroupsInstructorsCest
         $I->sendPost(
             '/instructor/groups/2007/instructors',
             [
-                'neptunCodes' => ['TEACH02']
+                'userCodes' => ['TEACH02']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
@@ -203,7 +203,7 @@ class InstructorGroupsInstructorsCest
         $I->sendPost(
             '/instructor/groups/2010/instructors',
             [
-                'neptunCodes' => ['TEACH02']
+                'userCodes' => ['TEACH02']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
@@ -229,7 +229,7 @@ class InstructorGroupsInstructorsCest
         $I->sendPost(
             '/instructor/groups/2000/instructors',
             [
-                'neptunCodes' => ['TEACH0', 'TEACH1', 'TEACH2', 'TEACH3']
+                'userCodes' => ['TEACH0', 'TEACH1', 'TEACH2', 'TEACH3']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::MULTI_STATUS);
@@ -241,12 +241,12 @@ class InstructorGroupsInstructorsCest
         $I->seeResponseContainsJson(
             [
                 'addedUsers' => [
-                    ['neptun' => 'TEACH1'],
-                    ['neptun' => 'TEACH3'],
+                    ['userCode' => 'TEACH1'],
+                    ['userCode' => 'TEACH3'],
                 ],
                 'failed' => [
-                    ['neptun' => 'TEACH0'],
-                    ['neptun' => 'TEACH2'],
+                    ['userCode' => 'TEACH0'],
+                    ['userCode' => 'TEACH2'],
                 ],
             ]
         );
@@ -261,7 +261,7 @@ class InstructorGroupsInstructorsCest
         $I->seeResponseMatchesJsonType(
             [
                 [
-                    'neptun' => 'string',
+                    'userCode' => 'string',
                     'cause' => 'string|array'
                 ]
             ],

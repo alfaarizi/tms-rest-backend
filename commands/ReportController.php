@@ -100,7 +100,7 @@ class ReportController extends BaseController
         // Fetch all student solutions with non accepted status
         $query = new Query();
         $query->select([
-            '{{%users}}.neptun',
+            '{{%users}}.userCode',
             '{{%users}}.name userName',
             '{{%courses}}.name courseName',
             '{{%courses}}.code courseCode',
@@ -132,12 +132,12 @@ class ReportController extends BaseController
 
         // Show data
         $table = new Table();
-        $table->setHeaders(['Neptun', 'Name', 'Course', 'Task', 'Status']);
+        $table->setHeaders(['User Code', 'Name', 'Course', 'Task', 'Status']);
 
         $rows = [];
         foreach ($results as $result) {
             $rows[] = [
-                $result['neptun'],
+                $result['userCode'],
                 $result['userName'],
                 $result['courseCode'] . '/' . $result['groupNumber'],
                 $result['taskName'],

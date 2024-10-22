@@ -24,7 +24,7 @@ use yii\helpers\Html;
 <ul>
 <?php foreach ($results as $result) : ?>
     <li>
-        Név: <?= Html::encode($result['userName']) ?> (<?= Html::encode($result['neptun']) ?>)<br>
+        Név: <?= Html::encode($result['userName']) ?> (<?= Html::encode($result['userCode']) ?>)<br>
         Kurzus: <?= Html::encode($result['courseName']) ?> (<?= $result['courseCode'] ?>/<?= $result['groupNumber'] ?>)<br>
         Feladat: <?= Html::encode($result['taskName']) ?><br>
         Állapot: <?= !empty($result['isAccepted']) ? Yii::t('app', $result['isAccepted'], [], 'hu') : 'Nem beküldött' ?>
