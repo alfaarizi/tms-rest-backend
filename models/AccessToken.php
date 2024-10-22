@@ -109,10 +109,10 @@ class AccessToken extends ActiveRecord
         $authToken->userId = $user->id;
 
         $randomString = Yii::$app->security->generateRandomString(self::ACCESS_TOKEN_LENGTH);
-        $authToken->token = "{$user->neptun}-{$randomString}";
+        $authToken->token = "{$user->userCode}-{$randomString}";
 
         $randomString = Yii::$app->security->generateRandomString(self::IMAGE_TOKEN_LENGTH);
-        $authToken->imageToken = "{$user->neptun}-{$randomString}";
+        $authToken->imageToken = "{$user->userCode}-{$randomString}";
 
         $authToken->validUntil = self::calculateNewValidation();
 

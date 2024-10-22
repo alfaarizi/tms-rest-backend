@@ -61,7 +61,7 @@ $fullConfig = [
             'appendTimestamp' => true,
         ],
         'user' => [
-            'class' => 'app\models\NeptunUser',
+            'class' => 'app\models\TmsUser',
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => false,
             'enableSession' => false,
@@ -123,7 +123,7 @@ $fullConfig = [
 
                         // Get user identity
                         $identity = Yii::$app->user->identity;
-                        $userString = !is_null($identity) ? "$identity->name ($identity->neptun)" : "-";
+                        $userString = !is_null($identity) ? "$identity->name ($identity->userCode)" : "-";
 
                         return "[$ip][$userString]";
                     }

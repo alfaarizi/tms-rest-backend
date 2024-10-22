@@ -63,7 +63,7 @@ class DueSubmissionDigesterTest extends \Codeception\Test\Unit
         self::assertEquals(3, count($mailData), "For student has due task with oncoming deadline");
 
         $student = $mailData['STUD01'];
-        self::assertEquals('STUD01', $student['user']->neptun, "array key must match student neptun code");
+        self::assertEquals('STUD01', $student['user']->userCode, "array key must match student userCode code");
         self::assertEquals(12, count($student['data']), "STUD01 should receive 12 emails");
     }
 }

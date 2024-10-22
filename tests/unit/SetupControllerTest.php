@@ -42,7 +42,7 @@ class SetupControllerTest extends \Codeception\Test\Unit
             'actual' => true
         ]);
         $this->tester->seeRecord(User::class, [
-            'neptun' => 'admr01',
+            'userCode' => 'admr01',
             'name' => 'administrator01'
         ]);
     }
@@ -75,23 +75,23 @@ class SetupControllerTest extends \Codeception\Test\Unit
             'actual' => true
         ]);
         $this->tester->seeRecord(User::class, [
-            'neptun' => 'admr01',
+            'userCode' => 'admr01',
             'name' => 'administrator01'
         ]);
         $this->tester->seeRecord(User::class, [
             'id' => 1,
-            'neptun' => 'admr01',
+            'userCode' => 'admr01',
             'name' => 'administrator01'
         ]);
         $this->tester->seeRecord(User::class, [
             'id' => 4,
-            'neptun' => 'inst03',
+            'userCode' => 'inst03',
             'name' => 'instructor03',
             'email' => 'instructor03@example.com'
         ]);
         $this->tester->seeRecord(User::class, [
             'id' => 10,
-            'neptun' => 'stud06',
+            'userCode' => 'stud06',
             'name' => 'student06',
             'email' => 'student06@example.com'
         ]);

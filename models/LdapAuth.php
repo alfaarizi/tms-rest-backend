@@ -8,10 +8,10 @@ use yii\base\NotSupportedException;
 use yii\base\UnknownPropertyException;
 
 /**
- * Defines an authentication mechanism with the Neptun academic registry system through SimpleSAMLphp.
- * The Neptun system is used at several hungarian universities.
+ * Defines an authentication mechanism with the user code academic registry system through SimpleSAMLphp.
+ * The user code system is used at several universities.
  *
- * @property-read string $id The Neptun code of the user, which uniquely represents the identity.
+ * @property-read string $id The user code, which uniquely represents the identity.
  * @property-read string $name The display name for the identity.
  * @property-read string $email The email address for the identity.
  * @property-read string $isStudent The student permission level for the identity.
@@ -19,7 +19,7 @@ use yii\base\UnknownPropertyException;
  * @property-read string $isAdmin The administrator permission level for the identity.
  * @property-read boolean $isAuthenticated Whether the identity is valid.
  * @property-read string $distinguishedname Unique entry identifier of the identity.
- * @property-read string $l Neptun code of the identity.
+ * @property-read string $l User code of the identity.
  * @property-read string $displayname Displayable name of the identity.
  * @property-read string $mail Email address of the identity.
  */
@@ -70,9 +70,9 @@ class LdapAuth extends \yii\base\BaseObject implements AuthInterface
     }
 
     /**
-     * Returns the Neptun code of the user.
-     * The Neptun code uniquely represents the identity.
-     * @return string The Neptun code of the user.
+     * Returns the user code of the user.
+     * The user code uniquely represents the identity.
+     * @return string The user code of the user.
      */
     public function getId()
     {

@@ -13,20 +13,20 @@ use app\models\Model;
 class AddUsersListResource extends Model implements IOpenApiFieldTypes
 {
     /** @var string[] */
-    public $neptunCodes = [];
+    public $userCodes = [];
 
     public function rules()
     {
         return [
-            ['neptunCodes', 'required'],
-            ['neptunCodes', 'each', 'rule' => ['string']],
+            ['userCodes', 'required'],
+            ['userCodes', 'each', 'rule' => ['string']],
         ];
     }
 
     public function fieldTypes(): array
     {
         return [
-            'neptunCodes' =>  new OAProperty(['type' => 'array', new OAItems(['type' => 'string'])]),
+            'userCodes' =>  new OAProperty(['type' => 'array', new OAItems(['type' => 'string'])]),
         ];
     }
 }

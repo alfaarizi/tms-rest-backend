@@ -19,7 +19,7 @@ class InstructorExamTestInstancesCest
         'score' => 'integer',
         'user' => [
             'id' => 'integer',
-            'neptun' => 'string',
+            'userCode' => 'string',
             'name' => 'string'
         ],
         'testDuration' => 'integer'

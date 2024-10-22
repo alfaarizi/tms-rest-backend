@@ -46,7 +46,7 @@ class InstructorTasksCest
 
     public const USER_SCHEMA = [
         'id' => 'integer',
-        'neptun' => 'string',
+        'userCode' => 'string',
         'name' => 'string'
     ];
 

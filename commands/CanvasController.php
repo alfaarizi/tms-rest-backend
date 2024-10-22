@@ -66,7 +66,7 @@ class CanvasController extends BaseController
         foreach ($canvasGroups as $group) {
             $canvas = new CanvasIntegration();
             if ($synchronizer !== $group->synchronizerID) {
-                $this->stdout("Fetching token for user {$group->synchronizer->neptun} (ID: #{$group->synchronizer->id})" . PHP_EOL);
+                $this->stdout("Fetching token for user {$group->synchronizer->userCode} (ID: #{$group->synchronizer->id})" . PHP_EOL);
                 $hasToken = $canvas->refreshCanvasToken($group->synchronizer);
                 $synchronizer = $group->synchronizerID;
             }
@@ -76,7 +76,7 @@ class CanvasController extends BaseController
                 $canvas->synchronizeGroupData($group);
                 sleep(10);
             } else {
-                $this->stderr("Failed to synchronize group #{$group->id} for user {$group->synchronizer->neptun} (ID: #{$group->synchronizer->id})" . PHP_EOL, Console::FG_RED);
+                $this->stderr("Failed to synchronize group #{$group->id} for user {$group->synchronizer->userCode} (ID: #{$group->synchronizer->id})" . PHP_EOL, Console::FG_RED);
             }
         }
     }

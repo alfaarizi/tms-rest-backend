@@ -19,7 +19,7 @@ use yii\web\View;
 <ul>
 <?php foreach ($solutions as $solution) : ?>
     <li>
-        <?= Yii::t('app/mail', 'Name') ?>: <?= Html::encode($solution->uploader->name) ?> (<?= Html::encode($solution->uploader->neptun) ?>)<br>
+        <?= Yii::t('app/mail', 'Name') ?>: <?= Html::encode($solution->uploader->name) ?> (<?= Html::encode($solution->uploader->userCode) ?>)<br>
         <?= Yii::t('app/mail', 'Course') ?>: <?= Html::encode($solution->task->group->course->name) ?>
 
         <?php if (!empty($solution->task->group->number)) : ?>

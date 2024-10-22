@@ -7,7 +7,7 @@ namespace app\models;
  */
 class MockAuth extends \yii\base\BaseObject implements AuthInterface
 {
-    private $_neptun;
+    private $_userCode;
     private $_name;
     private $_email;
     private $_isStudent;
@@ -18,9 +18,9 @@ class MockAuth extends \yii\base\BaseObject implements AuthInterface
     /**
      * Constructs a new instance.
      */
-    public function __construct($neptun, $name, $email, $isStudent = true, $isTeacher = false, $isAdmin = false)
+    public function __construct($userCode, $name, $email, $isStudent = true, $isTeacher = false, $isAdmin = false)
     {
-        $this->_neptun = $neptun;
+        $this->_userCode = $userCode;
         $this->_name = $name;
         $this->_email = $email;
         $this->_isStudent = $isStudent;
@@ -30,13 +30,13 @@ class MockAuth extends \yii\base\BaseObject implements AuthInterface
     }
 
     /**
-     * Returns the Neptun code of the user.
-     * The Neptun code uniquely represents the identity.
-     * @return string The Neptun code of the user.
+     * Returns the user code.
+     * The userCode code uniquely represents the identity.
+     * @return string The user code.
      */
     public function getId()
     {
-        return $this->_neptun;
+        return $this->_userCode;
     }
 
     /**

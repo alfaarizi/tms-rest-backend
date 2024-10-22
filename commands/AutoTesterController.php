@@ -213,7 +213,7 @@ class AutoTesterController extends BaseController
 
             // Return the results in JSON for debugging
             $result['studentName'] = $studentFile->uploader->name;
-            $result['studentNeptun'] = $studentFile->uploader->neptun;
+            $result['studentUserCode'] = $studentFile->uploader->userCode;
 
             // Show data
             $table = new Table();

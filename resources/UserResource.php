@@ -14,7 +14,7 @@ class UserResource extends \app\models\User
     {
         return [
             'id',
-            'neptun',
+            'userCode',
             'name',
         ];
     }

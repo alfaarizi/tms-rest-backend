@@ -17,7 +17,7 @@ use yii\web\IdentityInterface;
  *
  * @property integer $id
  * @property string $name
- * @property string $neptun
+ * @property string $userCode
  * @property string $email
  * @property string $customEmail
  * @property string $locale
@@ -79,12 +79,12 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
      */
     public static function createOrUpdate(AuthInterface $authModel)
     {
-        $user = static::findOne(['neptun' => $authModel->id]);
+        $user = static::findOne(['userCode' => $authModel->id]);
 
         // If the user null then create a new one.
         if ($user == null) {
             $user = new User();
-            $user->neptun = $authModel->id;
+            $user->userCode = $authModel->id;
             $user->locale = Yii::$app->user->locale ?: Yii::$app->language;
         }
 
@@ -183,7 +183,7 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
         return static::find()->where(
             [
                 'or',
-                ['like', 'LOWER(neptun)', $lowerCaseText],
+                ['like', 'LOWER(userCode)', $lowerCaseText],
                 ['like', 'LOWER(name)', $lowerCaseText]
             ]
         )->all();
@@ -195,12 +195,12 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
     public function rules()
     {
         return [
-            [['neptun'], 'required'],
+            [['userCode'], 'required'],
             [['locale', 'notificationTarget'], 'required', 'on' => self::SCENARIO_SETTINGS],
             [['name', 'email', 'customEmail'], 'string', 'max' => 50],
             [['email', 'customEmail'], 'email'],
-            [['neptun'], 'match', 'pattern' => '/^[a-zA-Z0-9]{6}$/'],
-            [['neptun'], 'unique'],
+            [['userCode'], 'match', 'pattern' => '/^[a-zA-Z0-9]{6}$/'],
+            [['userCode'], 'unique'],
             [['locale'], 'in', 'range' => array_keys(Yii::$app->params['supportedLocale'])],
             [['customEmailConfirmed'], 'boolean'],
             [
@@ -226,7 +226,7 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
         return [
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
-            'neptun' => Yii::t('app', 'Neptun'),
+            'userCode' => Yii::t('app', 'userCode'),
             'email' => Yii::t('app', 'Official email address'),
             'customEmail' => Yii::t('app', 'Custom email address'),
             'locale' => Yii::t('app', 'Locale'),
@@ -244,7 +244,7 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
         return [
             'id' => new OAProperty(['type' => 'integer']),
             'name' => new OAProperty(['type' => 'string']),
-            'neptun' => new OAProperty(['type' => 'string']),
+            'userCode' => new OAProperty(['type' => 'string']),
             'email' => new OAProperty(['type' => 'string']),
             'customEmail' => new OAProperty(['type' => 'string']),
             'isStudent' => new OAProperty(['type' => 'boolean']),

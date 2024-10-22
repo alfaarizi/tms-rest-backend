@@ -264,7 +264,7 @@ class StudentFilesController extends BaseStudentRestController
         $user = Yii::$app->user->identity;
         // Set basepath
         $basepath = Yii::getAlias("@appdata/uploadedfiles/$taskID/")
-            . strtolower($user->neptun) . '/';
+            . strtolower($user->userCode) . '/';
 
         if (!file_exists($basepath)) {
             FileHelper::createDirectory($basepath, 0755, true);

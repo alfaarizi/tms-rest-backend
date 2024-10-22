@@ -636,7 +636,7 @@ class GroupsController extends BaseInstructorRestController
         $model->load(Yii::$app->request->post(), '');
         if ($model->validate()) {
             $this->response->statusCode = 207;
-            return $this->processInstructors($model->neptunCodes, $groupID);
+            return $this->processInstructors($model->userCodes, $groupID);
         } else {
             $this->response->statusCode = 422;
             return $model->errors;
@@ -645,11 +645,11 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Process the received list and saves them one by one.
-     * @param string[] $neptunCodes
+     * @param string[] $userCodes
      * @param int $groupID
      * @throws Exception
      */
-    private function processInstructors(array $neptunCodes, int $groupID): UsersAddedResource
+    private function processInstructors(array $userCodes, int $groupID): UsersAddedResource
     {
         /** @var MessageInterface[] Email notifications */
         $messages = [];
@@ -658,12 +658,12 @@ class GroupsController extends BaseInstructorRestController
         /** @var UserAddErrorResource[] */
         $failed = [];
 
-        foreach ($neptunCodes as $neptun) {
+        foreach ($userCodes as $userCode) {
             try {
-                $user = UserResource::findOne(['neptun' => $neptun]);
+                $user = UserResource::findOne(['userCode' => $userCode]);
 
                 if (is_null($user)) {
-                    throw new AddFailedException($neptun, ['neptun' => [ Yii::t('app', 'User not found found.')]]);
+                    throw new AddFailedException($userCode, ['userCode' => [ Yii::t('app', 'User not found found.')]]);
                 }
 
 
@@ -676,7 +676,7 @@ class GroupsController extends BaseInstructorRestController
                 );
 
                 if (!$instructorGroup->save()) {
-                    throw new AddFailedException($neptun, $instructorGroup->errors);
+                    throw new AddFailedException($userCode, $instructorGroup->errors);
                 }
 
                 // Assign faculty role if necessary
@@ -893,7 +893,7 @@ class GroupsController extends BaseInstructorRestController
         $model->load(Yii::$app->request->post(), '');
         if ($model->validate()) {
             $this->response->statusCode = 207;
-            return $this->processStudents($model->neptunCodes, $group);
+            return $this->processStudents($model->userCodes, $group);
         } else {
             $this->response->statusCode = 422;
             return $model->errors;
@@ -902,10 +902,10 @@ class GroupsController extends BaseInstructorRestController
 
     /**
      * Process the received list and saves them one by one.
-     * @param string[] $neptunCodes
+     * @param string[] $userCodes
      * @param GroupResource $group
      */
-    private function processStudents(array $neptunCodes, GroupResource $group): UsersAddedResource
+    private function processStudents(array $userCodes, GroupResource $group): UsersAddedResource
     {
         /** @var MessageInterface[] Email notifications */
         $messages = [];
@@ -914,17 +914,17 @@ class GroupsController extends BaseInstructorRestController
         /** @var UserAddErrorResource[] */
         $failed = [];
 
-        foreach ($neptunCodes as $neptun) {
+        foreach ($userCodes as $userCode) {
             try {
                 // First we try as an id aka already existing user.
-                $user = UserResource::findOne(['neptun' => $neptun]);
+                $user = UserResource::findOne(['userCode' => $userCode]);
                 if (is_null($user)) {
                     $user = new UserResource();
-                    $user->neptun = strtolower($neptun);
+                    $user->userCode = strtolower($userCode);
                     $user->locale = Yii::$app->language;
 
                     if (!$user->save()) {
-                        throw new AddFailedException($neptun, $user->errors);
+                        throw new AddFailedException($userCode, $user->errors);
                     }
                 }
 
@@ -965,12 +965,12 @@ class GroupsController extends BaseInstructorRestController
                             __METHOD__
                         );
                     } else {
-                        throw new AddFailedException($neptun, [Yii::t('app', "A database error occurred")]);
+                        throw new AddFailedException($userCode, [Yii::t('app', "A database error occurred")]);
                     }
                 }
 
                 if (!$subscription->save()) {
-                    throw new AddFailedException($neptun, $subscription->errors);
+                    throw new AddFailedException($userCode, $subscription->errors);
                 }
 
                 if (!empty($user->notificationEmail)) {
@@ -1115,7 +1115,7 @@ class GroupsController extends BaseInstructorRestController
         if (Yii::$app->params['versionControl']['enabled']) {
             foreach ($subscription->group->tasks as $task) {
                 if ($task->isVersionControlled) {
-                    GitManager::removeUserFromTaskRepository($task->id, $subscription->user->neptun);
+                    GitManager::removeUserFromTaskRepository($task->id, $subscription->user->userCode);
                 }
             }
         }

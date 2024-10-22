@@ -172,7 +172,7 @@ class CoursesController extends BaseAdminActiveController
         $model->load(Yii::$app->request->post(), '');
         if ($model->validate()) {
             $this->response->statusCode = 207;
-            return $this->processLecturers($model->neptunCodes, $courseID);
+            return $this->processLecturers($model->userCodes, $courseID);
         } else {
             $this->response->statusCode = 422;
             return $model->errors;
@@ -180,22 +180,22 @@ class CoursesController extends BaseAdminActiveController
     }
 
     /**
-     * @param string[] $neptunCodes
+     * @param string[] $userCodes
      * @param int $courseID
      */
-    private function processLecturers(array $neptunCodes, int $courseID): UsersAddedResource
+    private function processLecturers(array $userCodes, int $courseID): UsersAddedResource
     {
         // Email notifications
         $messages = [];
         $users = [];
         $failed = [];
 
-        foreach ($neptunCodes as $neptun) {
+        foreach ($userCodes as $userCode) {
             try {
-                $user = UserResource::findOne(['neptun' => $neptun]);
+                $user = UserResource::findOne(['userCode' => $userCode]);
 
                 if (is_null($user)) {
-                    throw new AddFailedException($neptun, ['neptun' => [Yii::t('app', 'User not found found.')]]);
+                    throw new AddFailedException($userCode, ['userCode' => [Yii::t('app', 'User not found found.')]]);
                 }
 
                 // Add the lecturer to the group.
@@ -207,7 +207,7 @@ class CoursesController extends BaseAdminActiveController
                 );
 
                 if (!$instructorCourse->save()) {
-                    throw new AddFailedException($neptun, $instructorCourse->errors);
+                    throw new AddFailedException($userCode, $instructorCourse->errors);
                 }
 
                 // Assign faculty role if necessary

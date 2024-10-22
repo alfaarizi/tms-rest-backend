@@ -42,7 +42,7 @@ class CommonUsersCest
             [
                 [
                     'name' => 'Teacher Three',
-                    'neptun' => 'TEACH3',
+                    'userCode' => 'TEACH3',
                     'id' => 1008
                 ]
             ]
@@ -58,7 +58,7 @@ class CommonUsersCest
             [
                 [
                     'name' => 'Student One',
-                    'neptun' => 'STUD01',
+                    'userCode' => 'STUD01',
                     'id' => 1001
                 ]
             ]
@@ -74,12 +74,12 @@ class CommonUsersCest
             [
                 [
                     'name' => 'Student Two',
-                    'neptun' => 'STUD02',
+                    'userCode' => 'STUD02',
                     'id' => 1002
                 ],
                 [
                     'name' => 'Student Three',
-                    'neptun' => 'STUD03',
+                    'userCode' => 'STUD03',
                     'id' => 1003
                 ]
             ]

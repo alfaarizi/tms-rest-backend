@@ -91,7 +91,7 @@ class TaskResource extends Task
         if (Yii::$app->params['versionControl']['enabled'] && $this->isVersionControlled) {
             /** @var User $user */
             $user = Yii::$app->user->identity;
-            $path = GitManager::getWriteableUserRepositoryUrl($this->id, $user->neptun);
+            $path = GitManager::getWriteableUserRepositoryUrl($this->id, $user->userCode);
             // TODO: move usage information creation to the frontend. This function should only return the path.
             $usage = 'git clone ' . $path;
 

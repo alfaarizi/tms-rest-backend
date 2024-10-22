@@ -41,7 +41,7 @@ class CommonAuthCest
         $I->sendPost(
             "/common/auth/mock-login",
             [
-                'neptun' => 'batman',
+                'userCode' => 'batman',
                 'name' => 'Bruce Wayne',
             ]
         );
@@ -56,7 +56,7 @@ class CommonAuthCest
         $I->sendPost(
             "/common/auth/mock-login",
             [
-                'neptun' => 'batman',
+                'userCode' => 'batman',
                 'name' => 'Bruce Wayne',
                 'email' => 'updated@nanana.hu',
             ]
@@ -73,7 +73,7 @@ class CommonAuthCest
         $I->sendPost(
             "/common/auth/mock-login",
             [
-                'neptun' => 'new123',
+                'userCode' => 'new123',
                 'name' => 'New User',
                 'email' => 'new123@elte.hu',
             ]
@@ -83,7 +83,7 @@ class CommonAuthCest
         $I->seeRecord(
             User::class,
             [
-                'neptun' => 'new123',
+                'userCode' => 'new123',
                 'name' => 'New User',
                 'email' => 'new123@elte.hu',
                 'locale' => 'hu'
@@ -96,7 +96,7 @@ class CommonAuthCest
         $I->sendPost(
             "/common/auth/mock-login",
             [
-                'neptun' => 'STUD05',
+                'userCode' => 'STUD05',
                 'name' => 'Student Five',
                 'email' => 'stud05@elte.hu',
                 'isStudent' => true,

@@ -7,29 +7,29 @@ use app\components\openapi\IOpenApiFieldTypes;
 use app\models\Model;
 
 /**
- * Stores a neptun code, error pair
+ * Stores a user code, error pair
  */
 class UserAddErrorResource extends Model implements IOpenApiFieldTypes
 {
-    public $neptun;
+    public $userCode;
     public $cause;
 
     /**
      * UserAddErrorResource constructor.
-     * @param $neptun
+     * @param $userCode
      * @param $cause
      */
-    public function __construct($neptun = null, $cause = null)
+    public function __construct($userCode = null, $cause = null)
     {
         parent::__construct();
-        $this->neptun = $neptun;
+        $this->userCode = $userCode;
         $this->cause = $cause;
     }
 
     public function fieldTypes(): array
     {
         return [
-            'neptun' => new OAProperty(['type' => 'string']),
+            'userCode' => new OAProperty(['type' => 'string']),
             'cause' => new OAProperty(['type' => 'object']),
         ];
     }
