@@ -8,11 +8,11 @@ use Yii;
 use yii\web\UploadedFile;
 
 /**
- * Class StudentFileUploadResource
+ * Class SubmissionUploadResource
  * @property int $taskID
  * @property UploadedFile $file
  */
-class StudentFileUploadResource extends \yii\base\Model implements IOpenApiFieldTypes
+class SubmissionUploadResource extends \yii\base\Model implements IOpenApiFieldTypes
 {
     public $taskID;
     public $file;

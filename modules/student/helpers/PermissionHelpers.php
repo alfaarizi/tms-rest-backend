@@ -2,7 +2,7 @@
 
 namespace app\modules\student\helpers;
 
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\Subscription;
 use app\models\Task;
 use Yii;
@@ -41,10 +41,10 @@ class PermissionHelpers
 
     /**
      * Verify that the student file is accessible by this student.
-     * @param StudentFile $file
+     * @param Submission $file
      * @throws ForbiddenHttpException
      */
-    public static function isItMyStudentFile($file)
+    public static function isItMySubmission($file)
     {
         if ($file->uploaderID != Yii::$app->user->id) {
             throw new ForbiddenHttpException(Yii::t('app', 'You are not allowed to see this document!'));

@@ -4,16 +4,16 @@ namespace app\modules\student\controllers;
 
 use Yii;
 use app\modules\student\resources\TaskResource;
-use app\modules\student\resources\InstructorFileResource;
+use app\modules\student\resources\TaskFileResource;
 use app\modules\student\helpers\PermissionHelpers;
 use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 
 /**
- * This class provides access to instructor file actions for students
+ * This class provides access to task file actions for students
  */
-class InstructorFilesController extends BaseStudentRestController
+class TaskFilesController extends BaseSubmissionsController
 {
     /**
      * @inheritdoc
@@ -27,14 +27,14 @@ class InstructorFilesController extends BaseStudentRestController
     }
 
     /**
-     * Lists public instructor files for a task
+     * Lists public task files for a task
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
      * @OA\Get(
-     *     path="/student/instructor-files",
-     *     operationId="student::InstructorFilesController::actionIndex",
-     *     tags={"Student Instructor Files"},
+     *     path="/student/task-files",
+     *     operationId="student::TaskFilesController::actionIndex",
+     *     tags={"Student Task Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *        name="taskID",
@@ -50,7 +50,7 @@ class InstructorFilesController extends BaseStudentRestController
      *     @OA\Response(
      *        response=200,
      *        description="successful operation",
-     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Student_InstructorFileResource_Read")),
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Student_TaskFileResource_Read")),
      *    ),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
      *    @OA\Response(response=403, ref="#/components/responses/403"),
@@ -70,21 +70,21 @@ class InstructorFilesController extends BaseStudentRestController
         PermissionHelpers::checkIfTaskAvailable($task);
 
         return new ActiveDataProvider([
-            'query' => $task->getInstructorFiles(),
+            'query' => $task->getTaskFiles(),
             'pagination' => false
         ]);
     }
 
     /**
-     * Send the requested instructor file to the client
+     * Send the requested task file to the client
      * @param int $id is the id of the file
      * @throws NotFoundHttpException
      * @throws ForbiddenHttpException;
      *
      * @OA\Get(
-     *     path="/student/instructor-files/{id}/download",
-     *     operationId="student::InstructorFilesController::actionDownload",
-     *     tags={"Student Instructor Files"},
+     *     path="/student/task-files/{id}/download",
+     *     operationId="student::TaskFilesController::actionDownload",
+     *     tags={"Student Task Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *        name="id",
@@ -105,17 +105,17 @@ class InstructorFilesController extends BaseStudentRestController
      */
     public function actionDownload(int $id): void
     {
-        $file = InstructorFileResource::findOne($id);
+        $file = TaskFileResource::findOne($id);
 
         if (is_null($file)) {
-            throw new NotFoundHttpException(Yii::t('app', 'Instructor File not found.'));
+            throw new NotFoundHttpException(Yii::t('app', 'Task File not found.'));
         }
 
         PermissionHelpers::isItMyTask($file->taskID);
         PermissionHelpers::checkIfTaskAvailable($file->task);
 
         if (!$file->isAttachment) {
-            throw new ForbiddenHttpException(Yii::t('app', 'Instructor File not available.'));
+            throw new ForbiddenHttpException(Yii::t('app', 'Task File not available.'));
         }
 
         Yii::$app->response->sendFile($file->path, basename($file->path));

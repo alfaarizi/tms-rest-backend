@@ -4,10 +4,10 @@ namespace app\modules\instructor\controllers;
 
 use app\components\GitManager;
 use app\models\Group;
-use app\models\InstructorFile;
+use app\models\TaskFile;
 use app\models\InstructorGroup;
 use app\models\Semester;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\Subscription;
 use app\models\Task;
 use app\modules\instructor\resources\GroupResource;
@@ -463,7 +463,7 @@ class GroupsController extends BaseInstructorRestController
         $group = new Group($groupToDuplicate);
         unset($group->id);
         $group->semesterID = $actualSemester;
-        $group->number = null;
+        unset($group->number);
 
         $transaction = Yii::$app->db->beginTransaction();
         $directoryPaths = [];
@@ -491,11 +491,11 @@ class GroupsController extends BaseInstructorRestController
 
                     if ($task->save()) {
                         // If the task can be saved we copy the files as well.
-                        $filesToDuplicate = InstructorFile::findAll(['taskID' => $taskToDuplicate->id]);
+                        $filesToDuplicate = TaskFile::findAll(['taskID' => $taskToDuplicate->id]);
                         $directoryPath = Yii::getAlias("@appdata/uploadedfiles/") . $task->id . '/';
                         $directoryPaths[] = $directoryPath;
                         foreach ($filesToDuplicate as $fileToDuplicate) {
-                            $file = new InstructorFile($fileToDuplicate);
+                            $file = new TaskFile($fileToDuplicate);
                             unset($file->id);
                             $file->taskID = $task->id;
 
@@ -505,7 +505,7 @@ class GroupsController extends BaseInstructorRestController
 
                             if (!$file->save()) {
                                 throw new ServerErrorHttpException(
-                                    'Failed to save InstructorFile to the database: ' . VarDumper::dumpAsString($file->firstErrors)
+                                    'Failed to save TaskFile to the database: ' . VarDumper::dumpAsString($file->firstErrors)
                                 );
                             }
                         }
@@ -938,30 +938,26 @@ class GroupsController extends BaseInstructorRestController
                     ]
                 );
 
-                // Create new studentfile for student to add to tasks in group
+                // Create new submission for student to add to tasks in group
                 $tasks = Task::findAll(['groupID' => $group->id]);
                 foreach ($tasks as $task) {
-                    $studentFile = new StudentFile();
-                    $studentFile->taskID = $task->id;
-                    $studentFile->isAccepted = StudentFile::IS_ACCEPTED_NO_SUBMISSION;
-                    $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
-                    $studentFile->uploaderID = $subscription->userID;
-                    $studentFile->name = null;
-                    $studentFile->grade = null;
-                    $studentFile->notes = "";
-                    $studentFile->uploadTime = null;
-                    $studentFile->isVersionControlled = $task->isVersionControlled;
-                    $studentFile->uploadCount = 0;
-                    $studentFile->verified = true;
-                    $studentFile->codeCheckerResultID = null;
+                    $submission = new Submission();
+                    $submission->taskID = $task->id;
+                    $submission->status = Submission::STATUS_NO_SUBMISSION;
+                    $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
+                    $submission->uploaderID = $subscription->userID;
+                    $submission->notes = "";
+                    $submission->isVersionControlled = $task->isVersionControlled;
+                    $submission->uploadCount = 0;
+                    $submission->verified = true;
 
-                    if ($studentFile->save()) {
+                    if ($submission->save()) {
                         if ($task->isVersionControlled) {
                             GitManager::createUserRepository($task, $user);
                         }
                         Yii::info(
                             "A new blank solution has been uploaded for " .
-                            "{$studentFile->task->name} ($studentFile->taskID)",
+                            "{$submission->task->name} ($submission->taskID)",
                             __METHOD__
                         );
                     } else {
@@ -1085,7 +1081,7 @@ class GroupsController extends BaseInstructorRestController
                     )
                 ]
             )
-            ->andWhere(['not', ['isAccepted' => StudentFile::IS_ACCEPTED_NO_SUBMISSION]])
+            ->andWhere(['not', ['status' => Submission::STATUS_NO_SUBMISSION]])
             ->exists();
 
         // Check for uploaded file
@@ -1094,7 +1090,7 @@ class GroupsController extends BaseInstructorRestController
         }
 
         // Query all 'No Submission' submissions for the student
-        $noSubmissionStudentFiles = $subscription->user->getFiles()
+        $noSubmissionSubmission = $subscription->user->getFiles()
             ->where(
                 [
                     'taskID' => array_map(
@@ -1103,11 +1099,11 @@ class GroupsController extends BaseInstructorRestController
                     )
                 ]
             )
-            ->andWhere(['isAccepted' => StudentFile::IS_ACCEPTED_NO_SUBMISSION])
+            ->andWhere(['status' => Submission::STATUS_NO_SUBMISSION])
             ->all();
 
         // Delete (no submission) student files
-        foreach ($noSubmissionStudentFiles as $file) {
+        foreach ($noSubmissionSubmission as $file) {
             $file->delete();
         }
 
@@ -1356,10 +1352,10 @@ class GroupsController extends BaseInstructorRestController
 
             $groupScores = [];
 
-            foreach ($task->studentFiles as $studentFile) {
-                if($studentFile->isAccepted !== StudentFile::IS_ACCEPTED_NO_SUBMISSION) {
+            foreach ($task->submissions as $submission) {
+                if($submission->status !== Submission::STATUS_NO_SUBMISSION) {
                     if ($task->softDeadline != null) {
-                        if ($studentFile->uploadTime <= $task->softDeadline) {
+                        if ($submission->uploadTime <= $task->softDeadline) {
                             $submittedInTime += 1;
                             $submittedNot -= 1;
                         } else {
@@ -1367,14 +1363,14 @@ class GroupsController extends BaseInstructorRestController
                             $submittedNot -= 1;
                         }
                     } else {
-                        if ($studentFile->uploadTime <= $task->hardDeadline) {
+                        if ($submission->uploadTime <= $task->hardDeadline) {
                             $submittedInTime += 1;
                             $submittedNot -= 1;
                         }
                     }
                 }
-                if (!is_null($studentFile->grade)) {
-                    $groupScores[] = $studentFile->grade;
+                if (!is_null($submission->grade)) {
+                    $groupScores[] = $submission->grade;
                 }
             }
 
@@ -1464,13 +1460,13 @@ class GroupsController extends BaseInstructorRestController
             $userScore = null;
             $groupScores = [];
             $submittingTime = null;
-            foreach ($task->studentFiles as $studentFile) {
-                if ($studentFile->uploaderID == $student->id && $studentFile->isAccepted !== StudentFile::IS_ACCEPTED_NO_SUBMISSION) {
-                    $userScore = $studentFile->grade;
-                    $submittingTime = $studentFile->uploadTime;
+            foreach ($task->submissions as $submission) {
+                if ($submission->uploaderID == $student->id && $submission->status !== Submission::STATUS_NO_SUBMISSION) {
+                    $userScore = $submission->grade;
+                    $submittingTime = $submission->uploadTime;
                 }
-                if ($studentFile->grade != null) {
-                    $groupScores[] = $studentFile->grade;
+                if ($submission->grade != null) {
+                    $groupScores[] = $submission->grade;
                 }
             }
 

@@ -4,7 +4,7 @@ namespace app\tests\unit;
 
 use app\tests\unit\fixtures\JPlagPlagiarismFixture;
 use app\tests\unit\fixtures\PlagiarismFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use Yii;
 
 /**
@@ -45,8 +45,8 @@ class JPlagPlagiarismFinderTest extends \Codeception\Test\Unit
             'plagiarisms_jplag' => [
                 'class' => JPlagPlagiarismFixture::class,
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class,
+            'submission' => [
+                'class' => SubmissionsFixture::class,
             ],
         ];
     }

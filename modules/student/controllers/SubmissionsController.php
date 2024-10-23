@@ -3,17 +3,17 @@
 namespace app\modules\student\controllers;
 
 use app\components\GitManager;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\Task;
 use app\models\User;
-use app\modules\student\resources\StudentFileUploadResource;
+use app\modules\student\resources\SubmissionUploadResource;
 use app\modules\student\resources\VerifyItemResource;
 use app\resources\AutoTesterResultResource;
 use app\models\IpAddress;
 use Yii;
 use app\modules\student\resources\TaskResource;
 use app\modules\student\helpers\PermissionHelpers;
-use app\modules\student\resources\StudentFileResource;
+use app\modules\student\resources\SubmissionResource;
 use yii\helpers\FileHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
@@ -24,7 +24,7 @@ use yii\web\UploadedFile;
 /**
  * This class provides access to student file actions for students
  */
-class StudentFilesController extends BaseStudentRestController
+class SubmissionsController extends BaseSubmissionsController
 {
     /**
      * @inheritdoc
@@ -47,8 +47,8 @@ class StudentFilesController extends BaseStudentRestController
      * @throws NotFoundHttpException
      *
      * @OA\Get(
-     *     path="/student/student-files/{id}",
-     *     operationId="student::StudentFilesController::actionView",
+     *     path="/student/submissions/{id}",
+     *     operationId="student::SubmissionsController::actionView",
      *     tags={"Student Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
@@ -64,7 +64,7 @@ class StudentFilesController extends BaseStudentRestController
      *     @OA\Response(
      *         response=200,
      *         description="successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/Student_StudentFileResource_Read"),
+     *         @OA\JsonContent(ref="#/components/schemas/Student_SubmissionResource_Read"),
      *     ),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
      *    @OA\Response(response=403, ref="#/components/responses/403"),
@@ -72,16 +72,16 @@ class StudentFilesController extends BaseStudentRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionView(int $id): StudentFileResource
+    public function actionView(int $id): SubmissionResource
     {
-        $file = StudentFileResource::findOne($id);
+        $file = SubmissionResource::findOne($id);
 
         if (is_null($file)) {
             throw new NotFoundHttpException(Yii::t('app', 'Student File not found.'));
         }
 
         PermissionHelpers::isItMyTask($file->taskID);
-        PermissionHelpers::isItMyStudentFile($file);
+        PermissionHelpers::isItMySubmission($file);
 
         return $file;
     }
@@ -92,8 +92,8 @@ class StudentFilesController extends BaseStudentRestController
      * @throws NotFoundHttpException
      *
      * @OA\Get(
-     *     path="/student/student-files/{id}/download",
-     *     operationId="student::StudentFilesController::actionDownload",
+     *     path="/student/submissions/{id}/download",
+     *     operationId="student::SubmissionsController::actionDownload",
      *     tags={"Student Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -115,13 +115,13 @@ class StudentFilesController extends BaseStudentRestController
      */
     public function actionDownload(int $id): void
     {
-        $file = StudentFileResource::findOne($id);
+        $file = SubmissionResource::findOne($id);
 
         if (is_null($file)) {
             throw new NotFoundHttpException(Yii::t('app', 'Student File not found.'));
         }
 
-        PermissionHelpers::isItMyStudentFile($file);
+        PermissionHelpers::isItMySubmission($file);
 
         Yii::$app->response->sendFile($file->path, basename($file->path));
     }
@@ -132,8 +132,8 @@ class StudentFilesController extends BaseStudentRestController
      * @throws NotFoundHttpException
      *
      * @OA\Get(
-     *     path="/student/student-files/{id}/download-report",
-     *     operationId="student::StudentFilesController::actionDownloadReport",
+     *     path="/student/submissions/{id}/download-report",
+     *     operationId="student::SubmissionsController::actionDownloadReport",
      *     tags={"Student Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -155,14 +155,14 @@ class StudentFilesController extends BaseStudentRestController
      */
     public function actionDownloadReport(int $id): void
     {
-        $file = StudentFileResource::findOne($id);
+        $file = SubmissionResource::findOne($id);
 
         if (is_null($file)) {
             throw new NotFoundHttpException(Yii::t('app', 'Student File not found.'));
         }
 
         PermissionHelpers::isItMyTask($file->taskID);
-        PermissionHelpers::isItMyStudentFile($file);
+        PermissionHelpers::isItMySubmission($file);
 
         if (!file_exists($file->reportPath)) {
             throw new NotFoundHttpException(Yii::t('app', 'Test reports not exist for this student file.'));
@@ -173,15 +173,15 @@ class StudentFilesController extends BaseStudentRestController
 
     /**
      * Upload a new student file
-     * @return StudentFileResource|array
+     * @return SubmissionResource|array
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
      * @throws \CzProject\GitPhp\GitException
      *
      * @OA\Post(
-     *     path="/student/student-files/upload",
-     *     operationId="student::StudentFilesController::actionUpload",
+     *     path="/student/submissions/upload",
+     *     operationId="student::SubmissionsController::actionUpload",
      *     tags={"Student Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
@@ -190,13 +190,13 @@ class StudentFilesController extends BaseStudentRestController
      *         description="file to upload and taskID",
      *         @OA\MediaType(
      *             mediaType="multipart/form-data",
-     *             @OA\Schema(ref="#/components/schemas/Student_StudentFileUploadResource_ScenarioDefault"),
+     *             @OA\Schema(ref="#/components/schemas/Student_SubmissionUploadResource_ScenarioDefault"),
      *         )
      *     ),
      *     @OA\Response(
      *         response=200,
      *         description="file uploaded",
-     *         @OA\JsonContent(ref="#/components/schemas/Student_StudentFileResource_Read"),
+     *         @OA\JsonContent(ref="#/components/schemas/Student_SubmissionResource_Read"),
      *     ),
      *    @OA\Response(response=400, ref="#/components/responses/400"),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
@@ -207,7 +207,7 @@ class StudentFilesController extends BaseStudentRestController
      */
     public function actionUpload()
     {
-        $model = new StudentFileUploadResource();
+        $model = new SubmissionUploadResource();
         $model->load(Yii::$app->request->post(), '');
         $model->file = UploadedFile::getInstanceByName('file');
 
@@ -231,22 +231,22 @@ class StudentFilesController extends BaseStudentRestController
         }
 
         // Get previous file
-        $prevStudentFile = StudentFileResource::findOne(['uploaderID' => Yii::$app->user->id, 'taskID' => $task->id]);
+        $prevSubmission = SubmissionResource::findOne(['uploaderID' => Yii::$app->user->id, 'taskID' => $task->id]);
 
         // Verify that the task is open for submissions or the student has a special late submission permission.
         if (strtotime($task->hardDeadline) < time() && (is_null(
-                    $prevStudentFile
-                ) || $prevStudentFile->isAccepted !== StudentFile::IS_ACCEPTED_LATE_SUBMISSION)) {
+                    $prevSubmission
+                ) || $prevSubmission->status !== Submission::STATUS_LATE_SUBMISSION)) {
             throw new BadRequestHttpException(Yii::t('app', 'The hard deadline of the solution has passed!'));
         }
 
         // Verify that the student has no accepted solution yet.
-        if (!is_null($prevStudentFile) && $prevStudentFile->isAccepted === StudentFile::IS_ACCEPTED_ACCEPTED) {
+        if (!is_null($prevSubmission) && $prevSubmission->status === Submission::STATUS_ACCEPTED) {
             throw new BadRequestHttpException(Yii::t('app', 'Your solution was accepted!'));
         }
 
         return $this->saveFile(
-            $prevStudentFile,
+            $prevSubmission,
             $model->file,
             $task->id,
             Yii::$app->params['versionControl']['enabled'] && $task->isVersionControlled
@@ -258,7 +258,7 @@ class StudentFilesController extends BaseStudentRestController
      * @throws ServerErrorHttpException
      * @throws \CzProject\GitPhp\GitException
      */
-    private function saveFile(StudentFileResource $prevStudentFile, UploadedFile $newFile, int $taskID, bool $versionControlled): StudentFileResource
+    private function saveFile(SubmissionResource $prevSubmission, UploadedFile $newFile, int $taskID, bool $versionControlled): SubmissionResource
     {
         /** @var User $user */
         $user = Yii::$app->user->identity;
@@ -295,26 +295,25 @@ class StudentFilesController extends BaseStudentRestController
             GitManager::uploadToRepo($repopath, $zipPath);
         }
 
-        $studentFile = $prevStudentFile;
-        $studentFile->uploadCount++;
-        $studentFile->name = basename($newFile->name);
-        $studentFile->uploadTime = date('Y-m-d H:i:s');
-        $studentFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
-        $studentFile->verified = !$studentFile->task->passwordProtected;
-        $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
-        $studentFile->codeCheckerResultID = null;
+        $submission = $prevSubmission;
+        $submission->uploadCount++;
+        $submission->name = basename($newFile->name);
+        $submission->uploadTime = date('Y-m-d H:i:s');
+        $submission->status = Submission::STATUS_UPLOADED;
+        $submission->verified = !$submission->task->passwordProtected;
+        $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
 
-        if ($studentFile->save()) {
+        if ($submission->save()) {
             Yii::info(
                 "A new solution has been uploaded for " .
-                "{$studentFile->task->name} ($taskID)",
+                "{$submission->task->name} ($taskID)",
                 __METHOD__
             );
             $ipAddress = new IpAddress();
-            $ipAddress->studentFileId = $studentFile->id;
+            $ipAddress->submissionId = $submission->id;
             $ipAddress->ipAddress = $this->request->userIP;
             if(!$ipAddress->save()) throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
-            return $studentFile;
+            return $submission;
         } else {
             throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
         }
@@ -323,8 +322,8 @@ class StudentFilesController extends BaseStudentRestController
     /**
      *
      * @OA\Post(
-     *     path="/student/student-files/verify",
-     *     operationId="student::StudentFilesController::actionVerify",
+     *     path="/student/submissions/verify",
+     *     operationId="student::SubmissionsController::actionVerify",
      *     tags={"Student Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
@@ -337,7 +336,7 @@ class StudentFilesController extends BaseStudentRestController
      *     @OA\Response(
      *         response=200,
      *         description="verified",
-     *         @OA\JsonContent(ref="#/components/schemas/Student_StudentFileResource_Read"),
+     *         @OA\JsonContent(ref="#/components/schemas/Student_SubmissionResource_Read"),
      *     ),
      *    @OA\Response(response=400, ref="#/components/responses/400"),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
@@ -362,13 +361,13 @@ class StudentFilesController extends BaseStudentRestController
             return $verifyResource->errors;
         }
 
-        $file = StudentFileResource::findOne($verifyResource->id);
+        $file = SubmissionResource::findOne($verifyResource->id);
 
         if (is_null($file)) {
             throw new NotFoundHttpException(Yii::t('app', 'Student File not found.'));
         }
 
-        PermissionHelpers::isItMyStudentFile($file);
+        PermissionHelpers::isItMySubmission($file);
 
         if ($file->verified) {
             throw new BadRequestHttpException(Yii::t('app', 'Student file is already verified'));
@@ -418,8 +417,8 @@ class StudentFilesController extends BaseStudentRestController
      * @throws NotFoundHttpException
      *
      * @OA\Get(
-     *     path="/student/student-files/{id}/auto-tester-results",
-     *     operationId="student::StudentFilesController::actionAutoTesterResults",
+     *     path="/student/submissions/{id}/auto-tester-results",
+     *     operationId="student::SubmissionsController::actionAutoTesterResults",
      *     tags={"Student Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
@@ -445,14 +444,14 @@ class StudentFilesController extends BaseStudentRestController
      */
     public function actionAutoTesterResults(int $id): array
     {
-        $file = StudentFileResource::findOne($id);
+        $file = SubmissionResource::findOne($id);
 
         if (is_null($file)) {
             throw new NotFoundHttpException(Yii::t('app', 'Student File not found.'));
         }
 
         PermissionHelpers::isItMyTask($file->taskID);
-        PermissionHelpers::isItMyStudentFile($file);
+        PermissionHelpers::isItMySubmission($file);
 
         $results = $file->testResults;
 

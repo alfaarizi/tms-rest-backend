@@ -23,7 +23,7 @@ class CodeCompassHelperTest extends Unit
         $this->assertFalse(CodeCompassHelper::isTooManyContainersRunning());
 
         $instance = new CodeCompassInstance();
-        $instance->studentFileId = 1;
+        $instance->submissionId = 1;
         $instance->status = CodeCompassInstance::STATUS_RUNNING;
         $instance->instanceStarterUserId = 1006;
         $instance->save();
@@ -66,7 +66,7 @@ class CodeCompassHelperTest extends Unit
         $this->assertEquals(25568, CodeCompassHelper::selectFirstAvailablePort());
 
         $instance = new CodeCompassInstance();
-        $instance->studentFileId = 1;
+        $instance->submissionId = 1;
         $instance->status = CodeCompassInstance::STATUS_RUNNING;
         $instance->instanceStarterUserId = 1006;
         $instance->port = 25568;

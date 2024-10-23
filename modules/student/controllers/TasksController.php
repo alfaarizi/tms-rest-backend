@@ -13,7 +13,7 @@ use yii\web\NotFoundHttpException;
 /**
  * This class provides access to task actions for students
  */
-class TasksController extends BaseStudentRestController
+class TasksController extends BaseSubmissionsController
 {
     /**
      * @inheritdoc
@@ -77,7 +77,7 @@ class TasksController extends BaseStudentRestController
         $dataProviders = [];
         foreach ($categories as $category) {
             $query = TaskResource::find()
-                ->withStudentFilesForUser(Yii::$app->user->id)
+                ->withSubmissionsForUser(Yii::$app->user->id)
                 ->where(['groupID' => $groupID])
                 ->andWhere(['category' => $category])
                 ->findAvailable();
@@ -124,7 +124,7 @@ class TasksController extends BaseStudentRestController
     public function actionView(int $id): TaskResource
     {
         $task = TaskResource::find()
-            ->withStudentFilesForUser(Yii::$app->user->id)
+            ->withSubmissionsForUser(Yii::$app->user->id)
             ->where(['{{%tasks}}.id' => $id])
             ->one();
 

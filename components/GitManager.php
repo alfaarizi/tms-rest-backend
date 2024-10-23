@@ -2,7 +2,7 @@
 
 namespace app\components;
 
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\Subscription;
 use app\models\Task;
 use app\models\User;
@@ -172,12 +172,12 @@ class GitManager
     public static function getReadonlyUserRepositoryUrl(int $taskID, string $userCode): string
     {
         $userCode = strtolower($userCode);
-        $userRepoPath = Yii::getAlias("@appdata/uploadedfiles/$taskID/") . strtolower($userCode) . '/';
+        $userRepoPath = Yii::getAlias("@appdata/uploadedfiles/$taskID/$userCode/");
+        // Search for random string id directory
         $dirs = FileHelper::findDirectories($userRepoPath, ['recursive' => false]);
         rsort($dirs);
-        $path = Yii::$app->params['versionControl']['basePath'] . '/' . $taskID . '/'
-            . strtolower($userCode) . '/' . basename($dirs[1]);
-        return Yii::$app->request->hostInfo . $path;
+        return Yii::$app->request->hostInfo . Yii::$app->params['versionControl']['basePath'] . '/'
+            . $taskID . '/' . $userCode . '/' . basename($dirs[1]);
     }
 
     /**
@@ -186,8 +186,8 @@ class GitManager
     public static function getWriteableUserRepositoryUrl(int $taskID, string $userCode): string
     {
         $userCode = strtolower($userCode);
-        // Search for random string id directory
         $path = Yii::getAlias("@appdata/uploadedfiles/$taskID/$userCode/");
+        // Search for random string id directory
         $dirs = FileHelper::findDirectories($path, ['recursive' => false]);
         rsort($dirs);
         return Yii::$app->request->hostInfo . Yii::$app->params['versionControl']['basePath'] . '/'
@@ -213,7 +213,7 @@ curl --request GET --url \"" . Url::toRoute(['/git/git-push', 'taskid' => $taski
      * @param resource $prerecievehook is the githook file
      * @param string $hardDeadline is the deadline of the task
      * @param bool $isPasswordProtected is the task password protected
-     * @param bool $isAccepted is the status of the student submission
+     * @param bool $isAccepted is the acceptance status of the student submission
      */
     public static function writePreRecieveGitHook($prerecievehook, string $hardDeadline, bool $isPasswordProtected = false, bool $isAccepted = false): void
     {
@@ -260,12 +260,12 @@ exit \$rc";
         rsort($dirs);
         $repopath = $repopath . basename($dirs[0]) . '/';
         $hookfile = fopen($repopath . '.git/hooks/pre-receive', "w");
-        $studentFile = StudentFile::findOne(['taskID' => $task->id, 'uploaderID' => $subscription->userID]);
+        $submission = Submission::findOne(['taskID' => $task->id, 'uploaderID' => $subscription->userID]);
         self::writePreRecieveGitHook(
             $hookfile,
             $task->hardDeadline,
             $task->passwordProtected,
-            $studentFile != null && $studentFile->isAccepted == StudentFile::IS_ACCEPTED_ACCEPTED
+            $submission != null && $submission->status == Submission::STATUS_ACCEPTED
         );
         fclose($hookfile);
     }
@@ -273,19 +273,19 @@ exit \$rc";
     /**
      * Triggers pre-receive hook update after task update
      */
-    public static function afterStatusUpdate(StudentFile $studentFile): void
+    public static function afterStatusUpdate(Submission $submission): void
     {
-        $repopath = Yii::getAlias("@appdata/uploadedfiles/") . $studentFile->taskID . '/'
-            . strtolower($studentFile->uploader->userCode) . '/';
+        $repopath = Yii::getAlias("@appdata/uploadedfiles/") . $submission->taskID . '/'
+            . strtolower($submission->uploader->userCode) . '/';
         $dirs = FileHelper::findDirectories($repopath, ['recursive' => false]);
         rsort($dirs);
         $repopath = $repopath . basename($dirs[0]) . '/';
         $hookfile = fopen($repopath . '.git/hooks/pre-receive', "w");
         self::writePreRecieveGitHook(
             $hookfile,
-            $studentFile->task->hardDeadline,
-            $studentFile->task->passwordProtected,
-            $studentFile->isAccepted == StudentFile::IS_ACCEPTED_ACCEPTED
+            $submission->task->hardDeadline,
+            $submission->task->passwordProtected,
+            $submission->status == Submission::STATUS_ACCEPTED
         );
         fclose($hookfile);
     }

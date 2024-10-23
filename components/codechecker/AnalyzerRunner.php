@@ -8,7 +8,7 @@ use app\components\docker\DockerImageManager;
 use app\components\docker\EvaluatorTarBuilder;
 use app\exceptions\CodeCheckerRunnerException;
 use app\exceptions\EvaluatorTarBuilderException;
-use app\models\StudentFile;
+use app\models\Submission;
 use Throwable;
 use Yii;
 use yii\base\BaseObject;
@@ -26,21 +26,21 @@ abstract class AnalyzerRunner extends BaseObject
 {
     protected DockerImageManager $dockerImageManager;
     protected ?string $workingDirBasePath;
-    protected StudentFile $studentFile;
+    protected Submission $submission;
 
     /**
-     * @param StudentFile $studentFile
+     * @param Submission $submission
      * @throws InvalidConfigException|NotInstantiableException Failed to get dependency from the DI container
      */
-    public function __construct(StudentFile $studentFile)
+    public function __construct(Submission $submission)
     {
         parent::__construct();
-        $this->studentFile = $studentFile;
+        $this->submission = $submission;
         $this->workingDirBasePath = null;
 
         $this->dockerImageManager = Yii::$container->get(
             DockerImageManager::class,
-            ['os' => $studentFile->task->testOS]
+            ['os' => $submission->task->testOS]
         );
     }
 
@@ -89,7 +89,7 @@ abstract class AnalyzerRunner extends BaseObject
     }
 
     /**
-     * Initializes working directory for student and instructor files
+     * Initializes working directory for student and task files
      * @return void
      * @throws CodeCheckerRunnerException
      */
@@ -115,10 +115,10 @@ abstract class AnalyzerRunner extends BaseObject
     {
         try {
             $tarBuilder = (new EvaluatorTarBuilder($this->workingDirBasePath, 'test'))
-                ->withSubmission($this->studentFile->path)
-                ->withInstructorTestFiles($this->studentFile->taskID)
+                ->withSubmission($this->submission->path)
+                ->withInstructorTestFiles($this->submission->taskID)
                 // CodeChecker skipfile: https://codechecker.readthedocs.io/en/latest/analyzer/user_guide/#skip
-                ->withTextFile('skipfile', $this->studentFile->task->codeCheckerSkipFile, true);
+                ->withTextFile('skipfile', $this->submission->task->codeCheckerSkipFile, true);
 
             $this->addAnalyzeInstructionsToTar($tarBuilder);
             return $tarBuilder->buildTar();
@@ -142,7 +142,7 @@ abstract class AnalyzerRunner extends BaseObject
         try {
             $dockerContainer->uploadArchive(
                 $tarPath,
-                $this->studentFile->task->testOS == 'windows' ? 'C:\\test' : '/test'
+                $this->submission->task->testOS == 'windows' ? 'C:\\test' : '/test'
             );
         } catch (Throwable $e) {
             throw new CodeCheckerRunnerException(
@@ -176,8 +176,8 @@ abstract class AnalyzerRunner extends BaseObject
     protected function buildAndStartAnalyzerContainer(): DockerContainer
     {
         try {
-            $container = DockerContainerBuilder::forTask($this->studentFile->task)
-                ->build("tms_codechecker_{$this->studentFile->id}");
+            $container = DockerContainerBuilder::forTask($this->submission->task)
+                ->build("tms_codechecker_{$this->submission->id}");
             $container->startContainer();
             return $container;
         } catch (\Throwable $e) {
@@ -200,7 +200,7 @@ abstract class AnalyzerRunner extends BaseObject
      */
     private function execAnalyzeCommand(DockerContainer $dockerContainer): array
     {
-        if ($this->studentFile->task->testOS == 'windows') {
+        if ($this->submission->task->testOS == 'windows') {
             $ccCommand = ['powershell', 'C:\\test\\analyze.ps1'];
         } else {
             $ccCommand = [
@@ -228,7 +228,7 @@ abstract class AnalyzerRunner extends BaseObject
         ];
 
         foreach (array_keys($formats) as $format) {
-            if ($this->studentFile->task->testOS === 'linux') {
+            if ($this->submission->task->testOS === 'linux') {
                 $prefix = "/test/submission";
                 $plistReportsDir = "/test/reports/plist";
                 $outputDir = "/test/reports/$formats[$format]";
@@ -246,7 +246,7 @@ abstract class AnalyzerRunner extends BaseObject
                 "--trim-path-prefix", $prefix
             ];
 
-            if (!empty($this->studentFile->task->codeCheckerSkipFile)) {
+            if (!empty($this->submission->task->codeCheckerSkipFile)) {
                 $command[] = "--ignore";
                 $command[] = $skipFilePath;
             }

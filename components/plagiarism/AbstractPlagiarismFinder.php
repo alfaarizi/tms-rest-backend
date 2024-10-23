@@ -74,14 +74,14 @@ abstract class AbstractPlagiarismFinder
         $languageCounter = [];
 
         // Iterate through on the tasks.
-        foreach ($this->plagiarism->studentFiles as $studentFile) {
+        foreach ($this->plagiarism->submissions as $submission) {
             // Get the uploaded zip for version controlled and non version controlled tasks as well
-            $zipfile = $studentFile->path;
+            $zipfile = $submission->path;
 
             // Open the zip for reading.
             $res = $zip->open($zipfile);
             if ($res === true) {
-                $path = $this->plagiarismPath . '/' . $studentFile->taskID . '/' . strtolower($studentFile->uploader->userCode);
+                $path = $this->plagiarismPath . '/' . $submission->taskID . '/' . strtolower($submission->uploader->userCode);
                 if (!file_exists($path)) {
                     FileHelper::createDirectory($path, 0755, true);
                 }

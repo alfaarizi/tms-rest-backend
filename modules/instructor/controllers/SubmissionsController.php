@@ -7,14 +7,14 @@ use app\components\CodeCompass;
 use app\components\CodeCompassHelper;
 use app\components\GitManager;
 use app\models\CodeCompassInstance;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\User;
 use app\modules\instructor\resources\CodeCompassInstanceResource;
 use app\modules\instructor\resources\GroupResource;
 use app\resources\AutoTesterResultResource;
 use app\resources\SemesterResource;
 use Yii;
-use app\modules\instructor\resources\StudentFileResource;
+use app\modules\instructor\resources\SubmissionResource;
 use app\modules\instructor\resources\TaskResource;
 use app\resources\UserResource;
 use yii\data\ActiveDataProvider;
@@ -33,7 +33,7 @@ use yii2tech\csvgrid\CsvGrid;
 /**
  * This class provides access to student files for instructors
  */
-class StudentFilesController extends BaseInstructorRestController
+class SubmissionsController extends BaseInstructorRestController
 {
     /**
      * @inheritdoc
@@ -60,8 +60,8 @@ class StudentFilesController extends BaseInstructorRestController
      * @throws NotFoundHttpException
      *
      * @OA\Get(
-     *     path="/instructor/student-files/list-for-task",
-     *     operationId="instructor::StudentFilesController::actionListForTask",
+     *     path="/instructor/submissions/list-for-task",
+     *     operationId="instructor::SubmissionsController::actionListForTask",
      *     tags={"Instructor Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -79,7 +79,7 @@ class StudentFilesController extends BaseInstructorRestController
      *     @OA\Response(
      *        response=200,
      *        description="successful operation",
-     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_StudentFileResource_Read")),
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_SubmissionResource_Read")),
      *    ),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
      *    @OA\Response(response=403, ref="#/components/responses/403"),
@@ -100,8 +100,7 @@ class StudentFilesController extends BaseInstructorRestController
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
-        $query = StudentFileResource::find()
-            ->where(['taskID' => $taskID]);
+        $query = SubmissionResource::find()->where(['taskID' => $taskID]);
 
         return new ActiveDataProvider(
             [
@@ -118,8 +117,8 @@ class StudentFilesController extends BaseInstructorRestController
      * @throws NotFoundHttpException
      *
      *  @OA\Get(
-     *     path="/instructor/student-files/export-spreadsheet",
-     *     operationId="instructor::StudentFilesController::actionExportSpreadsheet",
+     *     path="/instructor/submissions/export-spreadsheet",
+     *     operationId="instructor::SubmissionsController::actionExportSpreadsheet",
      *     tags={"Instructor Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -163,7 +162,7 @@ class StudentFilesController extends BaseInstructorRestController
         // Create dataProvide for student files
         $dataProvider = new ActiveDataProvider(
             [
-                'query' => StudentFile::find()->where(['taskID' => $taskID]),
+                'query' => Submission::find()->where(['taskID' => $taskID]),
                 'pagination' => [
                     // Export batch size
                     // Export is performed via batches
@@ -188,8 +187,8 @@ class StudentFilesController extends BaseInstructorRestController
                 'attribute' => 'uploadTime',
             ],
             [
-                'header' => Yii::t('app', 'Is Accepted'),
-                'attribute' => 'translatedIsAccepted',
+                'header' => Yii::t('app', 'Status'),
+                'attribute' => 'translatedStatus',
             ],
             [
                 'header' => Yii::t('app', 'Grade'),
@@ -210,7 +209,7 @@ class StudentFilesController extends BaseInstructorRestController
             [
                 'header' => Yii::t('app', 'IP addresses'),
                 'value' => function ($model) {
-                    /** @var $model StudentFile */
+                    /** @var $model Submission */
                     return implode(', ', $model->ipAddresses);
                 }
             ],
@@ -259,8 +258,8 @@ class StudentFilesController extends BaseInstructorRestController
      * @throws NotFoundHttpException
      *
      * @OA\Get(
-     *     path="/instructor/student-files/list-for-student",
-     *     operationId="instructor::StudentFilesController::actionListForStudent",
+     *     path="/instructor/submissions/list-for-student",
+     *     operationId="instructor::SubmissionsController::actionListForStudent",
      *     tags={"Instructor Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -286,7 +285,7 @@ class StudentFilesController extends BaseInstructorRestController
      *     @OA\Response(
      *        response=200,
      *        description="successful operation",
-     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_StudentFileResource_Read")),
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_SubmissionResource_Read")),
      *    ),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
      *    @OA\Response(response=403, ref="#/components/responses/403"),
@@ -312,7 +311,7 @@ class StudentFilesController extends BaseInstructorRestController
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
-        $query = StudentFileResource::find()
+        $query = SubmissionResource::find()
             ->innerJoinWith('task t')
             ->where(['t.groupID' => $groupID])
             ->andWhere(['uploaderID' => $uploaderID]);
@@ -330,8 +329,8 @@ class StudentFilesController extends BaseInstructorRestController
      * @throws NotFoundHttpException
      *
      * @OA\Get(
-     *     path="/instructor/student-files/{id}",
-     *     operationId="instructor::StudentFilesController::actionView",
+     *     path="/instructor/submissions/{id}",
+     *     operationId="instructor::SubmissionsController::actionView",
      *     tags={"Instructor Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
@@ -346,7 +345,7 @@ class StudentFilesController extends BaseInstructorRestController
      *     @OA\Response(
      *         response=200,
      *         description="successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/Instructor_StudentFileResource_Read"),
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_SubmissionResource_Read"),
      *     ),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
      *    @OA\Response(response=403, ref="#/components/responses/403"),
@@ -354,33 +353,33 @@ class StudentFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionView(int $id): StudentFileResource
+    public function actionView(int $id): SubmissionResource
     {
-        $studentFile = StudentFileResource::findOne($id);
+        $submission = SubmissionResource::findOne($id);
 
-        if (is_null($studentFile)) {
-            throw new NotFoundHttpException(Yii::t('app', 'StudentFile not found'));
+        if (is_null($submission)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Submission not found'));
         }
 
         // Authorization check
-        if (!Yii::$app->user->can('manageGroup', ['groupID' => $studentFile->task->groupID])) {
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $submission->task->groupID])) {
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
-        return $studentFile;
+        return $submission;
     }
 
     /**
      * Grade solution (update student file)
-     * @return StudentFileResource|array|null
+     * @return SubmissionResource|array|null
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
      *
      * @OA\Patch(
-     *     path="/instructor/student-files/{id}",
-     *     operationId="instructor::StudentFilesController::actionUpdate",
+     *     path="/instructor/submissions/{id}",
+     *     operationId="instructor::SubmissionsController::actionUpdate",
      *     tags={"Instructor Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -396,7 +395,7 @@ class StudentFilesController extends BaseInstructorRestController
      *         description="updated student file",
      *         @OA\MediaType(
      *             mediaType="application/json",
-     *             @OA\Schema(ref="#/components/schemas/Instructor_StudentFileResource_ScenarioGrade"),
+     *             @OA\Schema(ref="#/components/schemas/Instructor_SubmissionResource_ScenarioGrade"),
      *         )
      *     ),
      *     @OA\Response(
@@ -418,42 +417,42 @@ class StudentFilesController extends BaseInstructorRestController
      */
     public function actionUpdate(int $id)
     {
-        $studentFile = StudentFileResource::findOne($id);
+        $submission = SubmissionResource::findOne($id);
 
-        if (is_null($studentFile)) {
-            throw new NotFoundHttpException(Yii::t('app', 'StudentFile not found'));
+        if (is_null($submission)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Submission not found'));
         }
 
         // Authorization check
-        if (!Yii::$app->user->can('manageGroup', ['groupID' => $studentFile->task->groupID])) {
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $submission->task->groupID])) {
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
         // Check semester
-        if (SemesterResource::getActualID() !== $studentFile->task->semesterID) {
+        if (SemesterResource::getActualID() !== $submission->task->semesterID) {
             throw new BadRequestHttpException(
                 Yii::t('app', "You can't modify grade a solution from a previous semester!")
             );
         }
 
-        $studentFile->scenario = StudentFileResource::SCENARIO_GRADE;
-        $studentFile->load(Yii::$app->request->post(), '');
-        $studentFile->graderID = Yii::$app->user->id;
-        if (!$studentFile->validate()) {
+        $submission->scenario = SubmissionResource::SCENARIO_GRADE;
+        $submission->load(Yii::$app->request->post(), '');
+        $submission->graderID = Yii::$app->user->id;
+        if (!$submission->validate()) {
             $this->response->statusCode = 422;
-            return $studentFile->errors;
+            return $submission->errors;
         }
 
-        if ($studentFile->autoTesterStatus == StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS) {
-            $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+        if ($submission->autoTesterStatus == Submission::AUTO_TESTER_STATUS_IN_PROGRESS) {
+            $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
         }
 
         // Disable Git push if submission was accepted
-        if (Yii::$app->params['versionControl']['enabled'] && $studentFile->task->isVersionControlled) {
-            GitManager::afterStatusUpdate($studentFile);
+        if (Yii::$app->params['versionControl']['enabled'] && $submission->task->isVersionControlled) {
+            GitManager::afterStatusUpdate($submission);
         }
 
-        $isCanvasSynced = Yii::$app->params['canvas']['enabled'] && !empty($studentFile->canvasID);
+        $isCanvasSynced = Yii::$app->params['canvas']['enabled'] && !empty($submission->canvasID);
         // Upload to the canvas if synchronized
         if ($isCanvasSynced) {
             $user = User::findIdentity(Yii::$app->user->id);
@@ -464,29 +463,29 @@ class StudentFilesController extends BaseInstructorRestController
             }
         }
 
-        if (!$studentFile->save()) {
-            throw new ServerErrorHttpException(Yii::t('app',  'Failed to save StudentFile. Message: ') . Yii::t('app', 'A database error occurred'));
+        if (!$submission->save()) {
+            throw new ServerErrorHttpException(Yii::t('app',  'Failed to save Submission. Message: ') . Yii::t('app', 'A database error occurred'));
         }
 
         // Log
         Yii::info(
-            "Solution #$studentFile->id graded " .
-            "for task {$studentFile->task->name} (#$studentFile->taskID) " .
-            "with status $studentFile->isAccepted, grade $studentFile->grade and notes: $studentFile->notes",
+            "Solution #$submission->id graded " .
+            "for task {$submission->task->name} (#$submission->taskID) " .
+            "with status $submission->status, grade $submission->grade and notes: $submission->notes",
             __METHOD__
         );
 
 
         // E-mail notification
-        if ($studentFile->uploader->notificationEmail) {
+        if ($submission->uploader->notificationEmail) {
             $originalLanguage = Yii::$app->language;
-            Yii::$app->language = $studentFile->uploader->locale;
+            Yii::$app->language = $submission->uploader->locale;
             Yii::$app->mailer->compose('student/markSolution', [
-                'studentFile' => $studentFile,
+                'submission' => $submission,
                 'actor' => Yii::$app->user->identity,
             ])
                 ->setFrom(Yii::$app->params['systemEmail'])
-                ->setTo($studentFile->uploader->notificationEmail)
+                ->setTo($submission->uploader->notificationEmail)
                 ->setSubject(Yii::t('app/mail', 'Graded submission'))
                 ->send();
             Yii::$app->language = $originalLanguage;
@@ -496,13 +495,13 @@ class StudentFilesController extends BaseInstructorRestController
         if ($isCanvasSynced) {
             $canvas = new CanvasIntegration();
             if ($canvas->refreshCanvasToken($user)) {
-                $canvas->uploadGradeToCanvas($studentFile->id);
+                $canvas->uploadGradeToCanvas($submission->id);
             } else {
                 throw new ServerErrorHttpException(Yii::t('app', 'Failed to refresh Canvas Token.'));
             }
         }
 
-        return $studentFile;
+        return $submission;
     }
 
     /**
@@ -511,8 +510,8 @@ class StudentFilesController extends BaseInstructorRestController
      * @throws NotFoundHttpException
      *
      *  @OA\Get(
-     *     path="/instructor/student-files/{id}/download",
-     *     operationId="instructor::StudentFilesController::actionDownload",
+     *     path="/instructor/submissions/{id}/download",
+     *     operationId="instructor::SubmissionsController::actionDownload",
      *     tags={"Instructor Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -534,20 +533,20 @@ class StudentFilesController extends BaseInstructorRestController
      */
     public function actionDownload(int $id): void
     {
-        $studentFile = StudentFileResource::findOne($id);
+        $submission = SubmissionResource::findOne($id);
 
-        if (is_null($studentFile)) {
-            throw new NotFoundHttpException(Yii::t('app', 'StudentFile not found'));
+        if (is_null($submission)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Submission not found'));
         }
 
         // Authorization check
-        if (!Yii::$app->user->can('manageGroup', ['groupID' => $studentFile->task->groupID])) {
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $submission->task->groupID])) {
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
         Yii::$app->response->sendFile(
-            $studentFile->path,
-            $studentFile->uploader->userCode . '.' . pathinfo($studentFile->name, PATHINFO_EXTENSION)
+            $submission->path,
+            $submission->uploader->userCode . '.' . pathinfo($submission->name, PATHINFO_EXTENSION)
         );
     }
 
@@ -558,8 +557,8 @@ class StudentFilesController extends BaseInstructorRestController
      * @throws NotFoundHttpException
      *
      *  @OA\Get(
-     *     path="/instructor/student-files/{id}/downloadReport",
-     *     operationId="instructor::StudentFilesController::actionDownloadReport",
+     *     path="/instructor/submissions/{id}/downloadReport",
+     *     operationId="instructor::SubmissionsController::actionDownloadReport",
      *     tags={"Instructor Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -581,24 +580,24 @@ class StudentFilesController extends BaseInstructorRestController
      */
     public function actionDownloadReport(int $id): void
     {
-        $studentFile = StudentFileResource::findOne($id);
+        $submission = SubmissionResource::findOne($id);
 
-        if (is_null($studentFile)) {
-            throw new NotFoundHttpException(Yii::t('app', 'StudentFile not found'));
+        if (is_null($submission)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Submission not found'));
         }
 
         // Authorization check
-        if (!Yii::$app->user->can('manageGroup', ['groupID' => $studentFile->task->groupID])) {
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $submission->task->groupID])) {
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
-        if (!file_exists($studentFile->reportPath)) {
+        if (!file_exists($submission->reportPath)) {
             throw new NotFoundHttpException(Yii::t('app', 'Test reports not exist for this student file.'));
         }
 
         Yii::$app->response->sendFile(
-            $studentFile->reportPath,
-            $studentFile->uploader->userCode . '_report.tar'
+            $submission->reportPath,
+            $submission->uploader->userCode . '_report.tar'
         );
     }
 
@@ -612,8 +611,8 @@ class StudentFilesController extends BaseInstructorRestController
      * @throws \yii\base\Exception
      *
      *  @OA\Get(
-     *     path="/instructor/student-files/download-all-files",
-     *     operationId="instructor::StudentFilesController::actionDownloadAllFiles",
+     *     path="/instructor/submissions/download-all-files",
+     *     operationId="instructor::SubmissionsController::actionDownloadAllFiles",
      *     tags={"Instructor Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -665,21 +664,21 @@ class StudentFilesController extends BaseInstructorRestController
         }
 
         if ($onlyUngraded) {
-            $files = StudentFileResource::findAll(
+            $files = SubmissionResource::findAll(
                 [
                     'taskID' => $taskID,
-                    'isAccepted' => [
-                        StudentFile::IS_ACCEPTED_UPLOADED,
-                        StudentFile::IS_ACCEPTED_PASSED,
-                        StudentFile::IS_ACCEPTED_FAILED,
+                    'status' => [
+                        Submission::STATUS_UPLOADED,
+                        Submission::STATUS_PASSED,
+                        Submission::STATUS_FAILED,
                     ]
                 ]
             );
         } else {
-            /** @var StudentFileResource[] $files */
-            $files = StudentFileResource::find()
+            /** @var SubmissionResource[] $files */
+            $files = SubmissionResource::find()
                 ->andWhere(['taskID' => $taskID])
-                ->andWhere(['not', ['isAccepted' => StudentFile::IS_ACCEPTED_NO_SUBMISSION]])
+                ->andWhere(['not', ['status' => Submission::STATUS_NO_SUBMISSION]])
                 ->all();
         }
 
@@ -711,8 +710,8 @@ class StudentFilesController extends BaseInstructorRestController
      * @throws StaleObjectException
      *
      * @OA\POST(
-     *     path="/instructor/student-files/{id}/start-code-compass",
-     *     operationId="instructor::StudentFilesController::actionStartCodeCompass",
+     *     path="/instructor/submissions/{id}/start-code-compass",
+     *     operationId="instructor::SubmissionsController::actionStartCodeCompass",
      *     tags={"Instructor Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -738,20 +737,20 @@ class StudentFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionStartCodeCompass(int $id): StudentFileResource
+    public function actionStartCodeCompass(int $id): SubmissionResource
     {
         if(!CodeCompassHelper::isCodeCompassIntegrationEnabled()) {
             throw new ForbiddenHttpException(
                 Yii::t('app', 'CodeCompass is not enabled.'));
         }
 
-        $studentFile = StudentFileResource::findOne($id);
-        if (is_null($studentFile)) {
+        $submission = SubmissionResource::findOne($id);
+        if (is_null($submission)) {
             throw new NotFoundHttpException(
                 Yii::t('app', 'File not found.'));
         }
 
-        if (!Yii::$app->user->can('manageGroup', ['groupID' => $studentFile->task->groupID])) {
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $submission->task->groupID])) {
             throw new ForbiddenHttpException(
                 Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
@@ -759,13 +758,13 @@ class StudentFilesController extends BaseInstructorRestController
         if(CodeCompassHelper::isTooManyContainersRunning()) {
             Yii::$app->response->statusCode = 201;
             $codeCompassInstance = new CodeCompassInstanceResource();
-            $codeCompassInstance->studentFileId = $id;
+            $codeCompassInstance->submissionId = $id;
             $codeCompassInstance->instanceStarterUserId = Yii::$app->user->id;
             $codeCompassInstance->status = CodeCompassInstance::STATUS_WAITING;
             $codeCompassInstance->creationTime = date('Y-m-d H:i:s');
             $codeCompassInstance->save(false);
 
-            return $studentFile;
+            return $submission;
         }
 
         if(CodeCompassHelper::isContainerAlreadyRunning($id)) {
@@ -785,17 +784,17 @@ class StudentFilesController extends BaseInstructorRestController
         }
 
         $docker = CodeCompassHelper::createDockerClient();
-        $taskId = $studentFile->taskID;
+        $taskId = $submission->taskID;
 
         $codeCompass = new CodeCompass(
-            $studentFile,
+            $submission,
             $docker,
             $selectedPort,
             CodeCompassHelper::getCachedImageNameForTask($taskId, $docker)
         );
 
         $codeCompassInstance = new CodeCompassInstanceResource();
-        $codeCompassInstance->studentFileId = $id;
+        $codeCompassInstance->submissionId = $id;
         $codeCompassInstance->containerId = $codeCompass->containerId;
         $codeCompassInstance->status = CodeCompassInstance::STATUS_STARTING;
         $codeCompassInstance->port = (int) $selectedPort;
@@ -815,10 +814,10 @@ class StudentFilesController extends BaseInstructorRestController
         $codeCompassInstance->errorLogs = $codeCompass->errorLogs;
         $codeCompassInstance->username = $codeCompass->codeCompassUsername;
         $codeCompassInstance->password = $codeCompass->codeCompassPassword;
-        $studentFile->task->save(false);
+        $submission->task->save(false);
         $codeCompassInstance->save(false);
 
-        return $studentFile;
+        return $submission;
     }
 
     /**
@@ -830,8 +829,8 @@ class StudentFilesController extends BaseInstructorRestController
      * @throws UnauthorizedHttpException
      *
      * @OA\POST(
-     *     path="/instructor/student-files/{id}/stop-code-compass",
-     *     operationId="instructor::StudentFilesController::actionStopCodeCompass",
+     *     path="/instructor/submissions/{id}/stop-code-compass",
+     *     operationId="instructor::SubmissionsController::actionStopCodeCompass",
      *     tags={"Instructor Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -853,32 +852,32 @@ class StudentFilesController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionStopCodeCompass(int $id): StudentFileResource
+    public function actionStopCodeCompass(int $id): SubmissionResource
     {
         if(!CodeCompassHelper::isCodeCompassIntegrationEnabled()) {
             throw new ForbiddenHttpException(
                 Yii::t('app', 'CodeCompass is not enabled.'));
         }
 
-        $studentFile = StudentFileResource::findOne($id);
-        if (is_null($studentFile)) {
+        $submission = SubmissionResource::findOne($id);
+        if (is_null($submission)) {
             throw new NotFoundHttpException(
                 Yii::t('app', 'File not found.'));
         }
 
-        $codeCompassInstance = CodeCompassInstance::find()->findRunningForStudentFileId($id)->one();
+        $codeCompassInstance = CodeCompassInstance::find()->findRunningForSubmissionId($id)->one();
         if (is_null($codeCompassInstance)) {
             throw new NotFoundHttpException(
                 Yii::t('app', 'CodeCompass is not running for this solution.'));
         }
 
-        if (!Yii::$app->user->can('manageGroup', ['groupID' => $studentFile->task->groupID])) {
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $submission->task->groupID])) {
             throw new UnauthorizedHttpException(
                 Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
         $codeCompass = new CodeCompass(
-                $studentFile,
+                $submission,
                 CodeCompassHelper::createDockerClient(),
                 $codeCompassInstance->port
         );
@@ -892,7 +891,7 @@ class StudentFilesController extends BaseInstructorRestController
 
         try {
             $codeCompassInstance->delete();
-            return $studentFile;
+            return $submission;
         } catch (\Exception $e) {
             throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
         }
@@ -905,8 +904,8 @@ class StudentFilesController extends BaseInstructorRestController
      * @throws NotFoundHttpException
      *
      * @OA\Get(
-     *     path="/instructor/student-files/{id}/auto-tester-results",
-     *     operationId="instructor::StudentFilesController::actionAutoTesterResults",
+     *     path="/instructor/submissions/{id}/auto-tester-results",
+     *     operationId="instructor::SubmissionsController::actionAutoTesterResults",
      *     tags={"Instructor Student Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
@@ -931,18 +930,18 @@ class StudentFilesController extends BaseInstructorRestController
      */
     public function actionAutoTesterResults(int $id): array
     {
-        $studentFile = StudentFileResource::findOne($id);
+        $submission = SubmissionResource::findOne($id);
 
-        if (is_null($studentFile)) {
-            throw new NotFoundHttpException(Yii::t('app', 'StudentFile not found'));
+        if (is_null($submission)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Submission not found'));
         }
 
         // Authorization check
-        if (!Yii::$app->user->can('manageGroup', ['groupID' => $studentFile->task->groupID])) {
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $submission->task->groupID])) {
             throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
         }
 
-        $results = $studentFile->testResults;
+        $results = $submission->testResults;
 
         $idx = 1;
         return array_map(function ($result) use (&$idx) {

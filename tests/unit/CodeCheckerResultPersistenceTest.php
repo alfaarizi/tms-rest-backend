@@ -7,9 +7,9 @@ use app\components\codechecker\CodeCheckerResultPersistence;
 use app\exceptions\CodeCheckerPersistenceException;
 use app\models\CodeCheckerReport;
 use app\models\CodeCheckerResult;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\tests\unit\fixtures\CodeCheckerResultFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use Yii;
 use yii\helpers\Console;
@@ -25,8 +25,8 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
             'tasks' => [
                 'class' => TaskFixture::class,
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class,
+            'submission' => [
+                'class' => SubmissionsFixture::class,
             ],
             'codecheckerresults' => [
                 'class' => CodeCheckerResultFixture::class
@@ -41,53 +41,53 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testCreateNewResult()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 5]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 5]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->never())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $persistence->createNewResult();
 
-        $this->tester->seeRecord(StudentFile::class, ['id' => 5]);
-        $this->assertNotNull($studentFile->codeCheckerResult);
-        $this->assertEquals(CodeCheckerResult::STATUS_IN_PROGRESS, $studentFile->codeCheckerResult->status);
-        $this->assertEquals($studentFile->id, $studentFile->codeCheckerResult->studentFileID);
-        $this->assertEmpty($studentFile->codeCheckerResult->codeCheckerReports);
+        $this->tester->seeRecord(Submission::class, ['id' => 5]);
+        $this->assertNotNull($submission->codeCheckerResult);
+        $this->assertEquals(CodeCheckerResult::STATUS_IN_PROGRESS, $submission->codeCheckerResult->status);
+        $this->assertEquals($submission->id, $submission->codeCheckerResult->submissionID);
+        $this->assertEmpty($submission->codeCheckerResult->codeCheckerReports);
     }
 
     public function testTryToCreateNewResultExists()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 1]);
-        $originalId = $studentFile->codeCheckerResultID;
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 1]);
+        $originalId = $submission->codeCheckerResultID;
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->never())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $this->expectException(CodeCheckerPersistenceException::class);
 
         $persistence->createNewResult();
 
         // Check if result id has not changed
-        $this->assertEquals($originalId, StudentFile::findOne(1)->codeCheckerResultID);
+        $this->assertEquals($originalId, Submission::findOne(1)->codeCheckerResultID);
     }
 
     public function testTryToSaveAlreadySavedResult()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 1]);
-        $originalStatus = $studentFile->codeCheckerResult->status;
-        $originalStdout = $studentFile->codeCheckerResult->stdout;
-        $originalStderr = $studentFile->codeCheckerResult->stderr;
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 1]);
+        $originalStatus = $submission->codeCheckerResult->status;
+        $originalStdout = $submission->codeCheckerResult->stdout;
+        $originalStderr = $submission->codeCheckerResult->stderr;
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->never())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $this->expectException(CodeCheckerPersistenceException::class);
 
@@ -103,20 +103,20 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testTryToSaveWithInvalidArguments()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->never())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $this->expectException(\InvalidArgumentException::class);
 
         $persistence->saveResult('path_to_tar', 0, 'stdout', 'stderr');
 
         // Check if result has not changed
-        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $studentFile->codeCheckerResultID]);
+        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $submission->codeCheckerResultID]);
         $this->assertEquals(CodeCheckerResult::STATUS_IN_PROGRESS, $result->status);
         $this->assertNull($result->stdout);
         $this->assertNull($result->stderr);
@@ -125,8 +125,8 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testTryToSaveToAFileWithoutResult()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 2]);
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 2]);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->never())->method('sendNotifications');
@@ -139,17 +139,17 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testSaveNoIssuesResult()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->once())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $persistence->saveResult(null, 0, 'stdout', '');
 
-        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $studentFile->codeCheckerResultID]);
+        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $submission->codeCheckerResultID]);
         $this->assertEquals(CodeCheckerResult::STATUS_NO_ISSUES, $result->status);
         $this->assertEquals('stdout', $result->stdout);
         $this->assertEquals('', $result->stderr);
@@ -159,17 +159,17 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testAnalysisFailedNoTarFile()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->once())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $persistence->saveResult(null, 1, 'stdout', 'stderr');
 
-        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $studentFile->codeCheckerResultID]);
+        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $submission->codeCheckerResultID]);
         $this->assertEquals(CodeCheckerResult::STATUS_ANALYSIS_FAILED, $result->status);
         $this->assertEquals('stdout', $result->stdout);
         $this->assertEquals('stderr', $result->stderr);
@@ -179,17 +179,17 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testAnalysisFailedNoTarFileCanvas()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->once())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $persistence->saveResult(null, 1, 'stdout', 'stderr');
 
-        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $studentFile->codeCheckerResultID]);
+        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $submission->codeCheckerResultID]);
         $this->assertEquals(CodeCheckerResult::STATUS_ANALYSIS_FAILED, $result->status);
         $this->assertEquals('stdout', $result->stdout);
         $this->assertEquals('stderr', $result->stderr);
@@ -199,13 +199,13 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testAnalysisFailedEmptyJsonArray()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->once())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $persistence->saveResult(
             codecept_data_dir('codechecker_samples/valid_empty_json_array.tar'),
@@ -214,7 +214,7 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
             'stderr'
         );
 
-        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $studentFile->codeCheckerResultID]);
+        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $submission->codeCheckerResultID]);
         $this->assertEquals(CodeCheckerResult::STATUS_ANALYSIS_FAILED, $result->status);
         $this->assertEquals('stdout', $result->stdout);
         $this->assertEquals('stderr', $result->stderr);
@@ -224,13 +224,13 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testIssuesFoundResultWithTar()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->once())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $persistence->saveResult(
             codecept_data_dir('codechecker_samples/valid_cpp_reports.tar'),
@@ -239,7 +239,7 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
             'stderr'
         );
 
-        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $studentFile->codeCheckerResultID]);
+        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $submission->codeCheckerResultID]);
         $this->assertEquals(CodeCheckerResult::STATUS_ISSUES_FOUND, $result->status);
         $this->assertEquals('stdout', $result->stdout);
         $this->assertEquals('stderr', $result->stderr);
@@ -282,13 +282,13 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testTryToIssuesFoundResultWithoutJsonReports()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->never())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $this->expectException(CodeCheckerPersistenceException::class);
 
@@ -300,7 +300,7 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
         );
 
         // Check if result has not changed
-        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $studentFile->codeCheckerResultID]);
+        $result = $this->tester->grabRecord(CodeCheckerResult::class, ['id' => $submission->codeCheckerResultID]);
         $this->assertEquals(CodeCheckerResult::STATUS_IN_PROGRESS, $result->status);
         $this->assertNull($result->stdout);
         $this->assertNull($result->stderr);
@@ -309,13 +309,13 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testTryToSaveIssuesFoundResultWithUnsupportedJsonVersion()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->never())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $this->expectException(CodeCheckerPersistenceException::class);
 
@@ -327,7 +327,7 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
         );
 
         // Check if result has not changed
-        $result = CodeCheckerResult::findOne($studentFile->codeCheckerResultID);
+        $result = CodeCheckerResult::findOne($submission->codeCheckerResultID);
         $this->assertEquals(CodeCheckerResult::STATUS_IN_PROGRESS, $result->status);
         $this->assertNull($result->stdout);
         $this->assertNull($result->stderr);
@@ -337,13 +337,13 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
     public function testTryToSaveIssuesFoundResultWithoutHtmlReports()
     {
 
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->never())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $this->expectException(CodeCheckerPersistenceException::class);
         $persistence->saveResult(
@@ -354,7 +354,7 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
         );
 
         // Check if result has not changed
-        $result = CodeCheckerResult::findOne($studentFile->codeCheckerResultID);
+        $result = CodeCheckerResult::findOne($submission->codeCheckerResultID);
         $this->assertEquals(CodeCheckerResult::STATUS_IN_PROGRESS, $result->status);
         $this->assertNull($result->stdout);
         $this->assertNull($result->stderr);
@@ -363,17 +363,17 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testSaveWithRunnerFailedStatus()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->once())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
         $persistence->saveRunnerError("Run failed");
 
         // Check if result has not changed
-        $result = CodeCheckerResult::findOne($studentFile->codeCheckerResultID);
+        $result = CodeCheckerResult::findOne($submission->codeCheckerResultID);
         $this->assertEquals(CodeCheckerResult::STATUS_RUNNER_ERROR, $result->status);
         $this->assertNull($result->stdout);
         $this->assertNull($result->stderr);
@@ -382,13 +382,13 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testTryToSaveWithRunnerErrorWithoutResult()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 2]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 2]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->never())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
+        $persistence = new CodeCheckerResultPersistence($submission);
 
         $this->expectException(CodeCheckerPersistenceException::class);
 
@@ -397,15 +397,15 @@ class CodeCheckerResultPersistenceTest extends \Codeception\Test\Unit
 
     public function testTryToSaveWithRunnerErrorAlreadySaved()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 1]);
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 1]);
 
         $notifierMock = $this->createMock(CodeCheckerResultNotifier::class);
         $notifierMock->expects($this->never())->method('sendNotifications');
         Yii::$container->set(CodeCheckerResultNotifier::class, $notifierMock);
 
-        $persistence = new CodeCheckerResultPersistence($studentFile);
-        $originalStatus = $studentFile->codeCheckerResult->status;
-        $originalRunnerErrorMessage = $studentFile->codeCheckerResult->runnerErrorMessage;
+        $persistence = new CodeCheckerResultPersistence($submission);
+        $originalStatus = $submission->codeCheckerResult->status;
+        $originalRunnerErrorMessage = $submission->codeCheckerResult->runnerErrorMessage;
 
         $this->expectException(CodeCheckerPersistenceException::class);
 

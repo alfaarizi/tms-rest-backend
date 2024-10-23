@@ -16,7 +16,7 @@ class CodeCompassInstanceResource extends CodeCompassInstance
     {
         return [
             'id',
-            'studentFileId',
+            'submissionId',
             'instanceStarterUserId',
             'port',
             'status',

@@ -21,8 +21,8 @@ function getCodeCompassUrl($port): string
 <h2><?= Yii::t('app/mail', 'CodeCompass started') ?></h2>
 <p>
     <?= Yii::t('app/mail', 'Your requested CodeCompass instance has now been started for the solution of {name}, course: {course}.', [
-        'name' => Html::encode($instance->studentFile->uploader->name) ,
-        'course' => Html::encode($instance->studentFile->task->group->course->name)
+        'name' => Html::encode($instance->submissons->uploader->name) ,
+        'course' => Html::encode($instance->submissons->task->group->course->name)
     ]) ?>
 </p>
 <p>

@@ -1,7 +1,7 @@
 <?php
 
 use app\models\CodeCheckerResult;
-use app\models\StudentFile;
+use app\models\Submission;
 use yii\helpers\Html;
 use yii\mail\BaseMessage;
 use yii\web\View;
@@ -9,11 +9,11 @@ use yii\web\View;
 /* @var $this View View component instance */
 /* @var $message BaseMessage Instance of newly created mail message */
 
-/* @var $studentFile StudentFile The student solution analyzed */
+/* @var $submission Submission The student solution analyzed */
 
-$task = $studentFile->task;
+$task = $submission->task;
 $group = $task->group;
-$codeCheckerResult = $studentFile->codeCheckerResult;
+$codeCheckerResult = $submission->codeCheckerResult;
 ?>
 
 <h2><?= \Yii::t('app/mail', 'Static code analysis ready') ?></h2>

@@ -11,7 +11,7 @@ use Yii;
  * This is the model class for table "codecompass_instances".
  *
  * @property int $id
- * @property int $studentFileId
+ * @property int $submissionId
  * @property int $instanceStarterUserId
  * @property int $port
  * @property string $containerId
@@ -21,7 +21,7 @@ use Yii;
  * @property string $username
  * @property string $password
  *
- * @property StudentFile $studentFile
+ * @property Submission $submission
  */
 class CodeCompassInstance extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
@@ -43,13 +43,13 @@ class CodeCompassInstance extends \yii\db\ActiveRecord implements IOpenApiFieldT
     public function rules()
     {
         return [
-            [['studentFileId', 'status', 'instanceStarterUserId'], 'required'],
-            [['studentFileId', 'instanceStarterUserId', 'port'], 'integer'],
+            [['submissionId', 'status', 'instanceStarterUserId'], 'required'],
+            [['submissionId', 'instanceStarterUserId', 'port'], 'integer'],
             [['containerId'], 'string', 'max' => 50],
             [['status'], 'string', 'max' => 10],
             ['errorLogs', 'string'],
             [['username', 'password'], 'string', 'max' => 20],
-            [['studentFileId'], 'exist', 'skipOnError' => true, 'targetClass' => StudentFile::className(), 'targetAttribute' => ['studentFileId' => 'id']],
+            [['submissionId'], 'exist', 'skipOnError' => true, 'targetClass' => Submission::className(), 'targetAttribute' => ['submissionId' => 'id']],
         ];
     }
 
@@ -60,7 +60,7 @@ class CodeCompassInstance extends \yii\db\ActiveRecord implements IOpenApiFieldT
     {
         return [
             'id' => Yii::t('app', 'ID'),
-            'studentFileId' => Yii::t('app', 'Student File ID'),
+            'submissionId' => Yii::t('app', 'Student File ID'),
             'containerId' => Yii::t('app', 'Container ID'),
             'status' => Yii::t('app', 'Status'),
             'instanceStarterUserId' => Yii::t('app', 'Instance Starter User ID'),
@@ -73,20 +73,20 @@ class CodeCompassInstance extends \yii\db\ActiveRecord implements IOpenApiFieldT
     }
 
     /**
-     * Gets query for [[StudentFile]].
+     * Gets query for [[Submission]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getStudentFile()
+    public function getSubmission()
     {
-        return $this->hasOne(StudentFile::className(), ['id' => 'studentFileId']);
+        return $this->hasOne(Submission::className(), ['id' => 'submissionId']);
     }
 
     public function fieldTypes(): array
     {
         return [
             'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
-            'studentFileId' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'submissionId' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'instanceStarterUserId' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'status' => new OAProperty(['type' => 'string']),
             'port' => new OAProperty(['type' => 'string']),

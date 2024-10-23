@@ -7,7 +7,7 @@ use app\components\plagiarism\MossDownloader;
 use app\components\plagiarism\MossPlagiarismFinder;
 use app\tests\unit\fixtures\MossPlagiarismFixture;
 use app\tests\unit\fixtures\PlagiarismFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use Yii;
 
 /**
@@ -55,8 +55,8 @@ class MossPlagiarismFinderTest extends \Codeception\Test\Unit
             'plagiarisms_moss' => [
                 'class' => MossPlagiarismFixture::class,
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class,
+            'submission' => [
+                'class' => SubmissionsFixture::class,
             ],
         ];
     }

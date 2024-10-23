@@ -12,14 +12,14 @@ use Yii;
 
 class SetupWebAppExecutionResource extends Model implements IOpenApiFieldTypes
 {
-    public $studentFileID;
+    public $submissionID;
     public $runInterval;
 
     public function rules()
     {
         return [
-            [['studentFileID'], 'required'],
-            [['studentFileID'], 'integer'],
+            [['submissionID'], 'required'],
+            [['submissionID'], 'integer'],
             [['runInterval'],
                 'integer',
                 'min' => 10,
@@ -44,7 +44,7 @@ class SetupWebAppExecutionResource extends Model implements IOpenApiFieldTypes
     public function fieldTypes(): array
     {
         return [
-            'studentFileID' => new OAProperty(['type' => 'integer']),
+            'submissionID' => new OAProperty(['type' => 'integer']),
             'runInterval' => new OAProperty(['type' => 'integer']),
         ];
     }

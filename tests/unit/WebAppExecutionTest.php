@@ -2,7 +2,7 @@
 
 namespace app\tests\unit;
 
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\User;
 use app\models\WebAppExecution;
 use app\tests\unit\fixtures\WebAppExecutionFixture;
@@ -33,18 +33,18 @@ class WebAppExecutionTest extends \Codeception\Test\Unit
     private User $user;
 
     /** @specify  */
-    private StudentFile $studentFile;
+    private Submission $submission;
 
     protected function _before()
     {
         $this->user = $this->tester->grabRecord('app\models\User', ['id' => 1006]);
-        $this->studentFile = $this->tester->grabRecord('app\models\StudentFile', ['id' => 1]);
+        $this->submission = $this->tester->grabRecord('app\models\Submission', ['id' => 1]);
 
         $this->webAppExecution = new WebAppExecution();
         $this->webAppExecution->port = 8080;
         $this->webAppExecution->dockerHostUrl = 'http://tms.elte.hu';
         $this->webAppExecution->instructorID = $this->user->id;
-        $this->webAppExecution->studentFileID = $this->studentFile->id;
+        $this->webAppExecution->submissionID = $this->submission->id;
         $this->webAppExecution->containerName = 'myContainer';
     }
 
@@ -56,8 +56,8 @@ class WebAppExecutionTest extends \Codeception\Test\Unit
             $this->assertFalse($this->webAppExecution->validate());
         });
 
-        $this->specify('studentFileID must be set', function () {
-            unset($this->webAppExecution->studentFileID);
+        $this->specify('submissionID must be set', function () {
+            unset($this->webAppExecution->submissionID);
             $this->assertFalse($this->webAppExecution->validate());
         });
 
@@ -72,7 +72,7 @@ class WebAppExecutionTest extends \Codeception\Test\Unit
 
     public function testExecutionsOf()
     {
-        $webAppExecutions = WebAppExecution::find()->executionsOf($this->studentFile, $this->user->id)->all();
+        $webAppExecutions = WebAppExecution::find()->executionsOf($this->submission, $this->user->id)->all();
         $this->tester->assertCount(1, $webAppExecutions);
     }
 

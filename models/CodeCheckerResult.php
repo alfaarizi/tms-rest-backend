@@ -13,7 +13,7 @@ use yii\db\ActiveQuery;
  *
  * @property int $id
  * @property string $token
- * @property int $studentFileID
+ * @property int $submissionID
  * @property string $createdAt
  * @property string $status
  * @property string|null $stdout
@@ -23,7 +23,7 @@ use yii\db\ActiveQuery;
  * @property-read string|null $translatedStatus
  *
  * @property CodeCheckerReport[] $codeCheckerReports
- * @property StudentFile $studentFile
+ * @property Submission $submission
  */
 class CodeCheckerResult extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
@@ -55,12 +55,12 @@ class CodeCheckerResult extends \yii\db\ActiveRecord implements IOpenApiFieldTyp
     public function rules(): array
     {
         return [
-            [['token', 'studentFileID', 'createdAt', 'status'], 'required'],
-            [['id', 'studentFileID'], 'integer'],
+            [['token', 'submissionID', 'createdAt', 'status'], 'required'],
+            [['id', 'submissionID'], 'integer'],
             [['createdAt'], 'safe'],
             [['status', 'stdout', 'stderr', 'runnerErrorMessage'], 'string'],
             [['id'], 'unique'],
-            [['studentFileID'], 'exist', 'skipOnError' => true, 'targetClass' => StudentFile::class, 'targetAttribute' => ['studentFileID' => 'id']],
+            [['submissionID'], 'exist', 'skipOnError' => true, 'targetClass' => Submission::class, 'targetAttribute' => ['submissionID' => 'id']],
         ];
     }
 
@@ -71,7 +71,7 @@ class CodeCheckerResult extends \yii\db\ActiveRecord implements IOpenApiFieldTyp
     {
         return [
             'id' => Yii::t('app', 'ID'),
-            'studentFileID' => Yii::t('app', 'Student File ID'),
+            'submissionID' => Yii::t('app', 'Student File ID'),
             'createdAt' => Yii::t('app', 'Created At'),
             'status' => Yii::t('app', 'Status'),
             'errorMessage' => Yii::t('app', 'Error Message'),
@@ -91,13 +91,13 @@ class CodeCheckerResult extends \yii\db\ActiveRecord implements IOpenApiFieldTyp
     }
 
     /**
-     * Gets query for [[StudentFile]].
+     * Gets query for [[Submission]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getStudentFile(): ActiveQuery
+    public function getSubmission(): ActiveQuery
     {
-        return $this->hasOne(StudentFile::class, ['id' => 'studentFileID']);
+        return $this->hasOne(Submission::class, ['id' => 'submissionID']);
     }
 
     public function getHtmlReportsDirPath(): ?string
@@ -116,7 +116,7 @@ class CodeCheckerResult extends \yii\db\ActiveRecord implements IOpenApiFieldTyp
         return [
             'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'token' => new OAProperty(['type' => 'string']),
-            'studentFileID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'submissionID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'createdAt' => new OAProperty(['type' => 'string']),
             'status' => new OAProperty(['type' => 'string',  'enum' => new OAList(self::STATUS_VALUES)]),
             'translatedStatus' => new OAProperty(['type' => 'string']),

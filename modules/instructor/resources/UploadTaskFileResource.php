@@ -5,21 +5,21 @@ namespace app\modules\instructor\resources;
 use app\components\openapi\generators\OAItems;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
-use app\models\InstructorFile;
+use app\models\TaskFile;
 use app\models\Model;
 use yii\web\UploadedFile;
 
 /**
- * Class UploadInstructorFileResource
+ * Class UploadTaskFileResource
  * @property integer $taskID
  * @property string $category
  * @property UploadedFile[] $files
  */
 
-class UploadInstructorFileResource extends Model implements IOpenApiFieldTypes
+class UploadTaskFileResource extends Model implements IOpenApiFieldTypes
 {
     public $taskID;
-    public $category = InstructorFile::CATEGORY_ATTACHMENT;
+    public $category = TaskFile::CATEGORY_ATTACHMENT;
     public $files;
 
     /**
@@ -31,7 +31,7 @@ class UploadInstructorFileResource extends Model implements IOpenApiFieldTypes
             [['taskID', 'category', 'files'], 'required'],
             [['taskID'], 'integer'],
             [['taskID'], 'checkIfTaskExists'],
-            [['category'], 'in', 'range' => array_keys(InstructorFile::categoryMap())],
+            [['category'], 'in', 'range' => array_keys(TaskFile::categoryMap())],
             [['files'], 'file', 'skipOnEmpty' => false, 'maxFiles' => 20],
         ];
     }

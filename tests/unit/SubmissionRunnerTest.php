@@ -4,8 +4,8 @@ namespace app\tests\unit;
 
 use app\components\docker\DockerImageManager;
 use app\components\SubmissionRunner;
-use app\models\StudentFile;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\models\Submission;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use Yii;
 use yii\helpers\FileHelper;
 
@@ -21,15 +21,15 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
     /**
      * @specify
      */
-    private StudentFile $studentfile;
+    private Submission $submission;
 
     private SubmissionRunner $submissionRunner;
 
     public function _fixtures()
     {
         return [
-            'studentFiles' => [
-                'class' => StudentFilesFixture::class
+            'submission' => [
+                'class' => SubmissionsFixture::class
             ]
         ];
     }
@@ -41,7 +41,7 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
         Yii::$container->set(DockerImageManager::class, $dockerImageManagerMock);
 
         $this->submissionRunner = new SubmissionRunner();
-        $this->studentfile = $this->tester->grabRecord(StudentFile::class, ['id' => 5]);
+        $this->submission = $this->tester->grabRecord(Submission::class, ['id' => 5]);
 
         $from = Yii::$app->basePath . '/tests/_data/appdata_samples/uploadedfiles/5007/stud02/stud02.zip';
 
@@ -60,28 +60,28 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
     public function testRun()
     {
         $this->specify("When all conditions met container should start", function () {
-            $this->studentfile->task->appType = 'Web';
-            $this->studentfile->task->imageName = 'busybox';
-            $this->studentfile->task->port = 8080;
-            $this->studentfile->task->compileInstructions = 'echo hi';
+            $this->submission->task->appType = 'Web';
+            $this->submission->task->imageName = 'busybox';
+            $this->submission->task->port = 8080;
+            $this->submission->task->compileInstructions = 'echo hi';
 
             $container = $this->submissionRunner
-                ->run($this->studentfile, 8009, $this->studentfile->containerName);
+                ->run($this->submission, 8009, $this->submission->containerName);
             self::assertEquals(
                 2,
                 count(scandir(Yii::getAlias("@tmp/docker"))),
                 'Tmp dir should be empty after container start'
             );
-            self::assertEquals($this->studentfile->containerName, $container->getContainerName());
+            self::assertEquals($this->submission->containerName, $container->getContainerName());
         });
 
         $this->specify("When container fails to start resources should be cleaned up", function () {
-            $this->studentfile->task->appType = 'Web';
-            $this->studentfile->task->port = 8080;
+            $this->submission->task->appType = 'Web';
+            $this->submission->task->port = 8080;
 
             $this->tester->expectThrowable(\Throwable::class, function () {
                 $this->submissionRunner
-                    ->run($this->studentfile, 8009, $this->studentfile->containerName);
+                    ->run($this->submission, 8009, $this->submission->containerName);
             });
             self::assertEquals(
                 2,

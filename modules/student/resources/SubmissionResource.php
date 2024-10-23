@@ -7,9 +7,9 @@ use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 
 /**
- * Resource class for module 'StudentFile'
+ * Resource class for module 'Submission'
  */
-class StudentFileResource extends \app\models\StudentFile
+class SubmissionResource extends \app\models\Submission
 {
     /**
      * @inheritdoc
@@ -20,14 +20,14 @@ class StudentFileResource extends \app\models\StudentFile
             'id',
             'name',
             'uploadTime',
-            'isAccepted',
+            'status',
             'uploadCount',
-            'translatedIsAccepted',
+            'translatedStatus',
             'grade',
             'notes',
             'isVersionControlled',
             'graderName',
-            'errorMsg' => function($model) {
+            'errorMsg' => function ($model) {
                 return $model->safeErrorMsg;
             },
             'taskID',

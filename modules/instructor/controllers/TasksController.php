@@ -5,8 +5,8 @@ namespace app\modules\instructor\controllers;
 use app\components\CodeCompassHelper;
 use app\components\GitManager;
 use app\models\Group;
-use app\models\InstructorFile;
-use app\models\StudentFile;
+use app\models\TaskFile;
+use app\models\Submission;
 use app\models\Subscription;
 use app\models\Task;
 use app\models\TestCase;
@@ -249,32 +249,28 @@ class TasksController extends BaseInstructorRestController
             );
         }
 
-        // Create new StudentFile for everybody in the group
+        // Create new Submission for everybody in the group
         foreach ($task->group->subscriptions as $subscription) {
-            $studentFile = new StudentFile();
-            $studentFile->taskID = $task->id;
-            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_NO_SUBMISSION;
-            $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
-            $studentFile->uploaderID = $subscription->userID;
-            $studentFile->name = null;
-            $studentFile->grade = null;
-            $studentFile->notes = "";
-            $studentFile->uploadTime = null;
-            $studentFile->isVersionControlled = $task->isVersionControlled;
-            $studentFile->uploadCount = 0;
-            $studentFile->verified = true;
-            $studentFile->codeCheckerResultID = null;
+            $submission = new Submission();
+            $submission->taskID = $task->id;
+            $submission->status = Submission::STATUS_NO_SUBMISSION;
+            $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
+            $submission->uploaderID = $subscription->userID;
+            $submission->notes = "";
+            $submission->isVersionControlled = $task->isVersionControlled;
+            $submission->uploadCount = 0;
+            $submission->verified = true;
 
-            if ($studentFile->save()) {
+            if ($submission->save()) {
                 Yii::info(
                     "A new blank solution has been uploaded for " .
-                    "{$studentFile->task->name} ($studentFile->taskID)",
+                    "{$submission->task->name} ($submission->taskID)",
                     __METHOD__
                 );
                 $this->response->statusCode = 201;
-            } elseif ($studentFile->hasErrors()) {
+            } elseif ($submission->hasErrors()) {
                 $this->response->statusCode = 422;
-                return $studentFile->errors;
+                return $submission->errors;
             } else {
                 $this->response->statusCode = 500;
                 throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
@@ -500,25 +496,25 @@ class TasksController extends BaseInstructorRestController
         }
 
         // Count all submissions in task
-        $allStudentFilesCount = StudentFile::find()
+        $allSubmissionsCount = Submission::find()
             ->andWhere(['taskID' => $task->id])
             ->count();
 
         // Query all 'No Submission' submissions
-        $noSubmissionStudentFilesQuery = StudentFile::find()
+        $noSubmissionQuery = Submission::find()
             ->andWhere(['taskID' => $task->id])
-            ->andWhere(['isAccepted' => StudentFile::IS_ACCEPTED_NO_SUBMISSION]);
+            ->andWhere(['status' => Submission::STATUS_NO_SUBMISSION]);
 
         // Check if they match
-        if ($allStudentFilesCount == $noSubmissionStudentFilesQuery->count()) {
+        if ($allSubmissionsCount == $noSubmissionQuery->count()) {
             // Try to delete them.
             try {
                 // Queries
-                $instructorFiles = InstructorFile::findAll(['taskID' => $task->id]);
+                $taskFiles = TaskFile::findAll(['taskID' => $task->id]);
                 $testCases = TestCase::findAll(['taskID' => $task->id]);
-                $studentFiles = $noSubmissionStudentFilesQuery->all();
-                // Delete instructor files.
-                foreach ($instructorFiles as $file) {
+                $submission = $noSubmissionQuery->all();
+                // Delete task files.
+                foreach ($taskFiles as $file) {
                     // Delete the entry and the file from the disk.
                     $file->delete();
                 }
@@ -528,7 +524,7 @@ class TasksController extends BaseInstructorRestController
                     $case->delete();
                 }
                 // Delete (no submission) student files
-                foreach ($studentFiles as $file) {
+                foreach ($submission as $file) {
                     $file->delete();
                 }
 

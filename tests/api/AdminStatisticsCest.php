@@ -5,7 +5,7 @@ namespace app\tests\api;
 use ApiTester;
 use app\tests\unit\fixtures\AccessTokenFixture;
 use app\tests\unit\fixtures\GroupFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use Codeception\Util\HttpCode;
 use Yii;
@@ -41,8 +41,8 @@ class AdminStatisticsCest
             'groups' => [
                 'class' => GroupFixture::class
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class
+            'submission' => [
+                'class' => SubmissionsFixture::class
             ],
         ];
     }

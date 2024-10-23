@@ -7,9 +7,9 @@ use app\components\DateTimeHelpers;
 /* @var $this \yii\web\View view component instance */
 /* @var $message \yii\mail\BaseMessage instance of newly created mail message */
 
-/* @var $studentFile \app\models\StudentFile The student solution tested */
+/* @var $submission \app\models\Submission The student solution tested */
 
-$task = $studentFile->task;
+$task = $submission->task;
 $group = $task->group;
 
 ?>
@@ -24,5 +24,5 @@ $group = $task->group;
     <br>
     <?= \Yii::t('app/mail', 'Task name') ?>:
     <?= Html::a(Html::encode($task->name), Yii::$app->params['frontendUrl'] . '/student/task-manager/tasks/' . $task->id) ?><br>
-<pre><?= Html::encode($studentFile->safeErrorMsg) ?></pre>
+<pre><?= Html::encode($submission->safeErrorMsg) ?></pre>
 </p>

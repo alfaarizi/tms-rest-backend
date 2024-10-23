@@ -9,10 +9,10 @@ use app\components\openapi\IOpenApiFieldTypes;
 use Yii;
 
 /**
- * This is the model class for table "studentFiles".
+ * This is the model class for table "submission".
  *
  * @property integer $id
- * @property integer $studentFileId
+ * @property integer $submissionId
  * @property string $ipAddress
  */
 

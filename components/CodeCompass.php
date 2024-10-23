@@ -2,7 +2,7 @@
 
 namespace app\components;
 
-use app\models\StudentFile;
+use app\models\Submission;
 use ArrayObject;
 use Docker\API\Exception\ContainerDeleteBadRequestException;
 use Docker\API\Exception\ContainerDeleteConflictException;
@@ -47,7 +47,7 @@ class CodeCompass extends BaseObject
     private const INSTALL_SCRIPT_FILE = 'install.sh';
     private const COMPILATION_COMMANDS_FILE_LOCATION = self::COMPILE_COMMANDS_DIRECTORY . '/compilation_commands.json';
 
-    private StudentFile $_studentFile;
+    private Submission $_submission;
     private Docker $_docker;
     private string $_port;
     private string $_projectBasePath;
@@ -59,15 +59,15 @@ class CodeCompass extends BaseObject
     private string $_codeCompassPassword = '';
     private string $_codeCompassUsername = '';
 
-    public function __construct(StudentFile $studentFile, Docker $docker, string $port, ?string $imageName = null)
+    public function __construct(Submission $submission, Docker $docker, string $port, ?string $imageName = null)
     {
-        $this->_studentFile = $studentFile;
+        $this->_submission = $submission;
         $this->_port = $port;
         $this->_imageName = $imageName;
         $this->_docker = $docker;
 
-        $this->_containerId = 'compass_' . $this->_studentFile->id;
-        $this->_projectBasePath = Yii::getAlias("@tmp/codecompass/") . $this->_studentFile->id;
+        $this->_containerId = 'compass_' . $this->_submission->id;
+        $this->_projectBasePath = Yii::getAlias("@tmp/codecompass/") . $this->_submission->id;
         parent::__construct();
     }
 
@@ -113,7 +113,7 @@ class CodeCompass extends BaseObject
 
     /**
      * Starts the CodeCompass webserver.
-     *  - First transfers the StudentFile to the container using a TAR stream.
+     *  - First transfers the Submission to the container using a TAR stream.
      *  - Tries to compile the project and create compilation_commands.json that will be used for parsing.
      *  - Tries to parse the project using an SQLITE database.
      *  - Creates a one-time password for the user to sign in.
@@ -138,7 +138,7 @@ class CodeCompass extends BaseObject
         $this->executeCommandAttached(['sed', '-i', 's/\x0D$//', self::BUILD_SCRIPT_FILE], $container);
         $this->executeCommandAttached(['sed', '-i', 's/\x0D$//', self::INSTALL_SCRIPT_FILE], $container);
 
-        if ($this->_imageName == null && !empty($this->_studentFile->task->codeCompassPackagesInstallInstructions)) {
+        if ($this->_imageName == null && !empty($this->_submission->task->codeCompassPackagesInstallInstructions)) {
             $this->installBuildPackages($container);
             if (Yii::$app->params['codeCompass']['isImageCachingEnabled']) {
                 $this->commitContainer($container);
@@ -164,7 +164,7 @@ class CodeCompass extends BaseObject
                 'CodeCompass_parser',
                 '-d', self::SQLITE_DATA_FILE,
                 '-w', self::WORK_DIRECTORY,
-                '-n', $this->_studentFile->uploader->name . ' - ' . $this->_studentFile->task->name,
+                '-n', $this->_submission->uploader->name . ' - ' . $this->_submission->task->name,
                 '-i', self::PROJECT_DIRECTORY,
                 '-i', self::COMPILATION_COMMANDS_FILE_LOCATION,
                 '--label', 'src=/workspace'
@@ -212,7 +212,7 @@ class CodeCompass extends BaseObject
      */
     private function commitContainer($container)
     {
-        $this->_imageName = CodeCompassHelper::$CACHED_IMAGE_NAME_PREFIX . $this->_studentFile->taskID;
+        $this->_imageName = CodeCompassHelper::$CACHED_IMAGE_NAME_PREFIX . $this->_submission->taskID;
 
         $this->_docker->imageCommit($container->getConfig(), [
             'container' => $container->getId(),
@@ -254,7 +254,7 @@ class CodeCompass extends BaseObject
             $this->_projectBasePath . '/' . self::BUILD_SCRIPT_FILE,
             'w'
         );
-        fwrite($buildScript, $this->_studentFile->task->codeCompassCompileInstructions);
+        fwrite($buildScript, $this->_submission->task->codeCompassCompileInstructions);
     }
 
     private function createPackageInstallScript()
@@ -263,7 +263,7 @@ class CodeCompass extends BaseObject
             $this->_projectBasePath . '/' . self::INSTALL_SCRIPT_FILE,
             'w'
         );
-        fwrite($installScript, $this->_studentFile->task->codeCompassPackagesInstallInstructions);
+        fwrite($installScript, $this->_submission->task->codeCompassPackagesInstallInstructions);
     }
 
     /**
@@ -291,7 +291,7 @@ class CodeCompass extends BaseObject
         }
 
         $zip = new ZipArchive();
-        $res = $zip->open($this->_studentFile->path);
+        $res = $zip->open($this->_submission->path);
         if ($res === true) {
             $zip->extractTo($this->_projectBasePath);
             $zip->close();

@@ -4,7 +4,7 @@ namespace app\commands;
 
 use app\components\codechecker\AnalyzerRunner;
 use app\components\codechecker\CodeCheckerResultPersistence;
-use app\components\codechecker\StudentFileToAnalyzeFinder;
+use app\components\codechecker\SubmissionToAnalyzeFinder;
 use app\components\docker\DockerImageManager;
 use app\exceptions\CodeCheckerPersistenceException;
 use app\exceptions\CodeCheckerResultNotifierException;
@@ -32,7 +32,7 @@ class CodeCheckerController extends BaseController
         }
 
         try {
-            $finder = Yii::$container->get(StudentFileToAnalyzeFinder::class);
+            $finder = Yii::$container->get(SubmissionToAnalyzeFinder::class);
         } catch (NotInstantiableException | InvalidConfigException $e) {
             $this->stderr("Unable to get AnalyzerRunnerFactory from the DI container: {$e->getMessage()}" . PHP_EOL);
             return ExitCode::CONFIG;
@@ -40,55 +40,55 @@ class CodeCheckerController extends BaseController
 
         for ($i = 0; $i < $count; ++$i) {
             // Find next student file. Exit if there is no file to analyze.
-            $studentFile = $finder->findNext();
-            if (!$studentFile) {
-                $this->stdout('No studentFiles found.' . PHP_EOL);
+            $submission = $finder->findNext();
+            if (!$submission) {
+                $this->stdout('No submission found.' . PHP_EOL);
                 return ExitCode::OK;
             }
 
             // Set language to the current user's language
             $originalLanguage = Yii::$app->language;
-            Yii::$app->language = $studentFile->uploader->locale;
+            Yii::$app->language = $submission->uploader->locale;
 
             // Select to suitable analyzer runner for the selected tool and persistence for the file
             try {
-                $runner = Yii::$container->get(AnalyzerRunner::class, ['studentFile' => $studentFile]);
+                $runner = Yii::$container->get(AnalyzerRunner::class, ['submission' => $submission]);
             } catch (NotInstantiableException | InvalidConfigException $e) {
-                $this->stderr("Unable to get suitable analyzer runner from the DI container for #{$studentFile->id}: {$e->getMessage()}" . PHP_EOL);
+                $this->stderr("Unable to get suitable analyzer runner from the DI container for #{$submission->id}: {$e->getMessage()}" . PHP_EOL);
                 return ExitCode::CONFIG;
             }
 
             try {
-                $persistence = Yii::$container->get(CodeCheckerResultPersistence::class, ['studentFile' => $studentFile]);
+                $persistence = Yii::$container->get(CodeCheckerResultPersistence::class, ['submission' => $submission]);
             } catch (NotInstantiableException | InvalidConfigException $e) {
                 $this->stderr("Unable to get CodeCheckerResultPersistence from the DI container: {$e->getMessage()}" . PHP_EOL);
                 return ExitCode::CONFIG;
             }
 
             try {
-                $this->stdout("Started to analyze student file #{$studentFile->id}" . PHP_EOL);
+                $this->stdout("Started to analyze student file #{$submission->id}" . PHP_EOL);
 
                 $persistence->createNewResult();
                 $result = $runner->run();
                 $persistence->saveResult($result['tarPath'], $result['exitCode'], $result['stdout'], $result['stderr']);
 
                 $this->stdout(
-                    "Saved results for student file #{$studentFile->id}."
-                    . " Status: {$studentFile->codeCheckerResult->status}" . PHP_EOL
+                    "Saved results for student file #{$submission->id}."
+                    . " Status: {$submission->codeCheckerResult->status}" . PHP_EOL
                 );
             } catch (CodeCheckerRunnerException $e) {
                 $this->stderr(
-                    "Failed to run static code analysis for student file #{$studentFile->id} : {$e->getMessage()}"
+                    "Failed to run static code analysis for student file #{$submission->id} : {$e->getMessage()}"
                         . PHP_EOL,
                     Console::FG_RED
                 );
-                $this->saveExceptionMessage($persistence, $e->getMessage(), $studentFile->id);
+                $this->saveExceptionMessage($persistence, $e->getMessage(), $submission->id);
             } catch (CodeCheckerPersistenceException $e) {
-                $message = "Failed to save results for #{$studentFile->id}: {$e->getMessage()}";
+                $message = "Failed to save results for #{$submission->id}: {$e->getMessage()}";
                 $this->stderr($message . PHP_EOL, Console::FG_RED);
                 Yii::error($message, __METHOD__);
             } catch (CodeCheckerResultNotifierException $e) {
-                $message = "Failed to save send notifications about the updated CodeCheckerResult for #{$studentFile->id}: {$e->getMessage()}";
+                $message = "Failed to save send notifications about the updated CodeCheckerResult for #{$submission->id}: {$e->getMessage()}";
                 $this->stderr($message . PHP_EOL, Console::FG_RED);
                 Yii::error($message, __METHOD__);
             } finally {
@@ -98,7 +98,7 @@ class CodeCheckerController extends BaseController
                 try {
                     $runner->deleteWorkDirectory();
                 } catch (ErrorException $e) {
-                    $this->stderr("Failed to cleanup files after run for #{$studentFile->id}");
+                    $this->stderr("Failed to cleanup files after run for #{$submission->id}");
                 }
             }
         }
@@ -109,15 +109,15 @@ class CodeCheckerController extends BaseController
      * Calls the saveRunnerError method of the persistence and handle errors from that method
      * @param CodeCheckerResultPersistence $persistence
      * @param string $exceptionMessage
-     * @param int $studentFileID ID of the current student file
+     * @param int $submissionID ID of the current student file
      * @return void
      */
-    private function saveExceptionMessage(CodeCheckerResultPersistence $persistence, string $exceptionMessage, int $studentFileID)
+    private function saveExceptionMessage(CodeCheckerResultPersistence $persistence, string $exceptionMessage, int $submissionID)
     {
         try {
             $persistence->saveRunnerError($exceptionMessage);
         } catch (CodeCheckerPersistenceException $e) {
-            $message = "Failed to save error message to the CodeCheckerResult for #{$studentFileID}: {$e->getMessage()}";
+            $message = "Failed to save error message to the CodeCheckerResult for #{$submissionID}: {$e->getMessage()}";
             $this->stderr($message . PHP_EOL, Console::FG_RED);
             Yii::error($message, __METHOD__);
         } catch (CodeCheckerResultNotifierException $e) {

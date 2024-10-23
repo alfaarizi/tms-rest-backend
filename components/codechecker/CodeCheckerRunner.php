@@ -5,21 +5,21 @@ namespace app\components\codechecker;
 use app\components\docker\DockerContainer;
 use app\components\docker\EvaluatorTarBuilder;
 use app\exceptions\CodeCheckerRunnerException;
-use app\models\StudentFile;
+use app\models\Submission;
 
 /**
  * Runs CodeChecker on C/C++ solutions
  */
 class CodeCheckerRunner extends AnalyzerRunner
 {
-    public function __construct(StudentFile $studentFile)
+    public function __construct(Submission $submission)
     {
-        parent::__construct($studentFile);
+        parent::__construct($submission);
     }
 
     protected function addAnalyzeInstructionsToTar(EvaluatorTarBuilder $tarBuilder): void
     {
-        $testOS = $this->studentFile->task->testOS;
+        $testOS = $this->submission->task->testOS;
         $ext = $testOS == 'windows' ? '.ps1' : '.sh';
 
         $buildCommand = $testOS === "windows"
@@ -27,15 +27,15 @@ class CodeCheckerRunner extends AnalyzerRunner
             : "bash /test/build.sh";
         $ccCommand = 'CodeChecker check --build "' . $buildCommand . '" --output '
             . ($testOS === 'windows' ? 'C:\\test\\reports\\plist' : '/test/reports/plist');
-        if (!empty($this->studentFile->task->codeCheckerSkipFile)) {
+        if (!empty($this->submission->task->codeCheckerSkipFile)) {
             $ccCommand .= ' --ignore ' . ($testOS == 'windows' ? 'C:\\test\\skipfile' : '/test/skipfile');
         }
-        if (!empty($this->studentFile->task->codeCheckerToggles)) {
-            $ccCommand .= ' ' . $this->studentFile->task->codeCheckerToggles;
+        if (!empty($this->submission->task->codeCheckerToggles)) {
+            $ccCommand .= ' ' . $this->submission->task->codeCheckerToggles;
         }
 
         $tarBuilder
-            ->withTextFile("build" . $ext, $this->studentFile->task->codeCheckerCompileInstructions)
+            ->withTextFile("build" . $ext, $this->submission->task->codeCheckerCompileInstructions)
             ->withTextFile('analyze' . $ext, $ccCommand);
     }
 
@@ -46,7 +46,7 @@ class CodeCheckerRunner extends AnalyzerRunner
      */
     protected function createAndDownloadReportsTar(DockerContainer $analyzerContainer): ?string
     {
-        $testOS = $this->studentFile->task->testOS;
+        $testOS = $this->submission->task->testOS;
         $this->runParseCommand($analyzerContainer);
 
         $tarPath = $this->workingDirBasePath . "/reports.tar";

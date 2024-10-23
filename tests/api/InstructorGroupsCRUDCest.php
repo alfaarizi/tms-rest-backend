@@ -10,9 +10,9 @@ use app\models\InstructorGroup;
 use app\tests\unit\fixtures\AccessTokenFixture;
 use app\tests\unit\fixtures\GroupFixture;
 use app\tests\unit\fixtures\InstructorCourseFixture;
-use app\tests\unit\fixtures\InstructorFilesFixture;
+use app\tests\unit\fixtures\TaskFilesFixture;
 use app\tests\unit\fixtures\InstructorGroupFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use Codeception\Util\HttpCode;
 
@@ -47,11 +47,11 @@ class InstructorGroupsCRUDCest
             'tasks' => [
                 'class' => TaskFixture::class,
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class
+            'submission' => [
+                'class' => SubmissionsFixture::class
             ],
-            'instructorfiles' => [
-                'class' => InstructorFilesFixture::class
+            'taskfiles' => [
+                'class' => TaskFilesFixture::class
             ],
             'groups' => [
                 'class' => GroupFixture::class

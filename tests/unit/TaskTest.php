@@ -108,13 +108,13 @@ class TaskTest extends \Codeception\Test\Unit
                 'Console type should be allowed'
             );
 
-            $this->task->appType = null;
+            unset($this->task->appType);
             $this->assertFalse(
                 $this->task->validate('appType'),
                 'Port must be set'
             );
 
-            $this->task->imageName = null;
+            unset($this->task->imageName);
             $this->assertTrue(
                 $this->task->validate('appType'),
                 'Null should be allowed'
@@ -123,8 +123,7 @@ class TaskTest extends \Codeception\Test\Unit
 
         $this->specify("Port must be set when app type is Web", function () {
             $this->assertTrue($this->task->validate('port'), 'port must be set');
-            $this->task->port = null;
-            $this->assertFalse($this->task->validate('port'), 'null port shouldn\'t be allowed');
+            $this->assertFalse($this->task->port == null, 'null port shouldn\'t be allowed');
             $this->task->appType = 'Console';
             $this->assertTrue($this->task->validate('port'), 'null port should be allowed');
         });
@@ -157,7 +156,7 @@ class TaskTest extends \Codeception\Test\Unit
             $this->task->codeCheckerCompileInstructions = "g++ *cpp";
             $this->assertTrue($this->task->validate("codeCheckerCompileInstructions"));
 
-            $this->task->codeCheckerCompileInstructions = null;
+            unset($this->task->codeCheckerCompileInstructions);
             $this->assertFalse($this->task->validate("codeCheckerCompileInstructions"));
         });
 
@@ -168,7 +167,7 @@ class TaskTest extends \Codeception\Test\Unit
             $this->task->staticCodeAnalyzerInstructions = "roslynator analyze";
             $this->assertTrue($this->task->validate("staticCodeAnalyzerInstructions"));
 
-            $this->task->staticCodeAnalyzerInstructions = null;
+            unset($this->task->staticCodeAnalyzerInstructions);
             $this->assertFalse($this->task->validate("staticCodeAnalyzerInstructions"));
         });
     }

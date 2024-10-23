@@ -7,7 +7,7 @@ use app\models\AccessToken;
 use app\models\CodeCheckerResult;
 use app\models\Group;
 use app\models\InstructorGroup;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\Subscription;
 use app\models\Task;
 use app\models\User;
@@ -339,7 +339,7 @@ class CanvasIntegration
             $submission = $response->data;
             $tmsFile = $this->saveSubmission($submission, $task);
             if ($tmsFile != null && $tmsFile->id > 0) {
-                if ($tmsFile->isAccepted == StudentFile::IS_ACCEPTED_CORRUPTED) {
+                if ($tmsFile->status == Submission::STATUS_CORRUPTED) {
                     throw new CanvasRequestException(500, Yii::t(
                         'app',
                         'Synchronization problem occurred due to corrupted submission. The corrupted file was not synchronized.',
@@ -576,21 +576,17 @@ class CanvasIntegration
         /** @var Task[] $tasks */
         $tasks = $group->getTasks()->all();
         foreach ($tasks as $task) {
-            $studentFile = new StudentFile();
-            $studentFile->taskID = $task->id;
-            $studentFile->isAccepted = StudentFile::IS_ACCEPTED_NO_SUBMISSION;
-            $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
-            $studentFile->uploaderID = $subscription->userID;
-            $studentFile->name = null;
-            $studentFile->grade = null;
-            $studentFile->notes = "";
-            $studentFile->uploadTime = null;
-            $studentFile->isVersionControlled = $task->isVersionControlled;
-            $studentFile->uploadCount = 0;
-            $studentFile->verified = true;
-            $studentFile->codeCheckerResultID = null;
+            $submission = new Submission();
+            $submission->taskID = $task->id;
+            $submission->status = Submission::STATUS_NO_SUBMISSION;
+            $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
+            $submission->uploaderID = $subscription->userID;
+            $submission->notes = "";
+            $submission->isVersionControlled = $task->isVersionControlled;
+            $submission->uploadCount = 0;
+            $submission->verified = true;
 
-            $studentFile->save();
+            $submission->save();
         }
 
         if (!$subscription->save()) {
@@ -711,7 +707,7 @@ class CanvasIntegration
         ];
         $tasksToRemove = Task::find()->where($condition)->all();
         foreach ($tasksToRemove as $task) {
-            foreach ($task->studentFiles as $submission) {
+            foreach ($task->submissions as $submission) {
                 $submission->delete();
             }
             $task->delete();
@@ -774,26 +770,22 @@ class CanvasIntegration
             }
 
             if ($isNewTask) {
-                // Create new StudentFile for everybody in the group
+                // Create new Submission for everybody in the group
                 foreach ($task->group->subscriptions as $subscription) {
-                    $studentFile = new StudentFile();
-                    $studentFile->taskID = $task->id;
-                    $studentFile->isAccepted = StudentFile::IS_ACCEPTED_NO_SUBMISSION;
-                    $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
-                    $studentFile->uploaderID = $subscription->userID;
-                    $studentFile->name = null;
-                    $studentFile->grade = null;
-                    $studentFile->notes = "";
-                    $studentFile->uploadTime = null;
-                    $studentFile->isVersionControlled = $task->isVersionControlled;
-                    $studentFile->uploadCount = 0;
-                    $studentFile->verified = true;
-                    $studentFile->codeCheckerResultID = null;
+                    $submission = new Submission();
+                    $submission->taskID = $task->id;
+                    $submission->status = Submission::STATUS_NO_SUBMISSION;
+                    $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
+                    $submission->uploaderID = $subscription->userID;
+                    $submission->notes = "";
+                    $submission->isVersionControlled = $task->isVersionControlled;
+                    $submission->uploadCount = 0;
+                    $submission->verified = true;
 
-                    if ($studentFile->save()) {
+                    if ($submission->save()) {
                         Yii::info(
                             "A new blank solution has been uploaded for " .
-                            "{$studentFile->task->name} ($studentFile->taskID)",
+                            "{$submission->task->name} ($submission->taskID)",
                             __METHOD__
                         );
                     } else {
@@ -801,8 +793,8 @@ class CanvasIntegration
                         array_push($this->syncErrorMsgs, $errorMsg);
                         Yii::error(
                             $errorMsg .
-                             ($studentFile->hasErrors()
-                                 ? "Message: " . VarDumper::dumpAsString($studentFile->errors)
+                             ($submission->hasErrors()
+                                 ? "Message: " . VarDumper::dumpAsString($submission->errors)
                                  : ""),
                             __METHOD__
                         );
@@ -834,7 +826,7 @@ class CanvasIntegration
         foreach ($group->tasks as $task) {
             // Only synchronize submissions of Canvas tasks
             if ($task->category == Task::CATEGORY_TYPE_CANVAS_TASKS) {
-                $studentFileIds = [];
+                $submissionIds = [];
 
                 $page = 1;
 
@@ -885,8 +877,8 @@ class CanvasIntegration
                     foreach ($out as $submission) {
                         $tmsFile = $this->saveSubmission($submission, $task);
                         if ($tmsFile != null && $tmsFile->id > 0) {
-                            array_push($studentFileIds, $tmsFile->id);
-                            if ($tmsFile->isAccepted == StudentFile::IS_ACCEPTED_CORRUPTED) {
+                            array_push($submissionIds, $tmsFile->id);
+                            if ($tmsFile->status == Submission::STATUS_CORRUPTED) {
                                 $countSyncProblems++;
                             }
                         }
@@ -895,10 +887,10 @@ class CanvasIntegration
 
                 // Remove old submissions not belonging to a current student of the group
                 $condition = ['AND',
-                    ['NOT', ['id' => $studentFileIds]],
+                    ['NOT', ['id' => $submissionIds]],
                     ['taskID' => $task->id]
                 ];
-                $submissionsToRemove = StudentFile::find()->where($condition)->all();
+                $submissionsToRemove = Submission::find()->where($condition)->all();
                 foreach ($submissionsToRemove as $sf) {
                     $sf->delete();
                 }
@@ -920,10 +912,10 @@ class CanvasIntegration
      * Save the submission from canvas, and notifies users if there is/are corrupted files
      * @param array $submission the response from canvas with the solution data
      * @param Task $task the given task
-     * @return StudentFile|null the created/updated student file, null if the user cannot be found or
+     * @return Submission|null the created/updated student file, null if the user cannot be found or
      * there was a database error
      */
-    private function saveSubmission(array $submission, Task $task): ?StudentFile
+    private function saveSubmission(array $submission, Task $task): ?Submission
     {
         $canvasFile = null;
         if (
@@ -942,14 +934,14 @@ class CanvasIntegration
             return null;
         }
 
-        // Load StudentFile by Canvas ID
-        /** @var StudentFile $tmsFile */
-        $tmsFile = $task->getStudentFiles()->where(['canvasID' => $submission['id']])->one();
+        // Load Submission by Canvas ID
+        /** @var Submission $tmsFile */
+        $tmsFile = $task->getSubmissions()->where(['canvasID' => $submission['id']])->one();
 
-        // For first sync, load StudentFile by uploader user ID
+        // For first sync, load submission by uploader user ID
         if (is_null($tmsFile)) {
-            /** @var StudentFile $tmsFile */
-            $tmsFile = $task->getStudentFiles()->where(['uploaderID' => $user->id])->one();
+            /** @var Submission $tmsFile */
+            $tmsFile = $task->getSubmissions()->where(['uploaderID' => $user->id])->one();
 
             if (is_null($tmsFile)) {
                 // Should not occur since there should be a 'No submission' record even for non-submitted solutions.
@@ -965,12 +957,11 @@ class CanvasIntegration
             // Canvas file upload by student is invalid or corrupted
             if ($canvasFile['size'] == 0) { // deliberately == 0, so it checks for null as well
                 if (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
-                    $this->saveCanvasFile($task->id, $canvasFile['display_name'], Yii::$app->basePath . StudentFile::PATH_OF_CORRUPTED_FILE, $user->userCode);
+                    $this->saveCanvasFile($task->id, $canvasFile['display_name'], Yii::$app->basePath . Submission::PATH_OF_CORRUPTED_FILE, $user->userCode);
                     $tmsFile->name = $canvasFile['display_name'];
                     $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
-                    $tmsFile->isAccepted = StudentFile::IS_ACCEPTED_CORRUPTED;
-                    $tmsFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
-                    $tmsFile->codeCheckerResultID = null;
+                    $tmsFile->status = Submission::STATUS_CORRUPTED;
+                    $tmsFile->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
                     $newFileCorrupted = true;
                 }
             } else {
@@ -978,10 +969,9 @@ class CanvasIntegration
                     $this->saveCanvasFile($task->id, $canvasFile['display_name'], $canvasFile['url'], $user->userCode);
                     $tmsFile->name = $canvasFile['display_name'];
                     $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
-                    $tmsFile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
-                    $tmsFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+                    $tmsFile->status = Submission::STATUS_UPLOADED;
+                    $tmsFile->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
                     $tmsFile->uploadCount++;
-                    $tmsFile->codeCheckerResultID = null;
                     $hasNewUpload = true;
                 }
             }
@@ -1058,7 +1048,7 @@ class CanvasIntegration
                 Yii::$app->mailer->compose(
                     'student/corruptedSubmission',
                     [
-                        'studentFile' => $tmsFile
+                        'submission' => $tmsFile
                     ]
                 )
                     ->setFrom(Yii::$app->params['systemEmail'])
@@ -1136,48 +1126,48 @@ class CanvasIntegration
 
     /**
      * Upload the grade to canvas
-     * @param int $studentFileId the id of graded student file
+     * @param int $submissionId the id of graded student file
      */
-    public function uploadGradeToCanvas(int $studentFileId): void
+    public function uploadGradeToCanvas(int $submissionId): void
     {
         $user = User::findIdentity(Yii::$app->user->id);
-        $studentFile = StudentFile::findOne($studentFileId);
+        $submission = Submission::findOne($submissionId);
 
         $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
-        $url = 'api/v1/courses/' . $studentFile->task->group->canvasCourseID .
-            '/assignments/' . $studentFile->task->canvasID . '/submissions/' . $studentFile->uploader->canvasID;
+        $url = 'api/v1/courses/' . $submission->task->group->canvasCourseID .
+            '/assignments/' . $submission->task->canvasID . '/submissions/' . $submission->uploader->canvasID;
         $client->createRequest()
             ->setMethod('PUT')
             ->setHeaders(['Authorization' => 'Bearer ' . $user->canvasToken])
             ->setUrl($url)
             ->setData([
-                          'submission[posted_grade]' => is_null($studentFile->grade) ? "" : $studentFile->grade,
-                          'comment[text_comment]' => $studentFile->notes])
+                          'submission[posted_grade]' => is_null($submission->grade) ? "" : $submission->grade,
+                          'comment[text_comment]' => $submission->notes])
             ->send();
     }
 
     /**
      * Upload the automatic tester result message to canvas
-     * @param StudentFile $studentFile the tested student file
+     * @param Submission $submission the tested student file
      */
-    public function uploadTestResultToCanvas(StudentFile $studentFile): void
+    public function uploadTestResultToCanvas(Submission $submission): void
     {
-        $synchronizer = $studentFile->task->group->synchronizer;
+        $synchronizer = $submission->task->group->synchronizer;
         if (is_null($synchronizer) || is_null($synchronizer->canvasToken)) {
             Yii::error(
-                "Group #{$studentFile->task->groupID} has no valid Canvas synchronizer.",
+                "Group #{$submission->task->groupID} has no valid Canvas synchronizer.",
                 __METHOD__
             );
             return;
         }
 
-        if (!empty($studentFile->safeErrorMsg) && $this->refreshCanvasToken($synchronizer)) {
+        if (!empty($submission->safeErrorMsg) && $this->refreshCanvasToken($synchronizer)) {
             $originalLanguage = Yii::$app->language;
-            Yii::$app->language = $studentFile->uploader->locale;
+            Yii::$app->language = $submission->uploader->locale;
 
             $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
-            $url = 'api/v1/courses/' . $studentFile->task->group->canvasCourseID .
-                '/assignments/' . $studentFile->task->canvasID . '/submissions/' . $studentFile->uploader->canvasID;
+            $url = 'api/v1/courses/' . $submission->task->group->canvasCourseID .
+                '/assignments/' . $submission->task->canvasID . '/submissions/' . $submission->uploader->canvasID;
             $client->createRequest()
                 ->setMethod('PUT')
                 ->setHeaders(['Authorization' => 'Bearer ' . $synchronizer->canvasToken])
@@ -1186,7 +1176,7 @@ class CanvasIntegration
                               'comment[text_comment]' => Yii::t(
                                   'app',
                                   'TMS automatic tester result: '
-                              ) . $studentFile->safeErrorMsg
+                              ) . $submission->safeErrorMsg
                           ])
                 ->send();
 
@@ -1201,19 +1191,19 @@ class CanvasIntegration
      * @throws InvalidConfigException Thrown invalid configuration provided for the http client
      * @throws Exception Thrown if failed to send request to Canvas
      */
-    public function uploadCodeCheckerResultToCanvas(StudentFile $studentFile): void
+    public function uploadCodeCheckerResultToCanvas(Submission $submission): void
     {
-        $synchronizer = $studentFile->task->group->synchronizer;
+        $synchronizer = $submission->task->group->synchronizer;
         if (is_null($synchronizer) || is_null($synchronizer->canvasToken)) {
             Yii::error(
-                "Group #{$studentFile->task->groupID} has no valid Canvas synchronizer.",
+                "Group #{$submission->task->groupID} has no valid Canvas synchronizer.",
                 __METHOD__
             );
             return;
         }
 
-        if (!empty($studentFile->codeCheckerResultID) && $this->refreshCanvasToken($synchronizer)) {
-            $codeCheckerResult = $studentFile->codeCheckerResult;
+        if (!empty($submission->codeCheckerResultID) && $this->refreshCanvasToken($synchronizer)) {
+            $codeCheckerResult = $submission->codeCheckerResult;
             $comment = Yii::t('app', 'TMS static code analyzer result: ');
             switch ($codeCheckerResult->status) {
                 case CodeCheckerResult::STATUS_NO_ISSUES:
@@ -1236,12 +1226,12 @@ class CanvasIntegration
                     $comment .= Yii::t('app', 'Runner Error');
                     break;
                 default:
-                    throw new \UnexpectedValueException("Invalid CodeChecker result status for {$studentFile->id}");
+                    throw new \UnexpectedValueException("Invalid CodeChecker result status for {$submission->id}");
             }
 
             $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
-            $url = 'api/v1/courses/' . $studentFile->task->group->canvasCourseID .
-                '/assignments/' . $studentFile->task->canvasID . '/submissions/' . $studentFile->uploader->canvasID;
+            $url = 'api/v1/courses/' . $submission->task->group->canvasCourseID .
+                '/assignments/' . $submission->task->canvasID . '/submissions/' . $submission->uploader->canvasID;
             $response = $client->createRequest()
                 ->setMethod('PUT')
                 ->setHeaders(['Authorization' => 'Bearer ' . $synchronizer->canvasToken])
@@ -1252,7 +1242,7 @@ class CanvasIntegration
             if (!$response->isOk) {
                 Yii::error(
                     'Saving CodeChecker results to Canvas failed' . PHP_EOL .
-                    "Student File ID: {$studentFile->id}",
+                    "Student File ID: {$submission->id}",
                     __METHOD__
                 );
                 throw new CanvasRequestException($response->statusCode, 'Failed to save CodeChecker results to canvas.');

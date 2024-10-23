@@ -4,9 +4,9 @@ namespace app\tests\api;
 
 use ApiTester;
 use Yii;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\tests\unit\fixtures\AccessTokenFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\SubscriptionFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use app\tests\unit\fixtures\UserFixture;
@@ -14,15 +14,15 @@ use app\tests\unit\fixtures\LogFixture;
 use app\tests\unit\fixtures\TestResultFixture;
 use Codeception\Util\HttpCode;
 
-class StudentFilesCest
+class SubmissionsCest
 {
-    public const STUDENT_FILES_SCHEMA = [
+    public const SUBMISSON_SCHEMA = [
         'id' => 'integer',
         'name' => 'string',
         'uploadTime' => 'string',
         'uploadCount' => 'integer',
-        'isAccepted' => 'string|null',
-        'translatedIsAccepted' => 'string',
+        'status' => 'string|null',
+        'translatedStatus' => 'string',
         'grade' => 'integer|null',
         'notes' => 'string|null',
         'isVersionControlled' => 'integer',
@@ -46,8 +46,8 @@ class StudentFilesCest
             'tasks' => [
                 'class' => TaskFixture::class,
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class
+            'submission' => [
+                'class' => SubmissionsFixture::class
             ],
             'users' => [
                 'class' => UserFixture::class
@@ -79,28 +79,28 @@ class StudentFilesCest
 
     public function viewNotFound(ApiTester $I)
     {
-        $I->sendGet("/student/student-files/0");
+        $I->sendGet("/student/submissions/0");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function viewWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/student/student-files/2");
+        $I->sendGet("/student/submissions/2");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function viewWithoutFullErrorMessage(ApiTester $I)
     {
-        $I->sendGet("/student/student-files/1");
+        $I->sendGet("/student/submissions/1");
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
                 'id' => 1,
                 'name' => 'stud01.zip',
-                'isAccepted' => StudentFile::IS_ACCEPTED_LATE_SUBMISSION,
-                'translatedIsAccepted' => 'Late Submission',
+                'status' => Submission::STATUS_LATE_SUBMISSION,
+                'translatedStatus' => 'Late Submission',
                 'isVersionControlled' => 0,
                 'grade' => 4,
                 'notes' => '',
@@ -114,16 +114,16 @@ class StudentFilesCest
 
     public function viewWithFullErrorMessage(ApiTester $I)
     {
-        $I->sendGet("/student/student-files/3");
+        $I->sendGet("/student/submissions/3");
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
                 'id' => 3,
                 'name' => 'stud01.zip',
-                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
-                'translatedIsAccepted' => 'Accepted',
+                'status' => Submission::STATUS_ACCEPTED,
+                'translatedStatus' => 'Accepted',
                 'isVersionControlled' => 0,
                 'grade' => '5',
                 'notes' => '',
@@ -137,25 +137,25 @@ class StudentFilesCest
 
     public function downloadNotFound(ApiTester $I)
     {
-        $I->sendGet("/student/student-files/0/download");
+        $I->sendGet("/student/submissions/0/download");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function downloadWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/student/student-files/2/download");
+        $I->sendGet("/student/submissions/2/download");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function downloadStudentRemovedFromGroup(ApiTester $I)
     {
-        $I->sendGet("/student/student-files/5/download");
+        $I->sendGet("/student/submissions/5/download");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function download(ApiTester $I)
     {
-        $I->sendGet("/student/student-files/1/download");
+        $I->sendGet("/student/submissions/1/download");
         $I->seeResponseCodeIs(HttpCode::OK);
 
         $I->openFile(Yii::getAlias("@appdata/uploadedfiles/5001/stud01/stud01.zip"));
@@ -165,7 +165,7 @@ class StudentFilesCest
     public function uploadInvalid(ApiTester $I)
     {
         $I->sendPost(
-            "/student/student-files/upload",
+            "/student/submissions/upload",
             ['taskID' => 0],
             ['file' => codecept_data_dir("upload_samples/file1.txt")]
         );
@@ -176,7 +176,7 @@ class StudentFilesCest
     public function uploadNotAvailable(ApiTester $I)
     {
         $I->sendPost(
-            "/student/student-files/upload",
+            "/student/submissions/upload",
             ['taskID' => 5003],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
@@ -186,7 +186,7 @@ class StudentFilesCest
     public function uploadWithoutPermission(ApiTester $I)
     {
         $I->sendPost(
-            "/student/student-files/upload",
+            "/student/submissions/upload",
             ['taskID' => 5007],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
@@ -196,7 +196,7 @@ class StudentFilesCest
     public function uploadExpired(ApiTester $I)
     {
         $I->sendPost(
-            "/student/student-files/upload",
+            "/student/submissions/upload",
             ['taskID' => 5000],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
@@ -206,17 +206,17 @@ class StudentFilesCest
     public function uploadUploaded(ApiTester $I)
     {
         $I->sendPost(
-            "/student/student-files/upload",
+            "/student/submissions/upload",
             ['taskID' => 5004],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
         $I->seeResponseContainsJson(
             [
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
-                "translatedIsAccepted" => "Uploaded",
+                "status" => Submission::STATUS_UPLOADED,
+               "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -227,11 +227,11 @@ class StudentFilesCest
             ]
         );
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 "id" => 6,
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "status" => Submission::STATUS_UPLOADED,
                 "uploadCount" => 2,
             ]
         );
@@ -242,7 +242,7 @@ class StudentFilesCest
     public function uploadAccepted(ApiTester $I)
     {
         $I->sendPost(
-            "/student/student-files/upload",
+            "/student/submissions/upload",
             ['taskID' => 5002],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
@@ -257,17 +257,17 @@ class StudentFilesCest
     public function uploadLateSubmission(ApiTester $I)
     {
         $I->sendPost(
-            "/student/student-files/upload",
+            "/student/submissions/upload",
             ['taskID' => 5001],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
         $I->seeResponseContainsJson(
             [
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
-                "translatedIsAccepted" => "Uploaded",
+                "status" => Submission::STATUS_UPLOADED,
+               "translatedStatus" => "Uploaded",
                 "grade" => 4,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -278,11 +278,11 @@ class StudentFilesCest
             ]
         );
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 "id" => 1,
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "status" => Submission::STATUS_UPLOADED,
                 "grade" => 4,
                 "uploadCount" => 2,
             ]
@@ -294,17 +294,17 @@ class StudentFilesCest
     public function uploadNew(ApiTester $I)
     {
         $I->sendPost(
-            "/student/student-files/upload",
+            "/student/submissions/upload",
             ['taskID' => 5008],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
         $I->seeResponseContainsJson(
             [
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
-                "translatedIsAccepted" => "Uploaded",
+                "status" => Submission::STATUS_UPLOADED,
+               "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -315,11 +315,11 @@ class StudentFilesCest
             ]
         );
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 "taskID" => 5008,
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "status" => Submission::STATUS_UPLOADED,
             ]
         );
         $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5008/stud01/"));
@@ -328,18 +328,18 @@ class StudentFilesCest
     public function uploadToPasswordProtectedTask(ApiTester $I)
     {
         $I->sendPost(
-            "/student/student-files/upload",
+            "/student/submissions/upload",
             ['taskID' => 5010],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
-                "translatedIsAccepted" => "Uploaded",
+                "status" => Submission::STATUS_UPLOADED,
+               "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -350,11 +350,11 @@ class StudentFilesCest
             ]
         );
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 "taskID" => 5010,
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "status" => Submission::STATUS_UPLOADED,
                 "uploadCount" => 1,
             ]
         );
@@ -364,18 +364,18 @@ class StudentFilesCest
     public function reuploadUnverifiedSolution(ApiTester $I)
     {
         $I->sendPost(
-            "/student/student-files/upload",
+            "/student/submissions/upload",
             ['taskID' => 5011],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
-                "translatedIsAccepted" => "Uploaded",
+                "status" => Submission::STATUS_UPLOADED,
+               "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -386,12 +386,12 @@ class StudentFilesCest
             ]
         );
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 "id" => 12,
                 "taskID" => 5011,
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "status" => Submission::STATUS_UPLOADED,
                 "uploadCount" => 2,
                 "verified" => false,
             ]
@@ -402,18 +402,18 @@ class StudentFilesCest
     public function reuploadVerifiedSolution(ApiTester $I)
     {
         $I->sendPost(
-            "/student/student-files/upload",
+            "/student/submissions/upload",
             ['taskID' => 5012],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
-                "translatedIsAccepted" => "Uploaded",
+                "status" => Submission::STATUS_UPLOADED,
+               "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -424,12 +424,12 @@ class StudentFilesCest
             ]
         );
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 "id" => 13,
                 "taskID" => 5012,
                 "name" => "stud01_upload_test.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "status" => Submission::STATUS_UPLOADED,
                 "uploadCount" => 2,
                 "verified" => false,
             ]
@@ -440,7 +440,7 @@ class StudentFilesCest
     public function verifySolution(ApiTester $I)
     {
         $I->sendPost(
-            '/student/student-files/verify',
+            '/student/submissions/verify',
             [
                 'id' => 12,
                 'password' => 'password',
@@ -448,14 +448,14 @@ class StudentFilesCest
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
                 "id" => 12,
                 "name" => "stud01.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
-                "translatedIsAccepted" => "Uploaded",
+                "status" => Submission::STATUS_UPLOADED,
+               "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -466,10 +466,10 @@ class StudentFilesCest
             ]
         );
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 "id" => 12,
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "status" => Submission::STATUS_UPLOADED,
                 "verified" => true,
             ]
         );
@@ -478,7 +478,7 @@ class StudentFilesCest
     public function verifySolutionAlreadyVerified(ApiTester $I)
     {
         $I->sendPost(
-            '/student/student-files/verify',
+            '/student/submissions/verify',
             [
                 'id' => 13,
                 'password' => 'password',
@@ -491,7 +491,7 @@ class StudentFilesCest
     public function verifySolutionInvalidRequest(ApiTester $I)
     {
         $I->sendPost(
-            '/student/student-files/verify',
+            '/student/submissions/verify',
             [
                 'password' => 'password'
             ]
@@ -502,7 +502,7 @@ class StudentFilesCest
     public function verifySolutionWrongPassword(ApiTester $I)
     {
         $I->sendPost(
-            '/student/student-files/verify',
+            '/student/submissions/verify',
             [
                 'id' => 12,
                 'password' => 'wrong',
@@ -515,7 +515,7 @@ class StudentFilesCest
     public function verifyWithoutPermission(ApiTester $I)
     {
         $I->sendPost(
-            '/student/student-files/verify',
+            '/student/submissions/verify',
             [
                 'id' => 2,
                 'password' => 'password',
@@ -528,7 +528,7 @@ class StudentFilesCest
     public function verifyFileNotFound(ApiTester $I)
     {
         $I->sendPost(
-            '/student/student-files/verify',
+            '/student/submissions/verify',
             [
                 'id' => 0,
                 'password' => 'password',
@@ -542,7 +542,7 @@ class StudentFilesCest
     public function verifyDifferentIp(ApiTester $I)
     {
         $I->sendPost(
-            '/student/student-files/verify',
+            '/student/submissions/verify',
             [
                 'id' => 15,
                 'password' => 'password',
@@ -555,7 +555,7 @@ class StudentFilesCest
     public function verifyDifferentIpDisableCheck(ApiTester $I)
     {
         $I->sendPost(
-            '/student/student-files/verify',
+            '/student/submissions/verify',
             [
                 'id' => 15,
                 'password' => 'password',
@@ -563,14 +563,14 @@ class StudentFilesCest
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
                 "id" => 15,
                 "name" => "stud01.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
-                "translatedIsAccepted" => "Uploaded",
+                "status" => Submission::STATUS_UPLOADED,
+               "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -581,10 +581,10 @@ class StudentFilesCest
             ]
         );
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 "id" => 15,
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "status" => Submission::STATUS_UPLOADED,
                 "verified" => true,
             ]
         );
@@ -593,7 +593,7 @@ class StudentFilesCest
     public function verifyMultipleIpAddresses(ApiTester $I)
     {
         $I->sendPost(
-            '/student/student-files/verify',
+            '/student/submissions/verify',
             [
                 'id' => 16,
                 'password' => 'password',
@@ -606,7 +606,7 @@ class StudentFilesCest
     public function verifyMultipleIpAddressesDisableCheck(ApiTester $I)
     {
         $I->sendPost(
-            '/student/student-files/verify',
+            '/student/submissions/verify',
             [
                 'id' => 16,
                 'password' => 'password',
@@ -614,14 +614,14 @@ class StudentFilesCest
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
                 "id" => 16,
                 "name" => "stud01.zip",
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
-                "translatedIsAccepted" => "Uploaded",
+                "status" => Submission::STATUS_UPLOADED,
+               "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -632,10 +632,10 @@ class StudentFilesCest
             ]
         );
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 "id" => 16,
-                "isAccepted" => StudentFile::IS_ACCEPTED_UPLOADED,
+                "status" => Submission::STATUS_UPLOADED,
                 "verified" => true,
             ]
         );
@@ -643,7 +643,7 @@ class StudentFilesCest
 
     public function viewTestResultsWithFullErrorMessage(ApiTester $I)
     {
-        $I->sendGet("/student/student-files/51/auto-tester-results");
+        $I->sendGet("/student/submissions/51/auto-tester-results");
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TEST_RESULT_SCHEMA);
 
@@ -666,7 +666,7 @@ class StudentFilesCest
 
     public function viewTestResultsWithoutFullErrorMessage(ApiTester $I)
     {
-        $I->sendGet("/student/student-files/52/auto-tester-results");
+        $I->sendGet("/student/submissions/52/auto-tester-results");
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TEST_RESULT_SCHEMA);
 

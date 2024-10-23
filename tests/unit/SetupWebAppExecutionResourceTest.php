@@ -23,11 +23,11 @@ class SetupWebAppExecutionResourceTest extends \Codeception\Test\Unit
     public function testValidation()
     {
         $this->data = new SetupWebAppExecutionResource();
-        $this->data->studentFileID = 1;
+        $this->data->submissionID = 1;
         $this->data->runInterval = 30;
 
         $this->specify('student file id must be set', function () {
-            $this->data->studentFileID = null;
+            $this->data->submissionID = null;
             $this->assertFalse($this->data->validate());
         });
 

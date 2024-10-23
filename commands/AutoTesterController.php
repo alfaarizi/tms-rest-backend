@@ -7,10 +7,10 @@ use app\components\CanvasIntegration;
 use app\components\docker\DockerImageManager;
 use app\components\docker\WebTesterContainer;
 use app\components\WebAssignmentTester;
-use app\models\InstructorFile;
+use app\models\TaskFile;
 use app\models\Task;
 use app\models\TestCase;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\TestResult;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -23,8 +23,8 @@ use yii\console\widgets\Table;
 class AutoTesterController extends BaseController
 {
     /**
-     * Runs the automatic tester on the oldest uploaded studentfile.
-     * @param int $count Number of studentfiles to evaluate.
+     * Runs the automatic tester on the oldest uploaded submission.
+     * @param int $count Number of submission to evaluate.
      * @return int Error code.
      */
     public function actionCheck(int $count = 1): int
@@ -54,42 +54,42 @@ class AutoTesterController extends BaseController
                     return ExitCode::OK;
                 }
 
-                // Find the oldest untested studentFile.
-                /** @var null|StudentFile $studentFile */
-                $studentFile = StudentFile::find()
+                // Find the oldest untested submission.
+                /** @var null|Submission $submission */
+                $submission = Submission::find()
                     ->notTested($IDs)
                     ->orderBy(['uploadCount' => SORT_ASC, 'uploadTime' => SORT_ASC])
                     ->one();
 
                 // If no files to test then return.
-                if (!$studentFile) {
-                    $this->stdout('No studentFiles found.' . PHP_EOL);
+                if (!$submission) {
+                    $this->stdout('No submission found.' . PHP_EOL);
                     return ExitCode::OK;
                 }
-                if ($studentFile->task->appType == Task::APP_TYPE_CONSOLE) {
+                if ($submission->task->appType == Task::APP_TYPE_CONSOLE) {
                     // Get the test cases for the task.
                     /** @var TestCase[] $testCases */
                     $testCases = TestCase::find()
-                        ->where(['taskID' => $studentFile->taskID])
+                        ->where(['taskID' => $submission->taskID])
                         ->all();
 
-                    if (!empty($testCases) && empty($studentFile->task->runInstructions)) {
-                        ArrayHelper::removeValue($IDs, $studentFile->taskID);
+                    if (!empty($testCases) && empty($submission->task->runInstructions)) {
+                        ArrayHelper::removeValue($IDs, $submission->taskID);
                         $this->stderr(
-                            "Test cases found, but the run instruction is missing for task: {$studentFile->task->name} (#{$studentFile->task->id})" . PHP_EOL,
+                            "Test cases found, but the run instruction is missing for task: {$submission->task->name} (#{$submission->task->id})" . PHP_EOL,
                             Console::FG_RED
                         );
                         $jobFound = false;
                     }
-                } else if ($studentFile->task->appType == Task::APP_TYPE_WEB) {
-                    $testSuites = InstructorFile::find()
-                        ->where(['taskID' => $studentFile->taskID])
+                } else if ($submission->task->appType == Task::APP_TYPE_WEB) {
+                    $testSuites = TaskFile::find()
+                        ->where(['taskID' => $submission->taskID])
                         ->onlyWebAppTestSuites()
                         ->all();
                     if (empty($testSuites)) {
-                        ArrayHelper::removeValue($IDs, $studentFile->taskID);
+                        ArrayHelper::removeValue($IDs, $submission->taskID);
                         $this->stderr(
-                            "Test suites are not defined for task: {$studentFile->task->name} (#{$studentFile->task->id})" . PHP_EOL,
+                            "Test suites are not defined for task: {$submission->task->name} (#{$submission->task->id})" . PHP_EOL,
                             Console::FG_RED
                         );
                         $jobFound = false;
@@ -98,19 +98,19 @@ class AutoTesterController extends BaseController
             } while (!$jobFound);
 
             // Mark solution testing as being under execution / in progress
-            $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS;
-            $studentFile->save();
+            $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_IN_PROGRESS;
+            $submission->save();
 
             // Set locale based on student preference
             $origLanguage = Yii::$app->language;
-            Yii::$app->language = $studentFile->uploader->locale;
+            Yii::$app->language = $submission->uploader->locale;
 
-            if ($studentFile->task->appType == Task::APP_TYPE_CONSOLE) {
+            if ($submission->task->appType == Task::APP_TYPE_CONSOLE) {
                 // Run the tests.
                 $tester = new AssignmentTester(
-                    $studentFile,
+                    $submission,
                     $testCases,
-                    Yii::$app->params['evaluator'][$studentFile->task->testOS]
+                    Yii::$app->params['evaluator'][$submission->task->testOS]
                 );
                 $tester->test();
                 $result = $tester->getResults();
@@ -119,41 +119,40 @@ class AutoTesterController extends BaseController
                 // If the testing environment couldn't be initialized
                 if (!$result['initialized']) {
                     $errorMsg = $result['initiationError'];
-                    $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-                    $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED;
-                    $studentFile->errorMsg = $errorMsg;
+                    $submission->status = Submission::STATUS_FAILED;
+                    $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_INITIATION_FAILED;
+                    $submission->errorMsg = $errorMsg;
                     // If the solution didn't compile
                 } elseif (!$result['compiled']) {
                     $errorMsg = $result['compilationError'];
-                    $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-                    $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED;
-                    $studentFile->errorMsg = $errorMsg;
+                    $submission->status = Submission::STATUS_FAILED;
+                    $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_COMPILATION_FAILED;
+                    $submission->errorMsg = $errorMsg;
                     // If there were errors executing the program
                 } elseif (!$result['executed']) {
                     $errorMsg = $result['errorMsg'];
-                    $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-                    $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED;
-                    $studentFile->errorMsg = $errorMsg;
+                    $submission->status = Submission::STATUS_FAILED;
+                    $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_EXECUTION_FAILED;
+                    $submission->errorMsg = $errorMsg;
                     // If the tests passed
                 } elseif ($result['passed']) {
-                    $studentFile->isAccepted = StudentFile::IS_ACCEPTED_PASSED;
-                    $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
-                    $studentFile->errorMsg = null;
+                    $submission->status = Submission::STATUS_PASSED;
+                    $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_PASSED;
                     // If the tests failed
                 } else {
                     $errorMsg = $result['errorMsg'];
-                    $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-                    $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED;
-                    $studentFile->errorMsg = $errorMsg;
+                    $submission->status = Submission::STATUS_FAILED;
+                    $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_TESTS_FAILED;
+                    $submission->errorMsg = $errorMsg;
                 }
 
                 $transaction = Yii::$app->db->beginTransaction();
                 try {
                     // Save the results in the database
-                    $studentFile->save();
+                    $submission->save();
 
                     // Delete old per test case results from the database
-                    TestResult::deleteAll(['studentFileID' => $studentFile->id]);
+                    TestResult::deleteAll(['submissionID' => $submission->id]);
 
                     // Save new per test case results in the database
                     if (isset($result['compiled']) && $result['compiled']) {
@@ -165,7 +164,7 @@ class AutoTesterController extends BaseController
 
                             $testResult = new TestResult();
                             $testResult->testCaseID = $testCase->id;
-                            $testResult->studentFileID = $studentFile->id;
+                            $testResult->submissionID = $submission->id;
                             $testResult->isPassed = $result[$testCaseNr]['passed'];
                             $testResult->errorMsg = $result[$testCaseNr]['errorMsg'];
                             $testResult->save();
@@ -178,42 +177,42 @@ class AutoTesterController extends BaseController
                     $transaction->rollBack();
                     throw $e;
                 }
-            } else if ($studentFile->task->appType == Task::APP_TYPE_WEB) {
-                $webAssignmentTester = new WebAssignmentTester($studentFile);
+            } else if ($submission->task->appType == Task::APP_TYPE_WEB) {
+                $webAssignmentTester = new WebAssignmentTester($submission);
                 $webAssignmentTester->test();
             }
 
             // Upload the result message to the canvas
-            if (Yii::$app->params['canvas']['enabled'] && !empty($studentFile->canvasID)) {
+            if (Yii::$app->params['canvas']['enabled'] && !empty($submission->canvasID)) {
                 $canvas = new CanvasIntegration();
-                $canvas->uploadTestResultToCanvas($studentFile);
+                $canvas->uploadTestResultToCanvas($submission);
             }
 
             // Log
             Yii::info(
-                "Solution #$studentFile->id evaluated " .
-                "for task {$studentFile->task->name} (#$studentFile->taskID) " .
-                "with status $studentFile->isAccepted",
+                "Solution #$submission->id evaluated " .
+                "for task {$submission->task->name} (#$submission->taskID) " .
+                "with status $submission->status",
                 __METHOD__
             );
 
             // E-mail notification
-            if (!empty($studentFile->uploader->notificationEmail)) {
+            if (!empty($submission->uploader->notificationEmail)) {
                 Yii::$app->mailer->compose(
                     'student/checkSolution',
                     [
-                        'studentFile' => $studentFile
+                        'submission' => $submission
                     ]
                 )
                     ->setFrom(Yii::$app->params['systemEmail'])
-                    ->setTo($studentFile->uploader->notificationEmail)
+                    ->setTo($submission->uploader->notificationEmail)
                     ->setSubject(Yii::t('app/mail', 'Automated submission test ready'))
                     ->send();
             }
 
             // Return the results in JSON for debugging
-            $result['studentName'] = $studentFile->uploader->name;
-            $result['studentUserCode'] = $studentFile->uploader->userCode;
+            $result['studentName'] = $submission->uploader->name;
+            $result['studentUserCode'] = $submission->uploader->userCode;
 
             // Show data
             $table = new Table();

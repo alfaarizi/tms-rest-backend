@@ -2,13 +2,13 @@
 
 namespace app\tests\unit;
 
-use app\components\codechecker\StudentFileToAnalyzeFinder;
+use app\components\codechecker\SubmissionToAnalyzeFinder;
 use app\models\Task;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use Codeception\Test\Unit;
 
-class StudentFileToAnalyzeFinderTest extends Unit
+class SubmissionToAnalyzeFinderTest extends Unit
 {
     public function _fixtures(): array
     {
@@ -16,15 +16,15 @@ class StudentFileToAnalyzeFinderTest extends Unit
             'task' => [
                 'class' => TaskFixture::class
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class,
+            'submission' => [
+                'class' => SubmissionsFixture::class,
             ],
         ];
     }
 
     public function testFileFound()
     {
-        $finder = new StudentFileToAnalyzeFinder();
+        $finder = new SubmissionToAnalyzeFinder();
         $file = $finder->findNext();
 
         $this->assertNotNull($file);
@@ -34,7 +34,7 @@ class StudentFileToAnalyzeFinderTest extends Unit
     public function testFileNotFound()
     {
         Task::updateAll(['staticCodeAnalysis' => 0]);
-        $finder = new StudentFileToAnalyzeFinder();
+        $finder = new SubmissionToAnalyzeFinder();
         $file = $finder->findNext();
 
         $this->assertNull($file);

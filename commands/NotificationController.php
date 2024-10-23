@@ -3,7 +3,7 @@
 namespace app\commands;
 
 use app\components\DueSubmissionDigester;
-use app\models\StudentFile;
+use app\models\Submission;
 use yii\console\ExitCode;
 use yii\console\widgets\Table;
 use yii\db\Expression;
@@ -22,19 +22,19 @@ class NotificationController extends BaseController
     public function actionDigestInstructors($hours = 24, $userCode = null)
     {
         // Query
-        $query = StudentFile::find()
+        $query = Submission::find()
             ->alias('sf')
             ->joinWith('task t')
             ->joinWith('task.group g')
             ->joinWith('task.group.instructors u')
             ->where(
                 [
-                    'sf.isAccepted' =>
+                    'sf.status' =>
                         [
-                            StudentFile::IS_ACCEPTED_UPLOADED,
-                            StudentFile::IS_ACCEPTED_PASSED,
-                            StudentFile::IS_ACCEPTED_FAILED,
-                            StudentFile::IS_ACCEPTED_CORRUPTED,
+                            Submission::STATUS_UPLOADED,
+                            Submission::STATUS_PASSED,
+                            Submission::STATUS_FAILED,
+                            Submission::STATUS_CORRUPTED,
                         ]
                 ]
             )
@@ -51,7 +51,7 @@ class NotificationController extends BaseController
         }
 
         // Load data
-        /** @var StudentFile[] $newSolutions */
+        /** @var Submission[] $newSolutions */
         $newSolutions = $query->all();
         $count = count($newSolutions);
 
@@ -61,7 +61,7 @@ class NotificationController extends BaseController
             $this->stdout("$count new solution(s) has been submitted." . PHP_EOL);
 
             $corruptedSolutions = array_filter($newSolutions, function ($solution) {
-                return $solution->isAccepted == StudentFile::IS_ACCEPTED_CORRUPTED;
+                return $solution->status == Submission::STATUS_CORRUPTED;
             });
             $corruptedCount = count($corruptedSolutions);
 
@@ -75,7 +75,7 @@ class NotificationController extends BaseController
             $table->setHeaders(['userCode', 'Name', 'Status', 'Upload Time', 'Instructor Name']);
 
             $rows = [];
-            /** @var StudentFile $solution */
+            /** @var Submission $solution */
             foreach ($newSolutions as $solution) {
                 foreach ($solution->task->group->instructors as $instructor) {
                     if (strlen($userCode) && strtolower($userCode) != strtolower($instructor->userCode)) {
@@ -85,7 +85,7 @@ class NotificationController extends BaseController
                     $rows[] = [
                         $solution->uploader->userCode,
                         $solution->uploader->name,
-                        $solution->isAccepted,
+                        $solution->status,
                         $solution->uploadTime,
                         $instructor->name
                     ];
@@ -117,8 +117,8 @@ class NotificationController extends BaseController
 
                 $messages = [];
                 $origLanguage = Yii::$app->language;
-                foreach ($solutionsByInstructor as $userCode => $solutions) {
-                    /** @var \app\models\StudentFile[] $solutions */
+                foreach ($solutionsByInstructor as $neptun => $solutions) {
+                    /** @var \app\models\Submission[] $solutions */
                     if (!empty($instructors[$userCode]->notificationEmail)) {
                         Yii::$app->language = $instructors[$userCode]->locale;
                         $messages[] = Yii::$app->mailer->compose('instructor/digestSolution', [

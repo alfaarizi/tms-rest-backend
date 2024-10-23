@@ -2,21 +2,21 @@
 
 namespace app\components\codechecker;
 
-use app\models\StudentFile;
+use app\models\Submission;
 use yii\base\BaseObject;
 
 /**
  * Contains logic to find the next student file to analyze
  */
-class StudentFileToAnalyzeFinder extends BaseObject
+class SubmissionToAnalyzeFinder extends BaseObject
 {
     /**
-     * Find the oldest studentFile that does not have a CodeChecker report with the least upload count.
-     * @return StudentFile|null
+     * Find the oldest submission that does not have a CodeChecker report with the least upload count.
+     * @return Submission|null
      */
-    public function findNext(): ?StudentFile
+    public function findNext(): ?Submission
     {
-        return StudentFile::find()
+        return Submission::find()
             ->alias('s')
             ->joinWith('task t', false, 'INNER JOIN')
             ->andWhere(['t.staticCodeAnalysis' => 1])
@@ -25,12 +25,12 @@ class StudentFileToAnalyzeFinder extends BaseObject
             ->andWhere(
                 [
                     'not in',
-                    'isAccepted',
+                    'status',
                     [
-                        StudentFile::IS_ACCEPTED_REJECTED,
-                        StudentFile::IS_ACCEPTED_ACCEPTED,
-                        StudentFile::IS_ACCEPTED_LATE_SUBMISSION,
-                        StudentFile::IS_ACCEPTED_CORRUPTED,
+                        Submission::STATUS_REJECTED,
+                        Submission::STATUS_ACCEPTED,
+                        Submission::STATUS_LATE_SUBMISSION,
+                        Submission::STATUS_CORRUPTED,
                     ]
                 ]
             )

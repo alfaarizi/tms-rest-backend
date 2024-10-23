@@ -3,7 +3,7 @@
 return [
     'codecompassinstance1' => [
         'id' => 1,
-        'studentFileId' => 1,
+        'submissionId' => 1,
         'instanceStarterUserId' => 1006,
         'port' => '25565',
         'containerId' => 'compass_1',
@@ -15,7 +15,7 @@ return [
     ],
     'codecompassinstance2' => [
         'id' => 2,
-        'studentFileId' => 2,
+        'submissionId' => 2,
         'instanceStarterUserId' => 1006,
         'port' => '25566',
         'containerId' => 'compass_2',
@@ -27,7 +27,7 @@ return [
     ],
     'codecompassinstance3' => [
         'id' => 3,
-        'studentFileId' => 5,
+        'submissionId' => 5,
         'instanceStarterUserId' => 1006,
         'port' => '25567',
         'containerId' => 'compass_3',
@@ -39,7 +39,7 @@ return [
     ],
     'codecompassinstance4' => [
         'id' => 4,
-        'studentFileId' => 2,
+        'submissionId' => 2,
         'instanceStarterUserId' => 1006,
         'port' => null,
         'containerId' => null,
@@ -51,7 +51,7 @@ return [
     ],
     'codecompassinstance5' => [
         'id' => 5,
-        'studentFileId' => 2,
+        'submissionId' => 2,
         'instanceStarterUserId' => 1006,
         'port' => null,
         'containerId' => null,

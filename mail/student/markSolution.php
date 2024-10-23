@@ -7,9 +7,9 @@ use yii\helpers\Url;
 /* @var $message \yii\mail\BaseMessage instance of newly created mail message */
 
 /* @var $actor \app\models\User The actor of the action */
-/* @var $studentFile \app\models\StudentFile The student solution graded */
+/* @var $submission \app\models\Submission The student solution graded */
 
-$group = $studentFile->task->group;
+$group = $submission->task->group;
 ?>
 
 <h2><?= \Yii::t('app/mail', 'Graded submission') ?></h2>
@@ -20,9 +20,9 @@ $group = $studentFile->task->group;
         (<?= \Yii::t('app/mail', 'group') ?>: <?= $group->number ?>)
     <?php endif; ?>
     <br>
-    <?= \Yii::t('app/mail', 'Status') ?>: <?= \Yii::t('app', $studentFile->isAccepted) ?><br>
-    <?= \Yii::t('app/mail', 'Grade') ?>: <?= $studentFile->grade ?><br>
-    <?= \Yii::t('app/mail', 'Remark') ?>: <?= Html::encode(nl2br($studentFile->notes, false)) ?><br>
+    <?= \Yii::t('app/mail', 'Status') ?>: <?= \Yii::t('app', $submission->status) ?><br>
+    <?= \Yii::t('app/mail', 'Grade') ?>: <?= $submission->grade ?><br>
+    <?= \Yii::t('app/mail', 'Remark') ?>: <?= Html::encode(nl2br($submission->notes, false)) ?><br>
     <?php if (!$group->isExamGroup) : ?>
         <?= \Yii::t('app/mail', 'Modifier') ?>: <?= Html::encode($actor->name) ?>
     <?php endif; ?>

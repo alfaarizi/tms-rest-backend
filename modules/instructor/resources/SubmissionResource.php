@@ -8,13 +8,13 @@ use app\components\openapi\generators\OAProperty;
 use app\components\openapi\generators\OAItems;
 use app\modules\instructor\resources\CodeCheckerResultResource;
 use Yii;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\resources\UserResource;
 use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
 
-class StudentFileResource extends StudentFile
+class SubmissionResource extends Submission
 {
     /**
      * @inheritdoc
@@ -24,11 +24,11 @@ class StudentFileResource extends StudentFile
         return [
             'id',
             'name',
-            'isAccepted',
+            'status',
             'grade',
             'notes',
             'isVersionControlled',
-            'translatedIsAccepted',
+            'translatedStatus',
             'graderName',
             'errorMsg',
             'taskID',
@@ -125,7 +125,7 @@ class StudentFileResource extends StudentFile
     public function getExecution()
     {
         return $this
-            ->hasOne(WebAppExecutionResource::class, ['studentFileID' => 'id'])
+            ->hasOne(WebAppExecutionResource::class, ['submissionID' => 'id'])
             ->onCondition(['instructorID' => Yii::$app->user->id]);
     }
 
@@ -149,12 +149,12 @@ class StudentFileResource extends StudentFile
      */
     public function getCodeCompass()
     {
-        return $this->hasOne(CodeCompassInstanceResource::class, ['studentFileId' => 'id']);
+        return $this->hasOne(CodeCompassInstanceResource::class, ['submissionID' => 'id']);
     }
 
     public function getCodeCompassID()
     {
-        return $this->hasOne(CodeCompassInstanceResource::class, ['studentFileId' => 'id'])
+        return $this->hasOne(CodeCompassInstanceResource::class, ['submissionID' => 'id'])
             ->one()
             ->id ?? null;
     }
@@ -164,7 +164,7 @@ class StudentFileResource extends StudentFile
         return $this->hasOne(CodeCheckerResultResource::class, ['id' => 'codeCheckerResultID']);
     }
 
-    
+
     /**
      * @return array
      */
@@ -172,7 +172,7 @@ class StudentFileResource extends StudentFile
     {
         $adresses = IpAddress::find()
             ->select('ipAddress')
-            ->where(['studentFileId' => $this->id])
+            ->where(['submissionID' => $this->id])
             ->distinct()
             ->all();
         return ArrayHelper::getColumn($adresses, 'ipAddress');
