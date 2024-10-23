@@ -20,7 +20,7 @@ use yii\web\ServerErrorHttpException;
 /**
  * This class controls the canvas integration related actions for students.
  */
-class CanvasController extends BaseStudentRestController
+class CanvasController extends BaseSubmissionsController
 {
     private CanvasIntegration $canvas;
 

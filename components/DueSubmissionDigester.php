@@ -2,7 +2,7 @@
 
 namespace app\components;
 
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\Task;
 use app\models\User;
 use Yii;
@@ -78,7 +78,7 @@ class DueSubmissionDigester
         return Task::find()
             ->oncomingDeadline($this->daysToDeadline)
             ->withStudents(true)
-            ->joinWith('studentFiles')
+            ->joinWith('submissions')
             ->all();
     }
 
@@ -89,7 +89,7 @@ class DueSubmissionDigester
      * Output structure: student->array of (due task, student file of task)
      *
      * @param Task[] $tasks tasks with due deadlines (task->group->subscription->user)
-     * @return array<string, array{'user': User, 'data': array<int, array{'task': Task, 'studentFile': StudentFile|null}>}> The outermost array is keyed by userCode code
+     * @return array<string, array{'user': User, 'data': array<int, array{'task': Task, 'submission': Submission|null}>}> The outermost array is keyed by userCode code
      */
     private function transformMailData(array $tasks): array
     {
@@ -97,12 +97,12 @@ class DueSubmissionDigester
         foreach ($tasks as $task) {
             foreach ($task->group->subscriptions as $subscription) {
                 $student = $subscription->user;
-                $submission = array_filter($task->studentFiles, function ($studentFile) use ($student) {
-                    return $studentFile->uploaderID == $student->id;
+                $submission = array_filter($task->submissions, function ($submission) use ($student) {
+                    return $submission->uploaderID == $student->id;
                 });
                 $idx = array_key_first($submission);
                 $submission = empty($submission) ? null : $submission[$idx];
-                if (empty($submission) || in_array($submission->isAccepted, ['Failed', 'Rejected'])) {
+                if (empty($submission) || in_array($submission->status, ['Failed', 'Rejected'])) {
                     if (!array_key_exists($student->userCode, $result)) {
                         $result[$student->userCode] = [
                             'user' => $student,
@@ -111,7 +111,7 @@ class DueSubmissionDigester
                     }
                     $result[$student->userCode]['data'][] = [
                         'task' => $task,
-                        'studentFile' => $submission
+                        'submission' => $submission
                     ];
                 }
             }

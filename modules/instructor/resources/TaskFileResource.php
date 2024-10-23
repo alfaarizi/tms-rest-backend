@@ -5,7 +5,7 @@ namespace app\modules\instructor\resources;
 use app\components\openapi\generators\OAProperty;
 use yii\helpers\ArrayHelper;
 
-class InstructorFileResource extends \app\models\InstructorFile
+class TaskFileResource extends \app\models\TaskFile
 {
     public function fields()
     {

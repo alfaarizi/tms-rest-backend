@@ -4,7 +4,7 @@ return [
     'file1_upload_log1' => [
         'id' => 1,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 2 (5001)',
@@ -12,7 +12,7 @@ return [
     'file2_upload_log1' => [
         'id' => 2,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student Two (stud02)]',
         'message' => 'A new solution has been uploaded for Task 2 (5001)',
@@ -20,7 +20,7 @@ return [
     'file3_upload_log1' => [
         'id' => 3,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 3 (5002)',
@@ -28,7 +28,7 @@ return [
     'file4_upload_log1' => [
         'id' => 4,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student Two (stud02)]',
         'message' => 'A new solution has been uploaded for Task 3 (5002)',
@@ -36,7 +36,7 @@ return [
     'file5_upload_log1' => [
         'id' => 5,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student Two (stud02)]',
         'message' => 'A new solution has been uploaded for Task 8 (5007)',
@@ -44,7 +44,7 @@ return [
     'file6_upload_log1' => [
         'id' => 6,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 5 (5004)',
@@ -52,7 +52,7 @@ return [
     'file7_upload_log1' => [
         'id' => 7,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 6 (5005)',
@@ -60,7 +60,7 @@ return [
     'file8_upload_log1' => [
         'id' => 8,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 2 (5001)',
@@ -68,7 +68,7 @@ return [
     'file9_upload_log1' => [
         'id' => 9,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 10 (5009)',
@@ -76,7 +76,7 @@ return [
     'file10_upload_log1' => [
         'id' => 11,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student Two (stud02)]',
         'message' => 'A new solution has been uploaded for Task 10 (5009)',
@@ -84,7 +84,7 @@ return [
     'file11_upload_log1' => [
         'id' => 12,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student Three (stud03)]',
         'message' => 'A new solution has been uploaded for Task 10 (5009)',
@@ -92,7 +92,7 @@ return [
     'file12_upload_log1' => [
         'id' => 13,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 12 (5011)',
@@ -100,7 +100,7 @@ return [
     'file13_upload_log1' => [
         'id' => 14,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 13 (5012)',
@@ -108,7 +108,7 @@ return [
     'file14_upload_log1' => [
         'id' => 15,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student Two (stud02)]',
         'message' => 'A new solution has been uploaded for Task 12 (5011)',
@@ -116,7 +116,7 @@ return [
     'file15_upload_log1' => [
         'id' => 16,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.2][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 14 (5013)',
@@ -124,7 +124,7 @@ return [
     'file16_upload_log1' => [
         'id' => 17,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-5 minute'))),
         'prefix' => '[192.168.1.1][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 15 (5014)',
@@ -132,7 +132,7 @@ return [
     'file16_upload_log2' => [
         'id' => 18,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-4 minute'))),
         'prefix' => '[192.168.1.2][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 15 (5014)',
@@ -140,7 +140,7 @@ return [
     'file16_upload_log3' => [
         'id' => 19,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-3 minute'))),
         'prefix' => '[192.168.1.2][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 15 (5014)',
@@ -148,7 +148,7 @@ return [
     'file16_upload_log4' => [
         'id' => 20,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-2 minute'))),
         'prefix' => '[192.168.1.1][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 15 (5014)',
@@ -156,7 +156,7 @@ return [
     'file16_upload_log5' => [
         'id' => 21,
         'level' => 4,
-        'category' => 'app\modules\student\controllers\StudentFilesController::saveFile',
+        'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-1 minute'))),
         'prefix' => '[192.168.1.3][Student One (stud01)]',
         'message' => 'A new solution has been uploaded for Task 15 (5014)',

@@ -2,15 +2,15 @@
 
 namespace app\tests\unit;
 
-use app\models\StudentFile;
+use app\models\Submission;
 use app\tests\unit\fixtures\LogFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskFixture;
 
 /**
- * Unit tests for the StudentFile model.
+ * Unit tests for the Submissions model.
  */
-class StudentFileTest extends \Codeception\Test\Unit
+class SubmissionsTest extends \Codeception\Test\Unit
 {
     /**
      * @var \UnitTester
@@ -25,8 +25,8 @@ class StudentFileTest extends \Codeception\Test\Unit
             'tasks' => [
                 'class' => TaskFixture::class,
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class,
+            'submission' => [
+                'class' => SubmissionsFixture::class,
             ],
             'logs' => [
                 'class' => LogFixture::class,
@@ -40,13 +40,13 @@ class StudentFileTest extends \Codeception\Test\Unit
      */
     public function testSafeErrorMsgShowFullDisabled()
     {
-        $file = new StudentFile(
+        $file = new Submission(
             [
                 'name' => 'test.zip',
                 'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
                 'taskID' => 5001,
                 'uploaderID' => 1000,
-                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
+                'status' => Submission::STATUS_ACCEPTED,
                 'isVersionControlled' => 0,
                 'grade' => 4,
                 'notes' => '',
@@ -56,29 +56,29 @@ class StudentFileTest extends \Codeception\Test\Unit
             ]
         );
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
         $this->assertNull($file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_LEGACY_FAILED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_LEGACY_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_COMPILATION_FAILED;
         $this->assertEquals('The solution didn\'t compile', $file->safeErrorMsg);
 
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_INITIATION_FAILED;
         $this->assertEquals('The testing environment could\'t be initialized', $file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_EXECUTION_FAILED;
         $this->assertEquals('Some error happened executing the program', $file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_TESTS_FAILED;
         $this->assertEquals('Your solution failed the tests', $file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_PASSED;
         $this->assertEquals('Your solution passed the tests', $file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_IN_PROGRESS;
         $this->assertEquals('Your solution is being tested', $file->safeErrorMsg);
 
         $this->expectException(\UnexpectedValueException::class);
@@ -92,12 +92,12 @@ class StudentFileTest extends \Codeception\Test\Unit
      */
     public function testSafeErrorMsgShowFullEnabled()
     {
-        $file = new StudentFile([
+        $file = new Submission([
             'name' => 'test.zip',
             'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
             'taskID' => 5002,
             'uploaderID' => 1000,
-            'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
+            'status' => Submission::STATUS_ACCEPTED,
             'isVersionControlled' => 0,
             'grade' => 4,
             'notes' => '',
@@ -106,28 +106,28 @@ class StudentFileTest extends \Codeception\Test\Unit
             'verified' => true,
         ]);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
         $this->assertNull($file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_LEGACY_FAILED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_LEGACY_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_COMPILATION_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_INITIATION_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_EXECUTION_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_TESTS_FAILED;
         $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_PASSED;
         $this->assertEquals('Your solution passed the tests', $file->safeErrorMsg);
 
-        $file->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS;
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_IN_PROGRESS;
         $this->assertEquals('Your solution is being tested', $file->safeErrorMsg);
 
         $this->expectException(\UnexpectedValueException::class);
@@ -137,14 +137,14 @@ class StudentFileTest extends \Codeception\Test\Unit
 
     public function testValidateAutoTesterStatusPassed()
     {
-        $file = new StudentFile(
+        $file = new Submission(
             [
                 'name' => 'test.zip',
                 'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
                 'taskID' => 5002,
                 'uploaderID' => 1000,
-                'isAccepted' => StudentFile::IS_ACCEPTED_PASSED,
-                'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_PASSED,
+                'status' => Submission::STATUS_PASSED,
+                'autoTesterStatus' => Submission::AUTO_TESTER_STATUS_PASSED,
                 'isVersionControlled' => 0,
                 'grade' => 4,
                 'notes' => '',
@@ -158,13 +158,13 @@ class StudentFileTest extends \Codeception\Test\Unit
 
         // Test invalid cases
         $invalidStatusValues = [
-            StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
-            StudentFile::AUTO_TESTER_STATUS_LEGACY_FAILED,
-            StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED,
-            StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED,
-            StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED,
-            StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED,
-            StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS,
+            Submission::AUTO_TESTER_STATUS_NOT_TESTED,
+            Submission::AUTO_TESTER_STATUS_LEGACY_FAILED,
+            Submission::AUTO_TESTER_STATUS_COMPILATION_FAILED,
+            Submission::AUTO_TESTER_STATUS_INITIATION_FAILED,
+            Submission::AUTO_TESTER_STATUS_EXECUTION_FAILED,
+            Submission::AUTO_TESTER_STATUS_TESTS_FAILED,
+            Submission::AUTO_TESTER_STATUS_IN_PROGRESS,
         ];
 
         foreach ($invalidStatusValues as $value) {
@@ -175,13 +175,13 @@ class StudentFileTest extends \Codeception\Test\Unit
 
     public function testValidateAutoTesterStatusFailed()
     {
-        $file = new StudentFile(
+        $file = new Submission(
             [
                 'name' => 'test.zip',
                 'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
                 'taskID' => 5002,
                 'uploaderID' => 1000,
-                'isAccepted' => StudentFile::IS_ACCEPTED_FAILED,
+                'status' => Submission::STATUS_FAILED,
                 'isVersionControlled' => 0,
                 'grade' => 4,
                 'notes' => '',
@@ -193,11 +193,11 @@ class StudentFileTest extends \Codeception\Test\Unit
 
         // Test valid cases
         $validStatusValues = [
-            StudentFile::AUTO_TESTER_STATUS_LEGACY_FAILED,
-            StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED,
-            StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED,
-            StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED,
-            StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED,
+            Submission::AUTO_TESTER_STATUS_LEGACY_FAILED,
+            Submission::AUTO_TESTER_STATUS_INITIATION_FAILED,
+            Submission::AUTO_TESTER_STATUS_COMPILATION_FAILED,
+            Submission::AUTO_TESTER_STATUS_EXECUTION_FAILED,
+            Submission::AUTO_TESTER_STATUS_TESTS_FAILED,
         ];
 
         foreach ($validStatusValues as $value) {
@@ -207,9 +207,9 @@ class StudentFileTest extends \Codeception\Test\Unit
 
         // Test invalid cases
         $invalidStatusValues = [
-            StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
-            StudentFile::AUTO_TESTER_STATUS_PASSED,
-            StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS,
+            Submission::AUTO_TESTER_STATUS_NOT_TESTED,
+            Submission::AUTO_TESTER_STATUS_PASSED,
+            Submission::AUTO_TESTER_STATUS_IN_PROGRESS,
         ];
 
         foreach ($invalidStatusValues as $value) {
@@ -220,14 +220,14 @@ class StudentFileTest extends \Codeception\Test\Unit
 
     public function testValidateAutoTesterStatusInProgress()
     {
-        $file = new StudentFile(
+        $file = new Submission(
             [
                 'name' => 'test.zip',
                 'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
                 'taskID' => 5002,
                 'uploaderID' => 1000,
-                'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
-                'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_IN_PROGRESS,
+                'status' => Submission::STATUS_UPLOADED,
+                'autoTesterStatus' => Submission::AUTO_TESTER_STATUS_IN_PROGRESS,
                 'isVersionControlled' => 0,
                 'grade' => 4,
                 'notes' => '',
@@ -242,15 +242,15 @@ class StudentFileTest extends \Codeception\Test\Unit
 
         // Test invalid cases
         $invalidStatusValues = [
-            StudentFile::IS_ACCEPTED_ACCEPTED,
-            StudentFile::IS_ACCEPTED_FAILED,
-            StudentFile::IS_ACCEPTED_LATE_SUBMISSION,
-            StudentFile::IS_ACCEPTED_PASSED,
-            StudentFile::IS_ACCEPTED_REJECTED,
+            Submission::STATUS_ACCEPTED,
+            Submission::STATUS_FAILED,
+            Submission::STATUS_LATE_SUBMISSION,
+            Submission::STATUS_PASSED,
+            Submission::STATUS_REJECTED,
         ];
 
         foreach ($invalidStatusValues as $value) {
-            $file->isAccepted = $value;
+            $file->status = $value;
             $this->assertFalse($file->validate());
         }
     }
@@ -261,7 +261,7 @@ class StudentFileTest extends \Codeception\Test\Unit
      */
     public function testGetIpAddresses()
     {
-        $file = StudentFile::findOne(16);
+        $file = Submission::findOne(16);
         $ipAddresses = $file->ipAddresses;
         // It should return all addresses only once
         $this->assertcount(3, $ipAddresses);

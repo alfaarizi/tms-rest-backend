@@ -6,11 +6,11 @@ use app\behaviors\ISODateTimeBehavior;
 use app\components\openapi\generators\OAList;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
-use app\models\queries\InstructorFileQuery;
+use app\models\queries\TaskFileQuery;
 use Yii;
 
 /**
- * This is the model class for table "instructorFiles".
+ * This is the model class for table "taskFiles".
  *
  * @property integer $id
  * @property string $name
@@ -21,7 +21,7 @@ use Yii;
  * @property-read boolean $isTestFile
  * @property-read Task $task
  */
-class InstructorFile extends File implements IOpenApiFieldTypes
+class TaskFile extends File implements IOpenApiFieldTypes
 {
     /**
      * Attachment category for files to be shared with students.
@@ -38,7 +38,7 @@ class InstructorFile extends File implements IOpenApiFieldTypes
     public const CATEGORY_WEB_TEST_SUITE = 'Web test suite';
 
     /**
-     * Array of supported category types for an InstructorFile.
+     * Array of supported category types for an TaskFile.
      */
     private const CATEGORY_TYPES = [
         self::CATEGORY_ATTACHMENT,
@@ -51,7 +51,7 @@ class InstructorFile extends File implements IOpenApiFieldTypes
      */
     public static function tableName()
     {
-        return '{{%instructor_files}}';
+        return '{{%task_files}}';
     }
 
     public function behaviors()
@@ -148,7 +148,7 @@ class InstructorFile extends File implements IOpenApiFieldTypes
     }
 
     /**
-     * Returns whether the instructor file is an attachment for the task.
+     * Returns whether the task file is an attachment for the task.
      * @return bool
      */
     public function getIsAttachment()
@@ -157,7 +157,7 @@ class InstructorFile extends File implements IOpenApiFieldTypes
     }
 
     /**
-     * Returns whether the instructor file is a test file the task.
+     * Returns whether the task file is a test file the task.
      * @return bool
      */
     public function getIsTestFile()
@@ -166,7 +166,7 @@ class InstructorFile extends File implements IOpenApiFieldTypes
     }
 
     /**
-     * Returns whether the instructor file is a web test suite.
+     * Returns whether the task file is a web test suite.
      * @return bool
      */
     public function getIsWebTestSuite(): bool
@@ -181,10 +181,10 @@ class InstructorFile extends File implements IOpenApiFieldTypes
 
     /**
      * {@inheritdoc}
-     * @return InstructorFileQuery the active query used by this AR class.
+     * @return TaskFileQuery the active query used by this AR class.
      */
     public static function find()
     {
-        return new InstructorFileQuery(get_called_class());
+        return new TaskFileQuery(get_called_class());
     }
 }

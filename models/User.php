@@ -40,7 +40,7 @@ use yii\web\IdentityInterface;
  *
  * @property Group[] $groups
  * @property Subscription[] $subscriptions
- * @property StudentFile[] $files
+ * @property Submission[] $files
  */
 class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
 {
@@ -328,7 +328,7 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
      */
     public function getFiles()
     {
-        return $this->hasMany(StudentFile::class, ['uploaderID' => 'id']);
+        return $this->hasMany(Submission::class, ['uploaderID' => 'id']);
     }
 
     /**

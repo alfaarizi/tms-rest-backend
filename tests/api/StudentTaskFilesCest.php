@@ -6,15 +6,15 @@ use ApiTester;
 use Yii;
 use app\tests\unit\fixtures\AccessTokenFixture;
 use app\tests\unit\fixtures\GroupFixture;
-use app\tests\unit\fixtures\InstructorFilesFixture;
+use app\tests\unit\fixtures\TaskFilesFixture;
 use app\tests\unit\fixtures\SubscriptionFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use app\tests\unit\fixtures\UserFixture;
 use Codeception\Util\HttpCode;
 
-class StudentInstructorFilesCest
+class StudentTaskFilesCest
 {
-    public const INSTRUCTOR_FILE_SCHEMA = [
+    public const TASK_FILE_SCHEMA = [
         'id' => 'integer',
         'name' => 'string',
         'uploadTime' => 'string'
@@ -38,8 +38,8 @@ class StudentInstructorFilesCest
             'subscriptions' => [
                 'class' => SubscriptionFixture::class
             ],
-            'instructorfiles' => [
-                'class' => InstructorFilesFixture::class
+            'taskfiles' => [
+                'class' => TaskFilesFixture::class
             ]
         ];
     }
@@ -59,27 +59,27 @@ class StudentInstructorFilesCest
 
     public function indexTaskNotFound(ApiTester $I)
     {
-        $I->sendGet('/student/instructor-files', ['taskID' => 0]);
+        $I->sendGet('/student/task-files', ['taskID' => 0]);
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function indexWithoutPermission(ApiTester $I)
     {
-        $I->sendGet('/student/instructor-files', ['taskID' => 5007]);
+        $I->sendGet('/student/task-files', ['taskID' => 5007]);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function indexNotAvailable(ApiTester $I)
     {
-        $I->sendGet('/student/instructor-files', ['taskID' => 5003]);
+        $I->sendGet('/student/task-files', ['taskID' => 5003]);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function index(ApiTester $I)
     {
-        $I->sendGet('/student/instructor-files', ['taskID' => 5000]);
+        $I->sendGet('/student/task-files', ['taskID' => 5000]);
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::INSTRUCTOR_FILE_SCHEMA, '$.[*]');
+        $I->seeResponseMatchesJsonType(self::TASK_FILE_SCHEMA, '$.[*]');
 
         $I->seeResponseContainsJson(
             [
@@ -109,25 +109,25 @@ class StudentInstructorFilesCest
 
     public function downloadNotFound(ApiTester $I)
     {
-        $I->sendGet("/student/instructor-files/0/download");
+        $I->sendGet("/student/task-files/0/download");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function downloadWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/student/instructor-files/7/download");
+        $I->sendGet("/student/task-files/7/download");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function downloadNotAvailable(ApiTester $I)
     {
-        $I->sendGet("/student/instructor-files/4/download");
+        $I->sendGet("/student/task-files/4/download");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function download(ApiTester $I)
     {
-        $I->sendGet("/student/instructor-files/1/download");
+        $I->sendGet("/student/task-files/1/download");
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->openFile(Yii::getAlias("@appdata/uploadedfiles/5000/file1.txt"));
         $I->seeFileContentsEqual($I->grabResponse());

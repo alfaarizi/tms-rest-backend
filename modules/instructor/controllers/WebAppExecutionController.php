@@ -3,7 +3,7 @@
 namespace app\modules\instructor\controllers;
 
 use app\components\RegexUtils;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\modules\instructor\components\exception\WebAppExecutionException;
 use app\modules\instructor\components\WebAppExecutor;
 use app\modules\instructor\resources\SetupWebAppExecutionResource;
@@ -62,7 +62,7 @@ class WebAppExecutionController extends BaseInstructorRestController
      *     tags={"Instructor Web App Execution"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
-     *         name="studentFileID",
+     *         name="submissionID",
      *         in="query",
      *         required=true,
      *         description="ID of of the related Student File",
@@ -80,16 +80,16 @@ class WebAppExecutionController extends BaseInstructorRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      *  ),
      */
-    public function actionIndex(int $studentFileID): ?WebAppExecutionResource
+    public function actionIndex(int $submissionID): ?WebAppExecutionResource
     {
-        $studentFile = StudentFile::findOne($studentFileID);
-        $this->validateGroupAccess($studentFile->task->groupID);
+        $submission = Submission::findOne($submissionID);
+        $this->validateGroupAccess($submission->task->groupID);
 
-        if (is_null($studentFile)) {
+        if (is_null($submission)) {
             throw new NotFoundHttpException(Yii::t('app', 'Student file not found.'));
         }
 
-        return WebAppExecutionResource::findOne(['studentFileID' => $studentFileID, 'instructorID' => Yii::$app->user->id]);
+        return WebAppExecutionResource::findOne(['submissionID' => $submissionID, 'instructorID' => Yii::$app->user->id]);
     }
 
     /**
@@ -138,24 +138,24 @@ class WebAppExecutionController extends BaseInstructorRestController
             return $setupData->errors;
         }
 
-        $studentFile = StudentFile::findOne($setupData->studentFileID);
+        $submission = Submission::findOne($setupData->submissionID);
 
-        if (is_null($studentFile)) {
+        if (is_null($submission)) {
             throw new NotFoundHttpException(Yii::t('app', 'Student file not found.'));
         }
-        $this->validateGroupAccess($studentFile->task->groupID);
+        $this->validateGroupAccess($submission->task->groupID);
 
         /*
-        if (!$this->webAppExecutionEnabledForOs($studentFile->task->testOS)) {
+        if (!$this->webAppExecutionEnabledForOs($submission->task->testOS)) {
             throw new BadRequestHttpException(
                 Yii::t('app', 'Web app execution not enabled for os: {os}',
-                       ['os' => $studentFile->task->testOS])
+                       ['os' => $submission->task->testOS])
             );
         }
         */
 
         try {
-            return $this->webAppExecutor->startWebApplication($studentFile, Yii::$app->user->id, $setupData);
+            return $this->webAppExecutor->startWebApplication($submission, Yii::$app->user->id, $setupData);
         } catch (WebAppExecutionException $e) {
             Yii::info(
                 "Web app start for student file [$this->id] failed at stage: " . $e->getCode() . ', ' . $e->getMessage(),  __METHOD__);
@@ -210,7 +210,7 @@ class WebAppExecutionController extends BaseInstructorRestController
             throw new NotFoundHttpException(Yii::t('app', 'Running web app not found.'));
         }
 
-        $this->validateGroupAccess($webAppExecutionResource->studentFile->task->groupID);
+        $this->validateGroupAccess($webAppExecutionResource->submission->task->groupID);
 
         if (Yii::$app->user->id != $webAppExecutionResource->instructorID) {
             throw new ForbiddenHttpException(Yii::t('app','User not allowed to shut down this instance.'));
@@ -257,7 +257,7 @@ class WebAppExecutionController extends BaseInstructorRestController
             throw new NotFoundHttpException(Yii::t('app', 'Running web app not found.'));
         }
 
-        $this->validateGroupAccess($webAppExecutionResource->studentFile->task->groupID);
+        $this->validateGroupAccess($webAppExecutionResource->submission->task->groupID);
 
         if (Yii::$app->user->id != $webAppExecutionResource->instructorID) {
             throw new ForbiddenHttpException(Yii::t('app','User not allowed to shut down this instance.'));

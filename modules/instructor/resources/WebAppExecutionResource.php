@@ -13,7 +13,7 @@ class WebAppExecutionResource extends WebAppExecution
     {
         return [
             'id',
-            'studentFileID',
+            'submissionID',
             'instructorID',
             'startedAt',
             'shutdownAt',
@@ -26,7 +26,7 @@ class WebAppExecutionResource extends WebAppExecution
     public function extraFields()
     {
         return [
-            'studentFile',
+            'submission',
             'instructor'
         ];
     }
@@ -36,7 +36,7 @@ class WebAppExecutionResource extends WebAppExecution
         return ArrayHelper::merge(
             parent::fieldTypes(),
             [
-                'studentFile' => new OAProperty(['ref' => '#/components/schemas/Instructor_StudentFileResource_Read']),
+                'submission' => new OAProperty(['ref' => '#/components/schemas/Instructor_SubmissionResource_Read']),
                 'instructor' => new OAProperty(['ref' => '#/components/schemas/Common_UserResource_Read']),
             ]
         );
@@ -45,9 +45,9 @@ class WebAppExecutionResource extends WebAppExecution
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStudentFile(): \yii\db\ActiveQuery
+    public function getSubmission(): \yii\db\ActiveQuery
     {
-        return $this->hasOne(StudentFileResource::class, ['id' => 'studentFileID']);
+        return $this->hasOne(SubmissionResource::class, ['id' => 'submissionId']);
     }
 
     /**

@@ -5,7 +5,7 @@ namespace app\tests\unit;
 use app\components\docker\DockerContainer;
 use app\components\SubmissionRunner;
 use app\exceptions\SubmissionRunnerException;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\User;
 use app\models\WebAppExecution;
 use app\modules\instructor\components\exception\WebAppExecutionException;
@@ -70,26 +70,26 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
     {
         $this->specify('Instance already running', function () {
             $this->tester->expectThrowable(WebAppExecutionException::class, function () {
-                $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 1]);
-                $this->webAppExecutor->startWebApplication($studentFile, $this->user->id, $this->setupData);
+                $submission = $this->tester->grabRecord(Submission::class, ['id' => 1]);
+                $this->webAppExecutor->startWebApplication($submission, $this->user->id, $this->setupData);
             });
         });
 
         $this->specify('Task not web app', function () {
             $this->tester->expectThrowable(WebAppExecutionException::class, function () {
-                $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 2]);
-                $this->webAppExecutor->startWebApplication($studentFile, $this->user->id, $this->setupData);
+                $submission = $this->tester->grabRecord(Submission::class, ['id' => 2]);
+                $this->webAppExecutor->startWebApplication($submission, $this->user->id, $this->setupData);
             });
         });
 
         $this->specify("When student file compilation failed already, then start fails", function () {
             Yii::$app->params['evaluator']['webApp']['linux']['reservedPorts'] = array('from' => 8081, 'to' => 8083);
             Yii::$app->params['evaluator']['webApp']['windows']['reservedPorts'] = array('from' => 8081, 'to' => 8083);
-            $studentFile = StudentFile::findOne(['id' => 3]);
-            $studentFile->task->appType = 'Web';
+            $submission = Submission::findOne(['id' => 3]);
+            $submission->task->appType = 'Web';
 
-            $this->tester->expectThrowable(WebAppExecutionException::class, function () use ($studentFile) {
-                $this->webAppExecutor->startWebApplication($studentFile, $this->user->id, $this->setupData);
+            $this->tester->expectThrowable(WebAppExecutionException::class, function () use ($submission) {
+                $this->webAppExecutor->startWebApplication($submission, $this->user->id, $this->setupData);
             });
         });
     }
@@ -99,11 +99,11 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
         $this->specify("When all ports reserved reservation fails", function () {
             Yii::$app->params['evaluator']['webApp']['linux']['reservedPorts'] = array('from' => 8081, 'to' => 8082);
             Yii::$app->params['evaluator']['webApp']['windows']['reservedPorts'] = array('from' => 8081, 'to' => 8082);
-            $studentFile = StudentFile::findOne(['id' => 2]);
-            $studentFile->task->appType = 'Web';
+            $submission = Submission::findOne(['id' => 2]);
+            $submission->task->appType = 'Web';
 
-            $this->tester->expectThrowable(WebAppExecutionException::class, function () use ($studentFile) {
-                $this->webAppExecutor->startWebApplication($studentFile, $this->user->id, $this->setupData);
+            $this->tester->expectThrowable(WebAppExecutionException::class, function () use ($submission) {
+                $this->webAppExecutor->startWebApplication($submission, $this->user->id, $this->setupData);
             });
         });
 
@@ -126,18 +126,18 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
 
             Yii::$app->params['evaluator']['webApp']['linux']['reservedPorts'] = array('from' => 8081, 'to' => 8083);
             Yii::$app->params['evaluator']['webApp']['windows']['reservedPorts'] = array('from' => 8081, 'to' => 8083);
-            $studentFile = StudentFile::findOne(['id' => 4]);
-            $studentFile->task->appType = 'Web';
+            $submission = Submission::findOne(['id' => 4]);
+            $submission->task->appType = 'Web';
 
-            $this->tester->expectThrowable(WebAppExecutionException::class, function () use ($studentFile) {
-                $this->webAppExecutor->startWebApplication($studentFile, $this->user->id, $this->setupData);
+            $this->tester->expectThrowable(WebAppExecutionException::class, function () use ($submission) {
+                $this->webAppExecutor->startWebApplication($submission, $this->user->id, $this->setupData);
             });
             $this->tester->cantSeeRecord(WebAppExecution::class, ['port' => 8081]);
             $this->tester->cantSeeRecord(WebAppExecution::class, ['port' => 8082]);
 
-            $record = $this->tester->grabRecord(StudentFile::class, ['id' => 4]);
+            $record = $this->tester->grabRecord(Submission::class, ['id' => 4]);
             self::assertEquals('Compilation Failed', $record->autoTesterStatus);
-            self::assertEquals('Failed', $record->isAccepted);
+            self::assertEquals('Failed', $record->status);
             self::assertEquals('out' . PHP_EOL . 'err', $record->errorMsg);
         });
     }
@@ -152,16 +152,16 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
                 );
             Yii::$app->params['evaluator']['webApp']['linux']['reservedPorts'] = array('from' => 8081, 'to' => 8083);
             Yii::$app->params['evaluator']['webApp']['windows']['reservedPorts'] = array('from' => 8081, 'to' => 8083);
-            $studentFile = StudentFile::findOne(['id' => 4]);
-            $studentFile->task->appType = 'Web';
+            $submission = Submission::findOne(['id' => 4]);
+            $submission->task->appType = 'Web';
 
             $webAppExecutionResource = $this->webAppExecutor
-                ->startWebApplication($studentFile, $this->user->id, $this->setupData);
+                ->startWebApplication($submission, $this->user->id, $this->setupData);
 
             $record = $this->tester->grabRecord(WebAppExecution::class, ['dockerHostUrl' => 'https://tms.elte.hu', 'port' => 8081]);
             self::assertNotEmpty($record, 'Record must not be null');
             self::assertEquals($containerName, $record->containerName);
-            self::assertEquals($studentFile->id, $record->studentFileID);
+            self::assertEquals($submission->id, $record->submissionID);
             self::assertEquals($this->user->id, $record->instructorID);
             self::assertEquals(8081, $record->port);
             self::assertEquals(Yii::$app->params['backendUrl'], $record->dockerHostUrl);

@@ -13,7 +13,7 @@ use app\models\ExamTestInstance;
 use app\models\Group;
 use app\models\InstructorGroup;
 use app\models\Semester;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\Subscription;
 use app\models\Task;
 use app\models\User;
@@ -64,7 +64,7 @@ class SetupControllerTest extends \Codeception\Test\Unit
         $this->assertEquals(3, InstructorGroup::find()->count());
         $this->assertEquals(6, Subscription::find()->count());
         $this->assertEquals(2, Task::find()->count());
-        $this->assertEquals(12, StudentFile::find()->count());
+        $this->assertEquals(12, Submission::find()->count());
         $this->assertEquals(1, ExamQuestionSet::find()->count());
         $this->assertEquals(5, ExamQuestion::find()->count());
         $this->assertEquals(25, ExamAnswer::find()->count());
@@ -131,11 +131,11 @@ class SetupControllerTest extends \Codeception\Test\Unit
             'createrID' => 2,
             'description' => ''
         ]);
-        $this->tester->seeRecord(StudentFile::class, [
+        $this->tester->seeRecord(Submission::class, [
             'name' => 'stud06.zip',
             'taskID' => 2,
             'uploaderID' => 10,
-            'isAccepted' => 'Accepted',
+            'status' => 'Accepted',
             'autoTesterStatus' => 'Not Tested',
             'verified' => 1,
             'uploadCount' => 1,

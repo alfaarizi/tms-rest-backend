@@ -2,7 +2,7 @@
 
 namespace app\commands;
 
-use app\models\StudentFile;
+use app\models\Submission;
 use Yii;
 use app\models\Semester;
 use app\models\Group;
@@ -106,7 +106,7 @@ class ReportController extends BaseController
             '{{%courses}}.code courseCode',
             '{{%groups}}.number groupNumber',
             '{{%tasks}}.name taskName',
-            '{{%student_files}}.isAccepted'
+            '{{%submissions}}.status'
         ])
             ->from('{{%users}}')
             ->innerJoin('{{%subscriptions}}', '{{%subscriptions}}.userID = {{%users}}.id')
@@ -115,8 +115,8 @@ class ReportController extends BaseController
             ->innerJoin('{{%tasks}}', '{{%tasks}}.groupID = {{%groups}}.id')
             ->innerJoin('{{%semesters}}', '{{%semesters}}.id = {{%tasks}}.semesterID')
             ->leftJoin(
-                '{{%student_files}}',
-                '{{%student_files}}.taskID = {{%tasks}}.id AND {{%student_files}}.uploaderID = {{%users}}.id'
+                '{{%submissions}}',
+                '{{%submissions}}.taskID = {{%tasks}}.id AND {{%submissions}}.uploaderID = {{%users}}.id'
             )
             ->where("{{%semesters}}.id = $semesterObj->id")
             ->andWhere(['like', '{{%courses}}.name', $course])
@@ -124,8 +124,8 @@ class ReportController extends BaseController
             ->andWhere(['in', '{{%tasks}}.id', $taskIds])
             ->andWhere([
                 'or',
-                "{{%student_files}}.isAccepted <> '" . StudentFile::IS_ACCEPTED_ACCEPTED . "'",
-                "{{%student_files}}.isAccepted IS NULL"
+                "{{%submissions}}.status <> '" . Submission::STATUS_ACCEPTED . "'",
+                "{{%submissions}}.status IS NULL"
             ])
             ->orderBy('userName');
         $results = $query->all();
@@ -141,7 +141,7 @@ class ReportController extends BaseController
                 $result['userName'],
                 $result['courseCode'] . '/' . $result['groupNumber'],
                 $result['taskName'],
-                !empty($result['isAccepted']) ? $result['isAccepted'] : 'Non submitted',
+                !empty($result['status']) ? $result['status'] : 'Non submitted',
             ];
         }
         echo $table->setRows($rows)

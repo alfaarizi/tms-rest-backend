@@ -12,7 +12,7 @@ use Yii;
  * This is the model class for table "remote_executions"
  *
  * @property integer $id
- * @property integer $studentFileID
+ * @property integer $submissionID
  * @property integer $instructorID
  * @property string $startedAt
  * @property string $shutdownAt
@@ -20,7 +20,7 @@ use Yii;
  * @property string $dockerHostUrl
  * @property string $containerName
  *
- * @property StudentFile $studentFile
+ * @property Submission $submission
  * @property User $instructor
  *
  * @property-read string $url
@@ -50,15 +50,15 @@ class WebAppExecution extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public function rules(): array
     {
         return [
-            [['studentFileID', 'instructorID', 'dockerHostUrl', 'port'], 'required'],
-            [['studentFileID', 'instructorID', 'port'], 'integer'],
+            [['submissionID', 'instructorID', 'dockerHostUrl', 'port'], 'required'],
+            [['submissionID', 'instructorID', 'port'], 'integer'],
             [['containerName', 'dockerHostUrl'], 'string'],
             [
-                ['studentFileID'],
+                ['submissionID'],
                 'exist',
                 'skipOnError' => true,
-                'targetClass' => StudentFile::class,
-                'targetAttribute' => ['studentFileID' => 'id']
+                'targetClass' => Submission::class,
+                'targetAttribute' => ['submissionID' => 'id']
             ],
             [
                 ['instructorID'],
@@ -74,14 +74,14 @@ class WebAppExecution extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     {
         return [
             'id' => Yii::t('app', 'ID'),
-            'studentFileID' => Yii::t('app', 'Student File ID'),
+            'submissionID' => Yii::t('app', 'Student File ID'),
             'instructorID' => Yii::t('app', 'Instructor ID'),
             'startedAt' => Yii::t('app', 'Started at'),
             'shutdownAt' => Yii::t('app', 'Shut down at'),
             'port' => Yii::t('app', 'Port'),
             'dockerHostUrl' => Yii::t('app', 'Docker host URL'),
             'containerName' => Yii::t('app', 'Container Name'),
-            'studentFile' => Yii::t('app', 'Student File'),
+            'submission' => Yii::t('app', 'Submission'),
             'instructor' => Yii::t('app', 'Instructor'),
             'url' => Yii::t('app', 'URL')
         ];
@@ -91,7 +91,7 @@ class WebAppExecution extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     {
         return [
             'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
-            'studentFileID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'submissionID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'instructorID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'startedAt' => new OAProperty(['type' => 'string', 'example' => '2022-01-01T23:59:00+00:00']),
@@ -106,9 +106,9 @@ class WebAppExecution extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStudentFile(): \yii\db\ActiveQuery
+    public function getSubmission(): \yii\db\ActiveQuery
     {
-        return $this->hasOne(StudentFile::class, ['id' => 'studentFileID']);
+        return $this->hasOne(Submission::class, ['id' => 'submissionID']);
     }
 
     /**

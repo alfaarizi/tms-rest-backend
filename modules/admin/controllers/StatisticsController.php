@@ -5,7 +5,7 @@ namespace app\modules\admin\controllers;
 use app\models\Group;
 use app\models\Semester;
 use app\models\Task;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\modules\admin\resources\StatisticsResource;
 use app\modules\admin\resources\StatisticsSemesterResource;
 use Yii;
@@ -51,11 +51,11 @@ class StatisticsController extends BaseAdminRestController
 
         $statistics->groupsCount = Group::find()->count();
         $statistics->tasksCount = Task::find()->count();
-        $statistics->submissionsCount = StudentFile::find()->where(['not', ['uploadCount' => 0]])->count();
-        $statistics->testedSubmissionCount = StudentFile::find()
+        $statistics->submissionsCount = Submission::find()->where(['not', ['uploadCount' => 0]])->count();
+        $statistics->testedSubmissionCount = Submission::find()
             ->findTested()
             ->count();
-        $statistics->submissionsUnderTestingCount = StudentFile::find()
+        $statistics->submissionsUnderTestingCount = Submission::find()
             ->findUnderTesting()
             ->count();
 
@@ -69,7 +69,7 @@ class StatisticsController extends BaseAdminRestController
                 ->all()
         );
 
-        $statistics->submissionsToBeTested = StudentFile::find()
+        $statistics->submissionsToBeTested = Submission::find()
             ->notTested($IDs)
             ->count();
 
@@ -125,11 +125,11 @@ class StatisticsController extends BaseAdminRestController
         $statistics->tasksCount = Task::find()
             ->findBySemester($semesterID)
             ->count();
-        $statistics->submissionsCount = StudentFile::find()
+        $statistics->submissionsCount = Submission::find()
             ->where(['not', ['uploadCount' => 0]])
             ->findBySemester($semesterID)
             ->count();
-        $statistics->testedSubmissionCount = StudentFile::find()
+        $statistics->testedSubmissionCount = Submission::find()
             ->findBySemester($semesterID)
             ->findTested()
             ->count();

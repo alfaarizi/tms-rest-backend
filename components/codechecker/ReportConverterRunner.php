@@ -6,7 +6,7 @@ use app\components\docker\DockerContainer;
 use app\components\docker\DockerContainerBuilder;
 use app\components\docker\EvaluatorTarBuilder;
 use app\exceptions\CodeCheckerRunnerException;
-use app\models\StudentFile;
+use app\models\Submission;
 use Yii;
 
 /**
@@ -14,15 +14,15 @@ use Yii;
  */
 class ReportConverterRunner extends AnalyzerRunner
 {
-    public function __construct(StudentFile $studentFile)
+    public function __construct(Submission $submission)
     {
-        parent::__construct($studentFile);
+        parent::__construct($submission);
     }
 
     protected function beforeRun(): void
     {
         parent::beforeRun();
-        $os = $this->studentFile->task->testOS;
+        $os = $this->submission->task->testOS;
         $imageName = Yii::$app->params["evaluator"]["reportConverterImage"][$os];
 
         if (empty($imageName)) {
@@ -36,8 +36,8 @@ class ReportConverterRunner extends AnalyzerRunner
     protected function addAnalyzeInstructionsToTar(EvaluatorTarBuilder $tarBuilder): void
     {
         $tarBuilder->withTextFile(
-            "analyze" . ($this->studentFile->task->testOS == 'windows' ? '.ps1' : '.sh'),
-            $this->studentFile->task->staticCodeAnalyzerInstructions
+            "analyze" . ($this->submission->task->testOS == 'windows' ? '.ps1' : '.sh'),
+            $this->submission->task->staticCodeAnalyzerInstructions
         );
     }
 
@@ -72,7 +72,7 @@ class ReportConverterRunner extends AnalyzerRunner
     private function checkIfReportsArePresent(DockerContainer $analyzerContainer): bool
     {
         $supportedTools = Yii::$app->params["evaluator"]["supportedStaticAnalyzerTools"];
-        $toolName = $this->studentFile->task->staticCodeAnalyzerTool;
+        $toolName = $this->submission->task->staticCodeAnalyzerTool;
         $outputPath = $supportedTools[$toolName]["outputPath"];
         if (empty($outputPath)) {
             throw new CodeCheckerRunnerException(
@@ -80,7 +80,7 @@ class ReportConverterRunner extends AnalyzerRunner
             );
         }
 
-        if ($this->studentFile->task->testOS == 'windows') {
+        if ($this->submission->task->testOS == 'windows') {
             $outputPath = str_replace('/', '\\', $outputPath);
             $result = $analyzerContainer->executeCommand(
                 ["powershell", "-Command", "Test-Path -Path C:\\test\\$outputPath"]
@@ -101,11 +101,11 @@ class ReportConverterRunner extends AnalyzerRunner
     protected function buildAndStartReportConverterContainer(): DockerContainer
     {
         try {
-            $os = $this->studentFile->task->testOS;
+            $os = $this->submission->task->testOS;
             $imageName = Yii::$app->params["evaluator"]["reportConverterImage"][$os];
 
             $builder = new DockerContainerBuilder($os, $imageName);
-            $container = $builder->build("tms_report_converter_" . $this->studentFile->id);
+            $container = $builder->build("tms_report_converter_" . $this->submission->id);
             $container->startContainer();
             return $container;
         } catch (\Throwable $e) {
@@ -132,7 +132,7 @@ class ReportConverterRunner extends AnalyzerRunner
         try {
             $tarPath = $this->workingDirBasePath . "/analyzed_test.tar";
             $analyzerContainer->downloadArchive(
-                $this->studentFile->task->testOS === "linux" ? "/test" : "C:\\test",
+                $this->submission->task->testOS === "linux" ? "/test" : "C:\\test",
                 $tarPath
             );
             $reportConverterContainer->uploadArchive($tarPath, '/');
@@ -155,15 +155,15 @@ class ReportConverterRunner extends AnalyzerRunner
     private function runReportConverter(DockerContainer $container)
     {
         try {
-            $toolName = $this->studentFile->task->staticCodeAnalyzerTool;
-            $resultFilePath = ($this->studentFile->task->testOS === "windows" ? "C:\\test\\" : "/test/")
+            $toolName = $this->submission->task->staticCodeAnalyzerTool;
+            $resultFilePath = ($this->submission->task->testOS === "windows" ? "C:\\test\\" : "/test/")
                 . Yii::$app->params["evaluator"]["supportedStaticAnalyzerTools"][$toolName]["outputPath"];
-            $plistPath = $this->studentFile->task->testOS === "windows" ? "C:\\test\\reports\\plist" : "/test/reports/plist";
+            $plistPath = $this->submission->task->testOS === "windows" ? "C:\\test\\reports\\plist" : "/test/reports/plist";
 
             $container->executeCommand(
                 [
                    "report-converter",
-                   "-t", $this->studentFile->task->staticCodeAnalyzerTool,
+                   "-t", $this->submission->task->staticCodeAnalyzerTool,
                    "-o", $plistPath,
                    $resultFilePath
                 ]
@@ -189,7 +189,7 @@ class ReportConverterRunner extends AnalyzerRunner
         try {
             $tarPath = $this->workingDirBasePath . "/reports.tar";
             $reportConverterContainer->downloadArchive(
-                $this->studentFile->task->testOS  === "windows"
+                $this->submission->task->testOS  === "windows"
                     ? "C:\\test\\reports" : "/test/reports",
                 $tarPath
             );

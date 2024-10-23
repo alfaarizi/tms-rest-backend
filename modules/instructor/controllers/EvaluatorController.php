@@ -3,7 +3,7 @@
 namespace app\modules\instructor\controllers;
 
 use app\components\docker\DockerImageManager;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\Task;
 use app\modules\instructor\resources\EvaluatorTemplateResource;
 use app\modules\instructor\resources\SetupAutoTesterResource;
@@ -273,14 +273,14 @@ class EvaluatorController extends BaseInstructorRestController
 
         if ($task->save(false)) {
             if ($setupData->reevaluateAutoTest) {
-                StudentFile::updateAll(
+                Submission::updateAll(
                     [
-                        'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
-                        'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
+                        'status' => Submission::STATUS_UPLOADED,
+                        'autoTesterStatus' => Submission::AUTO_TESTER_STATUS_NOT_TESTED,
                     ],
                     [
                         'and',
-                        ['in', 'isAccepted', [StudentFile::IS_ACCEPTED_PASSED, StudentFile::IS_ACCEPTED_FAILED]],
+                        ['in', 'status', [Submission::STATUS_PASSED, Submission::STATUS_FAILED]],
                         ['=', 'taskID', $task->id],
                     ]
                 );
@@ -483,13 +483,13 @@ class EvaluatorController extends BaseInstructorRestController
         if ($task->save(false)) {
 
             if ($setupData->reevaluateStaticCodeAnalysis){
-                StudentFile::updateAll(
+                Submission::updateAll(
                     [
                         'codeCheckerResultID' => null,
                     ],
                     [
                         'and',
-                        ['not in', 'isAccepted', [StudentFile::IS_ACCEPTED_ACCEPTED, StudentFile::IS_ACCEPTED_REJECTED]],
+                        ['not in', 'status', [Submission::STATUS_ACCEPTED, Submission::STATUS_REJECTED]],
                         ['=', 'taskID', $task->id],
                     ]
                 );

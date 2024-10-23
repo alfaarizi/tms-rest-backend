@@ -16,7 +16,9 @@ return [
             ),
         \app\components\CanvasIntegration::class => \app\components\CanvasIntegration::class,
         \app\components\SubmissionRunner::class => \app\components\SubmissionRunner::class,
-        \app\components\codechecker\AnalyzerRunner::class => [\app\components\codechecker\AnalyzerRunnerFactory::class, 'createForStudentFile'],
+        \app\components\codechecker\AnalyzerRunner::class => [\app\components\codechecker\AnalyzerRunnerFactory::class,
+            'createForSubmission'
+        ],
         \app\components\codechecker\CodeCheckerResultPersistence::class => \app\components\codechecker\CodeCheckerResultPersistence::class,
         \app\components\codechecker\CodeCheckerResultNotifier::class => \app\components\codechecker\CodeCheckerResultNotifier::class,
         \app\components\docker\DockerImageManager::class => \app\components\docker\DockerImageManager::class,

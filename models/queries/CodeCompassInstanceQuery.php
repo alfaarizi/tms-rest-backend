@@ -34,10 +34,10 @@ class CodeCompassInstanceQuery extends ActiveQuery
             ->orderBy('creationTime');
     }
 
-    public function findRunningForStudentFileId(string $studentFileId): CodeCompassInstanceQuery
+    public function findRunningForSubmissionId(string $submissionId): CodeCompassInstanceQuery
     {
         return $this
-            ->where(['studentFileId' => $studentFileId])
+            ->where(['submissionId' => $submissionId])
             ->andWhere(['status' => CodeCompassInstance::STATUS_RUNNING]);
     }
 

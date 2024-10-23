@@ -3,8 +3,8 @@
 namespace app\tests\api;
 
 use ApiTester;
-use app\models\StudentFile;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\models\Submission;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use Yii;
 use app\models\Subscription;
 use app\models\User;
@@ -45,8 +45,8 @@ class InstructorGroupsStudentsCest
             'subscriptions' => [
                 'class' => SubscriptionFixture::class
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class
+            'submission' => [
+                'class' => SubmissionsFixture::class
             ]
         ];
     }
@@ -173,9 +173,9 @@ class InstructorGroupsStudentsCest
             ]
         );
 
-        // No submission StudentFile should be removed
+        // No submission Submission should be removed
         $I->cantSeeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'uploaderID' => 1011,
                 'taskID' => 5000,

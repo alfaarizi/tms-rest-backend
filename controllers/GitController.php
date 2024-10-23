@@ -4,7 +4,7 @@ namespace app\controllers;
 
 use app\components\GitManager;
 use Yii;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\User;
 use yii\helpers\FileHelper;
 use yii\filters\AccessControl;
@@ -71,37 +71,37 @@ class GitController extends BaseRestController
      */
     public function actionGitPush($taskid, $studentid)
     {
-        $studentfile = StudentFile::findOne(['taskID' => $taskid, 'uploaderID' => $studentid]);
+        $submission = Submission::findOne(['taskID' => $taskid, 'uploaderID' => $studentid]);
         $student = User::findOne($studentid);
         Yii::$app->language = $student->locale;
-        if ($studentfile == null) {
+        if ($submission == null) {
             // Zip the files from the solution
             GitManager::createZip($taskid, $studentid);
-            $studentfile = new StudentFile();
+            $submission = new Submission();
             // Set details
-            $studentfile->taskID = $taskid;
-            $studentfile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
-            $studentfile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
-            $studentfile->uploaderID = $studentid;
-            $studentfile->name = strtolower($student->userCode) . '.zip';
-            $studentfile->grade = null;
-            $studentfile->notes = "";
-            $studentfile->uploadTime = date('Y-m-d H:i:s');
-            $studentfile->isVersionControlled = true;
-            $studentfile->uploadCount = 1;
-            $studentfile->verified = true;
+            $submission->taskID = $taskid;
+            $submission->status = Submission::STATUS_UPLOADED;
+            $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
+            $submission->uploaderID = $studentid;
+            $submission->name = strtolower($student->userCode) . '.zip';
+            $submission->grade = null;
+            $submission->notes = "";
+            $submission->uploadTime = date('Y-m-d H:i:s');
+            $submission->isVersionControlled = true;
+            $submission->uploadCount = 1;
+            $submission->verified = true;
             // Save it to the db.
-            if ($studentfile->save()) {
+            if ($submission->save()) {
                 Yii::info(
                     "A new solution has been uploaded for " .
-                    "{$studentfile->task->name} ($studentfile->taskID)",
+                    "{$submission->task->name} ($submission->taskID)",
                     __METHOD__
                 );
                 $this->response->statusCode = 201;
                 return Yii::t('app', 'Upload completed.');
-            } elseif ($studentfile->hasErrors()) {
+            } elseif ($submission->hasErrors()) {
                 $this->response->statusCode = 422;
-                return $studentfile->errors;
+                return $submission->errors;
             } else {
                 $this->response->statusCode = 500;
                 return Yii::t('app', "A database error occurred");
@@ -116,24 +116,24 @@ class GitController extends BaseRestController
             // Zip the files from the solution
             GitManager::createZip($taskid, $studentid);
             // Set details
-            $studentfile->name = strtolower($student->userCode) . '.zip';
-            $studentfile->uploadTime = date('Y-m-d H:i:s');
-            $studentfile->isAccepted = StudentFile::IS_ACCEPTED_UPLOADED;
-            $studentfile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_NOT_TESTED;
-            $studentfile->uploadCount++;
-            $studentfile->verified = true;
+            $submission->name = strtolower($student->userCode) . '.zip';
+            $submission->uploadTime = date('Y-m-d H:i:s');
+            $submission->status = Submission::STATUS_UPLOADED;
+            $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
+            $submission->uploadCount++;
+            $submission->verified = true;
             // Save it to the db.
-            if ($studentfile->save()) {
+            if ($submission->save()) {
                 Yii::info(
                     "A new solution has been uploaded for " .
-                    "{$studentfile->task->name} ($studentfile->taskID)",
+                    "{$submission->task->name} ($submission->taskID)",
                     __METHOD__
                 );
                 $this->response->statusCode = 200;
                 return Yii::t('app', 'Upload completed.');
-            } elseif ($studentfile->hasErrors()) {
+            } elseif ($submission->hasErrors()) {
                 $this->response->statusCode = 422;
-                return $studentfile->errors;
+                return $submission->errors;
             } else {
                 $this->response->statusCode = 500;
                 return Yii::t('app', "A database error occurred");

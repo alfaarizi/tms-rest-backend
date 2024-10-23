@@ -3,7 +3,7 @@
 namespace app\models\queries;
 
 use app\models\WebAppExecution;
-use app\models\StudentFile;
+use app\models\Submission;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
 
@@ -30,15 +30,15 @@ class WebAppExecutionQuery extends ActiveQuery
     /**
      * Fetches running remote executions of a student file instantiated by the given instructor
      *
-     * @param StudentFile $studentFile the task to which executions belong
+     * @param Submission $submission the task to which executions belong
      * @param integer $instructorID the id of the instructor started the execution
      * @return WebAppExecutionQuery
      */
-    public function executionsOf(StudentFile $studentFile, $instructorID): WebAppExecutionQuery
+    public function executionsOf(Submission $submission, $instructorID): WebAppExecutionQuery
     {
         return $this->andWhere(
             [
-                'studentFileID' => $studentFile->id,
+                'submissionID' => $submission->id,
                 'instructorID' => $instructorID
             ]
         );

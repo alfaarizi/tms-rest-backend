@@ -7,15 +7,15 @@ use app\components\codechecker\AnalyzerRunner;
 use app\components\codechecker\AnalyzerRunnerFactory;
 use app\components\codechecker\CodeCheckerResultPersistence;
 use app\components\codechecker\CodeCheckerRunner;
-use app\components\codechecker\StudentFileToAnalyzeFinder;
+use app\components\codechecker\SubmissionToAnalyzeFinder;
 use app\components\docker\DockerImageManager;
 use app\exceptions\CodeCheckerPersistenceException;
 use app\exceptions\CodeCheckerResultNotifierException;
 use app\exceptions\CodeCheckerRunnerException;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\Task;
 use app\tests\unit\fixtures\CodeCheckerResultFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use Yii;
 use yii\base\Module;
@@ -32,8 +32,8 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
             'task' => [
                 'class' => TaskFixture::class
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class,
+            'submission' => [
+                'class' => SubmissionsFixture::class,
             ],
             'codecheckerresults' => [
                 'class' => CodeCheckerResultFixture::class,
@@ -45,18 +45,18 @@ class CodeCheckerControllerTest extends \Codeception\Test\Unit
     {
         $this->tester->copyDir(codecept_data_dir("appdata_samples"), Yii::getAlias("@appdata"));
 
-        $finderMock = $this->createMock(StudentFileToAnalyzeFinder::class);
+        $finderMock = $this->createMock(SubmissionToAnalyzeFinder::class);
         $finderMock->method('findNext')
             ->willReturnOnConsecutiveCalls(
-                $this->tester->grabRecord(StudentFile::class, ['id' => 1]),
-                $this->tester->grabRecord(StudentFile::class, ['id' => 17])
+                $this->tester->grabRecord(Submission::class, ['id' => 1]),
+                $this->tester->grabRecord(Submission::class, ['id' => 17])
             );
 
-        Yii::$container->set(StudentFileToAnalyzeFinder::class, $finderMock);
+        Yii::$container->set(SubmissionToAnalyzeFinder::class, $finderMock);
 
         $this->runnerMock = $this->getMockBuilder(CodeCheckerRunner::class)
             ->enableOriginalConstructor()
-            ->setConstructorArgs([$this->tester->grabRecord(StudentFile::class, ['id' => 8])])
+            ->setConstructorArgs([$this->tester->grabRecord(Submission::class, ['id' => 8])])
             ->getMock();
     }
 

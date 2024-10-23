@@ -3,7 +3,7 @@
 namespace app\components\docker;
 
 use app\exceptions\EvaluatorTarBuilderException;
-use app\models\InstructorFile;
+use app\models\TaskFile;
 use PharData;
 use Throwable;
 use Yii;
@@ -95,7 +95,7 @@ class EvaluatorTarBuilder extends BaseObject
             }
         }
 
-        $testFiles = InstructorFile::find()
+        $testFiles = TaskFile::find()
             ->where(['taskID' => $taskId])
             ->onlyTestFiles()
             ->all();

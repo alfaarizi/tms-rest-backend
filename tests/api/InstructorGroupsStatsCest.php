@@ -8,7 +8,7 @@ use app\tests\unit\fixtures\AccessTokenFixture;
 use app\tests\unit\fixtures\GroupFixture;
 use app\tests\unit\fixtures\InstructorCourseFixture;
 use app\tests\unit\fixtures\InstructorGroupFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\SubscriptionFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use app\tests\unit\fixtures\UserFixture;
@@ -37,8 +37,8 @@ class InstructorGroupsStatsCest
             'subscriptions' => [
                 'class' => SubscriptionFixture::class
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class
+            'submission' => [
+                'class' => SubmissionsFixture::class
             ],
             'users' => [
                 'class' => UserFixture::class

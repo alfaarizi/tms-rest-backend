@@ -3,7 +3,7 @@
 return [
     'execution_1' => [
         'id' => 1,
-        'studentFileID' => 1,
+        'submissionID' => 1,
         'instructorID' => 1006,
         'dockerHostUrl' => 'https://tms.elte.hu',
         'port' => 8080,
@@ -13,7 +13,7 @@ return [
     ],
     'execution_2' => [
         'id' => 2,
-        'studentFileID' => 2,
+        'submissionID' => 2,
         'instructorID' => 1006,
         'dockerHostUrl' => 'https://tms.elte.hu',
         'port' => 8089,

@@ -5,7 +5,7 @@ namespace app\modules\instructor\components;
 use app\components\docker\DockerContainer;
 use app\components\SubmissionRunner;
 use app\exceptions\SubmissionRunnerException;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\Task;
 use app\models\WebAppExecution;
 use app\modules\instructor\components\exception\WebAppExecutionException;
@@ -30,17 +30,23 @@ class WebAppExecutor
     public static function isDockerHostLocal(string $os): bool
     {
         $dockerHost = Yii::$app->params['evaluator'][$os];
-        if (1 == preg_match(
+        if (
+            1 == preg_match(
                 '/(unix:\/\/\/var\/run\/docker.sock|tcp:\/\/127.0.0.1|tcp:\/\/localhost)/i',
-                $dockerHost)) {
+                $dockerHost
+            )
+        ) {
             return true;
         }
 
         $dockerUrl = [];
         preg_match('/(?<=(tcp:\/\/))[\w.]+/', $dockerHost, $dockerUrl);
         $backendUrl = [];
-        preg_match('/(?<=(http:\/\/)|(https:\/\/))[\w.]+/',
-                   Yii::$app->params['backendUrl'], $backendUrl);
+        preg_match(
+            '/(?<=(http:\/\/)|(https:\/\/))[\w.]+/',
+            Yii::$app->params['backendUrl'],
+            $backendUrl
+        );
 
         if ($dockerUrl[0] == $backendUrl[0]) {
             return true;
@@ -67,7 +73,7 @@ class WebAppExecutor
     /**
      * Starts a web application accessible on a host port.
      *
-     * @param StudentFile $studentFile the student file to launch
+     * @param Submission $submission the student file to launch
      * @param int $userID instructor's ID
      * @param SetupWebAppExecutionResource $setupData configuration parameters
      *
@@ -75,24 +81,24 @@ class WebAppExecutor
      * @throws WebAppExecutionException
      * @throws Exception
      */
-    public function startWebApplication(StudentFile $studentFile, int $userID, SetupWebAppExecutionResource $setupData): WebAppExecutionResource
+    public function startWebApplication(Submission $submission, int $userID, SetupWebAppExecutionResource $setupData): WebAppExecutionResource
     {
-        $this->validate($studentFile, $userID);
+        $this->validate($submission, $userID);
 
-        $remoteExecution = $this->reservePort($studentFile, $userID);
+        $remoteExecution = $this->reservePort($submission, $userID);
 
         try {
-            $dockerContainer = $this->submissionRunner->run($studentFile, $remoteExecution->port);
+            $dockerContainer = $this->submissionRunner->run($submission, $remoteExecution->port);
             $remoteExecution->containerName = $dockerContainer->getContainerName();
         } catch (SubmissionRunnerException $e) {
             $remoteExecution->delete();
             switch ($e->getCode()) {
                 case SubmissionRunnerException::PREPARE_FAILURE:
-                    $this->processPrepareFailure($studentFile, $e);
+                    $this->processPrepareFailure($submission, $e);
                     $errorMsg = Yii::t('app', 'Container start failed while processing files.');
                     break;
                 case SubmissionRunnerException::COMPILE_FAILURE:
-                    $this->processCompileFailure($studentFile, $e);
+                    $this->processCompileFailure($submission, $e);
                     $errorMsg = Yii::t('app', 'Container started failed while compiling student submission.');
                     break;
                 case SubmissionRunnerException::RUN_FAILURE:
@@ -127,20 +133,23 @@ class WebAppExecutor
      */
     public function stopWebApplication(WebAppExecution $webAppExecution)
     {
-        $dockerContainer = DockerContainer::createForRunning($webAppExecution->studentFile->task->testOS,
-                                                             $webAppExecution->containerName);
+        $dockerContainer = DockerContainer::createForRunning(
+            $webAppExecution->submission->task->testOS,
+            $webAppExecution->containerName
+        );
 
         if (!empty($dockerContainer)) {
             try {
                 $dockerContainer->stopContainer();
             } catch (\Exception $e) {
                 Yii::error(
-                    "Failed to stop container of WebAppExecution [$webAppExecution->id]" . $e->getMessage() . ' ' . $e->getTraceAsString());
+                    "Failed to stop container of WebAppExecution [$webAppExecution->id]" . $e->getMessage() . ' ' . $e->getTraceAsString()
+                );
                 throw new WebAppExecutionException(Yii::t("app", "Failed to stop container."), WebAppExecutionException::SHUTDOWN_FAILURE, $e);
             }
         }
 
-        Yii::$app->db->transaction(function($db) use ($webAppExecution) {
+        Yii::$app->db->transaction(function ($db) use ($webAppExecution) {
             $webAppExecution->delete();
         }, Transaction::SERIALIZABLE);
     }
@@ -150,24 +159,26 @@ class WebAppExecutor
      *
      * @throws WebAppExecutionException
      */
-    private function validate(StudentFile $studentFile, int $userID)
+    private function validate(Submission $submission, int $userID)
     {
-        $remoteExecution = WebAppExecutionResource::find()->executionsOf($studentFile, $userID)->one();
+        $remoteExecution = WebAppExecutionResource::find()->executionsOf($submission, $userID)->one();
         if (!is_null($remoteExecution)) {
             Yii::info(
-                "Won\'t start web app for user [$userID] with id [$remoteExecution->id] of studentFile [$studentFile->id]");
+                "Won\'t start web app for user [$userID] with id [$remoteExecution->id] of submission [$submission->id]"
+            );
             throw new WebAppExecutionException(Yii::t('app', 'An instance is already running or scheduled'), WebAppExecutionException::$PREPARATION_FAILURE);
         }
 
-        if ($studentFile->task->appType != Task::APP_TYPE_WEB) {
+        if ($submission->task->appType != Task::APP_TYPE_WEB) {
             Yii::error(
             /** @phpstan-ignore-next-line */
-                "Only [Web] Task types are executable studentFile [$studentFile->id] is of type [$studentFile->task->appType]");
+                "Only [Web] Task types are executable submission [$submission->id] is of type [$submission->task->appType]"
+            );
             throw new WebAppExecutionException(Yii::t('app', 'Only Web application task types are executable.'), WebAppExecutionException::$PREPARATION_FAILURE);
         }
 
-        if ($studentFile->autoTesterStatus == StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED) {
-            Yii::info("Won\'t start web for student file [$studentFile->id] because latest compilation failed.");
+        if ($submission->autoTesterStatus == Submission::AUTO_TESTER_STATUS_COMPILATION_FAILED) {
+            Yii::info("Won\'t start web for student file [$submission->id] because latest compilation failed.");
             throw new WebAppExecutionException(Yii::t('app', 'The latest submission failed to compile.'), WebAppExecutionException::$PREPARATION_FAILURE);
         }
     }
@@ -178,38 +189,37 @@ class WebAppExecutor
      * Reservation is basically inserting a new database record with a not yet allocated port number.
      * The transaction isolation is serializable so to prevent race condition when multiple web applications launching at the same time.
      *
-     * @param StudentFile $studentFile
+     * @param Submission $submission
      * @param int $userID
      * @return WebAppExecutionResource
      * @throws Exception
      */
-    private function reservePort(StudentFile $studentFile, int $userID): WebAppExecutionResource
+    private function reservePort(Submission $submission, int $userID): WebAppExecutionResource
     {
         $remoteExecutionResource = new WebAppExecutionResource();
-        $remoteExecutionResource->studentFileID = $studentFile->id;
+        $remoteExecutionResource->submissionID = $submission->id;
         $remoteExecutionResource->instructorID = $userID;
-        $remoteExecutionResource->dockerHostUrl = $this->getDockerHostUrl($studentFile->task->testOS);
+        $remoteExecutionResource->dockerHostUrl = $this->getDockerHostUrl($submission->task->testOS);
 
         $reservablePorts = [];
-        if (!empty(Yii::$app->params['evaluator']['webApp'][$studentFile->task->testOS]['reservedPorts'])) {
+        if (!empty(Yii::$app->params['evaluator']['webApp'][$submission->task->testOS]['reservedPorts'])) {
             $reservablePorts = range(
-                Yii::$app->params['evaluator']['webApp'][$studentFile->task->testOS]['reservedPorts']['from'],
-                Yii::$app->params['evaluator']['webApp'][$studentFile->task->testOS]['reservedPorts']['to']
+                Yii::$app->params['evaluator']['webApp'][$submission->task->testOS]['reservedPorts']['from'],
+                Yii::$app->params['evaluator']['webApp'][$submission->task->testOS]['reservedPorts']['to']
             );
         }
         if (empty($reservablePorts)) {
             throw new WebAppExecutionException(Yii::t('app', 'Platform not supported for web application testing.'), WebAppExecutionException::$PREPARATION_FAILURE);
         }
 
-        Yii::$app->db->transaction(function($db) use ($remoteExecutionResource, $reservablePorts) {
+        Yii::$app->db->transaction(function ($db) use ($remoteExecutionResource, $reservablePorts) {
             $reservedPorts = array_map(function ($model) {
                 return $model->port;
             },
                 WebAppExecutionResource::find()
                     ->select('port')
                     ->where(['dockerHostUrl' => $remoteExecutionResource->dockerHostUrl])
-                    ->all()
-            );
+                    ->all());
 
             $reservablePorts = array_values(
                 array_diff(
@@ -219,12 +229,12 @@ class WebAppExecutor
             );
             if (empty($reservablePorts)) {
                 Yii::info(
-                    "All web app ports reserved at the moment, can\'t start web app for studentFile [$remoteExecutionResource->studentFileID]");
+                    "All web app ports reserved at the moment, can\'t start web app for submission [$remoteExecutionResource->submissionID]"
+                );
                 throw new WebAppExecutionException(Yii::t('app', 'All ports reserved at the moment.'), WebAppExecutionException::$PREPARATION_FAILURE);
             }
             $remoteExecutionResource->port = $reservablePorts[0];
             $remoteExecutionResource->save();
-
         }, Transaction::SERIALIZABLE);
 
         return $remoteExecutionResource;
@@ -233,34 +243,34 @@ class WebAppExecutor
     /**
      * Store initialization failure
      *
-     * @param StudentFile $studentFile
+     * @param Submission $submission
      * @param SubmissionRunnerException $e
      * @return void
      */
-    private function processPrepareFailure(StudentFile $studentFile, SubmissionRunnerException $e)
+    private function processPrepareFailure(Submission $submission, SubmissionRunnerException $e)
     {
         $errorMsg = !is_null($e->getPrevious()) ? $e->getPrevious()->getMessage() : $e->getMessage();
-        $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-        $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED;
-        $studentFile->errorMsg = $errorMsg;
-        $studentFile->save();
+        $submission->status = Submission::STATUS_FAILED;
+        $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_INITIATION_FAILED;
+        $submission->errorMsg = $errorMsg;
+        $submission->save();
     }
 
     /**
      * Store compilation failure
      *
-     * @param StudentFile $studentFile
+     * @param Submission $submission
      * @param SubmissionRunnerException $e
      * @return void
      */
-    private function processCompileFailure(StudentFile $studentFile, SubmissionRunnerException $e)
+    private function processCompileFailure(Submission $submission, SubmissionRunnerException $e)
     {
         //TODO: should update conditionally based on previous values
         $errorMsg = (!empty($e->getStdout()) ? $e->getStdout() . PHP_EOL : '') . $e->getStderr();
-        $studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-        $studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED;
-        $studentFile->errorMsg = $errorMsg;
-        $studentFile->save();
+        $submission->status = Submission::STATUS_FAILED;
+        $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_COMPILATION_FAILED;
+        $submission->errorMsg = $errorMsg;
+        $submission->save();
     }
 
     private function getDockerHostUrl(string $os)
@@ -288,7 +298,7 @@ class WebAppExecutor
     {
         $tmpPath = null;
         try {
-            $os = $webAppExecution->studentFile->task->testOS;
+            $os = $webAppExecution->submission->task->testOS;
             $container = DockerContainer::createForRunning($os, $webAppExecution->containerName);
 
             $pathInContainer = SubmissionRunner::getWebappRunLogPath($os);
@@ -298,7 +308,7 @@ class WebAppExecutor
             mkdir($tmpPath, 0755, true);
 
             $tarPath = "$tmpPath/log.tar";
-            $container->downloadArchive($pathInContainer , $tarPath);
+            $container->downloadArchive($pathInContainer, $tarPath);
 
             $phar = new \PharData($tarPath);
             $phar->extractTo($tmpPath);

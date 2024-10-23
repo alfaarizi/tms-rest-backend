@@ -185,7 +185,7 @@ class DockerContainer
                 }
             });
             $stream->onStderr(function ($stderr) use (&$stderrFull) {
-                if (mb_strlen($stderrFull) + mb_strlen($stderr) < 65000) { // StudentFile::errorMsg field is 65535 in size
+                if (mb_strlen($stderrFull) + mb_strlen($stderr) < 65000) { // Submission::errorMsg field is 65535 in size
                     $stderrFull .= $stderr;
                 } else {
                     throw new \OverflowException(

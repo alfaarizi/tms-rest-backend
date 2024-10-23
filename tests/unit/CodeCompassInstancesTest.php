@@ -3,7 +3,7 @@
 namespace app\tests\unit;
 
 use app\models\CodeCompassInstance;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\tests\unit\fixtures\CodeCompassInstanceFixture;
 use Codeception\Test\Unit;
 
@@ -27,10 +27,10 @@ class CodeCompassInstancesTest extends Unit
         );
     }
 
-    public function testValidateWithNotExistingStudentFile()
+    public function testValidateWithNotExistingSubmission()
     {
         $instance = new CodeCompassInstance();
-        $instance->studentFileId = 0;
+        $instance->submissionId = 0;
         $instance->status = CodeCompassInstance::STATUS_RUNNING;
         $instance->instanceStarterUserId = 1;
         $this->assertFalse(
@@ -42,7 +42,7 @@ class CodeCompassInstancesTest extends Unit
     public function testValidateCorrectModel()
     {
         $instance = new CodeCompassInstance();
-        $instance->studentFileId = 1;
+        $instance->submissionId = 1;
         $instance->status = CodeCompassInstance::STATUS_RUNNING;
         $instance->instanceStarterUserId = 1;
         $this->assertTrue(
@@ -51,32 +51,32 @@ class CodeCompassInstancesTest extends Unit
         );
     }
 
-    public function testGetStudentFile()
+    public function testGetSubmission()
     {
         $instance = CodeCompassInstance::findOne(['id' => 1]);
-        /** @var null|StudentFile $studentFile */
-        $studentFile = $instance->getStudentFile()->one();
-        $this->assertNotNull($studentFile, 'The student file should not be null!');
-        $this->assertEquals(1, $studentFile->id);
+        /** @var null|Submission $submission */
+        $submission = $instance->getSubmission()->one();
+        $this->assertNotNull($submission, 'The student file should not be null!');
+        $this->assertEquals(1, $submission->id);
     }
 
-    public function testFindRunningForStudentFileIdWithRunningInstance()
+    public function testFindRunningForSubmissionIDWithRunningInstance()
     {
-        $instance = CodeCompassInstance::find()->findRunningForStudentFileId('1')->one();
+        $instance = CodeCompassInstance::find()->findRunningForSubmissionId('1')->one();
         $this->assertNotNull($instance);
         $this->assertEquals(1, $instance->id);
     }
 
-    public function testFindRunningForStudentFileIdWithStartingInstance()
+    public function testFindRunningForSubmissionIdWithStartingInstance()
     {
-        $instance = CodeCompassInstance::find()->findRunningForStudentFileId('2')->one();
+        $instance = CodeCompassInstance::find()->findRunningForSubmissionId('2')->one();
 
         $this->assertNull($instance);
     }
 
-    public function testFindRunningForStudentFileIdWithNotExistingInstance()
+    public function testFindRunningForSubmissionIdWithNotExistingInstance()
     {
-        $instance = CodeCompassInstance::find()->findRunningForStudentFileId('0')->one();
+        $instance = CodeCompassInstance::find()->findRunningForSubmissionId('0')->one();
 
         $this->assertNull($instance);
     }

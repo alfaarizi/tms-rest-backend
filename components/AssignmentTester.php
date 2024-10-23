@@ -5,7 +5,7 @@ namespace app\components;
 use app\components\docker\DockerImageManager;
 use app\components\docker\EvaluatorTarBuilder;
 use app\exceptions\EvaluatorTarBuilderException;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\TestCase;
 use app\models\TestResult;
 use Yii;
@@ -27,9 +27,9 @@ class AssignmentTester
     private $results;
 
     /**
-     * @var StudentFile The uploaded student solution.
+     * @var Submission The uploaded student solution.
      */
-    private $studentFile;
+    private $submission;
 
     /**
      * @var TestCase[] The test cases to be run.
@@ -69,14 +69,14 @@ class AssignmentTester
     /**
      *  Constructor
      *
-     * @param StudentFile $studentFile
+     * @param Submission $submission
      * @param \app\models\TestCase[] $testCases
      * @param string|null $socket the socket of the Docker daemon to connect
      */
-    public function __construct($studentFile, $testCases, $socket = null)
+    public function __construct($submission, $testCases, $socket = null)
     {
         $this->testCases = $testCases;
-        $this->studentFile = $studentFile;
+        $this->submission = $submission;
         $this->socket = $socket;
         $this->docker = self::connect($socket);
     }
@@ -107,15 +107,15 @@ class AssignmentTester
     }
 
     /**
-     * Runs the testCases on the studentfile.
+     * Runs the testCases on the submission.
      *
      * @throws \Throwable
      */
     public function test(): void
     {
-        $task = $this->studentFile->task;
+        $task = $this->submission->task;
         $imageName = $task->imageName;
-        $containerName = $this->studentFile->containerName;
+        $containerName = $this->submission->containerName;
 
         $dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $task->testOS]);
 
@@ -203,12 +203,12 @@ class AssignmentTester
      */
     private function copyFiles(string $containerName)
     {
-        $tarBuilder = new EvaluatorTarBuilder(Yii::getAlias("@tmp/docker/"), strval($this->studentFile->id));
-        $task = $this->studentFile->task;
+        $tarBuilder = new EvaluatorTarBuilder(Yii::getAlias("@tmp/docker/"), strval($this->submission->id));
+        $task = $this->submission->task;
         $ext = $task->testOS == 'windows' ? '.ps1' : '.sh';
         try {
             $tarPath = $tarBuilder
-                ->withSubmission($this->studentFile->getPath())
+                ->withSubmission($this->submission->getPath())
                 ->withInstructorTestFiles($task->id)
                 ->withTextFile('compile' . $ext, $task->compileInstructions, true)
                 ->withTextFile('run' . $ext, $task->runInstructions, true)
@@ -253,7 +253,7 @@ class AssignmentTester
      */
     private function checkResult($result, $testCaseNr, $testCase)
     {
-        $task = $this->studentFile->task;
+        $task = $this->submission->task;
         // check if there were errors during the execution
         if ($result['exitCode'] != 0) {
             $this->results[$testCaseNr]['executed'] = false;
@@ -318,7 +318,7 @@ class AssignmentTester
      */
     private function runTestCase($testCaseNr, $testCase, $container)
     {
-        $task = $this->studentFile->task;
+        $task = $this->submission->task;
 
         // runs the compiled program with the testCase input redirected to its stdin
         // set TEST_CASE_NR environment variable
@@ -365,7 +365,7 @@ class AssignmentTester
         $containerConfig = new ContainersCreatePostBody();
         $containerConfig->setImage($imageName);
         $containerConfig->setTty(true);
-        if ($this->studentFile->task->testOS == 'windows') {
+        if ($this->submission->task->testOS == 'windows') {
             $containerConfig->setWorkingDir('C:\\test\\submission');
             $containerConfig->setCmd(['powershell']);
         } else {
@@ -422,7 +422,7 @@ class AssignmentTester
             }
         });
         $stream->onStderr(function ($stderr) use (&$stderrFull) {
-            if (mb_strlen($stderrFull) + mb_strlen($stderr) < 65000) { // StudentFile::errorMsg field is 65535 in size
+            if (mb_strlen($stderrFull) + mb_strlen($stderr) < 65000) { // submission::errorMsg field is 65535 in size
                 $stderrFull .= $stderr;
             } else {
                 throw new \OverflowException(Yii::t('app', 'Your solution exceeded the maximum error output size.'));

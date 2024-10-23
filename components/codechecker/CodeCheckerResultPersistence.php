@@ -6,7 +6,7 @@ use app\exceptions\CodeCheckerPersistenceException;
 use app\exceptions\CodeCheckerResultNotifierException;
 use app\models\CodeCheckerReport;
 use app\models\CodeCheckerResult;
-use app\models\StudentFile;
+use app\models\Submission;
 use PharData;
 use Throwable;
 use Yii;
@@ -20,19 +20,19 @@ use yii\helpers\FileHelper;
 
 class CodeCheckerResultPersistence extends BaseObject
 {
-    private StudentFile $studentFile;
+    private Submission $submission;
     private CodeCheckerResultNotifier $notifier;
 
     /**
-     * @param StudentFile $studentFile
+     * @param Submission $submission
      * @throws InvalidConfigException Thrown if it failed to get dependencies from the DI container
      *  because of configuration errors
      * @throws NotInstantiableException Thrown if it failed to get dependencies from the DI container
      */
-    public function __construct(StudentFile $studentFile)
+    public function __construct(Submission $submission)
     {
         parent::__construct();
-        $this->studentFile = $studentFile;
+        $this->submission = $submission;
         $this->notifier = Yii::$container->get(CodeCheckerResultNotifier::class);
     }
 
@@ -44,7 +44,7 @@ class CodeCheckerResultPersistence extends BaseObject
      */
     public function createNewResult()
     {
-        if (!is_null($this->studentFile->codeCheckerResultID)) {
+        if (!is_null($this->submission->codeCheckerResultID)) {
             throw new CodeCheckerPersistenceException("CodeChecker result is already set for this student file");
         }
 
@@ -52,14 +52,14 @@ class CodeCheckerResultPersistence extends BaseObject
         try {
             $result = new CodeCheckerResult();
             $result->token = Yii::$app->security->generateRandomString(32);
-            $result->studentFileID = $this->studentFile->id;
+            $result->submissionID = $this->submission->id;
             $result->status = CodeCheckerResult::STATUS_IN_PROGRESS;
             $result->createdAt = date('Y-m-d H:i:s');
             if (!$result->save()) {
                 throw new CodeCheckerPersistenceException("Failed to save CodeChecker result to the database");
             }
-            $this->studentFile->codeCheckerResultID = $result->id;
-            if (!$this->studentFile->save()) {
+            $this->submission->codeCheckerResultID = $result->id;
+            if (!$this->submission->save()) {
                 throw new CodeCheckerPersistenceException("Failed to modify student file");
             }
             $transaction->commit();
@@ -88,11 +88,11 @@ class CodeCheckerResultPersistence extends BaseObject
             throw new \InvalidArgumentException("Exit code is 0, but a tar file is attached");
         }
 
-        if (is_null($this->studentFile->codeCheckerResultID)) {
+        if (is_null($this->submission->codeCheckerResultID)) {
             throw new CodeCheckerPersistenceException("CodeChecker result not found");
         }
 
-        $result = $this->studentFile->codeCheckerResult;
+        $result = $this->submission->codeCheckerResult;
         if ($result->status !== CodeCheckerResult::STATUS_IN_PROGRESS) {
             throw new CodeCheckerPersistenceException("CodeChecker result is already saved");
         }
@@ -107,7 +107,7 @@ class CodeCheckerResultPersistence extends BaseObject
             if (!$result->save()) {
                 throw new CodeCheckerPersistenceException("Failed to save CodeChecker result to the database");
             }
-            $this->notifier->sendNotifications($this->studentFile);
+            $this->notifier->sendNotifications($this->submission);
         } else {
             $workDir = $this->createWorkDir();
             $transaction = Yii::$app->getDb()->beginTransaction();
@@ -129,7 +129,7 @@ class CodeCheckerResultPersistence extends BaseObject
 
                 // Notification should be sent after the changes are commit,
                 // so the results are persisted even if notifications are failed
-                $this->notifier->sendNotifications($this->studentFile);
+                $this->notifier->sendNotifications($this->submission);
             } catch (CodeCheckerPersistenceException $e) {
                 $transaction->rollBack();
                 throw $e;
@@ -150,11 +150,11 @@ class CodeCheckerResultPersistence extends BaseObject
      */
     public function saveRunnerError(string $errorMessage)
     {
-        if (is_null($this->studentFile->codeCheckerResultID)) {
+        if (is_null($this->submission->codeCheckerResultID)) {
             throw new CodeCheckerPersistenceException("CodeChecker result not found");
         }
 
-        $result = $this->studentFile->codeCheckerResult;
+        $result = $this->submission->codeCheckerResult;
         if ($result->status !== CodeCheckerResult::STATUS_IN_PROGRESS) {
             throw new CodeCheckerPersistenceException("CodeChecker result is already saved");
         }
@@ -164,7 +164,7 @@ class CodeCheckerResultPersistence extends BaseObject
         if (!$result->save()) {
             throw new CodeCheckerPersistenceException("Failed to modify result");
         }
-        $this->notifier->sendNotifications($this->studentFile);
+        $this->notifier->sendNotifications($this->submission);
     }
 
     /**
@@ -285,7 +285,7 @@ class CodeCheckerResultPersistence extends BaseObject
     private function restoreNonAsciiFileNames(string $dir)
     {
         $renamed = [];
-        foreach ($this->studentFile->codeCheckerResult->codeCheckerReports as $report) {
+        foreach ($this->submission->codeCheckerResult->codeCheckerReports as $report) {
             $correctName = "$report->plistFileName.html";
             $incorrectName = preg_replace('/[^[:print:]]/', '', $correctName);
             if (

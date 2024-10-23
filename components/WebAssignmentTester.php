@@ -7,8 +7,8 @@ use app\components\docker\DockerNetwork;
 use app\components\docker\WebTesterContainer;
 use app\exceptions\DockerContainerException;
 use app\exceptions\SubmissionRunnerException;
-use app\models\InstructorFile;
-use app\models\StudentFile;
+use app\models\TaskFile;
+use app\models\Submission;
 use PHPUnit\TextUI\Exception;
 use Yii;
 use yii\helpers\FileHelper;
@@ -18,7 +18,7 @@ use yii\helpers\FileHelper;
  */
 class WebAssignmentTester
 {
-    private StudentFile $studentFile;
+    private Submission $submission;
     private string $workDir;
     private SubmissionRunner $submissionRunner;
 
@@ -28,13 +28,13 @@ class WebAssignmentTester
 
     /**
      * construct
-     * @param StudentFile $studentFile
+     * @param Submission $submission
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\di\NotInstantiableException
      */
-    public function __construct(StudentFile $studentFile)
+    public function __construct(Submission $submission)
     {
-        $this->studentFile = $studentFile;
+        $this->submission = $submission;
         $this->workDir = $this->initWorkDir();
         $this->submissionRunner = Yii::$container->get(SubmissionRunner::class);
     }
@@ -57,8 +57,8 @@ class WebAssignmentTester
         } catch (SubmissionRunnerException $e) {
             $this->handleSubmissionRunnerException($e);
         } catch (DockerContainerException $e) {
-            $this->studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_INITIATION_FAILED;
-            $this->studentFile->save();
+            $this->submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_INITIATION_FAILED;
+            $this->submission->save();
         } finally {
             $this->updateReports();
             $this->tearDown();
@@ -76,15 +76,15 @@ class WebAssignmentTester
     private function initSystemUnderTest()
     {
         $this->dockerNetwork = DockerNetwork::createWithDefaultBridgeConfig(
-            $this->studentFile->task->testOS,
-            'tms_network_' . $this->studentFile->id
+            $this->submission->task->testOS,
+            'tms_network_' . $this->submission->id
         );
 
-        $builder = DockerContainerBuilder::forTask($this->studentFile->task)
+        $builder = DockerContainerBuilder::forTask($this->submission->task)
             ->withNetworkMode($this->dockerNetwork->getNetworkInspectResult()->getId());
 
         $this->applicationUnderTest = $this->submissionRunner
-            ->run($this->studentFile, null, null, $builder);
+            ->run($this->submission, null, null, $builder);
     }
 
     /**
@@ -96,8 +96,8 @@ class WebAssignmentTester
      */
     private function initTestRunner()
     {
-        $os = $this->studentFile->task->testOS;
-        $webAppPort = $this->studentFile->task->port;
+        $os = $this->submission->task->testOS;
+        $webAppPort = $this->submission->task->port;
         $this->testRunner = WebTesterContainer::createInstanceForTest($os, $this->applicationUnderTest, $webAppPort);
     }
 
@@ -110,14 +110,14 @@ class WebAssignmentTester
         $result = $this->testRunner->runTests($testsPath);
 
         if ($result['exitCode'] == 0) {
-            $this->studentFile->isAccepted = StudentFile::IS_ACCEPTED_PASSED;
-            $this->studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_PASSED;
+            $this->submission->status = Submission::STATUS_PASSED;
+            $this->submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_PASSED;
         } else {
-            $this->studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-            $this->studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED;
+            $this->submission->status = Submission::STATUS_FAILED;
+            $this->submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_TESTS_FAILED;
         }
-        $this->studentFile->errorMsg = Yii::t('app', 'Check web reports for details.');
-        $this->studentFile->save();
+        $this->submission->errorMsg = Yii::t('app', 'Check web reports for details.');
+        $this->submission->save();
     }
 
     /**
@@ -126,7 +126,7 @@ class WebAssignmentTester
      */
     private function updateReports()
     {
-        $reportPath = $this->studentFile->reportPath;
+        $reportPath = $this->submission->reportPath;
         $basepath = dirname($reportPath);
 
         try {
@@ -152,15 +152,15 @@ class WebAssignmentTester
      */
     private function handleSubmissionRunnerException(SubmissionRunnerException $exception): void
     {
-        $this->studentFile->isAccepted = StudentFile::IS_ACCEPTED_FAILED;
-        $this->studentFile->errorMsg = $exception->getStderr();
+        $this->submission->status = Submission::STATUS_FAILED;
+        $this->submission->errorMsg = $exception->getStderr();
         switch ($exception->getCode()) {
             case SubmissionRunnerException::COMPILE_FAILURE:
-                $this->studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_COMPILATION_FAILED;
+                $this->submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_COMPILATION_FAILED;
                 break;
             case SubmissionRunnerException::RUN_FAILURE:
             case SubmissionRunnerException::PREPARE_FAILURE:
-                $this->studentFile->autoTesterStatus = StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED;
+                $this->submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_EXECUTION_FAILED;
                 break;
             default:
                 Yii::error(
@@ -171,7 +171,7 @@ class WebAssignmentTester
                     __METHOD__
                 );
         }
-        $this->studentFile->save();
+        $this->submission->save();
     }
 
     /**
@@ -240,8 +240,8 @@ class WebAssignmentTester
         if (!file_exists($this->workDir . '/' . $suitesDirName)) {
             mkdir($this->workDir . '/' . $suitesDirName, 0755, true);
         }
-        $suiteFiles = InstructorFile::find()
-            ->where(['taskID' => $this->studentFile->taskID])
+        $suiteFiles = TaskFile::find()
+            ->where(['taskID' => $this->submission->taskID])
             ->onlyWebAppTestSuites()
             ->all();
 

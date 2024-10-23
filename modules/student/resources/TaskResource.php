@@ -41,8 +41,8 @@ class TaskResource extends Task
     public function extraFields(): array
     {
         return [
-            'studentFiles',
-            'instructorFiles'
+            'submissions',
+            'taskFiles'
         ];
     }
 
@@ -53,32 +53,32 @@ class TaskResource extends Task
             [
                 'creatorName' => new OAProperty(['type' => 'string']),
                 'gitInfo' => new OAProperty(['type' => 'object']),
-                'studentFiles' => new OAProperty(
+                'submissions' => new OAProperty(
                     [
                         'type' => 'array',
-                        new OAItems(['ref' => '#/components/schemas/Student_StudentFileResource_Read'])
+                        new OAItems(['ref' => '#/components/schemas/Student_SubmissionResource_Read'])
                     ]
                 ),
-                'instructorFiles' => new OAProperty(
+                'taskFiles' => new OAProperty(
                     [
                         'type' => 'array',
-                        new OAItems(['ref' => '#/components/schemas/Student_InstructorFileResource_Read'])
+                        new OAItems(['ref' => '#/components/schemas/Student_TaskFileResource_Read'])
                     ]
                 ),
             ]
         );
     }
 
-    public function getInstructorFiles(): ActiveQuery
+    public function getTaskFiles(): ActiveQuery
     {
-        return $this->hasMany(InstructorFileResource::class, ['taskID' => 'id'])
+        return $this->hasMany(TaskFileResource::class, ['taskID' => 'id'])
             ->andOnCondition(['not', ['name' => 'Dockerfile']])
-            ->andOnCondition(['category' => InstructorFileResource::CATEGORY_ATTACHMENT]);
+            ->andOnCondition(['category' => TaskFileResource::CATEGORY_ATTACHMENT]);
     }
 
-    public function getStudentFiles(): ActiveQuery
+    public function getSubmissions(): ActiveQuery
     {
-        return $this->hasMany(StudentFileResource::class, ['taskID' => 'id']);
+        return $this->hasMany(SubmissionResource::class, ['taskID' => 'id']);
     }
 
     public function getCreatorName(): string

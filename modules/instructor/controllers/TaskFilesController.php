@@ -7,13 +7,13 @@ use app\components\docker\WebTesterContainer;
 use app\components\WebAssignmentTester;
 use app\exceptions\AddFailedException;
 use app\exceptions\DockerContainerException;
-use app\models\InstructorFile;
+use app\models\TaskFile;
 use app\models\Task;
-use app\modules\instructor\resources\InstructorFileResource;
-use app\modules\instructor\resources\InstructorFilesUploadResultResource;
+use app\modules\instructor\resources\TaskFileResource;
+use app\modules\instructor\resources\TaskFilesUploadResultResource;
 use app\modules\instructor\resources\TaskResource;
 use app\modules\instructor\resources\UploadFailedResource;
-use app\modules\instructor\resources\UploadInstructorFileResource;
+use app\modules\instructor\resources\UploadTaskFileResource;
 use app\resources\SemesterResource;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -28,9 +28,9 @@ use yii\web\UnprocessableEntityHttpException;
 use yii\web\UploadedFile;
 
 /**
- * This class provides access to instructor files for instructors
+ * This class provides access to task files for instructors
  */
-class InstructorFilesController extends BaseInstructorRestController
+class TaskFilesController extends BaseInstructorRestController
 {
     /**
      * @inheritdoc
@@ -46,14 +46,14 @@ class InstructorFilesController extends BaseInstructorRestController
     }
 
     /**
-     * List instructor files for a task
+     * List task files for a task
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
      * @OA\Get(
-     *     path="/instructor/instructor-files",
-     *     operationId="instructor::InstructorFilesController::actionIndex",
-     *     tags={"Instructor Instructor Files"},
+     *     path="/instructor/task-files",
+     *     operationId="instructor::TaskFilesController::actionIndex",
+     *     tags={"Instructor Task Files"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *        name="taskID",
@@ -90,7 +90,7 @@ class InstructorFilesController extends BaseInstructorRestController
      *     @OA\Response(
      *        response=200,
      *        description="successful operation",
-     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_InstructorFileResource_Read")),
+     *        @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Instructor_TaskFileResource_Read")),
      *    ),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
      *    @OA\Response(response=403, ref="#/components/responses/403"),
@@ -113,16 +113,16 @@ class InstructorFilesController extends BaseInstructorRestController
 
         $categories = [];
         if ($includeAttachments) {
-            $categories[] = InstructorFile::CATEGORY_ATTACHMENT;
+            $categories[] = TaskFile::CATEGORY_ATTACHMENT;
         }
         if ($includeTestFiles) {
-            $categories[] = InstructorFile::CATEGORY_TESTFILE;
+            $categories[] = TaskFile::CATEGORY_TESTFILE;
         }
         if ($includeWebTestSuites) {
-            $categories[] = InstructorFile::CATEGORY_WEB_TEST_SUITE;
+            $categories[] = TaskFile::CATEGORY_WEB_TEST_SUITE;
         }
 
-        $query = InstructorFileResource::find()
+        $query = TaskFileResource::find()
             ->where(['taskID' => $taskID])
             ->andWhere(['in', 'category', $categories]);
 
@@ -135,14 +135,14 @@ class InstructorFilesController extends BaseInstructorRestController
     }
 
     /**
-     * Download an instructor file
+     * Download an task file
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      *
      * @OA\Get(
-     *    path="/instructor/instructor-files/{id}/download",
-     *    operationId="instructor::InstructorFilesController::actionDownload",
-     *    tags={"Instructor Instructor Files"},
+     *    path="/instructor/task-files/{id}/download",
+     *    operationId="instructor::TaskFilesController::actionDownload",
+     *    tags={"Instructor Task Files"},
      *    security={{"bearerAuth":{}}},
      *    @OA\Parameter(
      *       name="id",
@@ -163,10 +163,10 @@ class InstructorFilesController extends BaseInstructorRestController
      */
     public function actionDownload(int $id): void
     {
-        $file = InstructorFileResource::findOne($id);
+        $file = TaskFileResource::findOne($id);
 
         if (is_null($file)) {
-            throw new NotFoundHttpException(Yii::t('app', 'Instructor File not found.'));
+            throw new NotFoundHttpException(Yii::t('app', 'Task File not found.'));
         }
 
         // Authorization check
@@ -178,28 +178,28 @@ class InstructorFilesController extends BaseInstructorRestController
     }
 
     /**
-     * Upload new instructor files
-     * @return array|InstructorFilesUploadResultResource
+     * Upload new task files
+     * @return array|TaskFilesUploadResultResource
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws ServerErrorHttpException
      *
      * @OA\Post(
-     *    path="/instructor/instructor-files",
-     *    operationId="instructor::InstructorFilesController::actionCreate",
-     *    tags={"Instructor Instructor Files"},
+     *    path="/instructor/task-files",
+     *    operationId="instructor::TaskFilesController::actionCreate",
+     *    tags={"Instructor Task Files"},
      *    security={{"bearerAuth":{}}},
      *    @OA\RequestBody(
      *        description="files to upload and taskID",
      *        @OA\MediaType(
      *            mediaType="multipart/form-data",
-     *            @OA\Schema(ref="#/components/schemas/Instructor_UploadInstructorFileResource_ScenarioDefault"),
+     *            @OA\Schema(ref="#/components/schemas/Instructor_UploadTaskFileResource_ScenarioDefault"),
      *        )
      *    ),
      *    @OA\Response(
      *        response=207,
      *        description="multistatus result",
-     *        @OA\JsonContent(ref="#/components/schemas/Instructor_InstructorFilesUploadResultResource_Read")
+     *        @OA\JsonContent(ref="#/components/schemas/Instructor_TaskFilesUploadResultResource_Read")
      *    ),
      *    @OA\Response(response=400, ref="#/components/responses/400"),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
@@ -210,7 +210,7 @@ class InstructorFilesController extends BaseInstructorRestController
      */
     public function actionCreate()
     {
-        $upload = new UploadInstructorFileResource();
+        $upload = new UploadTaskFileResource();
         $upload->load(Yii::$app->request->post(), '');
         $upload->files = UploadedFile::getInstancesByName('files');
 
@@ -235,7 +235,7 @@ class InstructorFilesController extends BaseInstructorRestController
         }
 
         // Canvas synchronization check
-        if ($task->category == Task::CATEGORY_TYPE_CANVAS_TASKS && $upload->category == InstructorFile::CATEGORY_ATTACHMENT) {
+        if ($task->category == Task::CATEGORY_TYPE_CANVAS_TASKS && $upload->category == TaskFile::CATEGORY_ATTACHMENT) {
             throw new BadRequestHttpException(
                 Yii::t('app', 'This operation cannot be performed on a canvas synchronized task!')
             );
@@ -251,33 +251,33 @@ class InstructorFilesController extends BaseInstructorRestController
         $failed = [];
         foreach ($upload->files as $file) {
             try {
-                $instructorFile = new InstructorFileResource();
-                $instructorFile->taskID = $upload->taskID;
-                $instructorFile->category = $upload->category;
-                $instructorFile->uploadTime = date('Y-m-d H:i:s');
-                $instructorFile->name = $file->baseName . '.' . $file->extension;
+                $taskFile = new TaskFileResource();
+                $taskFile->taskID = $upload->taskID;
+                $taskFile->category = $upload->category;
+                $taskFile->uploadTime = date('Y-m-d H:i:s');
+                $taskFile->name = $file->baseName . '.' . $file->extension;
 
-                if (!$instructorFile->validate()) {
-                    throw new AddFailedException($instructorFile->name, $instructorFile->errors);
+                if (!$taskFile->validate()) {
+                    throw new AddFailedException($taskFile->name, $taskFile->errors);
                 }
 
-                if (!$file->saveAs($instructorFile->path, !YII_ENV_TEST)) {
+                if (!$file->saveAs($taskFile->path, !YII_ENV_TEST)) {
                     // Log
                     Yii::error(
-                        "Failed to save file to the disc ($instructorFile->path), error code: $file->error",
+                        "Failed to save file to the disc ($taskFile->path), error code: $file->error",
                         __METHOD__
                     );
-                    throw new AddFailedException($instructorFile->name, ['path' => Yii::t("app", "Failed to save file. Error logged." )]);
+                    throw new AddFailedException($taskFile->name, ['path' => Yii::t("app", "Failed to save file. Error logged." )]);
                 }
 
-                if ($instructorFile->category == InstructorFile::CATEGORY_WEB_TEST_SUITE) {
-                    $this->verifyTestSanity($instructorFile, $task);
+                if ($taskFile->category == TaskFile::CATEGORY_WEB_TEST_SUITE) {
+                    $this->verifyTestSanity($taskFile, $task);
                 }
 
-                if ($instructorFile->save()) {
-                    $uploaded[] = $instructorFile;
-                } else if ($instructorFile->hasErrors()) {
-                    throw new AddFailedException($instructorFile->name, $instructorFile->errors);
+                if ($taskFile->save()) {
+                    $uploaded[] = $taskFile;
+                } else if ($taskFile->hasErrors()) {
+                    throw new AddFailedException($taskFile->name, $taskFile->errors);
                 } else {
                     throw new ServerErrorHttpException(Yii::t("app", "A database error occurred" ));
                 }
@@ -290,23 +290,23 @@ class InstructorFilesController extends BaseInstructorRestController
         }
 
         $this->response->statusCode = 207;
-        $response = new InstructorFilesUploadResultResource();
+        $response = new TaskFilesUploadResultResource();
         $response->uploaded = $uploaded;
         $response->failed = $failed;
         return $response;
     }
 
     /**
-     * Delete an instructor file
+     * Delete an task file
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
      * @throws BadRequestHttpException
      *
      * @OA\Delete(
-     *    path="/instructor/instructor-files/{id}",
-     *    operationId="instructor::InstructorFilesController::actionDelete",
-     *    tags={"Instructor Instructor Files"},
+     *    path="/instructor/task-files/{id}",
+     *    operationId="instructor::TaskFilesController::actionDelete",
+     *    tags={"Instructor Task Files"},
      *    security={{"bearerAuth":{}}},
      *    @OA\Parameter(
      *       name="id",
@@ -317,7 +317,7 @@ class InstructorFilesController extends BaseInstructorRestController
      *    ),
      *    @OA\Response(
      *        response=204,
-     *        description="instructor file deleted",
+     *        description="task file deleted",
      *    ),
      *    @OA\Response(response=400, ref="#/components/responses/400"),
      *    @OA\Response(response=401, ref="#/components/responses/401"),
@@ -328,10 +328,10 @@ class InstructorFilesController extends BaseInstructorRestController
      */
     public function actionDelete(int $id): void
     {
-        $file = InstructorFileResource::findOne($id);
+        $file = TaskFileResource::findOne($id);
 
         if (is_null($file)) {
-            throw new NotFoundHttpException(Yii::t('app', 'InstructorFile not found'));
+            throw new NotFoundHttpException(Yii::t('app', 'TaskFile not found'));
         }
 
         // Authorization check
@@ -347,7 +347,7 @@ class InstructorFilesController extends BaseInstructorRestController
         }
 
         // Canvas synchronization check
-        if ($file->task->category == Task::CATEGORY_TYPE_CANVAS_TASKS && $file->category == InstructorFile::CATEGORY_ATTACHMENT) {
+        if ($file->task->category == Task::CATEGORY_TYPE_CANVAS_TASKS && $file->category == TaskFile::CATEGORY_ATTACHMENT) {
             throw new BadRequestHttpException(
                 Yii::t('app', 'This operation cannot be performed on a canvas synchronized task!')
             );
@@ -360,9 +360,9 @@ class InstructorFilesController extends BaseInstructorRestController
                 throw new Exception(Yii::t('app', 'Database Error'));
             }
         } catch (StaleObjectException $e) {
-            throw new ServerErrorHttpException(Yii::t('app', 'Failed to remove InstructorFile') . ' StaleObjectException:' . $e->getMessage());
+            throw new ServerErrorHttpException(Yii::t('app', 'Failed to remove TaskFile') . ' StaleObjectException:' . $e->getMessage());
         } catch (\Throwable $e) {
-            throw new ServerErrorHttpException(Yii::t('app', 'Failed to remove InstructorFile') . $e->getMessage());
+            throw new ServerErrorHttpException(Yii::t('app', 'Failed to remove TaskFile') . $e->getMessage());
         }
     }
 
@@ -372,7 +372,7 @@ class InstructorFilesController extends BaseInstructorRestController
      * @throws \yii\base\Exception
      * @throws ServerErrorHttpException
      */
-    private function verifyTestSanity(InstructorFile $file, Task $task): void
+    private function verifyTestSanity(TaskFile $file, Task $task): void
     {
         try {
             $webTesterContainer = WebTesterContainer::createInstanceForValidation($task->testOS);

@@ -3,10 +3,10 @@
 namespace app\tests\api;
 
 use ApiTester;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\Task;
 use app\tests\unit\fixtures\AccessTokenFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use Codeception\Util\HttpCode;
 use Yii;
@@ -43,8 +43,8 @@ class InstructorEvaluatorCest
             'tasks' => [
                 'class' => TaskFixture::class,
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class,
+            'submission' => [
+                'class' => SubmissionsFixture::class,
             ],
         ];
     }
@@ -97,19 +97,19 @@ class InstructorEvaluatorCest
             ]
         );
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'id' => 17,
-                'isAccepted' => StudentFile::IS_ACCEPTED_PASSED,
-                'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_PASSED,
+                'status' => Submission::STATUS_PASSED,
+                'autoTesterStatus' => Submission::AUTO_TESTER_STATUS_PASSED,
             ]
         );
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'id' => 18,
-                'isAccepted' => StudentFile::IS_ACCEPTED_FAILED,
-                'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_EXECUTION_FAILED,
+                'status' => Submission::STATUS_FAILED,
+                'autoTesterStatus' => Submission::AUTO_TESTER_STATUS_EXECUTION_FAILED,
             ]
         );
     }
@@ -150,19 +150,19 @@ class InstructorEvaluatorCest
         );
 
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'id' => 17,
-                'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
-                'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
+                'status' => Submission::STATUS_UPLOADED,
+                'autoTesterStatus' => Submission::AUTO_TESTER_STATUS_NOT_TESTED,
             ]
         );
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                   'id' => 18,
-                  'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
-                  'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
+                  'status' => Submission::STATUS_UPLOADED,
+                  'autoTesterStatus' => Submission::AUTO_TESTER_STATUS_NOT_TESTED,
               ]
         );
     }
@@ -267,7 +267,7 @@ class InstructorEvaluatorCest
 
         // Student file has not changed
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'id' => 17,
                 'codeCheckerResultID' => 3,
@@ -315,7 +315,7 @@ class InstructorEvaluatorCest
 
         // Student file has changed
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'id' => 17,
                 'codeCheckerResultID' => null,
@@ -374,7 +374,7 @@ class InstructorEvaluatorCest
 
         // Student file not changed
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'id' => 17,
                 'codeCheckerResultID' => 3,

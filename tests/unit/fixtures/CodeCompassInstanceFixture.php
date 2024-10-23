@@ -10,6 +10,6 @@ class CodeCompassInstanceFixture extends ActiveFixture
     public $dataFile =  __DIR__ . '/../../_data/codecompassinstances.php';
     public $depends = [
         'app\tests\unit\fixtures\UserFixture',
-        'app\tests\unit\fixtures\StudentFilesFixture',
+        'app\tests\unit\fixtures\SubmissionsFixture',
     ];
 }

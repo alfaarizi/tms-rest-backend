@@ -7,7 +7,7 @@ use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
 use app\models\Model;
 
-class InstructorFilesUploadResultResource extends Model implements IOpenApiFieldTypes
+class TaskFilesUploadResultResource extends Model implements IOpenApiFieldTypes
 {
     public $uploaded;
     public $failed;
@@ -18,7 +18,7 @@ class InstructorFilesUploadResultResource extends Model implements IOpenApiField
             'uploaded' => new OAProperty(
                 [
                     'type' => 'array',
-                    new OAItems(['ref' => '#/components/schemas/Instructor_InstructorFileResource_Read']),
+                    new OAItems(['ref' => '#/components/schemas/Instructor_TaskFileResource_Read']),
                 ]),
             'failed' => new OAProperty(
                 [

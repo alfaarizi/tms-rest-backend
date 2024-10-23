@@ -44,8 +44,8 @@ use yii\helpers\FileHelper;
  * @property string|null $codeCheckerToggles
  * @property string|null $codeCheckerSkipFile
  *
- * @property InstructorFile[] $instructorFiles
- * @property StudentFile[] $studentFiles
+ * @property TaskFile[] $taskFiles
+ * @property Submission[] $submissions
  * @property TestCase[] $testCases
  * @property Group $group
  * @property Semester $semester
@@ -333,7 +333,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 
         // Remove unverified status from files after removing password
         if (!$insert && array_key_exists('password', $this->dirtyAttributes) && empty($this->password)) {
-            StudentFile::updateAll(
+            Submission::updateAll(
                 ['verified' => true],
                 ['=', 'taskID', $this->id],
             );
@@ -385,17 +385,17 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getInstructorFiles()
+    public function getTaskFiles()
     {
-        return $this->hasMany(InstructorFile::class, ['taskID' => 'id']);
+        return $this->hasMany(TaskFile::class, ['taskID' => 'id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStudentFiles()
+    public function getSubmissions()
     {
-        return $this->hasMany(StudentFile::class, ['taskID' => 'id']);
+        return $this->hasMany(Submission::class, ['taskID' => 'id']);
     }
 
     /**

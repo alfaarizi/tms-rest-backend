@@ -6,9 +6,9 @@ use app\components\openapi\generators\OAProperty;
 use yii\helpers\ArrayHelper;
 
 /**
- * Resource class for module 'InstructorFile'
+ * Resource class for module 'TaskFile'
  */
-class InstructorFileResource extends \app\models\InstructorFile
+class TaskFileResource extends \app\models\TaskFile
 {
     public function fields()
     {

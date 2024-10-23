@@ -3,8 +3,8 @@
 namespace app\tests\unit;
 
 use app\components\codechecker\AnalyzerRunnerFactory;
-use app\models\StudentFile;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\models\Submission;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use Codeception\Test\Unit;
 use yii\base\InvalidConfigException;
@@ -17,8 +17,8 @@ class AnalyzerRunnerFactoryTest extends Unit
     public function _fixtures(): array
     {
         return [
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class,
+            'submission' => [
+                'class' => SubmissionsFixture::class,
             ],
             'task' => [
                 'class' => TaskFixture::class,
@@ -28,30 +28,30 @@ class AnalyzerRunnerFactoryTest extends Unit
 
     public function testInvalidAnalyzer()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 1]);
-        $studentFile->task->staticCodeAnalyzerTool = "unknown";
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 1]);
+        $submission->task->staticCodeAnalyzerTool = "unknown";
 
         $this->expectException(InvalidConfigException::class);
 
-        AnalyzerRunnerFactory::createForStudentFile(Yii::$container, ['studentFile' => $studentFile], []);
+        AnalyzerRunnerFactory::createForSubmission(Yii::$container, ['submission' => $submission], []);
     }
 
     public function testCodeChecker()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 1]);
-        $studentFile->task->staticCodeAnalyzerTool = 'codechecker';
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 1]);
+        $submission->task->staticCodeAnalyzerTool = 'codechecker';
 
-        $runner = AnalyzerRunnerFactory::createForStudentFile(Yii::$container, ['studentFile' => $studentFile], []);
+        $runner = AnalyzerRunnerFactory::createForSubmission(Yii::$container, ['submission' => $submission], []);
 
         $this->assertEquals('app\components\codechecker\CodeCheckerRunner', get_class($runner));
     }
 
     public function testReportConverter()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 1]);
-        $studentFile->task->staticCodeAnalyzerTool = 'roslynator';
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 1]);
+        $submission->task->staticCodeAnalyzerTool = 'roslynator';
 
-        $runner = AnalyzerRunnerFactory::createForStudentFile(Yii::$container, ['studentFile' => $studentFile], []);
+        $runner = AnalyzerRunnerFactory::createForSubmission(Yii::$container, ['submission' => $submission], []);
 
         $this->assertEquals('app\components\codechecker\ReportConverterRunner', get_class($runner));
     }

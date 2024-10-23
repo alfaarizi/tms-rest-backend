@@ -4,7 +4,7 @@ namespace app\tests\unit;
 
 use app\components\docker\EvaluatorTarBuilder;
 use app\exceptions\EvaluatorTarBuilderException;
-use app\tests\unit\fixtures\InstructorFilesFixture;
+use app\tests\unit\fixtures\TaskFilesFixture;
 use Yii;
 
 class EvaluatorTarBuilderTest extends \Codeception\Test\Unit
@@ -17,8 +17,8 @@ class EvaluatorTarBuilderTest extends \Codeception\Test\Unit
     public function _fixtures(): array
     {
         return [
-            'instructorfiles' => [
-                'class' => InstructorFilesFixture::class,
+            'taskfiles' => [
+                'class' => TaskFilesFixture::class,
             ]
         ];
     }

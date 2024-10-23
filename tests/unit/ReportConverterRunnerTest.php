@@ -5,10 +5,10 @@ namespace app\tests\unit;
 use app\components\codechecker\ReportConverterRunner;
 use app\components\docker\DockerContainer;
 use app\components\docker\DockerImageManager;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\tests\unit\fixtures\CodeCheckerResultFixture;
-use app\tests\unit\fixtures\InstructorFilesFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\TaskFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use Codeception\Test\Unit;
 use UnitTester;
@@ -18,7 +18,7 @@ use Yii;
 class ReportConverterRunnerTest extends Unit
 {
     protected UnitTester $tester;
-    private StudentFile $studentFile;
+    private Submission $submission;
     private $runner;
 
     public function _fixtures(): array
@@ -27,11 +27,11 @@ class ReportConverterRunnerTest extends Unit
             'tasks' => [
                 'class' => TaskFixture::class,
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class,
+            'submission' => [
+                'class' => SubmissionsFixture::class,
             ],
-            'instructorfiles' => [
-                'class' => InstructorFilesFixture::class,
+            'taskfiles' => [
+                'class' => TaskFilesFixture::class,
             ],
             'codecheckerresults' => [
                 'class' => CodeCheckerResultFixture::class
@@ -48,7 +48,7 @@ class ReportConverterRunnerTest extends Unit
     {
         $this->runner = $this->getMockBuilder(ReportConverterRunner::class)
             ->enableOriginalConstructor()
-            ->setConstructorArgs([$this->studentFile])
+            ->setConstructorArgs([$this->submission])
             ->onlyMethods(['buildAndStartAnalyzerContainer', 'buildAndStartReportConverterContainer'])
             ->disableArgumentCloning()
             ->getMock();
@@ -56,10 +56,10 @@ class ReportConverterRunnerTest extends Unit
 
     protected function _before()
     {
-        $this->studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 5]);
-        $this->studentFile->task->imageName = 'imageName:latest';
-        $this->studentFile->task->staticCodeAnalyzerTool = 'roslynator';
-        $this->studentFile->task->staticCodeAnalyzerInstructions = 'roslynator analyze';
+        $this->submission = $this->tester->grabRecord(Submission::class, ['id' => 5]);
+        $this->submission->task->imageName = 'imageName:latest';
+        $this->submission->task->staticCodeAnalyzerTool = 'roslynator';
+        $this->submission->task->staticCodeAnalyzerInstructions = 'roslynator analyze';
         $this->tester->copyDir(codecept_data_dir("appdata_samples"), Yii::getAlias("@appdata"));
 
         $dockerImageManagerMock = $this->createMock(DockerImageManager::class);
@@ -91,8 +91,8 @@ class ReportConverterRunnerTest extends Unit
      */
     public function testWorkDirContentsWithSkipfile(string $os)
     {
-        $this->studentFile->task->testOS = $os;
-        $this->studentFile->task->codeCheckerSkipFile = "- */skipped.cpp";
+        $this->submission->task->testOS = $os;
+        $this->submission->task->codeCheckerSkipFile = "- */skipped.cpp";
 
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
         $analyzerContainerMock
@@ -114,7 +114,7 @@ class ReportConverterRunnerTest extends Unit
 
         $this->assertStringEqualsFile(
             $testDir . '/skipfile',
-            $this->studentFile->task->codeCheckerSkipFile
+            $this->submission->task->codeCheckerSkipFile
         );
         $this->assertFileEquals(
             codecept_data_dir('appdata_samples/uploadedfiles/5007/file2.txt'),
@@ -132,8 +132,7 @@ class ReportConverterRunnerTest extends Unit
      */
     public function testWorkDirContentsWithoutSkipfile(string $os)
     {
-        $this->studentFile->task->testOS = $os;
-        $this->studentFile->task->codeCheckerSkipFile = null;
+        $this->submission->task->testOS = $os;
 
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
         $analyzerContainerMock
@@ -170,8 +169,7 @@ class ReportConverterRunnerTest extends Unit
      */
     public function testWorkDirContentsAnalyzeScript(string $os, string $scriptName)
     {
-        $this->studentFile->task->testOS = $os;
-        $this->studentFile->task->codeCheckerSkipFile = null;
+        $this->submission->task->testOS = $os;
 
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
         $analyzerContainerMock
@@ -197,7 +195,7 @@ class ReportConverterRunnerTest extends Unit
 
     public function testDeleteSolution()
     {
-        $this->studentFile->task->codeCheckerSkipFile = "- */skipped.cpp";
+        $this->submission->task->codeCheckerSkipFile = "- */skipped.cpp";
 
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
         $analyzerContainerMock
@@ -221,7 +219,7 @@ class ReportConverterRunnerTest extends Unit
 
     public function testPassedRunLinux()
     {
-        $this->studentFile->task->testOS = "linux";
+        $this->submission->task->testOS = "linux";
 
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
         $analyzerContainerMock
@@ -257,7 +255,7 @@ class ReportConverterRunnerTest extends Unit
 
     public function testPassedRunWindows()
     {
-        $this->studentFile->task->testOS = "windows";
+        $this->submission->task->testOS = "windows";
 
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
         $analyzerContainerMock
@@ -286,7 +284,7 @@ class ReportConverterRunnerTest extends Unit
 
     public function testFailedLinux()
     {
-        $this->studentFile->task->testOS = "linux";
+        $this->submission->task->testOS = "linux";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
 
         $analyzerContainerMock
@@ -386,8 +384,8 @@ class ReportConverterRunnerTest extends Unit
 
     public function testFailedLinuxWithSkipfile()
     {
-        $this->studentFile->task->testOS = "linux";
-        $this->studentFile->task->codeCheckerSkipFile = "- */ignored.cs";
+        $this->submission->task->testOS = "linux";
+        $this->submission->task->codeCheckerSkipFile = "- */ignored.cs";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
 
         $analyzerContainerMock
@@ -489,7 +487,7 @@ class ReportConverterRunnerTest extends Unit
 
     public function testFailedLinuxWithoutReports()
     {
-        $this->studentFile->task->testOS = "linux";
+        $this->submission->task->testOS = "linux";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
 
         $analyzerContainerMock
@@ -536,7 +534,7 @@ class ReportConverterRunnerTest extends Unit
 
     public function testFailedWindows()
     {
-        $this->studentFile->task->testOS = "windows";
+        $this->submission->task->testOS = "windows";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
 
         $analyzerContainerMock
@@ -626,8 +624,8 @@ class ReportConverterRunnerTest extends Unit
 
     public function testFailedWindowsWithSkipfile()
     {
-        $this->studentFile->task->testOS = "windows";
-        $this->studentFile->task->codeCheckerSkipFile = "- */ignored.cs";
+        $this->submission->task->testOS = "windows";
+        $this->submission->task->codeCheckerSkipFile = "- */ignored.cs";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
 
         $analyzerContainerMock
@@ -719,7 +717,7 @@ class ReportConverterRunnerTest extends Unit
 
     public function testFailedWindowsWithoutReports()
     {
-        $this->studentFile->task->testOS = "windows";
+        $this->submission->task->testOS = "windows";
         $analyzerContainerMock = $this->createMock(DockerContainer::class);
 
         $analyzerContainerMock

@@ -6,9 +6,9 @@ use app\components\CanvasIntegration;
 use app\components\codechecker\CodeCheckerResultNotifier;
 use app\exceptions\CodeCheckerResultNotifierException;
 use app\models\CodeCheckerResult;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\tests\unit\fixtures\CodeCheckerResultFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\SubscriptionFixture;
 use app\tests\unit\fixtures\UserFixture;
 use Codeception\Test\Unit;
@@ -21,8 +21,8 @@ class CodeCheckerResultNotifierTest extends Unit
     public function _fixtures(): array
     {
         return [
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class,
+            'submission' => [
+                'class' => SubmissionsFixture::class,
             ],
             'subscription' => [
                 'class' => SubscriptionFixture::class,
@@ -38,8 +38,8 @@ class CodeCheckerResultNotifierTest extends Unit
 
     public function testFileWithoutResult()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 2]);
-        $studentFile->canvasID = 1;
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 2]);
+        $submission->canvasID = 1;
 
         $canvasMock = $this->createMock(CanvasIntegration::class);
         $canvasMock->expects($this->never())->method('uploadCodeCheckerResultToCanvas');
@@ -47,15 +47,15 @@ class CodeCheckerResultNotifierTest extends Unit
 
         $notifier = new CodeCheckerResultNotifier();
         $this->expectException(CodeCheckerResultNotifierException::class);
-        $notifier->sendNotifications($studentFile);
+        $notifier->sendNotifications($submission);
 
         $this->tester->seeEmailIsSent(0);
     }
 
     public function testFileWithInProgressResult()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
-        $studentFile->canvasID = 1;
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
+        $submission->canvasID = 1;
 
         $canvasMock = $this->createMock(CanvasIntegration::class);
         $canvasMock->expects($this->never())->method('uploadCodeCheckerResultToCanvas');
@@ -63,39 +63,39 @@ class CodeCheckerResultNotifierTest extends Unit
 
         $notifier = new CodeCheckerResultNotifier();
         $this->expectException(CodeCheckerResultNotifierException::class);
-        $notifier->sendNotifications($studentFile);
+        $notifier->sendNotifications($submission);
 
         $this->tester->seeEmailIsSent(0);
     }
 
     public function testFileValidWithCanvas()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
-        $studentFile->canvasID = 1;
-        $studentFile->codeCheckerResult->status = CodeCheckerResult::STATUS_NO_ISSUES;
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
+        $submission->canvasID = 1;
+        $submission->codeCheckerResult->status = CodeCheckerResult::STATUS_NO_ISSUES;
 
         $canvasMock = $this->createMock(CanvasIntegration::class);
         $canvasMock->expects($this->once())->method('uploadCodeCheckerResultToCanvas');
         Yii::$container->set(CanvasIntegration::class, $canvasMock);
 
         $notifier = new CodeCheckerResultNotifier();
-        $notifier->sendNotifications($studentFile);
+        $notifier->sendNotifications($submission);
 
         $this->tester->seeEmailIsSent(1);
     }
 
     public function testFileValidWithoutCanvas()
     {
-        $studentFile = $this->tester->grabRecord(StudentFile::class, ['id' => 6]);
-        $studentFile->canvasID = null;
-        $studentFile->codeCheckerResult->status = CodeCheckerResult::STATUS_NO_ISSUES;
+        $submission = $this->tester->grabRecord(Submission::class, ['id' => 6]);
+        $submission->canvasID = null;
+        $submission->codeCheckerResult->status = CodeCheckerResult::STATUS_NO_ISSUES;
 
         $canvasMock = $this->createMock(CanvasIntegration::class);
         $canvasMock->expects($this->never())->method('uploadCodeCheckerResultToCanvas');
         Yii::$container->set(CanvasIntegration::class, $canvasMock);
 
         $notifier = new CodeCheckerResultNotifier();
-        $notifier->sendNotifications($studentFile);
+        $notifier->sendNotifications($submission);
 
         $this->tester->seeEmailIsSent(1);
     }

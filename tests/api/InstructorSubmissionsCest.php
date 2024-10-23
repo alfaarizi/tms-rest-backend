@@ -4,9 +4,9 @@ namespace app\tests\api;
 
 use ApiTester;
 use Yii;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\tests\unit\fixtures\AccessTokenFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\SubscriptionFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use app\tests\unit\fixtures\UserFixture;
@@ -15,18 +15,18 @@ use app\tests\unit\fixtures\TestResultFixture;
 use Codeception\Util\HttpCode;
 use yii\helpers\FileHelper;
 
-class InstructorStudentFilesCest
+class InstructorSubmissionsCest
 {
-    public const STUDENT_FILES_SCHEMA = [
+    public const SUBMISSIONS_SCHEMA = [
         'id' => 'integer',
         'name' => 'string|null',
         'uploadTime' => 'string|null',
         'uploadCount' => 'integer',
-        'isAccepted' => 'string',
+        'status' => 'string',
         'grade' => 'integer|string|null',
         'notes' => 'string |null',
         'isVersionControlled' => 'integer',
-        'translatedIsAccepted' => 'string',
+        'translatedStatus' => 'string',
         'graderName' => 'string|null',
         'errorMsg' => 'string|null',
         'taskID' => 'integer',
@@ -51,8 +51,8 @@ class InstructorStudentFilesCest
             'tasks' => [
                 'class' => TaskFixture::class,
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class
+            'submissions' => [
+                'class' => SubmissionsFixture::class
             ],
             'users' => [
                 'class' => UserFixture::class
@@ -85,21 +85,21 @@ class InstructorStudentFilesCest
 
     public function listForTaskNotFound(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-task", ['taskID' => 0]);
+        $I->sendGet("/instructor/submissions/list-for-task", ['taskID' => 0]);
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function listForTaskWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-task", ['taskID' => 5004]);
+        $I->sendGet("/instructor/submissions/list-for-task", ['taskID' => 5004]);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function listForTask(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-task", ['taskID' => 5001]);
+        $I->sendGet("/instructor/submissions/list-for-task", ['taskID' => 5001]);
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA, "$.[*]");
+        $I->seeResponseMatchesJsonType(self::SUBMISSIONS_SCHEMA, "$.[*]");
 
         $I->seeResponseContainsJson(['id' => 1]);
         $I->seeResponseContainsJson(['id' => 2]);
@@ -114,34 +114,34 @@ class InstructorStudentFilesCest
 
     public function exportSpreadsheetNotFound(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 0, 'format' => 'csv']);
+        $I->sendGet("/instructor/submissions/export-spreadsheet", ['taskID' => 0, 'format' => 'csv']);
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
-    public function exportSpreadsheettWithoutPermission(ApiTester $I)
+    public function exportSpreadsheetWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 5004, 'format' => 'csv']);
+        $I->sendGet("/instructor/submissions/export-spreadsheet", ['taskID' => 5004, 'format' => 'csv']);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function exportSpreadsheetInvalidFormat(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 5001, 'format' => 'invalid']);
+        $I->sendGet("/instructor/submissions/export-spreadsheet", ['taskID' => 5001, 'format' => 'invalid']);
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
     }
 
     public function exportSpreadsheetXlsx(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 5001, 'format' => 'xlsx']);
+        $I->sendGet("/instructor/submissions/export-spreadsheet", ['taskID' => 5001, 'format' => 'xlsx']);
         $I->seeResponseCodeIs(HttpCode::OK);
     }
 
     public function exportSpreadsheetCsv(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/export-spreadsheet", ['taskID' => 5001, 'format' => 'csv']);
+        $I->sendGet("/instructor/submissions/export-spreadsheet", ['taskID' => 5001, 'format' => 'csv']);
         $I->seeResponseCodeIs(HttpCode::OK);
         // Contains headers
-        $I->seeResponseContains('"Name","User code","Upload Time","Is Accepted","Grade","Grade","Notes","Graded By","IP addresses"');
+        $I->seeResponseContains('"Name","User code","Upload Time","Status","Grade","Grade","Notes","Graded By","IP addresses"');
         // Contains correct students
         $I->seeResponseContains('STUD02');
         $I->seeResponseContains('STUD02');
@@ -152,27 +152,27 @@ class InstructorStudentFilesCest
 
     public function listForStudentStudentNotFound(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-student", ['groupID' => 0, 'uploaderID' => 1001]);
+        $I->sendGet("/instructor/submissions/list-for-student", ['groupID' => 0, 'uploaderID' => 1001]);
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function listForStudentTaskNotFound(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-student", ['groupID' => 2000, 'uploaderID' => 0]);
+        $I->sendGet("/instructor/submissions/list-for-student", ['groupID' => 2000, 'uploaderID' => 0]);
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function listForStudentWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-student", ['groupID' => 2007, 'uploaderID' => 1001]);
+        $I->sendGet("/instructor/submissions/list-for-student", ['groupID' => 2007, 'uploaderID' => 1001]);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function listForStudent(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/list-for-student", ['groupID' => 2000, 'uploaderID' => 1001]);
+        $I->sendGet("/instructor/submissions/list-for-student", ['groupID' => 2000, 'uploaderID' => 1001]);
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA, "$.[*]");
+        $I->seeResponseMatchesJsonType(self::SUBMISSIONS_SCHEMA, "$.[*]");
 
         $I->seeResponseContainsJson(['id' => 1]);
         $I->seeResponseContainsJson(['id' => 3]);
@@ -186,28 +186,28 @@ class InstructorStudentFilesCest
 
     public function viewNotFound(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/0");
+        $I->sendGet("/instructor/submissions/0");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function viewWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/6");
+        $I->sendGet("/instructor/submissions/6");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function view(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/1");
+        $I->sendGet("/instructor/submissions/1");
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::STUDENT_FILES_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSIONS_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
                 'id' => 1,
                 'name' => 'stud01.zip',
-                'isAccepted' => StudentFile::IS_ACCEPTED_LATE_SUBMISSION,
-                'translatedIsAccepted' => 'Late Submission',
+                'status' => Submission::STATUS_LATE_SUBMISSION,
+                'translatedStatus' => 'Late Submission',
                 'grade' => 4,
                 'notes' => '',
                 'isVersionControlled' => 0,
@@ -226,9 +226,9 @@ class InstructorStudentFilesCest
     public function updateNotFound(ApiTester $I)
     {
         $I->sendPatch(
-            "/instructor/student-files/0",
+            "/instructor/submissions/0",
             [
-                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
+                'status' => Submission::STATUS_ACCEPTED,
                 'grade' => 5,
                 'notes' => 'Note'
             ]
@@ -239,9 +239,9 @@ class InstructorStudentFilesCest
     public function updateWithoutPermission(ApiTester $I)
     {
         $I->sendPatch(
-            "/instructor/student-files/6",
+            "/instructor/submissions/6",
             [
-                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
+                'status' => Submission::STATUS_ACCEPTED,
                 'grade' => 5,
                 'notes' => 'Note'
             ]
@@ -252,9 +252,9 @@ class InstructorStudentFilesCest
     public function updateFromPreviousSemester(ApiTester $I)
     {
         $I->sendPatch(
-            "/instructor/student-files/7",
+            "/instructor/submissions/7",
             [
-                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
+                'status' => Submission::STATUS_ACCEPTED,
                 'grade' => 5,
                 'notes' => 'Note'
             ]
@@ -265,9 +265,9 @@ class InstructorStudentFilesCest
     public function updateInvalid(ApiTester $I)
     {
         $I->sendPatch(
-            "/instructor/student-files/1",
+            "/instructor/submissions/1",
             [
-                'isAccepted' => 'Invalid',
+                'status' => 'Invalid',
             ]
         );
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
@@ -277,9 +277,9 @@ class InstructorStudentFilesCest
     public function updateValid(ApiTester $I)
     {
         $I->sendPatch(
-            "/instructor/student-files/1",
+            "/instructor/submissions/1",
             [
-                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
+                'status' => Submission::STATUS_ACCEPTED,
                 'grade' => 5,
                 'notes' => 'Note'
             ]
@@ -290,8 +290,8 @@ class InstructorStudentFilesCest
             [
                 'id' => 1,
                 'name' => 'stud01.zip',
-                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
-                'translatedIsAccepted' => 'Accepted',
+                'status' => Submission::STATUS_ACCEPTED,
+                'translatedStatus' => 'Accepted',
                 'isVersionControlled' => 0,
                 'grade' => '5',
                 'notes' => 'Note',
@@ -303,10 +303,10 @@ class InstructorStudentFilesCest
         );
 
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'id' => 1,
-                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
+                'status' => Submission::STATUS_ACCEPTED,
                 'grade' => 5,
                 'notes' => 'Note'
             ]
@@ -318,9 +318,9 @@ class InstructorStudentFilesCest
     public function updateInProgress(ApiTester $I)
     {
         $I->sendPatch(
-            "/instructor/student-files/2",
+            "/instructor/submissions/2",
             [
-                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
+                'status' => Submission::STATUS_ACCEPTED,
                 'grade' => 5,
                 'notes' => 'Note'
             ]
@@ -331,8 +331,8 @@ class InstructorStudentFilesCest
             [
                 'id' => 2,
                 'name' => 'stud02.zip',
-                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
-                'translatedIsAccepted' => 'Accepted',
+                'status' => Submission::STATUS_ACCEPTED,
+                'translatedStatus' => 'Accepted',
                 'isVersionControlled' => 0,
                 'grade' => '5',
                 'notes' => 'Note',
@@ -344,11 +344,11 @@ class InstructorStudentFilesCest
         );
 
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'id' => 2,
-                'isAccepted' => StudentFile::IS_ACCEPTED_ACCEPTED,
-                'autoTesterStatus' => StudentFile::AUTO_TESTER_STATUS_NOT_TESTED,
+                'status' => Submission::STATUS_ACCEPTED,
+                'autoTesterStatus' => Submission::AUTO_TESTER_STATUS_NOT_TESTED,
                 'grade' => 5,
                 'notes' => 'Note',
             ]
@@ -357,19 +357,19 @@ class InstructorStudentFilesCest
 
     public function downloadNotFound(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/0/download");
+        $I->sendGet("/instructor/submissions/0/download");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function downloadWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/6/download");
+        $I->sendGet("/instructor/submissions/6/download");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function download(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/1/download");
+        $I->sendGet("/instructor/submissions/1/download");
         $I->seeResponseCodeIs(HttpCode::OK);
 
         $I->openFile(Yii::getAlias("@appdata/uploadedfiles/5001/stud01/stud01.zip"));
@@ -378,19 +378,19 @@ class InstructorStudentFilesCest
 
     public function downloadAllFilesNotFound(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 0, 'onlyUngraded' => false]);
+        $I->sendGet("/instructor/submissions/download-all-files", ['taskID' => 0, 'onlyUngraded' => false]);
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function downloadAllFilesWithoutPermission(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5004, 'onlyUngraded' => false]);
+        $I->sendGet("/instructor/submissions/download-all-files", ['taskID' => 5004, 'onlyUngraded' => false]);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function downloadAllFiles(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5001, 'onlyUngraded' => false]);
+        $I->sendGet("/instructor/submissions/download-all-files", ['taskID' => 5001, 'onlyUngraded' => false]);
         $I->seeResponseCodeIs(HttpCode::OK);
 
         $zipPath = Yii::getAlias("@tmp/");
@@ -410,7 +410,7 @@ class InstructorStudentFilesCest
 
     public function downloadAllFilesOnlyUngraded(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5001, 'onlyUngraded' => true]);
+        $I->sendGet("/instructor/submissions/download-all-files", ['taskID' => 5001, 'onlyUngraded' => true]);
         $I->seeResponseCodeIs(HttpCode::OK);
 
         $zipPath = Yii::getAlias("@tmp/");
@@ -430,61 +430,61 @@ class InstructorStudentFilesCest
 
     public function downloadAllEmpty(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/download-all-files", ['taskID' => 5003, 'onlyUngraded' => false]);
+        $I->sendGet("/instructor/submissions/download-all-files", ['taskID' => 5003, 'onlyUngraded' => false]);
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
     }
 
     public function startCodeCompassNotFound(ApiTester $I)
     {
-        $I->sendPost("/instructor/student-files/0/start-code-compass");
+        $I->sendPost("/instructor/submissions/0/start-code-compass");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function startCodeCompassWithoutPermission(ApiTester $I)
     {
-        $I->sendPost("/instructor/student-files/6/start-code-compass");
+        $I->sendPost("/instructor/submissions/6/start-code-compass");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function startCodeCompassAlreadyStarted(ApiTester $I)
     {
-        $I->sendPost("/instructor/student-files/1/start-code-compass");
+        $I->sendPost("/instructor/submissions/1/start-code-compass");
         $I->seeResponseCodeIs(HttpCode::CONFLICT);
     }
 
     public function startCodeCompassCurrentlyStarting(ApiTester $I)
     {
-        $I->sendPost("/instructor/student-files/2/start-code-compass");
+        $I->sendPost("/instructor/submissions/2/start-code-compass");
         $I->seeResponseCodeIs(HttpCode::CONFLICT);
     }
 
     public function stopCodeCompassNotFound(ApiTester $I)
     {
-        $I->sendPost("/instructor/student-files/0/stop-code-compass");
+        $I->sendPost("/instructor/submissions/0/stop-code-compass");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function stopCodeCompassWithoutPermission(ApiTester $I)
     {
-        $I->sendPost("/instructor/student-files/5/start-code-compass");
+        $I->sendPost("/instructor/submissions/5/start-code-compass");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
     public function stopCodeCompassCurrentlyStarting(ApiTester $I)
     {
-        $I->sendPost("/instructor/student-files/2/stop-code-compass");
+        $I->sendPost("/instructor/submissions/2/stop-code-compass");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function stopCodeCompassNotRunning(ApiTester $I)
     {
-        $I->sendPost("/instructor/student-files/3/stop-code-compass");
+        $I->sendPost("/instructor/submissions/3/stop-code-compass");
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function viewTestResults(ApiTester $I)
     {
-        $I->sendGet("/instructor/student-files/51/auto-tester-results");
+        $I->sendGet("/instructor/submissions/51/auto-tester-results");
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TEST_RESULT_SCHEMA);
 

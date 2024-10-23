@@ -35,7 +35,7 @@ use yii\helpers\FileHelper;
  *  (if it is a Moss check)
  * @property-read JPlagPlagiarism|null $jplag The object containing JPlag-specific configuration of the plagiarism check
  *  (if it is a JPlag check)
- * @property-read StudentFile[] $studentFiles The [[StudentFile]] objects connected to this plagiarism check
+ * @property-read Submission[] $submissions The [[Submissions]] objects connected to this plagiarism check
  * @property-read bool $hasBaseFiles Whether there are any [[PlagiarismBasefile]] objects connected to this plagiarism check
  * @property-read PlagiarismBasefile[] $baseFiles The [[PlagiarismBasefile]] objects connected to this plagiarism check
  *
@@ -167,9 +167,9 @@ class Plagiarism extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         return $this->hasOne(MossPlagiarism::class, ['plagiarismId' => 'id']);
     }
 
-    public function getStudentFiles(): ActiveQuery
+    public function getSubmissions(): ActiveQuery
     {
-        $query = StudentFile::find()->where([
+        $query = Submission::find()->where([
             'uploaderID' => explode(',', $this->userIDs),
             'taskID' => explode(',', $this->taskIDs),
         ]);

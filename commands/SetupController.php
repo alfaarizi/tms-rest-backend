@@ -7,7 +7,7 @@ use app\models\InstructorGroup;
 use app\models\Semester;
 use app\models\Course;
 use app\models\Group;
-use app\models\StudentFile;
+use app\models\Submission;
 use app\models\Task;
 use app\models\User;
 use app\models\ExamQuestion;
@@ -128,19 +128,18 @@ class SetupController extends BaseController
      *
      * @throws Exception
      */
-    private function seedSubmission(int $uploaderID, string $userCode, int $taskID, string $isAccepted, ?int $graderID, string $autoTesterStatus): void
+    private function seedSubmission(int $uploaderID, string $userCode, int $taskID, string $status, ?int $graderID, string $autoTesterStatus): void
     {
         $dirname = Yii::getAlias("@appdata/uploadedfiles/$taskID/$userCode");
-        $submission = new StudentFile();
+        $submission = new Submission();
         $submission->name = $userCode . ".zip";
         $submission->uploadTime = date('Y-m-d H:i:s');
         $submission->taskID = $taskID;
         $submission->uploaderID = $uploaderID;
-        $submission->isAccepted = $isAccepted;
+        $submission->status = $status;
         $submission->autoTesterStatus = $autoTesterStatus;
         $submission->verified = true;
         $submission->uploadCount = 1;
-        $submission->grade = null;
         $submission->graderID = $graderID;
         $submission->notes = '';
         if (!FileHelper::createDirectory($dirname, 0755, true) || !copy('sampledata/uploadedfile.zip', "$dirname/{$submission->name}")) {
@@ -298,19 +297,19 @@ class SetupController extends BaseController
         // Seed Submissions
         try {
             // First Task
-            $this->seedSubmission(5, 'stud01', 1, StudentFile::IS_ACCEPTED_ACCEPTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
-            $this->seedSubmission(6, 'stud02', 1, StudentFile::IS_ACCEPTED_PASSED, null, StudentFile::AUTO_TESTER_STATUS_PASSED);
-            $this->seedSubmission(7, 'stud03', 1, StudentFile::IS_ACCEPTED_ACCEPTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
-            $this->seedSubmission(8, 'stud04', 1, StudentFile::IS_ACCEPTED_ACCEPTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
-            $this->seedSubmission(9, 'stud05', 1, StudentFile::IS_ACCEPTED_PASSED, null, StudentFile::AUTO_TESTER_STATUS_PASSED);
-            $this->seedSubmission(10, 'stud06', 1, StudentFile::IS_ACCEPTED_LATE_SUBMISSION, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(5, 'stud01', 1, Submission::STATUS_ACCEPTED, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(6, 'stud02', 1, Submission::STATUS_PASSED, null, Submission::AUTO_TESTER_STATUS_PASSED);
+            $this->seedSubmission(7, 'stud03', 1, Submission::STATUS_ACCEPTED, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(8, 'stud04', 1, Submission::STATUS_ACCEPTED, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(9, 'stud05', 1, Submission::STATUS_PASSED, null, Submission::AUTO_TESTER_STATUS_PASSED);
+            $this->seedSubmission(10, 'stud06', 1, Submission::STATUS_LATE_SUBMISSION, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
             // Second Task
-            $this->seedSubmission(5, 'stud01', 2, StudentFile::IS_ACCEPTED_REJECTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
-            $this->seedSubmission(6, 'stud02', 2, StudentFile::IS_ACCEPTED_REJECTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
-            $this->seedSubmission(7, 'stud03', 2, StudentFile::IS_ACCEPTED_UPLOADED, null, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
-            $this->seedSubmission(8, 'stud04', 2, StudentFile::IS_ACCEPTED_FAILED, null, StudentFile::AUTO_TESTER_STATUS_TESTS_FAILED);
-            $this->seedSubmission(9, 'stud05', 2, StudentFile::IS_ACCEPTED_ACCEPTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
-            $this->seedSubmission(10, 'stud06', 2, StudentFile::IS_ACCEPTED_ACCEPTED, 2, StudentFile::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(5, 'stud01', 2, Submission::STATUS_REJECTED, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(6, 'stud02', 2, Submission::STATUS_REJECTED, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(7, 'stud03', 2, Submission::STATUS_UPLOADED, null, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(8, 'stud04', 2, Submission::STATUS_FAILED, null, Submission::AUTO_TESTER_STATUS_TESTS_FAILED);
+            $this->seedSubmission(9, 'stud05', 2, Submission::STATUS_ACCEPTED, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(10, 'stud06', 2, Submission::STATUS_ACCEPTED, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
         } catch (\Exception $e) {
             $this->stdout($e->getMessage() . PHP_EOL, Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;

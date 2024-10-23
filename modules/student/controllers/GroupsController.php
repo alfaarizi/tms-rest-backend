@@ -11,7 +11,7 @@ use yii\web\NotFoundHttpException;
 /**
  * This class provides access to group actions for students
  */
-class GroupsController extends BaseStudentRestController
+class GroupsController extends BaseSubmissionsController
 {
     /**
      * @inheritdoc

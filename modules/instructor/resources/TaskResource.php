@@ -54,8 +54,8 @@ class TaskResource extends \app\models\Task
     public function extraFields(): array
     {
         return [
-            'studentFiles',
-            'instructorFiles',
+            'submissions',
+            'taskFiles',
             'group',
             'semester',
             'taskLevelGitRepo',
@@ -67,16 +67,16 @@ class TaskResource extends \app\models\Task
         return ArrayHelper::merge(
             parent::fieldTypes(),
             [
-                'studentFiles' => new OAProperty(
+                'submissions' => new OAProperty(
                     [
                         'type' => 'array',
-                        new OAItems(['ref' => '#/components/schemas/Instructor_StudentFileResource_Read'])
+                        new OAItems(['ref' => '#/components/schemas/Instructor_SubmissionResource_Read'])
                     ]
                 ),
-                'instructorFiles' => new OAProperty(
+                'taskFiles' => new OAProperty(
                     [
                         'type' => 'array',
-                        new OAItems(['ref' => '#/components/schemas/Instructor_InstructorFileResource_Read'])
+                        new OAItems(['ref' => '#/components/schemas/Instructor_TaskFileResource_Read'])
                     ]
                 ),
                 'group' => new OAProperty(['ref' => '#/components/schemas/Instructor_GroupResource_Read']),
@@ -94,9 +94,9 @@ class TaskResource extends \app\models\Task
         return null;
     }
 
-    public function getInstructorFiles(): ActiveQuery
+    public function getTaskFiles(): ActiveQuery
     {
-        return InstructorFileResource::find()->where(['taskID' => $this->id])->andOnCondition(
+        return TaskFileResource::find()->where(['taskID' => $this->id])->andOnCondition(
             [
                 'not',
                 ['name' => 'Dockerfile']
@@ -104,9 +104,9 @@ class TaskResource extends \app\models\Task
         );
     }
 
-    public function getStudentFiles(): ActiveQuery
+    public function getSubmissions(): ActiveQuery
     {
-        return $this->hasMany(StudentFileResource::class, ['taskID' => 'id']);
+        return $this->hasMany(SubmissionResource::class, ['taskID' => 'id']);
     }
 
     public function getGroup(): ActiveQuery

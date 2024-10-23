@@ -1,6 +1,6 @@
 <?php
 
-use app\models\StudentFile;
+use app\models\Submission;
 use yii\helpers\Html;
 use yii\mail\BaseMessage;
 use yii\web\View;
@@ -8,7 +8,7 @@ use yii\web\View;
 /* @var $this View view component instance */
 /* @var $message BaseMessage instance of newly created mail message */
 
-/* @var $solutions StudentFile[] The new student solution submitted */
+/* @var $solutions Submission[] The new student solution submitted */
 /* @var $hours integer The digest interval */
 ?>
 
@@ -28,13 +28,13 @@ use yii\web\View;
 
         <?= Yii::t('app/mail', 'Task name')?>: <?= Html::encode($solution->task->name) ?><br>
 
-        <?php if ($solution->isAccepted == StudentFile::IS_ACCEPTED_CORRUPTED) : ?>
+        <?php if ($solution->status == Submission::STATUS_CORRUPTED) : ?>
             <div style="color: #dc4126;"> <?= Yii::t('app/mail', 'Corrupted') ?> </div> <br>
         <?php endif; ?>
 
         <?= Html::a(
             Yii::t('app/mail', 'View solution'),
-            Yii::$app->params['frontendUrl'] . '/instructor/task-manager/student-files/' . $solution->id
+            Yii::$app->params['frontendUrl'] . '/instructor/task-manager/submissions/' . $solution->id
         )
         ?>
     </li>

@@ -26,7 +26,7 @@ use yii\web\ServerErrorHttpException;
 /**
  * This class provides access to test instance actions for students
  */
-class ExamTestInstancesController extends BaseStudentRestController
+class ExamTestInstancesController extends BaseSubmissionsController
 {
     protected function verbs()
     {

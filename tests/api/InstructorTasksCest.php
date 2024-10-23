@@ -3,14 +3,14 @@
 namespace app\tests\api;
 
 use ApiTester;
-use app\models\InstructorFile;
-use app\models\StudentFile;
+use app\models\TaskFile;
+use app\models\Submission;
 use app\models\Task;
 use app\models\TestCase;
 use app\tests\unit\fixtures\AccessTokenFixture;
 use app\tests\unit\fixtures\GroupFixture;
-use app\tests\unit\fixtures\InstructorFilesFixture;
-use app\tests\unit\fixtures\StudentFilesFixture;
+use app\tests\unit\fixtures\TaskFilesFixture;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\SubscriptionFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use app\tests\unit\fixtures\TestCaseFixture;
@@ -71,11 +71,11 @@ class InstructorTasksCest
             'testcases' => [
                 'class' => TestCaseFixture::class
             ],
-            'instructorfiles' => [
-                'class' => InstructorFilesFixture::class
+            'taskfiles' => [
+                'class' => TaskFilesFixture::class
             ],
-            'studentfiles' => [
-                'class' => StudentFilesFixture::class
+            'submission' => [
+                'class' => SubmissionsFixture::class
             ]
         ];
     }
@@ -500,9 +500,9 @@ class InstructorTasksCest
         $I->cantSeeRecord(TestCase::class, ['id' => 2]);
 
         // Delete files
-        $I->cantSeeRecord(InstructorFile::class, ['id' => 1]);
-        $I->cantSeeRecord(InstructorFile::class, ['id' => 2]);
-        $I->cantSeeRecord(InstructorFile::class, ['id' => 3]);
+        $I->cantSeeRecord(TaskFile::class, ['id' => 1]);
+        $I->cantSeeRecord(TaskFile::class, ['id' => 2]);
+        $I->cantSeeRecord(TaskFile::class, ['id' => 3]);
     }
 
     public function listUsers(ApiTester $I)
@@ -571,19 +571,19 @@ class InstructorTasksCest
     public function removePasswordFromTask(ApiTester $I)
     {
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'id' => 12,
-                'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
+                'status' => Submission::STATUS_UPLOADED,
                 'verified' => false
             ]
         );
 
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'id' => 14,
-                'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_ACCEPTED,
+                'status' => \app\models\Submission::STATUS_ACCEPTED,
                 'verified' => true
             ]
         );
@@ -598,19 +598,19 @@ class InstructorTasksCest
         $I->seeResponseContainsJson(['password' => '']);
 
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'id' => 12,
-                'isAccepted' => StudentFile::IS_ACCEPTED_UPLOADED,
+                'status' => Submission::STATUS_UPLOADED,
                 'verified' => true
             ]
         );
 
         $I->seeRecord(
-            StudentFile::class,
+            Submission::class,
             [
                 'id' => 14,
-                'isAccepted' => \app\models\StudentFile::IS_ACCEPTED_ACCEPTED,
+                'status' => \app\models\Submission::STATUS_ACCEPTED,
                 'verified' => true
             ]
         );

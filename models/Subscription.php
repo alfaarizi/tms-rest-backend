@@ -92,9 +92,9 @@ class Subscription extends \yii\db\ActiveRecord
             ->where(
                 [
                     'isAccepted' => [
-                        StudentFile::IS_ACCEPTED_UPLOADED,
-                        StudentFile::IS_ACCEPTED_PASSED,
-                        StudentFile::IS_ACCEPTED_FAILED,
+                        Submission::STATUS_UPLOADED,
+                        Submission::STATUS_PASSED,
+                        Submission::STATUS_FAILED,
                     ]
                 ]
             )

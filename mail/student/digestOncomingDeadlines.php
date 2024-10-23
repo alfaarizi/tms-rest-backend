@@ -47,15 +47,15 @@ use app\components\DateTimeHelpers;
                     true
                 )
                 ?></td>
-            <?php if ($datum['studentFile'] != null) : ?>
+            <?php if ($datum['submission'] != null) : ?>
                 <td><?=
                     DateTimeHelpers::timeZoneConvert(
-                        $datum['studentFile']->uploadTime,
+                        $datum['submission']->uploadTime,
                         $datum['task']->group->timezone,
                         true
                     )
                     ?></td>
-                <td><?= $datum['studentFile']->translatedIsAccepted ?></td>
+                <td><?= $datum['submission']->translatedStatus ?></td>
             <?php else : ?>
                 <td></td>
                 <td></td>

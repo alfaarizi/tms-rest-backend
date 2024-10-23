@@ -6,12 +6,12 @@ use app\behaviors\ISODateTimeBehavior;
 use app\components\openapi\generators\OAList;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
-use app\models\queries\StudentFileQuery;
+use app\models\queries\SubmissionQuery;
 use Yii;
 use yii\helpers\StringHelper;
 
 /**
- * This is the model class for table "studentFiles".
+ * This is the model class for table "submission".
  *
  * @property integer $id
  * @property string|null $name
@@ -21,7 +21,7 @@ use yii\helpers\StringHelper;
  * @property string|null $uploadTime
  * @property integer $taskID
  * @property integer $uploaderID
- * @property string $isAccepted
+ * @property string $status
  * @property boolean $isVersionControlled
  * @property float|null $grade
  * @property string $notes
@@ -43,7 +43,7 @@ use yii\helpers\StringHelper;
  * @property TestResult[] $testResults
  *
  */
-class StudentFile extends File implements IOpenApiFieldTypes
+class Submission extends File implements IOpenApiFieldTypes
 {
     public const SCENARIO_GRADE = 'grade';
 
@@ -68,33 +68,33 @@ class StudentFile extends File implements IOpenApiFieldTypes
         self::AUTO_TESTER_STATUS_IN_PROGRESS,
     ];
 
-    public const IS_ACCEPTED_UPLOADED = 'Uploaded';
-    public const IS_ACCEPTED_ACCEPTED = 'Accepted';
-    public const IS_ACCEPTED_REJECTED = 'Rejected';
-    public const IS_ACCEPTED_LATE_SUBMISSION = 'Late Submission';
-    public const IS_ACCEPTED_PASSED = 'Passed';
-    public const IS_ACCEPTED_FAILED = 'Failed';
-    public const IS_ACCEPTED_CORRUPTED = 'Corrupted';
-    public const IS_ACCEPTED_NO_SUBMISSION = 'No Submission';
+    public const STATUS_UPLOADED = 'Uploaded';
+    public const STATUS_ACCEPTED = 'Accepted';
+    public const STATUS_REJECTED = 'Rejected';
+    public const STATUS_LATE_SUBMISSION = 'Late Submission';
+    public const STATUS_PASSED = 'Passed';
+    public const STATUS_FAILED = 'Failed';
+    public const STATUS_CORRUPTED = 'Corrupted';
+    public const STATUS_NO_SUBMISSION = 'No Submission';
 
-    public const IS_ACCEPTED_VALUES = [
-        self::IS_ACCEPTED_UPLOADED,
-        self::IS_ACCEPTED_ACCEPTED,
-        self::IS_ACCEPTED_REJECTED,
-        self::IS_ACCEPTED_LATE_SUBMISSION,
-        self::IS_ACCEPTED_PASSED,
-        self::IS_ACCEPTED_FAILED,
-        self::IS_ACCEPTED_NO_SUBMISSION,
-        self::IS_ACCEPTED_CORRUPTED
+    public const STATUS_VALUES = [
+        self::STATUS_UPLOADED,
+        self::STATUS_ACCEPTED,
+        self::STATUS_REJECTED,
+        self::STATUS_LATE_SUBMISSION,
+        self::STATUS_PASSED,
+        self::STATUS_FAILED,
+        self::STATUS_NO_SUBMISSION,
+        self::STATUS_CORRUPTED
     ];
 
-    public const IS_ACCEPTED_GRADE_VALUES = [
-        self::IS_ACCEPTED_UPLOADED,
-        self::IS_ACCEPTED_ACCEPTED,
-        self::IS_ACCEPTED_REJECTED,
-        self::IS_ACCEPTED_LATE_SUBMISSION,
-        self::IS_ACCEPTED_PASSED, // Required by a third party tool
-        self::IS_ACCEPTED_FAILED, // Required by a third party tool
+    public const STATUS_GRADE_VALUES = [
+        self::STATUS_UPLOADED,
+        self::STATUS_ACCEPTED,
+        self::STATUS_REJECTED,
+        self::STATUS_LATE_SUBMISSION,
+        self::STATUS_PASSED, // Required by a third party tool
+        self::STATUS_FAILED, // Required by a third party tool
     ];
 
     /**
@@ -103,7 +103,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_GRADE] = ['isAccepted', 'grade', 'notes'];
+        $scenarios[self::SCENARIO_GRADE] = ['status', 'grade', 'notes'];
         return $scenarios;
     }
 
@@ -126,7 +126,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
      */
     public static function tableName()
     {
-        return '{{%student_files}}';
+        return '{{%submissions}}';
     }
 
     /**
@@ -135,22 +135,22 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public function rules()
     {
         return [
-            [['path', 'taskID', 'uploaderID', 'isAccepted', 'autoTesterStatus', 'verified'], 'required'],
-            [['name', 'uploadTime'], 'required', 'when' => function ($studentFile) {
-                return $studentFile->uploadCount > 0;
+            [['path', 'taskID', 'uploaderID', 'status', 'autoTesterStatus', 'verified'], 'required'],
+            [['name', 'uploadTime'], 'required', 'when' => function ($submission) {
+                return $submission->uploadCount > 0;
             }],
-            [['name', 'uploadTime'], 'compare', 'compareValue' => 'null', 'when' => function ($studentFile) {
-                return $studentFile->uploadCount === 0;
+            [['name', 'uploadTime'], 'compare', 'compareValue' => 'null', 'when' => function ($submission) {
+                return $submission->uploadCount === 0;
             }],
             [['uploadTime'], 'safe'],
             [['taskID', 'uploaderID', 'graderID'], 'integer'],
-            [['isAccepted', 'reportPath'], 'string'],
+            [['status', 'reportPath'], 'string'],
             [['name'], 'string', 'max' => 200],
             [['grade'], 'number'],
             [['notes'], 'string'],
             [['isVersionControlled', 'verified'], 'boolean'],
             [['errorMsg'], 'string'],
-            ['isAccepted', 'in', 'range' => self::IS_ACCEPTED_GRADE_VALUES, 'on' => self::SCENARIO_GRADE],
+            ['status', 'in', 'range' => self::STATUS_GRADE_VALUES, 'on' => self::SCENARIO_GRADE],
             ['autoTesterStatus', 'in', 'range' => self::AUTO_TESTER_STATUS_VALUES],
             ['autoTesterStatus', 'validateAutoTesterStatus'],
         ];
@@ -169,7 +169,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
             'uploadTime' => Yii::t('app', 'Upload Time'),
             'taskID' => Yii::t('app', 'Task ID'),
             'uploaderID' => Yii::t('app', 'Uploader ID'),
-            'isAccepted' => Yii::t('app', 'Is Accepted'),
+            'status' => Yii::t('app', 'Is Accepted'),
             'isVersionControlled' => Yii::t('app', 'Version control'),
             'grade' => Yii::t('app', 'Grade'),
             'notes' => Yii::t('app', 'Notes'),
@@ -192,9 +192,9 @@ class StudentFile extends File implements IOpenApiFieldTypes
             'uploadTime' => new OAProperty(['type' => 'string']),
             'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'uploaderID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
-            'isAccepted' => new OAProperty(['type' => 'string',  'enum' => new OAList(self::IS_ACCEPTED_VALUES)]),
+            'status' => new OAProperty(['type' => 'string',  'enum' => new OAList(self::STATUS_VALUES)]),
             'autoTesterStatus' => new OAProperty(['type' => 'string',  'enum' => new OAList(self::AUTO_TESTER_STATUS_VALUES)]),
-            'translatedIsAccepted' => new OAProperty(['type' => 'string']),
+            'translatedStatus' => new OAProperty(['type' => 'string']),
             'isVersionControlled' => new OAProperty(['type' => 'string']),
             'grade' => new OAProperty(['type' => 'number', 'format' => 'float']),
             'notes' => new OAProperty(['type' => 'string']),
@@ -219,15 +219,15 @@ class StudentFile extends File implements IOpenApiFieldTypes
 
     /**
      * {@inheritdoc}
-     * @return StudentFileQuery the active query used by this class.
+     * @return SubmissionQuery the active query used by this class.
      */
     public static function find()
     {
-        return new StudentFileQuery(get_called_class());
+        return new SubmissionQuery(get_called_class());
     }
 
     /**
-     * Validates if the current isAccepted, validatorStatus pair is correct
+     * Validates if the current status, validatorStatus pair is correct
      * @param $attribute
      * @param $params
      * @param $validator
@@ -236,18 +236,18 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public function validateAutoTesterStatus($attribute, $params, $validator)
     {
         if (
-            $this->isAccepted === self::IS_ACCEPTED_PASSED && $this->autoTesterStatus !== self::AUTO_TESTER_STATUS_PASSED ||
-            $this->isAccepted !== self::IS_ACCEPTED_UPLOADED && $this->autoTesterStatus === self::AUTO_TESTER_STATUS_IN_PROGRESS ||
-            $this->isAccepted === self::IS_ACCEPTED_NO_SUBMISSION && $this->autoTesterStatus !== self::AUTO_TESTER_STATUS_NOT_TESTED
+            $this->status === self::STATUS_PASSED && $this->autoTesterStatus !== self::AUTO_TESTER_STATUS_PASSED ||
+            $this->status !== self::STATUS_UPLOADED && $this->autoTesterStatus === self::AUTO_TESTER_STATUS_IN_PROGRESS ||
+            $this->status === self::STATUS_NO_SUBMISSION && $this->autoTesterStatus !== self::AUTO_TESTER_STATUS_NOT_TESTED
         ) {
             $this->addError(
                 'autoTesterStatus',
-                Yii::t('app', 'The current values of autoTesterStatus and isAccepted are not valid'),
+                Yii::t('app', 'The current values of autoTesterStatus and status are not valid'),
             );
             return;
         }
 
-        if ($this->isAccepted === self::IS_ACCEPTED_FAILED) {
+        if ($this->status === self::STATUS_FAILED) {
             switch ($this->autoTesterStatus) {
                 case self::AUTO_TESTER_STATUS_LEGACY_FAILED:
                 case self::AUTO_TESTER_STATUS_INITIATION_FAILED:
@@ -258,7 +258,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
                 default:
                     $this->addError(
                         'autoTesterStatus',
-                        Yii::t('app', 'The current values of autoTesterStatus and isAccepted are not valid'),
+                        Yii::t('app', 'The current values of autoTesterStatus and status are not valid'),
                     );
                     return;
             }
@@ -281,7 +281,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
     /** {@inheritdoc} */
     public function beforeDelete()
     {
-        if ($this->isAccepted !== StudentFile::IS_ACCEPTED_NO_SUBMISSION) {
+        if ($this->status !== Submission::STATUS_NO_SUBMISSION) {
             return parent::beforeDelete();
         }
 
@@ -343,16 +343,16 @@ class StudentFile extends File implements IOpenApiFieldTypes
      */
     public function getTestResults()
     {
-        return $this->hasMany(TestResult::class, ['studentFileID' => 'id']);
+        return $this->hasMany(TestResult::class, ['submissionID' => 'id']);
     }
 
-    public function getTranslatedIsAccepted()
+    public function getTranslatedStatus()
     {
-        return Yii::t('app', $this->isAccepted);
+        return Yii::t('app', $this->status);
     }
 
     /**
-     * Generates the container name for this studentfile.
+     * Generates the container name for this submission.
      */
     public function getContainerName(): string
     {
@@ -366,7 +366,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
     public function getExecution()
     {
         return $this
-            ->hasOne(WebAppExecution::class, ['studentFileID' => 'id'])
+            ->hasOne(WebAppExecution::class, ['submissionID' => 'id'])
             ->onCondition(['instructorID' => Yii::$app->user->id]);
     }
 
@@ -411,7 +411,7 @@ class StudentFile extends File implements IOpenApiFieldTypes
     {
         $logs = Log::find()
             ->select(['prefix'])
-            ->andWhere(['category' => 'app\modules\student\controllers\StudentFilesController::saveFile'])
+            ->andWhere(['category' => 'app\modules\student\controllers\SubmissionsController::saveFile'])
             ->andWhere(['level' => 4])
             ->andWhere(['like', 'prefix', "({$this->uploader->userCode})"])
             ->andWhere(['like', 'message', 'A new solution has been uploaded for%', false])

@@ -47,10 +47,10 @@ class CodeCompassController extends BaseController
         }
 
         $docker = CodeCompassHelper::createDockerClient();
-        $taskId = $codeCompassInstance->studentFile->taskID;
+        $taskId = $codeCompassInstance->submission->taskID;
 
         $codeCompass = new CodeCompass(
-            $codeCompassInstance->studentFile,
+            $codeCompassInstance->submission,
             CodeCompassHelper::createDockerClient(),
             $selectedPort,
             CodeCompassHelper::getCachedImageNameForTask($taskId, $docker)
@@ -107,7 +107,7 @@ class CodeCompassController extends BaseController
         $expiredInstances = CodeCompassInstance::find()->listExpired()->all();
         foreach ($expiredInstances as $instance) {
             $codeCompass = new CodeCompass(
-                $instance->studentFile,
+                $instance->submission,
                 CodeCompassHelper::createDockerClient(),
                 $instance->port
             );

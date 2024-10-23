@@ -7,7 +7,7 @@ use app\models\UserIdentity;
 
 /**
  * This class setup the user parameters after login.
- * Also provider properties about the user.
+ * Also provides properties about the user.
  */
 class TmsUser extends \yii\web\User
 {

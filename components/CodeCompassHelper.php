@@ -33,27 +33,27 @@ class CodeCompassHelper
     /**
      * Check whether a container is already running for the given Student file id
      *
-     * @param int $studentFileId The id of the StudentFile
+     * @param int $submissionId The id of the Submission
      * @return bool
      */
-    public static function isContainerAlreadyRunning(int $studentFileId): bool
+    public static function isContainerAlreadyRunning(int $submissionId): bool
     {
         return CodeCompassInstance::find()
-            ->where(['status' => CodeCompassInstance::STATUS_RUNNING, 'studentFileId' => $studentFileId])
+            ->where(['status' => CodeCompassInstance::STATUS_RUNNING, 'submissionId' => $submissionId])
             ->exists();
     }
 
     /**
      * Check whether there is CodeCompass instance currently starting for the given
-     * StudentFile id.
+     * Submission id.
      *
-     * @param int $id The id of the StudentFile
+     * @param int $id The id of the Submission
      * @return bool
      */
     public static function isContainerCurrentlyStarting(int $id): bool
     {
         return CodeCompassInstance::find()
-            ->where(['status' => CodeCompassInstance::STATUS_STARTING, 'studentFileId' => $id])
+            ->where(['status' => CodeCompassInstance::STATUS_STARTING, 'submissionID' => $id])
             ->exists();
     }
 

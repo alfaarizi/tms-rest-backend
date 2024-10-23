@@ -9,12 +9,12 @@ use Yii;
  *
  * @property integer $id
  * @property integer $testCaseID
- * @property integer $studentFileID
+ * @property integer $submissionID
  * @property boolean $isPassed
  * @property string $errorMsg
  * @property-read string $safeErrorMsg
  *
- * @property StudentFile $studentFile
+ * @property Submission $submission
  * @property TestCase $testCase
  */
 
@@ -34,8 +34,8 @@ class TestResult extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['testCaseID', 'studentFileID', 'isPassed'], 'required'],
-            [['testCaseID', 'studentFileID'], 'integer'],
+            [['testCaseID', 'submissionID', 'isPassed'], 'required'],
+            [['testCaseID', 'submissionID'], 'integer'],
             [['isPassed'], 'boolean'],
             [['errorMsg'], 'string'],
         ];
@@ -49,7 +49,7 @@ class TestResult extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'testCaseID' => Yii::t('app', 'TestCase ID'),
-            'studentFileID' => Yii::t('app', 'StudentFile ID'),
+            'submissionID' => Yii::t('app', 'Submission ID'),
             'isPassed' => Yii::t('app', 'Passed'),
             'errorMsg' => Yii::t('app', 'Error Message')
         ];
@@ -58,9 +58,9 @@ class TestResult extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStudentFile()
+    public function getSubmission()
     {
-        return $this->hasOne(StudentFile::class, ['id' => 'studentFileID']);
+        return $this->hasOne(Submission::class, ['id' => 'submissionID']);
     }
 
     /**
@@ -76,7 +76,7 @@ class TestResult extends \yii\db\ActiveRecord
      */
     public function getSafeErrorMsg(): ?string
     {
-        if ($this->studentFile->task->showFullErrorMsg) {
+        if ($this->submission->task->showFullErrorMsg) {
             return $this->errorMsg;
         }
 
