@@ -4,6 +4,21 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.3](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.2...v4.0.0-alpha.3) (2024-10-29)
+
+### ⚠ BREAKING CHANGES
+
+* Rename all Neptun code occurrences to User code ([0bdfeb](https://gitlab.com/tms-elte/backend-core/commit/0bdfebb23112439c181923520912dafcede1350d))
+* Rename task related entities ([bbeb3b](https://gitlab.com/tms-elte/backend-core/commit/bbeb3b935a25bdb684660b9443ff694f4243a203))
+
+### Features
+
+* Add maxWebAppRunTime to PrivateSystemInfo ([78b9a0](https://gitlab.com/tms-elte/backend-core/commit/78b9a0fb9f5b719eae69cc977546823e13ddfae7))
+* Extend Windows-based .NET evaluator templates with optional architectural analysis ([94d541](https://gitlab.com/tms-elte/backend-core/commit/94d541d4dc00ed74c8bb9175d67464a5dc309d01))
+
+
+---
+
 ## [4.0.0-alpha.2](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.1...v4.0.0-alpha.2) (2024-10-08)
 
 ### ⚠ BREAKING CHANGES
