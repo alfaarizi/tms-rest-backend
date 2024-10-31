@@ -6,6 +6,7 @@ use app\exceptions\AddFailedException;
 use app\models\Course;
 use app\models\CourseCode;
 use app\models\InstructorCourse;
+use app\models\User;
 use app\modules\admin\resources\CreateUpdateCourseResource;
 use app\resources\AddUsersListResource;
 use app\resources\CourseResource;
@@ -18,6 +19,7 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\StaleObjectException;
+use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
@@ -172,7 +174,9 @@ class CoursesController extends BaseAdminActiveController
         $model->load(Yii::$app->request->post(), '');
         if ($model->validate()) {
             $this->response->statusCode = 207;
-            return $this->processLecturers($model->userCodes, $courseID);
+            $result = $this->processLecturers($model->userCodes, $courseID);
+            $this->sendEmailToAddedUsers($result->addedUsers, $courseID);
+            return $result;
         } else {
             $this->response->statusCode = 422;
             return $model->errors;
@@ -180,13 +184,13 @@ class CoursesController extends BaseAdminActiveController
     }
 
     /**
+     * Tries to add new lecturers to the given course
      * @param string[] $userCodes
      * @param int $courseID
      */
     private function processLecturers(array $userCodes, int $courseID): UsersAddedResource
     {
         // Email notifications
-        $messages = [];
         $users = [];
         $failed = [];
 
@@ -217,33 +221,45 @@ class CoursesController extends BaseAdminActiveController
                 }
 
                 $users[] = $user;
-                if (!empty($user->notificationEmail)) {
-                    $originalLanguage = Yii::$app->language;
-
-                    Yii::$app->language = $user->locale;
-                    $messages[] = Yii::$app->mailer->compose(
-                        'instructor/newCourse',
-                        [
-                            'course' => Course::findOne(['id' => $courseID]),
-                            'actor' => Yii::$app->user->identity,
-                        ]
-                    )
-                        ->setFrom(Yii::$app->params['systemEmail'])
-                        ->setTo($user->notificationEmail)
-                        ->setSubject(Yii::t('app/mail', 'Added to new course'));
-                    Yii::$app->language = $originalLanguage;
-                }
             } catch (AddFailedException $e) {
                 $failed[] = new UserAddErrorResource($e->getIdentifier(), $e->getCause());
             }
         }
-        // Send mass email notifications
-        Yii::$app->mailer->sendMultiple($messages);
 
         $resource = new UsersAddedResource();
         $resource->addedUsers = $users;
         $resource->failed = $failed;
         return $resource;
+    }
+
+    /**
+     * Sends notification to the lecturer after they are added to a course
+     * @param User[] $users
+     * @return void
+     */
+    private function sendEmailToAddedUsers(array $users, int $courseID): void {
+        $messages = [];
+
+        foreach ($users as $user) {
+            if (!empty($user->notificationEmail)) {
+                $originalLanguage = Yii::$app->language;
+
+                Yii::$app->language = $user->locale;
+                $messages[] = Yii::$app->mailer->compose(
+                    'instructor/newCourse',
+                    [
+                        'course' => Course::findOne(['id' => $courseID]),
+                        'actor' => Yii::$app->user->identity,
+                    ]
+                )
+                    ->setFrom(Yii::$app->params['systemEmail'])
+                    ->setTo($user->notificationEmail)
+                    ->setSubject(Yii::t('app/mail', 'Added to new course'));
+                Yii::$app->language = $originalLanguage;
+            }
+        }
+
+        Yii::$app->mailer->sendMultiple($messages);
     }
 
     /**
@@ -289,6 +305,11 @@ class CoursesController extends BaseAdminActiveController
             throw new NotFoundHttpException(Yii::t('app', 'This user and course combination not found'));
         }
 
+        $course = Course::findOne(['id' => $courseID]);
+        if (count($course->getLecturers()->all()) <= 1) {
+            throw new BadRequestHttpException(Yii::t('app', 'Cannot remove last lecturer!'));
+        }
+
         if ($ic->delete()) {
             $this->response->statusCode = 204;
         } else {
@@ -331,17 +352,31 @@ class CoursesController extends BaseAdminActiveController
 
         try {
             $resource = new CreateUpdateCourseResource();
+            $resource->scenario = CreateUpdateCourseResource::SCENARIO_CREATE;
             $resource->load(Yii::$app->request->post(), '');
+            if (!$resource->validate()) {
+                $this->response->statusCode = 422;
+                return $resource->errors;
+            }
 
             $course = new CourseResource();
             $course->name = $resource->name;
-            $this->response->statusCode = 201;
             $validationErrors = $this->saveCourse($course, $resource->codes);
             if (!empty($validationErrors)) {
                 $this->response->statusCode = 422;
                 return $validationErrors;
             }
+
+            $addedLecturersResult = $this->processLecturers($resource->lecturerUserCodes, $course->id);
+            if (!empty($addedLecturersResult->failed)) {
+                $transaction->rollBack();
+                $this->response->statusCode = 422;
+                return ['lecturerUserCodes' => $addedLecturersResult->convertFailedToStringArray()];
+            }
             $transaction->commit();
+            $this->sendEmailToAddedUsers($addedLecturersResult->addedUsers, $course->id);
+
+            $this->response->statusCode = 201;
             return $course;
         } catch (Exception $e) {
             $transaction->rollBack();
@@ -385,7 +420,12 @@ class CoursesController extends BaseAdminActiveController
         $transaction = Yii::$app->db->beginTransaction();
         try {
             $resource = new CreateUpdateCourseResource();
+            $resource->scenario = CreateUpdateCourseResource::SCENARIO_UPDATE;
             $resource->load(Yii::$app->request->post(), '');
+            if (!$resource->validate()) {
+                $this->response->statusCode = 422;
+                return $resource->errors;
+            }
 
             $course = CourseResource::findOne(['id' => $id]);
             $course->name = $resource->name;
@@ -412,12 +452,10 @@ class CoursesController extends BaseAdminActiveController
                 $courseCode->courseId = $course->id;
                 $courseCode->code = $code;
                 if (!$courseCode->save()) {
-                    $this->response->statusCode = 422;
                     return $courseCode->errors;
                 }
             }
         } else {
-            $this->response->statusCode = 422;
             return $course->errors;
         }
         return [];

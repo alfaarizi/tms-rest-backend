@@ -10,6 +10,7 @@ use app\tests\unit\fixtures\AccessTokenFixture;
 use app\tests\unit\fixtures\CourseCodeFixture;
 use app\tests\unit\fixtures\CourseFixture;
 use app\tests\unit\fixtures\InstructorCourseFixture;
+use app\tests\unit\fixtures\UserFixture;
 use Codeception\Util\HttpCode;
 
 class AdminCoursesCest
@@ -41,6 +42,9 @@ class AdminCoursesCest
             'codes' => [
                 'class' => CourseCodeFixture::class,
             ],
+            'users' => [
+                'class' => UserFixture::class,
+            ]
         ];
     }
 
@@ -101,7 +105,8 @@ class AdminCoursesCest
             '/admin/courses',
             [
                 'name' => 'Created',
-                'codes' => ['10']
+                'codes' => ['10'],
+                'lecturerUserCodes' => ['TEACH1', 'TEACH2']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::CREATED);
@@ -124,6 +129,8 @@ class AdminCoursesCest
                 'code' => '10'
             ]
         );
+
+        $I->seeEmailIsSent(2);
     }
 
     public function createInvalid(ApiTester $I)
@@ -132,7 +139,8 @@ class AdminCoursesCest
             '/admin/courses',
             [
                 'name' => '',
-                'codes' => ['10']
+                'codes' => ['10'],
+                'lecturerUserCodes' => ['TEACH1']
             ]
         );
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
@@ -140,6 +148,46 @@ class AdminCoursesCest
             Course::class,
             [
                 'name' => '',
+            ]
+        );
+
+        $I->seeEmailIsSent(0);
+    }
+
+    public function createCourseWithNoLecturer(ApiTester $I)
+    {
+        $I->sendPost(
+            '/admin/courses',
+            [
+                'name' => 'test',
+                'codes' => ['10'],
+                'lecturerUserCodes' => []
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseContainsJson(
+            [
+                "lecturerUserCodes" => ['Lecturer User Codes cannot be blank.']
+            ]
+        );
+
+        $I->seeEmailIsSent(0);
+    }
+
+    public function deleteLastLecturer(ApiTester $I)
+    {
+        $I->sendDelete('admin/courses/4003/lecturers/1006');
+        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+        $I->seeResponseContainsJson(
+            [
+                'message' => 'Cannot remove last lecturer!'
+            ]
+        );
+        $I->seeRecord(
+            InstructorCourse::class,
+            [
+                'userID' => 1006,
+                'courseID' => 4003
             ]
         );
     }

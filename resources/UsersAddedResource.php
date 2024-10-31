@@ -30,4 +30,22 @@ class UsersAddedResource extends \app\models\Model implements IOpenApiFieldTypes
             ),
         ];
     }
+
+    public function convertFailedToStringArray(): array {
+        return array_map(function($user) {
+            $firstError = self::extractFirstErrorMessage($user->cause);
+            if ($firstError) {
+                return $user['neptun'] . ": " . $firstError;
+            }
+            return $user['neptun'];
+        }, $this->failed ?? []);
+    }
+
+    private static function extractFirstErrorMessage(array $errors): string {
+        $keys = array_keys($errors);
+        if (count($keys) > 0 && isset($errors[$keys[0]]) && isset($errors[$keys[0]][0])) {
+            return $errors[$keys[0]][0];
+        }
+        return '';
+    }
 }
