@@ -696,7 +696,7 @@ class GroupsController extends BaseInstructorRestController
                     ])
                         ->setFrom(Yii::$app->params['systemEmail'])
                         ->setTo($user->notificationEmail)
-                        ->setSubject(Yii::t('app/mail', 'New group assignment'));
+                        ->setSubject(Yii::t('app/mail', 'Added to new group'));
                     Yii::$app->language = $originalLanguage;
                 }
             } catch (AddFailedException $e) {
@@ -981,7 +981,7 @@ class GroupsController extends BaseInstructorRestController
                     )
                         ->setFrom(Yii::$app->params['systemEmail'])
                         ->setTo($user->notificationEmail)
-                        ->setSubject(Yii::t('app/mail', 'New group assignment'));
+                        ->setSubject(Yii::t('app/mail', 'Added to new group'));
                     Yii::$app->language = $originalLanguage;
                 }
 

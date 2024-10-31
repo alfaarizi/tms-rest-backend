@@ -230,7 +230,7 @@ class CoursesController extends BaseAdminActiveController
                     )
                         ->setFrom(Yii::$app->params['systemEmail'])
                         ->setTo($user->notificationEmail)
-                        ->setSubject(Yii::t('app/mail', 'New course assignment'));
+                        ->setSubject(Yii::t('app/mail', 'Added to new course'));
                     Yii::$app->language = $originalLanguage;
                 }
             } catch (AddFailedException $e) {

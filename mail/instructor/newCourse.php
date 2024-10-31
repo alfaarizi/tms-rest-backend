@@ -11,7 +11,7 @@ use yii\helpers\Url;
 
 ?>
 
-<h2><?= \Yii::t('app/mail', 'New course assignment') ?></h2>
+<h2><?= \Yii::t('app/mail', 'Added to new course') ?></h2>
 <p>
     <?php if (!empty($course->name)) : ?>
         <?= \Yii::t('app/mail', 'You have been assigned to the course {course} as a lecturer.', [
