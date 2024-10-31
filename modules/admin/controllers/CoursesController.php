@@ -195,7 +195,7 @@ class CoursesController extends BaseAdminActiveController
                 $user = UserResource::findOne(['userCode' => $userCode]);
 
                 if (is_null($user)) {
-                    throw new AddFailedException($userCode, ['userCode' => [Yii::t('app', 'User not found found.')]]);
+                    throw new AddFailedException($userCode, ['userCode' => [Yii::t('app', 'User not found.')]]);
                 }
 
                 // Add the lecturer to the group.

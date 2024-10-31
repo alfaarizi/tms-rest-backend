@@ -249,7 +249,7 @@ return [
 
     "You don't have permission to view this image" => "Nincs jogosultsága a kép megtekintéséhez",
     "You can't submit multiple answers for the same question" => "Egy kérdéshez nem adható meg több válasz",
-    "User not found found." => "A keresett felhasználó nem található.",
+    "User not found." => "A keresett felhasználó nem található.",
     "Failed to save file. Error logged." => "Fájl mentése sikertelen. Hiba naplózva.",
     "This action is not allowed in the current environment!" => "Ez az akció nem engedélyezett az aktuális környezetben!",
     "Unsupported file format" => "Nem támogatott fájlformátum",
