@@ -310,7 +310,7 @@ return [
     'Test Results' => 'Tesztelési Eredmények',
     'You have not uploaded a solution yet.' => 'Még nem töltöttél fel megoldást.',
     'Your solution was rejected!' => 'A megoldást nem fogadták el!',
-    'The automatic tester have not tested your solution yet.' => 'Még nem tesztelte le az automatikus tesztelő.',
+    'The automatic tester has not tested your solution yet.' => 'Még nem tesztelte le az automatikus tesztelő.',
     '(Automatic testing not enabled)' => '(Nincs automatikus tesztelő beállítva)',
     '(Not tested yet)' => '(Még nem tesztelt)',
     'We are processing your request, please wait! If we need to download or build a new image, it may take some time.' =>
