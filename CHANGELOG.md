@@ -4,6 +4,19 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.4](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.3...v4.0.0-alpha.4) (2024-11-10)
+
+### Features
+
+* Mandatory lecturer assignment for course creation ([d914ec](https://gitlab.com/tms-elte/backend-core/commit/d914ecd81a3ef9869b73a7937f0f03bb83e072cc))
+
+### Bug Fixes
+
+* Reset static analysis status for submissions upon new upload ([04317a](https://gitlab.com/tms-elte/backend-core/commit/04317abf47ea7feacb00e16b8d53ca20cd3ba62f))
+
+
+---
+
 ## [4.0.0-alpha.3](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.2...v4.0.0-alpha.3) (2024-10-29)
 
 ### ⚠ BREAKING CHANGES
