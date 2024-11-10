@@ -302,6 +302,7 @@ class SubmissionsController extends BaseSubmissionsController
         $submission->status = Submission::STATUS_UPLOADED;
         $submission->verified = !$submission->task->passwordProtected;
         $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
+        $submission->codeCheckerResultID = null;
 
         if ($submission->save()) {
             Yii::info(

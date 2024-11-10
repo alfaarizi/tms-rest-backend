@@ -11,7 +11,7 @@ use yii\helpers\Url;
 
 ?>
 
-<h2><?= \Yii::t('app/mail', 'New group assignment') ?></h2>
+<h2><?= \Yii::t('app/mail', 'Added to new group') ?></h2>
 <p>
     <?php if (!empty($group->number)) : ?>
         <?= \Yii::t('app/mail', 'You have been assigned to the course {course} (group: {group}).', [
