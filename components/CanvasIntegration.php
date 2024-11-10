@@ -962,6 +962,7 @@ class CanvasIntegration
                     $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
                     $tmsFile->status = Submission::STATUS_CORRUPTED;
                     $tmsFile->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
+                    $tmsFile->codeCheckerResultID = null;
                     $newFileCorrupted = true;
                 }
             } else {
@@ -971,6 +972,7 @@ class CanvasIntegration
                     $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
                     $tmsFile->status = Submission::STATUS_UPLOADED;
                     $tmsFile->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
+                    $tmsFile->codeCheckerResultID = null;
                     $tmsFile->uploadCount++;
                     $hasNewUpload = true;
                 }
