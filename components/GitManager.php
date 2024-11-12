@@ -215,8 +215,13 @@ curl --request GET --url \"" . Url::toRoute(['/git/git-push', 'taskid' => $taski
      * @param bool $isPasswordProtected is the task password protected
      * @param bool $isAccepted is the acceptance status of the student submission
      */
-    public static function writePreRecieveGitHook($prerecievehook, string $hardDeadline, bool $isPasswordProtected = false, bool $isAccepted = false): void
-    {
+    public static function writePreRecieveGitHook(
+        $prerecievehook,
+        string $hardDeadline,
+        bool $isPasswordProtected = false,
+        bool $isAccepted = false,
+        bool $isSubmissionLimitReached = false
+    ): void {
         $hook = Yii::$app->params['versionControl']['shell'] . "
 rc=0
 while read old new refname; do
@@ -235,6 +240,10 @@ exit 1";
             $hook .= "
 echo \"" . Yii::t('app', "You cannot use 'git push' command for password protected tasks. Use the web interface to upload new solution!") . "\"
 exit 1";
+        } elseif ($isSubmissionLimitReached) {
+            $hook .= "
+echo \"" . Yii::t('app', 'The maximum number of submissions have been reached!') . "\"
+exit 1";
         } else {
             $hook .= "
 currTime=`date +\"%Y-%m-%d %H:%m:%M\"`
@@ -245,7 +254,6 @@ if [[ \"\$currTime\" > \"\$harddeadline\" ]]; then
 fi
 exit \$rc";
         }
-
         fwrite($prerecievehook, $hook);
     }
 
@@ -265,7 +273,8 @@ exit \$rc";
             $hookfile,
             $task->hardDeadline,
             $task->passwordProtected,
-            $submission != null && $submission->status == Submission::STATUS_ACCEPTED
+            $submission != null && $submission->status == Submission::STATUS_ACCEPTED,
+            $submission->uploadCount >= $task->submissionLimit
         );
         fclose($hookfile);
     }
@@ -285,7 +294,8 @@ exit \$rc";
             $hookfile,
             $submission->task->hardDeadline,
             $submission->task->passwordProtected,
-            $submission->status == Submission::STATUS_ACCEPTED
+            $submission->status == Submission::STATUS_ACCEPTED,
+            $submission->uploadCount >= $submission->task->submissionLimit
         );
         fclose($hookfile);
     }

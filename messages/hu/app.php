@@ -238,6 +238,8 @@ return [
     "The combination of Group Number, Course ID and Semester ID has already been taken." => "Ez csoport kód, kurzus, és szemeszter kombináció már foglalt.",
     "You can't modify a group from a previous semester!" => "Előző szemeszterből származó csoportot nem lehet módosítani!",
     "You can't modify a task from a previous semester!" => "Előző szemeszterből származó beadandót nem lehet módosítani!",
+    'Maximum number of submission attempts' => 'Megoldási próbálkozások maximális száma',
+    'The maximum number of submissions has been reached!' => 'Elérte a maximális probálkozások számát!',
     "This user has been already added to this group." => "Ez a felhasználó már hozzá lett rendelve ehhez a csoporthoz.",
     "You can't modify grade a solution from a previous semester!" => "Előző szemeszterből származó megoldást nem lehet értékelni",
     "Failed to remove task. This task can not be removed anymore, there is uploaded solution!"

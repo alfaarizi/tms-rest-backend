@@ -48,6 +48,8 @@ class TaskResource extends \app\models\Task
             'codeCheckerCompileInstructions',
             'codeCheckerToggles',
             'codeCheckerSkipFile',
+            'isSubmissionCountRestricted',
+            'submissionLimit',
         ];
     }
 
