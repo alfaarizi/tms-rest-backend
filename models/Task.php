@@ -43,6 +43,8 @@ use yii\helpers\FileHelper;
  * @property string|null $codeCheckerCompileInstructions
  * @property string|null $codeCheckerToggles
  * @property string|null $codeCheckerSkipFile
+ * @property-read boolean $isSubmissionCountRestricted
+ * @property integer $submissionLimit
  *
  * @property TaskFile[] $taskFiles
  * @property Submission[] $submissions
@@ -77,6 +79,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'isVersionControlled',
             'groupID',
             'password',
+            'submissionLimit',
         ];
         $scenarios[self::SCENARIO_UPDATE] = [
             'name',
@@ -86,6 +89,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'hardDeadline',
             'available',
             'password',
+            'submissionLimit',
         ];
 
         return $scenarios;
@@ -187,6 +191,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             [['testOS'], 'in', 'range' => self::TEST_OS],
             [['isVersionControlled'], 'boolean'],
             [['softDeadline', 'available'], 'safe'],
+            [['submissionLimit'], 'integer', 'min' => 0],
             [['name'], 'string', 'max' => self::MAX_NAME_LENGTH],
             [
                 ['groupID'],
@@ -280,6 +285,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'codeCheckerCompileInstructions' => Yii::t('app', 'CodeChecker Compiler Instructions'),
             'codeCheckerToggles' => Yii::t('app', 'CodeChecker Toggles'),
             'codeCheckerSkipFile' => Yii::t('app', 'CodeChecker Skipfile'),
+            'submissionLimit' => Yii::t('app', 'Maximum number of submission attempts'),
         ];
     }
 
@@ -381,6 +387,16 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     {
         return $this->localImageName == $this->imageName;
     }
+
+    /**
+     * Checks if a task has a submission limit.
+     * @return bool <code>true</code> if submission upload count is restricted, otherwise <code>false</code>.
+     */
+    public function getIsSubmissionCountRestricted(): bool
+    {
+        return $this->submissionLimit > 0;
+    }
+
 
     /**
      * @return \yii\db\ActiveQuery
@@ -512,6 +528,8 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'codeCheckerSkipFile' => new OAProperty(['type' => 'string']),
             'codeCheckerCompileInstructions' => new OAProperty(['type' => 'string']),
             'codeCheckerToggles' => new OAProperty(['type' => 'string']),
+            'isSubmissionCountRestricted' => new OAProperty(['type' => 'boolean']),
+            'submissionLimit' => new OAProperty(['type' => 'integer']),
         ];
     }
 }

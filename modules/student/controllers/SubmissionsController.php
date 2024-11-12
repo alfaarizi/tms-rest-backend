@@ -233,6 +233,12 @@ class SubmissionsController extends BaseSubmissionsController
         // Get previous file
         $prevSubmission = SubmissionResource::findOne(['uploaderID' => Yii::$app->user->id, 'taskID' => $task->id]);
 
+        if($task->isSubmissionCountRestricted && $task->submissionLimit <= $prevSubmission->uploadCount) {
+            throw new BadRequestHttpException(
+                Yii::t('app', 'The maximum number of submissions have been reached!')
+            );
+        }
+
         // Verify that the task is open for submissions or the student has a special late submission permission.
         if (strtotime($task->hardDeadline) < time() && (is_null(
                     $prevSubmission
@@ -313,6 +319,9 @@ class SubmissionsController extends BaseSubmissionsController
             $ipAddress->submissionId = $submission->id;
             $ipAddress->ipAddress = $this->request->userIP;
             if(!$ipAddress->save()) throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
+            if($versionControlled) {
+                GitManager::afterStatusUpdate($submission);
+            }
             return $submission;
         } else {
             throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));

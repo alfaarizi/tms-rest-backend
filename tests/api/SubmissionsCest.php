@@ -291,6 +291,23 @@ class SubmissionsCest
         $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5001/stud01/"));
     }
 
+    public function uploadOutOfSubmissionLimit(ApiTester $I)
+    {
+        $I->sendPost(
+            "/student/submissions/upload",
+            ['taskID' => 5019],
+            ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
+        );
+        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+        $I->seeRecord(
+            Submission::class,
+            [
+                "taskId" => 5019,
+                "uploadCount" => 1,
+            ]
+        );
+    }
+
     public function uploadNew(ApiTester $I)
     {
         $I->sendPost(

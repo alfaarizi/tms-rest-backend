@@ -67,9 +67,9 @@ class AdminStatisticsCest
         $I->seeResponseContainsJson(
             [
                 'groupsCount' => 11,
-                'tasksCount' => 19,
-                'submissionsCount' => 20,
-                'testedSubmissionCount' => 7,
+                'tasksCount' => 20,
+                'submissionsCount' => 21,
+                'testedSubmissionCount' => 8,
                 'submissionsUnderTestingCount' => 1,
                 'submissionsToBeTested' => 1,
             ]
@@ -86,9 +86,9 @@ class AdminStatisticsCest
         $I->seeResponseContainsJson(
             [
                 'groupsCount' => 11,
-                'tasksCount' => 19,
-                'submissionsCount' => 20,
-                'testedSubmissionCount' => 7,
+                'tasksCount' => 20,
+                'submissionsCount' => 21,
+                'testedSubmissionCount' => 8,
                 'submissionsUnderTestingCount' => 1,
                 'submissionsToBeTested' => 1,
                 'diskFree' => null,
@@ -104,9 +104,9 @@ class AdminStatisticsCest
         $I->seeResponseContainsJson(
             [
                 'groupsCount' => 8,
-                'tasksCount' => 18,
-                'submissionsCount' => 19,
-                'testedSubmissionCount' => 7,
+                'tasksCount' => 19,
+                'submissionsCount' => 20,
+                'testedSubmissionCount' => 8,
             ]
         );
     }
