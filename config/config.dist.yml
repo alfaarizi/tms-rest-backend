@@ -26,6 +26,8 @@ app:
   adminEmail: admin@example.com
   # Notification sender email address
   systemEmail: noreply@example.com
+  # Regex of user code's format
+  userCodeFormat: /^[a-zA-Z0-9]{6}$/
   # Console commands cannot auto-detect host base URL, this will be used
   backendUrl: http://localhost/backend-core/web
   # Frontend application base URL

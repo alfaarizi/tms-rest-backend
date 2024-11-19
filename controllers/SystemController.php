@@ -87,11 +87,12 @@ class SystemController extends BaseRestController
         $resource = new PrivateSystemInfoResource();
         $resource->uploadMaxFilesize = UnitConverterHelper::phpFilesizeToBytes(ini_get('upload_max_filesize'));
         $resource->postMaxSize = UnitConverterHelper::phpFilesizeToBytes(ini_get('post_max_size'));
+        $resource->maxWebAppRunTime = Yii::$app->params['evaluator']['webApp']['maxWebAppRunTime'];
         $resource->isAutoTestEnabled = Yii::$app->params['evaluator']['enabled'];
         $resource->isVersionControlEnabled = Yii::$app->params['versionControl']['enabled'];
         $resource->isCanvasEnabled = Yii::$app->params['canvas']['enabled'];
         $resource->isCodeCompassEnabled = Yii::$app->params['codeCompass']['enabled'];
-        $resource->maxWebAppRunTime = Yii::$app->params['evaluator']['webApp']['maxWebAppRunTime'];
+        $resource->userCodeFormat = Yii::$app->params['userCodeFormat'];
         $resource->serverDateTime = DateTimeHelpers::getCurrentTime();
         $resource->actualSemester = SemesterResource::findOne(['actual' => 1]);
         return $resource;

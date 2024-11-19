@@ -199,7 +199,7 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
             [['locale', 'notificationTarget'], 'required', 'on' => self::SCENARIO_SETTINGS],
             [['name', 'email', 'customEmail'], 'string', 'max' => 50],
             [['email', 'customEmail'], 'email'],
-            [['userCode'], 'match', 'pattern' => '/^[a-zA-Z0-9]{6}$/'],
+            [['userCode'], 'match', 'pattern' => Yii::$app->params['userCodeFormat']],
             [['userCode'], 'unique'],
             [['locale'], 'in', 'range' => array_keys(Yii::$app->params['supportedLocale'])],
             [['customEmailConfirmed'], 'boolean'],
