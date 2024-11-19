@@ -273,6 +273,7 @@ return [
     //Automatic testing
     'Automatic Testing' => 'Automatikus Tesztelés',
     'Evaluator is disabled. Contact the administrator for more information.' => 'Az automatikus kiértékelés nincs engedélyezve. Lépjen kapcsolatba az adminisztrátorral további információért.',
+    'Template enabled' => 'Sablon aktív',
     'Operating System' => 'Operációs Rendszer',
     'Show The Full Error Message' => 'A teljes hibaüzenet mutatása',
     'Docker Image' => 'Docker kép',

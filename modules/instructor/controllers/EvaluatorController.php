@@ -3,6 +3,7 @@
 namespace app\modules\instructor\controllers;
 
 use app\components\docker\DockerImageManager;
+use app\models\EvaluatorTemplate;
 use app\models\Submission;
 use app\models\Task;
 use app\modules\instructor\resources\EvaluatorTemplateResource;
@@ -508,39 +509,12 @@ class EvaluatorController extends BaseInstructorRestController
     private function createAdditionalInformationResponse(TaskResource $task): EvaluatorAdditionalInformationResource
     {
         $dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $task->testOS]);
-        $templates = [];
         $osMap = $task->testOSMap();
 
-        foreach (Yii::$app->params['evaluator']['templates'] as $key => $template) {
-            if (in_array($template['os'], array_keys($osMap))) {
-                $resource = new EvaluatorTemplateResource();
-                $resource->name = $template['name'];
-                $resource->os = $template['os'];
-                $resource->image = $template['image'];
-
-                $resource->autoTest = $template['autoTest'];
-                if ($resource->autoTest) {
-                    $resource->appType = $template['appType'];
-                    $resource->compileInstructions = $template['compileInstructions'];
-                    $resource->runInstructions = $template['runInstructions'];
-                }
-
-                $resource->staticCodeAnalysis = $template['staticCodeAnalysis'];
-                if ($resource->staticCodeAnalysis) {
-                    $resource->staticCodeAnalyzerTool = $template['staticCodeAnalyzerTool'];
-                    $resource->codeCheckerSkipFile = $template['codeCheckerSkipFile'];
-
-                    if ($resource->staticCodeAnalyzerTool === 'codechecker') {
-                        $resource->codeCheckerCompileInstructions = $template['codeCheckerCompileInstructions'];
-                        $resource->codeCheckerToggles = $template['codeCheckerToggles'];
-                    } else {
-                        $resource->staticCodeAnalyzerInstructions = $template['staticCodeAnalyzerInstructions'];
-                    }
-                }
-
-                $templates[] = $resource;
-            }
-        }
+        $templates = EvaluatorTemplateResource::find()
+            ->where(['enabled' => true])
+            ->where(['in', 'os', array_keys($osMap)])
+            ->all();
 
         $response = new EvaluatorAdditionalInformationResource();
         $response->templates = $templates;
