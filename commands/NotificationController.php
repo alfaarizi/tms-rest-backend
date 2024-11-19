@@ -117,7 +117,7 @@ class NotificationController extends BaseController
 
                 $messages = [];
                 $origLanguage = Yii::$app->language;
-                foreach ($solutionsByInstructor as $neptun => $solutions) {
+                foreach ($solutionsByInstructor as $userCode => $solutions) {
                     /** @var \app\models\Submission[] $solutions */
                     if (!empty($instructors[$userCode]->notificationEmail)) {
                         Yii::$app->language = $instructors[$userCode]->locale;

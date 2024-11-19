@@ -35,9 +35,9 @@ class UsersAddedResource extends \app\models\Model implements IOpenApiFieldTypes
         return array_map(function($user) {
             $firstError = self::extractFirstErrorMessage($user->cause);
             if ($firstError) {
-                return $user['neptun'] . ": " . $firstError;
+                return $user['userCode'] . ": " . $firstError;
             }
-            return $user['neptun'];
+            return $user['userCode'];
         }, $this->failed ?? []);
     }
 
