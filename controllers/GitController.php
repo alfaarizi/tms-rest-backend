@@ -92,6 +92,7 @@ class GitController extends BaseRestController
             $submission->verified = true;
             // Save it to the db.
             if ($submission->save()) {
+                GitManager::afterStatusUpdate($submission);
                 Yii::info(
                     "A new solution has been uploaded for " .
                     "{$submission->task->name} ($submission->taskID)",
@@ -124,6 +125,7 @@ class GitController extends BaseRestController
             $submission->verified = true;
             // Save it to the db.
             if ($submission->save()) {
+                GitManager::afterStatusUpdate($submission);
                 Yii::info(
                     "A new solution has been uploaded for " .
                     "{$submission->task->name} ($submission->taskID)",

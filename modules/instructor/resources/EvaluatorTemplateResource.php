@@ -2,98 +2,55 @@
 
 namespace app\modules\instructor\resources;
 
-use app\components\openapi\generators\OAList;
 use app\components\openapi\generators\OAProperty;
-use app\components\openapi\IOpenApiFieldTypes;
-use app\models\Task;
+use app\resources\CourseResource;
+use yii\helpers\ArrayHelper;
 
-class EvaluatorTemplateResource extends \app\models\Model implements IOpenApiFieldTypes
+class EvaluatorTemplateResource extends \app\models\EvaluatorTemplate
 {
-    // Common
-    /**
-     * @var string
-     */
-    public $name;
+    public function fields()
+    {
+        return [
+            'id',
+            'name',
+            'enabled',
+            'course',
+            'os',
+            'image',
+            'autoTest',
+            'appType',
+            'port',
+            'compileInstructions',
+            'runInstructions',
+            'staticCodeAnalysis',
+            'staticCodeAnalyzerTool',
+            'codeCheckerCompileInstructions',
+            'staticCodeAnalyzerInstructions',
+            'codeCheckerSkipFile',
+            'codeCheckerToggles',
+        ];
+    }
 
-    /**
-     * @var string
-     */
-    public $os;
-
-    /**
-     * @var string
-     */
-    public $image;
-
-    // Auto Test
-
-    /**
-     * @var bool
-     */
-    public $autoTest;
-
-    /**
-     * @var string|null
-     */
-    public $appType;
-
-    /**
-     * @var string|null
-     */
-    public $compileInstructions;
-
-    /**
-     * @var string|null
-     */
-    public $runInstructions;
-
-    // Static Code Analysis
-    /**
-     * @var bool
-     */
-    public $staticCodeAnalysis;
-
-    /**
-     * @var string|null
-     */
-    public $staticCodeAnalyzerTool;
-
-    /**
-     * @var string|null
-     */
-    public $staticCodeAnalyzerInstructions;
-
-    /**
-     * @var string|null
-     */
-    public $codeCheckerCompileInstructions;
-
-    /**
-     * @var string|null
-     */
-    public $codeCheckerToggles;
-
-    /**
-     * @var string|null
-     */
-    public $codeCheckerSkipFile;
+    public function extraFields()
+    {
+        return [];
+    }
 
     public function fieldTypes(): array
     {
-        return [
-            'name' => new OAProperty(['type' => 'string']),
-            'os' => new OAProperty(['type' => 'string', 'enum' => new OAList(Task::TEST_OS)]),
-            'image' => new OAProperty(['type' => 'string']),
-            'autoTest' => new OAProperty(['type' => 'boolean']),
-            'appType' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
-            'compileInstructions' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
-            'runInstructions' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
-            'staticCodeAnalysis' => new OAProperty(['type' => 'boolean']),
-            'staticCodeAnalyzerTool' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
-            'staticCodeAnalyzerInstructions' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
-            'codeCheckerSkipFile' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
-            'codeCheckerCompileInstructions' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
-            'codeCheckerToggles' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
-        ];
+        return ArrayHelper::merge(
+            parent::fieldTypes(),
+            [
+                'course' => new OAProperty(['ref' => '#/components/schemas/Common_CourseResource_Read']),
+            ]
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCourse()
+    {
+        return $this->hasOne(CourseResource::class, ['id' => 'courseID']);
     }
 }

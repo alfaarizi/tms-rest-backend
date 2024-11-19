@@ -35,6 +35,8 @@ class TaskResource extends Task
             'passwordProtected',
             'canvasUrl',
             'appType',
+            'isSubmissionCountRestricted',
+            'submissionLimit',
         ];
     }
 

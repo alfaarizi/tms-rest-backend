@@ -31,8 +31,9 @@ class CommonSystemCest
         'isVersionControlEnabled' => 'boolean',
         'isCanvasEnabled' => 'boolean',
         'isCodeCompassEnabled' => 'boolean',
-        'actualSemester' => self::SEMESTER_SCHEMA,
+        'userCodeFormat' => 'string',
         'serverDateTime' => 'string',
+        'actualSemester' => self::SEMESTER_SCHEMA,
     ];
 
     public function _fixtures(): array
