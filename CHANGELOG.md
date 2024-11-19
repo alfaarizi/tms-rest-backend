@@ -4,6 +4,20 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.5](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.4...v4.0.0-alpha.5) (2024-11-19)
+
+### Features
+
+* Configurable university code formatting validation ([ab3a0b](https://gitlab.com/tms-elte/backend-core/commit/ab3a0bc53a4f09b9ce1fb217f3efff5500cc4144))
+* Restrictable number of submission attempts ([5686f1](https://gitlab.com/tms-elte/backend-core/commit/5686f1483d56066a3d968625c181d8ad434ffc7b))
+
+### Bug Fixes
+
+* Instructor digest notification email sending issue, introduced by Neptun renaming. ([593651](https://gitlab.com/tms-elte/backend-core/commit/5936513bb4c9c6169b392a1844ec76ac82c2e49d))
+
+
+---
+
 ## [4.0.0-alpha.4](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.3...v4.0.0-alpha.4) (2024-11-10)
 
 ### Features
