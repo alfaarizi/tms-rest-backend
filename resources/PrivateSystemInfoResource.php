@@ -15,6 +15,7 @@ class PrivateSystemInfoResource extends Model implements IOpenApiFieldTypes
     public bool $isVersionControlEnabled;
     public bool $isCanvasEnabled;
     public bool $isCodeCompassEnabled;
+    public string $userCodeFormat;
     public string $serverDateTime;
     public ?SemesterResource $actualSemester;
 
@@ -28,6 +29,7 @@ class PrivateSystemInfoResource extends Model implements IOpenApiFieldTypes
             'isVersionControlEnabled',
             'isCanvasEnabled',
             'isCodeCompassEnabled',
+            'userCodeFormat',
             'serverDateTime',
             'actualSemester'
         ];
@@ -48,6 +50,7 @@ class PrivateSystemInfoResource extends Model implements IOpenApiFieldTypes
             'isVersionControlEnabled' => new OAProperty(['type' => 'boolean']),
             'isCanvasEnabled' => new OAProperty(['type' => 'boolean']),
             'isCodeCompassEnabled' => new OAProperty(['type' => 'boolean']),
+            'userCodeFormat' => new OAProperty(['type' => 'string']),
             'serverDateTime' => new OAProperty(['type' => 'string']),
             'actualSemester' => new OAProperty(['ref' => '#/components/schemas/Common_SemesterResource_Read']),
         ];
