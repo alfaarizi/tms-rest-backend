@@ -3,6 +3,7 @@
 namespace app\tests\api;
 
 use ApiTester;
+use app\tests\unit\fixtures\TaskAccessTokenFixture;
 use Yii;
 use app\models\Submission;
 use app\tests\unit\fixtures\AccessTokenFixture;
@@ -42,6 +43,9 @@ class SubmissionsCest
         return [
             'accesstokens' => [
                 'class' => AccessTokenFixture::class,
+            ],
+            'taskaccesstokens' => [
+                'class' => TaskAccessTokenFixture::class,
             ],
             'tasks' => [
                 'class' => TaskFixture::class,
@@ -150,6 +154,23 @@ class SubmissionsCest
     public function downloadStudentRemovedFromGroup(ApiTester $I)
     {
         $I->sendGet("/student/submissions/5/download");
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function downloadEntryPasswordProtectedTask(ApiTester $I)
+    {
+        $I->sendGet("/student/submissions/53/download");
+        $I->seeResponseCodeIs(HttpCode::OK);
+
+        $I->openFile(Yii::getAlias("@appdata/uploadedfiles/5019/stud01/stud01.zip"));
+        $I->seeFileContentsEqual($I->grabResponse());
+    }
+
+
+    public function downloadEntryPasswordProtectedTaskUnauthorized(ApiTester $I)
+    {
+        $I->amBearerAuthenticated("STUD02;VALID");
+        $I->sendGet("/student/submissions/53/download");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
@@ -295,14 +316,14 @@ class SubmissionsCest
     {
         $I->sendPost(
             "/student/submissions/upload",
-            ['taskID' => 5019],
+            ['taskID' => 5020],
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
         $I->seeRecord(
             Submission::class,
             [
-                "taskId" => 5019,
+                "taskId" => 5020,
                 "uploadCount" => 1,
             ]
         );
@@ -342,7 +363,7 @@ class SubmissionsCest
         $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5008/stud01/"));
     }
 
-    public function uploadToPasswordProtectedTask(ApiTester $I)
+    public function uploadToExitPasswordProtectedTask(ApiTester $I)
     {
         $I->sendPost(
             "/student/submissions/upload",
@@ -376,6 +397,56 @@ class SubmissionsCest
             ]
         );
         $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5010/stud01/"));
+    }
+
+    public function uploadToEntryPasswordProtectedTask(ApiTester $I)
+    {
+        $I->sendPost(
+            "/student/submissions/upload",
+            ['taskID' => 5019],
+            ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                "name" => "stud01_upload_test.zip",
+                "status" => Submission::STATUS_UPLOADED,
+                "translatedStatus" => "Uploaded",
+                "grade" => null,
+                "notes" => "",
+                "isVersionControlled" => 0,
+                "graderName" => "",
+                "errorMsg" => null,
+                "uploadCount" => 2,
+                'verified' => true
+            ]
+        );
+        $I->seeRecord(
+            Submission::class,
+            [
+                "taskID" => 5019,
+                "name" => "stud01_upload_test.zip",
+                "status" => Submission::STATUS_UPLOADED,
+                "uploadCount" => 2,
+            ]
+        );
+        $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5019/stud01/"));
+    }
+
+    public function uploadToEntryPasswordProtectedTaskUnauthorized(ApiTester $I)
+    {
+
+        $I->amBearerAuthenticated("STUD02;VALID");
+        $I->sendPost(
+            "/student/submissions/upload",
+            ['taskID' => 5019],
+            ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
+        );
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+
+        $I->cantSeeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5019/stud01/"));
     }
 
     public function reuploadUnverifiedSolution(ApiTester $I)

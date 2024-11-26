@@ -41,4 +41,6 @@ use app\components\DateTimeHelpers;
     <?= \Yii::t('app/mail', 'Hard deadline of task') ?>: <?= DateTimeHelpers::timeZoneConvert($task->hardDeadline, $task->group->timezone, true) ?><br>
 </p>
 
-<?= $this->render('../partials/taskDescription', ['task' => $task]) ?>
+<?php if (!$task->entryPasswordProtected) : ?>
+    <?= $this->render('../partials/taskDescription', ['task' => $task]) ?>
+<?php endif; ?>

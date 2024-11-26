@@ -58,7 +58,7 @@ class GitManager
                 Yii::$app->language = $student->locale;
                 if ($a) {
                     $prerecievehook = fopen($repopath . '.git/hooks/pre-receive', 'w');
-                    self::writePreRecieveGitHook($prerecievehook, $task->hardDeadline, $task->passwordProtected);
+                    self::writePreRecieveGitHook($prerecievehook, $task->hardDeadline, $task->exitPasswordProtected);
                     fclose($prerecievehook);
                 }
                 // Create pre-receive git hook
@@ -272,7 +272,7 @@ exit \$rc";
         self::writePreRecieveGitHook(
             $hookfile,
             $task->hardDeadline,
-            $task->passwordProtected,
+            $task->exitPasswordProtected,
             $submission != null && $submission->status == Submission::STATUS_ACCEPTED,
             $submission->uploadCount >= $task->submissionLimit
         );
@@ -293,7 +293,7 @@ exit \$rc";
         self::writePreRecieveGitHook(
             $hookfile,
             $submission->task->hardDeadline,
-            $submission->task->passwordProtected,
+            $submission->task->exitPasswordProtected,
             $submission->status == Submission::STATUS_ACCEPTED,
             $submission->uploadCount >= $submission->task->submissionLimit
         );

@@ -590,12 +590,12 @@ class InstructorTasksCest
 
         $I->sendPatch(
             '/instructor/tasks/5011',
-            ['password' => '']
+            ['exitPassword' => '']
         );
 
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
-        $I->seeResponseContainsJson(['password' => '']);
+        $I->seeResponseContainsJson(['exitPassword' => '']);
 
         $I->seeRecord(
             Submission::class,

@@ -2,11 +2,12 @@
 
 namespace app\modules\student\helpers;
 
+use app\models\AccessToken;
 use app\models\Submission;
 use app\models\Subscription;
 use app\models\Task;
+use app\models\TaskAccessTokens;
 use Yii;
-use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 
 class PermissionHelpers
@@ -82,6 +83,21 @@ class PermissionHelpers
     {
         if (!empty($task->available) && strtotime($task->available) > time()) {
             throw new ForbiddenHttpException(Yii::t('app', 'This task is not available yet!'));
+        }
+    }
+
+
+    /**
+     * Verify whether the user has access to a password protected task.
+     * @param Task $task
+     * @return void
+     * @throws ForbiddenHttpException
+     */
+    public static function checkIfTaskUnlocked(Task $task)
+    {
+        if(!$task->entryPasswordUnlocked) {
+            throw new ForbiddenHttpException(Yii::t('app',
+                'This task is password protected, unlock it with the password first!'));
         }
     }
 }

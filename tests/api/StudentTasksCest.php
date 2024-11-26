@@ -3,6 +3,8 @@
 namespace app\tests\api;
 
 use ApiTester;
+use app\models\TaskAccessTokens;
+use app\tests\unit\fixtures\TaskAccessTokenFixture;
 use Yii;
 use app\tests\unit\fixtures\AccessTokenFixture;
 use app\tests\unit\fixtures\GroupFixture;
@@ -30,6 +32,9 @@ class StudentTasksCest
         return [
             'accesstokens' => [
                 'class' => AccessTokenFixture::class,
+            ],
+            'taskaccesstokens' => [
+                'class' => TaskAccessTokenFixture::class,
             ],
             'tasks' => [
                 'class' => TaskFixture::class,
@@ -105,6 +110,26 @@ class StudentTasksCest
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
+    public function viewEntryProtectedTaskWithoutToken(ApiTester $I)
+    {
+        $I->amBearerAuthenticated("STUD02;VALID");
+        $I->sendGet('/student/tasks/5019');
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                'id' => 5019,
+                'name' => 'Task 20',
+                'category' => 'Larger tasks',
+                'translatedCategory' => 'Larger tasks',
+                'description' =>  '',
+                'softDeadline' => null,
+                'available' => null,
+                'semesterID' => 3001,
+            ]
+        );
+    }
+
     public function view(ApiTester $I)
     {
         $I->sendGet('/student/tasks/5000');
@@ -122,6 +147,40 @@ class StudentTasksCest
                 'available' => null,
                 'creatorName' => 'Teacher Two',
                 'semesterID' => 3001,
+            ]
+        );
+    }
+
+    public function unlockEntryPasswordProtectedTask(ApiTester $I)
+    {
+        $I->amBearerAuthenticated("STUD02;VALID");
+        $I->sendPost('student/tasks/5019/unlock', ['password' => 'password']);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+
+        $I->seeRecord(
+            TaskAccessTokens::class,
+            [
+                'accessToken' => 'STUD02;VALID',
+                'taskID' => 5019,
+            ]
+        );
+    }
+
+    public function unlockEntryPasswordProtectedTaskWithWrongPassword(ApiTester $I)
+    {
+        $I->amBearerAuthenticated("STUD02;VALID");
+        $I->sendPost('student/tasks/5019/unlock', ['password' => 'password123']);
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+
+        $I->seeResponseContainsJson(['password' => ['Invalid password']]);
+
+
+        $I->cantSeeRecord(
+            TaskAccessTokens::class,
+            [
+                'accessToken' => 'STUD02;VALID',
+                'taskID' => 5019,
             ]
         );
     }
