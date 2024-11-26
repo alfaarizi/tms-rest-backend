@@ -167,7 +167,7 @@ return [
         'isVersionControlled' => 0,
         'autoTest' => 0,
         'showFullErrorMsg' => 0,
-        'password' => 'password'
+        'exitPassword' => 'password'
     ],
     'task12_password' => [
         'id' => 5011,
@@ -182,7 +182,7 @@ return [
         'isVersionControlled' => 0,
         'autoTest' => 0,
         'showFullErrorMsg' => 0,
-        'password' => 'password'
+        'exitPassword' => 'password'
     ],
     'task13_password' => [
         'id' => 5012,
@@ -197,7 +197,7 @@ return [
         'isVersionControlled' => 0,
         'autoTest' => 0,
         'showFullErrorMsg' => 0,
-        'password' => 'password'
+        'exitPassword' => 'password'
     ],
     'task14_password' => [
         'id' => 5013,
@@ -212,7 +212,7 @@ return [
         'isVersionControlled' => 0,
         'autoTest' => 0,
         'showFullErrorMsg' => 0,
-        'password' => 'password'
+        'exitPassword' => 'password'
     ],
     'task15_password' => [
         'id' => 5014,
@@ -227,7 +227,7 @@ return [
         'isVersionControlled' => 0,
         'autoTest' => 0,
         'showFullErrorMsg' => 0,
-        'password' => 'password'
+        'exitPassword' => 'password'
     ],
     'task16_evaluator_settings' => [
         'id' => 5015,
@@ -289,9 +289,23 @@ return [
         'autoTest' => 0,
         'showFullErrorMsg' => 0,
     ],
-    'task20_submission_limit' => [
+    'task20_entry_password' => [
         'id' => 5019,
         'name' => 'Task 20',
+        'semesterID' => 3001,
+        'groupID' => 2000,
+        'hardDeadline' => date('Y-m-d H:i:s', strtotime('+14 day')),
+        'category' => 'Larger tasks',
+        'description' => 'Description',
+        'createrID' => 1007,
+        'isVersionControlled' => 0,
+        'autoTest' => 0,
+        'showFullErrorMsg' => 0,
+        'entryPassword' => 'password'
+    ],
+    'task21_submission_limit' => [
+        'id' => 5020,
+        'name' => 'Task 21',
         'semesterID' => 3001,
         'groupID' => 2005,
         'hardDeadline' => '2021-03-08 10:00:00',

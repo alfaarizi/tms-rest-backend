@@ -24,7 +24,9 @@ class TaskResource extends Task
             'name',
             'category',
             'translatedCategory',
-            'description',
+            'description' => function(TaskResource $model) {
+                return $model->entryPasswordUnlocked ? $model->description : "";
+            },
             'softDeadline',
             'hardDeadline',
             'available',
@@ -32,7 +34,9 @@ class TaskResource extends Task
             'semesterID',
             'gitInfo',
             'autoTest',
-            'passwordProtected',
+            'exitPasswordProtected',
+            'entryPasswordProtected',
+            'entryPasswordUnlocked',
             'canvasUrl',
             'appType',
             'isSubmissionCountRestricted',

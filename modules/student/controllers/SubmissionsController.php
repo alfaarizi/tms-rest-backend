@@ -122,6 +122,7 @@ class SubmissionsController extends BaseSubmissionsController
         }
 
         PermissionHelpers::isItMySubmission($file);
+        PermissionHelpers::checkIfTaskUnlocked($file->task);
 
         Yii::$app->response->sendFile($file->path, basename($file->path));
     }
@@ -222,6 +223,7 @@ class SubmissionsController extends BaseSubmissionsController
         // Permission checks
         PermissionHelpers::isItMyTask($task->id);
         PermissionHelpers::checkIfTaskAvailable($task);
+        PermissionHelpers::checkIfTaskUnlocked($task);
 
         // Canvas synchronization check
         if ($task->category == Task::CATEGORY_TYPE_CANVAS_TASKS) {
@@ -306,7 +308,7 @@ class SubmissionsController extends BaseSubmissionsController
         $submission->name = basename($newFile->name);
         $submission->uploadTime = date('Y-m-d H:i:s');
         $submission->status = Submission::STATUS_UPLOADED;
-        $submission->verified = !$submission->task->passwordProtected;
+        $submission->verified = !$submission->task->exitPasswordProtected;
         $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
         $submission->codeCheckerResultID = null;
 
@@ -402,7 +404,7 @@ class SubmissionsController extends BaseSubmissionsController
             }
         }
 
-        if ($verifyResource->password !== $file->task->password) {
+        if ($verifyResource->password !== $file->task->exitPassword) {
             $verifyResource->addError('password', Yii::t('app', 'Invalid password'));
         }
 

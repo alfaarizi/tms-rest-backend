@@ -781,9 +781,24 @@ return [
     ],
     'file52' => [
         'id' => 53,
-        'name' => null,
+        'name' => "stud01.zip",
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
         'taskID' => 5019,
+        'uploaderID' => 1001,
+        'status' => \app\models\Submission::STATUS_UPLOADED,
+        'isVersionControlled' => 0,
+        'grade' => null,
+        'notes' => '',
+        'errorMsg' => null,
+        'autoTesterStatus' => \app\models\Submission::AUTO_TESTER_STATUS_TESTS_FAILED,
+        'uploadCount' => 1,
+        'verified' => true,
+    ],
+    'file53' => [
+        'id' => 54,
+        'name' => null,
+        'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
+        'taskID' => 5020,
         'uploaderID' => 1001,
         'status' => \app\models\Submission::STATUS_FAILED,
         'isVersionControlled' => 0,
@@ -794,4 +809,5 @@ return [
         'uploadCount' => 1,
         'verified' => true,
     ],
+
 ];

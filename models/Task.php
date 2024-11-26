@@ -36,7 +36,8 @@ use yii\helpers\FileHelper;
  * @property integer $canvasID
  * @property integer|null $port
  * @property string|null $appType
- * @property string|null $password
+ * @property string|null $exitPassword
+ * @property string|null $entryPassword
  * @property boolean $staticCodeAnalysis
  * @property string|null $staticCodeAnalyzerTool
  * @property string|null $staticCodeAnalyzerInstructions
@@ -54,7 +55,9 @@ use yii\helpers\FileHelper;
  * @property User $creator
  *
  * @property-read string $timezone
- * @property-read boolean $passwordProtected
+ * @property-read boolean $exitPasswordProtected
+ * @property-read boolean $entryPasswordProtected
+ * @property-read boolean $entryPasswordUnlocked
  * @property-read ?string $canvasUrl
  * @property-read string $localImageName
  * @property-read string $isLocalImage
@@ -78,7 +81,8 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'available',
             'isVersionControlled',
             'groupID',
-            'password',
+            'entryPassword',
+            'exitPassword',
             'submissionLimit',
         ];
         $scenarios[self::SCENARIO_UPDATE] = [
@@ -88,7 +92,8 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'softDeadline',
             'hardDeadline',
             'available',
-            'password',
+            'entryPassword',
+            'exitPassword',
             'submissionLimit',
         ];
 
@@ -208,7 +213,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
                 'targetAttribute' => ['semesterID' => 'id']
             ],
             [['autoTest', 'showFullErrorMsg'], 'boolean'],
-            [['imageName', 'password'], 'string', 'max' => 255],
+            [['imageName', 'exitPassword', 'entryPassword'], 'string', 'max' => 255],
             [['compileInstructions', 'runInstructions'], 'string'],
             [['codeCompassPackagesInstallInstructions'], 'string', 'max' => 500],
             [['compileInstructions', 'runInstructions', 'codeCompassCompileInstructions'], 'string'],
@@ -274,7 +279,8 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'compileInstructions' => Yii::t('app', 'Compile Instructions'),
             'runInstructions' => Yii::t('app', 'Run Instructions'),
             'canvasID' => Yii::t('app', 'Canvas id'),
-            'password' => Yii::t('app', 'Password'),
+            'exitPassword' => Yii::t('app', 'Validation Password'),
+            'entryPassword' => Yii::t('app', 'Task Password'),
             'port' => Yii::t('app', 'Port'),
             'appType' => Yii::t('app', 'Application type'),
             'codeCompassCompileInstructions' => Yii::t('app', 'CodeCompass Compile Instructions'),
@@ -338,7 +344,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         $this->runInstructions = str_replace("\r\n", "\n", $this->runInstructions);
 
         // Remove unverified status from files after removing password
-        if (!$insert && array_key_exists('password', $this->dirtyAttributes) && empty($this->password)) {
+        if (!$insert && array_key_exists('exitPassword', $this->dirtyAttributes) && empty($this->exitPassword)) {
             Submission::updateAll(
                 ['verified' => true],
                 ['=', 'taskID', $this->id],
@@ -489,9 +495,27 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             : null;
     }
 
-    public function getPasswordProtected()
+    public function getExitPasswordProtected()
     {
-        return !empty($this->password);
+        return !empty($this->exitPassword);
+    }
+
+    public function getEntryPasswordProtected()
+    {
+        return !empty($this->entryPassword);
+    }
+
+    public function getEntryPasswordUnlocked()
+    {
+        if (!$this->entryPasswordProtected) {
+            return true;
+        }
+
+        $currentAccessToken = AccessToken::getCurrent()->token;
+
+        $taskAccessToken = TaskAccessTokens::findOne(['accessToken' => $currentAccessToken, 'taskId' => $this->id]);
+
+        return !is_null($taskAccessToken);
     }
 
     public function fieldTypes(): array
@@ -518,8 +542,11 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'canvasUrl' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
             'codeCompassCompileInstructions' => new OAProperty(['type' => 'string']),
             'codeCompassPackagesInstallInstructions' => new OAProperty(['type' => 'string']),
-            'passwordProtected' => new OAProperty(['type' => 'boolean']),
-            'password' => new OAProperty(['type' => 'string']),
+            'exitPasswordProtected' => new OAProperty(['type' => 'boolean']),
+            'entryPasswordProtected' => new OAProperty(['type' => 'boolean']),
+            'entryPasswordUnlocked' => new OAProperty(['type' => 'boolean']),
+            'exitPassword' => new OAProperty(['type' => 'string']),
+            'entryPassword' => new OAProperty(['type' => 'string']),
             'port' => new OAProperty(['type' => 'integer']),
             'appType' => new OAProperty(['type' => 'string', 'enum' => new OAList(self::APP_TYPES)]),
             'staticCodeAnalysis' => new OAProperty(['type' => 'boolean']),
