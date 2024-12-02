@@ -275,6 +275,7 @@ exit \$rc";
             $task->exitPasswordProtected,
             $submission != null && $submission->status == Submission::STATUS_ACCEPTED,
             $submission->uploadCount >= $task->submissionLimit
+            && $submission->status !== Submission::STATUS_LATE_SUBMISSION
         );
         fclose($hookfile);
     }
@@ -296,6 +297,7 @@ exit \$rc";
             $submission->task->exitPasswordProtected,
             $submission->status == Submission::STATUS_ACCEPTED,
             $submission->uploadCount >= $submission->task->submissionLimit
+            && $submission->status !== Submission::STATUS_LATE_SUBMISSION
         );
         fclose($hookfile);
     }
