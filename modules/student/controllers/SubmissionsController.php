@@ -235,7 +235,9 @@ class SubmissionsController extends BaseSubmissionsController
         // Get previous file
         $prevSubmission = SubmissionResource::findOne(['uploaderID' => Yii::$app->user->id, 'taskID' => $task->id]);
 
-        if($task->isSubmissionCountRestricted && $task->submissionLimit <= $prevSubmission->uploadCount) {
+        if($task->isSubmissionCountRestricted
+            && $prevSubmission->status !== Submission::STATUS_LATE_SUBMISSION
+            && $task->submissionLimit <= $prevSubmission->uploadCount) {
             throw new BadRequestHttpException(
                 Yii::t('app', 'The maximum number of submissions have been reached!')
             );
