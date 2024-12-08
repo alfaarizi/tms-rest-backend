@@ -61,9 +61,14 @@ class JPlagPlagiarismFinderTest extends \Codeception\Test\Unit
     {
         $finder = $this->getFinder('plagiarism9');
         $finder->start();
-        $this->assertEquals(
-            "java -jar /dev/null  -new '{$this->tmpDir}/plagiarism/9/5009/' -l 'cpp' -bc '{$this->tmpDir}/plagiarism/9/basefiles' -t '1' -r '{$this->dataDir}/plagiarism/plagiarism-result/9/result'",
-            $finder->command
+        $this->assertContains(
+            $finder->command,
+            [
+                // Linux
+                "java -jar /dev/null  -new '{$this->tmpDir}/plagiarism/9/5009/' -l 'cpp' -bc '{$this->tmpDir}/plagiarism/9/basefiles' -t '1' -r '{$this->dataDir}/plagiarism/plagiarism-result/9/result'",
+                // Windows
+                "java -jar /dev/null  -new \"{$this->tmpDir}/plagiarism/9/5009/\" -l \"cpp\" -bc \"{$this->tmpDir}/plagiarism/9/basefiles\" -t \"1\" -r \"{$this->dataDir}/plagiarism/plagiarism-result/9/result\""
+            ]
         );
     }
 }
