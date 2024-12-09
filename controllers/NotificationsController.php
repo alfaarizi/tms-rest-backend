@@ -156,8 +156,8 @@ class NotificationsController extends BaseRestController
             throw new NotFoundHttpException(Yii::t('app', 'Notification not found.'));
         }
 
-        if (!$notification->dismissable) {
-            throw new BadRequestHttpException(Yii::t('app', 'Notification is not dismissable.'));
+        if (!$notification->dismissible) {
+            throw new BadRequestHttpException(Yii::t('app', 'Notification is not dismissible.'));
         }
 
         $userID = Yii::$app->user->id;

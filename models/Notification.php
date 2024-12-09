@@ -17,7 +17,7 @@ use Yii;
  * @property string $startTime
  * @property string $endTime
  * @property string $scope
- * @property bool $dismissable
+ * @property bool $dismissible
  */
 
 class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
@@ -59,11 +59,11 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public function rules(): array
     {
         return [
-            [['message', 'startTime', 'endTime', 'scope', 'dismissable'], 'required'],
+            [['message', 'startTime', 'endTime', 'scope', 'dismissible'], 'required'],
             [['message'], 'string'],
             [['scope'], 'in', 'range' => self::SCOPES],
             [['startTime', 'endTime'], 'safe'],
-            [['dismissable'], 'boolean'],
+            [['dismissible'], 'boolean'],
             [
                 ['endTime'],
                 function ($attribute, $params, $validator) {
@@ -87,7 +87,7 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'startTime' => Yii::t('app', 'Start time'),
             'endTime' => Yii::t('app', 'End time'),
             'scope' => Yii::t('app', 'Scope'),
-            'dismissable' => Yii::t('app', 'Dismissable'),
+            'dismissible' => Yii::t('app', 'Dismissible'),
         ];
     }
 
@@ -99,7 +99,7 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'startTime' => new OAProperty(['type' => 'string']),
             'endTime' => new OAProperty(['type' => 'string']),
             'scope' => new OAProperty(['type' => 'string', 'enum' => new OAList(self::SCOPES)]),
-            'dismissable' => new OAProperty(['type' => 'boolean']),
+            'dismissible' => new OAProperty(['type' => 'boolean']),
         ];
     }
 
@@ -118,6 +118,6 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public function afterFind(): void
     {
         parent::afterFind();
-        $this->dismissable = (bool)$this->dismissable;
+        $this->dismissible = (bool)$this->dismissible;
     }
 }

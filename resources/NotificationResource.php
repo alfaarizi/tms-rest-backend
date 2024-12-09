@@ -19,7 +19,7 @@ class NotificationResource extends Notification
             'id',
             'message',
             'scope',
-            'dismissable',
+            'dismissible',
         ];
     }
 

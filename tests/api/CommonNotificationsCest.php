@@ -15,7 +15,7 @@ class CommonNotificationsCest
     public const NOTIFICATION_SCHEMA = [
         'id' => 'integer',
         'message' => 'string',
-        'dismissable' => 'boolean',
+        'dismissible' => 'boolean',
     ];
 
 
@@ -44,7 +44,7 @@ class CommonNotificationsCest
                 [
                     'id' => 4000,
                     'message' => 'Test message 1.',
-                    'dismissable' => true,
+                    'dismissible' => true,
                 ],
             ]
         );
@@ -66,12 +66,12 @@ class CommonNotificationsCest
                 [
                     'id' => 4000,
                     'message' => 'Test message 1.',
-                    'dismissable' => true,
+                    'dismissible' => true,
                 ],
                 [
                     'id' => 4002,
                     'message' => 'Test message 3.',
-                    'dismissable' => true,
+                    'dismissible' => true,
                 ]
             ]
         );
@@ -92,17 +92,17 @@ class CommonNotificationsCest
                 [
                     'id' => 4000,
                     'message' => 'Test message 1.',
-                    'dismissable' => true,
+                    'dismissible' => true,
                 ],
                 [
                     'id' => 4002,
                     'message' => 'Test message 3.',
-                    'dismissable' => true,
+                    'dismissible' => true,
                 ],
                 [
                     'id' => 4004,
                     'message' => 'Test message 5.',
-                    'dismissable' => true,
+                    'dismissible' => true,
                 ],
             ]
         );
@@ -122,17 +122,17 @@ class CommonNotificationsCest
                 [
                     'id' => 4000,
                     'message' => 'Test message 1.',
-                    'dismissable' => true,
+                    'dismissible' => true,
                 ],
                 [
                     'id' => 4002,
                     'message' => 'Test message 3.',
-                    'dismissable' => true,
+                    'dismissible' => true,
                 ],
                 [
                     'id' => 4005,
                     'message' => 'Test message 6.',
-                    'dismissable' => true,
+                    'dismissible' => true,
                 ],
             ]
         );
@@ -161,7 +161,7 @@ class CommonNotificationsCest
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
-    public function dismissNotDismissableNotification(ApiTester $I)
+    public function dismissNotDismissibleNotification(ApiTester $I)
     {
         $I->amBearerAuthenticated("BATMAN;12345");
         $I->sendPost('/common/notifications/dismiss?notificationID=4001');
@@ -184,7 +184,7 @@ class CommonNotificationsCest
         $I->seeResponseContainsJson(
             [
                 'message' => 'Test message 1.',
-                'dismissable' => true,
+                'dismissible' => true,
             ]
         );
         $I->seeRecord(

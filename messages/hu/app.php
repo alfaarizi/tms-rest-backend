@@ -518,12 +518,12 @@ return [
     "Start time" => "Kezdési idő",
     "End time" => "Befejezési idő",
     "Is available for all users" => "Elérhető minden felhasználó számára",
-    "Dismissable" => "Elrejthető",
+    "Dismissible" => "Elrejthető",
     "Scope" => "Hatókör",
     "End time must be after start time" => "A befejezési időnek a kezdési idő után kell lennie",
     "The combination of  Notification ID and User ID has already been taken." => "Ez az értesítés, felhasználó kombináció már foglalt.",
     "Notification not found." => "Az értesítés nem található.",
-    "Notification is not dismissable." => "Az értesítés nem elrejthető.",
+    "Notification is not dismissible." => "Az értesítés nem elrejthető.",
     "Failed to dismiss notification." => "Az értesítés elrejtése sikertelen.",
 
     //Web App Test

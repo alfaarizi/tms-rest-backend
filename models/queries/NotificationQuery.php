@@ -31,7 +31,7 @@ class NotificationQuery extends ActiveQuery
         return $this
             ->andWhere(['or',
                    ['not in', 'id', NotificationUser::find()->select('notificationID')->where(['userID' => $userID])],
-                   ['dismissable' => false]
+                   ['dismissible' => false]
             ]);
     }
 

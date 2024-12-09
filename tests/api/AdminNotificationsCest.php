@@ -19,7 +19,7 @@ class AdminNotificationsCest
         'startTime' => 'string',
         'endTime' => 'string',
         'scope' => 'string',
-        'dismissable' => 'boolean',
+        'dismissible' => 'boolean',
     ];
 
 
@@ -55,7 +55,7 @@ class AdminNotificationsCest
                     'message' => 'Test message 1.',
                     'startTime' => '2020-01-01T00:00:00+01:00',
                     'endTime' => '3023-12-05T00:00:00+01:00',
-                    'dismissable' => true,
+                    'dismissible' => true,
                     'scope' => Notification::SCOPE_EVERYONE,
                 ],
                 [
@@ -63,7 +63,7 @@ class AdminNotificationsCest
                     'message' => 'Test message 2.',
                     'startTime' => '2020-01-01T00:00:00+01:00',
                     'endTime' => '2020-01-02T00:00:00+01:00',
-                    'dismissable' => false,
+                    'dismissible' => false,
                     'scope' => Notification::SCOPE_EVERYONE,
                 ],
                 [
@@ -71,7 +71,7 @@ class AdminNotificationsCest
                     'message' => 'Test message 3.',
                     'startTime' => '2020-01-01T00:00:00+01:00',
                     'endTime' => '3023-12-05T00:00:00+01:00',
-                    'dismissable' => true,
+                    'dismissible' => true,
                     'scope' => Notification::SCOPE_USER,
                 ],
                 [
@@ -79,7 +79,7 @@ class AdminNotificationsCest
                     'message' => 'Test message 4.',
                     'startTime' => '3020-01-01T00:00:00+01:00',
                     'endTime' => '3020-01-02T00:00:00+01:00',
-                    'dismissable' => false,
+                    'dismissible' => false,
                     'scope' => Notification::SCOPE_USER,
                 ],
             ]
@@ -97,7 +97,7 @@ class AdminNotificationsCest
                 'message' => 'Test message 1.',
                 'startTime' => '2020-01-01T00:00:00+01:00',
                 'endTime' => '3023-12-05T00:00:00+01:00',
-                'dismissable' => true,
+                'dismissible' => true,
                 'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
@@ -119,7 +119,7 @@ class AdminNotificationsCest
                 'message' => 'Created',
                 'startTime' => $startTime->format(\DateTime::ATOM),
                 'endTime' => $endTime->format(\DateTime::ATOM),
-                'dismissable' => true,
+                'dismissible' => true,
                 'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
@@ -130,7 +130,7 @@ class AdminNotificationsCest
                 'message' => 'Created',
                 'startTime' => $startTime->format(\DateTime::ATOM),
                 'endTime' => $endTime->format(\DateTime::ATOM),
-                'dismissable' => true,
+                'dismissible' => true,
                 'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
@@ -140,7 +140,7 @@ class AdminNotificationsCest
                 'message' => 'Created',
                 'startTime' => $startTime->format(DateFormat::MYSQL),
                 'endTime' => $endTime->format(DateFormat::MYSQL),
-                'dismissable' => true,
+                'dismissible' => true,
                 'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
@@ -156,7 +156,7 @@ class AdminNotificationsCest
                 'message' => '',
                 'startTime' => $startTime,
                 'endTime' => $endTime,
-                'dismissable' => true,
+                'dismissible' => true,
                 'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
@@ -167,7 +167,7 @@ class AdminNotificationsCest
                 'message' => '',
                 'startTime' => $startTime,
                 'endTime' => $endTime,
-                'dismissable' => true,
+                'dismissible' => true,
                 'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
@@ -184,7 +184,7 @@ class AdminNotificationsCest
                 'message' => 'Teszt',
                 'startTime' => $startTime,
                 'endTime' => $endTime,
-                'dismissable' => true,
+                'dismissible' => true,
                 'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
@@ -195,7 +195,7 @@ class AdminNotificationsCest
                 'message' => 'Teszt',
                 'startTime' => $startTime,
                 'endTime' => $endTime,
-                'dismissable' => true,
+                'dismissible' => true,
                 'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
@@ -256,7 +256,7 @@ class AdminNotificationsCest
             '/admin/notifications/4000',
             [
                 'message' => 'Updated.',
-                'dismissable' => false,
+                'dismissible' => false,
                 'scope' => Notification::SCOPE_USER,
             ]
         );
@@ -267,7 +267,7 @@ class AdminNotificationsCest
                 'message' => 'Updated.',
                 'startTime' => '2020-01-01T00:00:00+01:00',
                 'endTime' => '3023-12-05T00:00:00+01:00',
-                'dismissable' => false,
+                'dismissible' => false,
                 'scope' => Notification::SCOPE_USER,
             ]
         );
@@ -276,7 +276,7 @@ class AdminNotificationsCest
             [
                 'id' => 4000,
                 'message' => 'Updated.',
-                'dismissable' => false,
+                'dismissible' => false,
                 'scope' => Notification::SCOPE_USER,
             ]
         );

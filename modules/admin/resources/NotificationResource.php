@@ -21,7 +21,7 @@ class NotificationResource extends Notification
             'startTime',
             'endTime',
             'scope',
-            'dismissable',
+            'dismissible',
         ];
     }
 
