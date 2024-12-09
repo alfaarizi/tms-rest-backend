@@ -51,9 +51,11 @@ class CommonNotificationsCest
         $I->cantSeeResponseContainsJson(['id' => 4001]);
         $I->cantSeeResponseContainsJson(['id' => 4002]);
         $I->cantSeeResponseContainsJson(['id' => 4003]);
+        $I->cantSeeResponseContainsJson(['id' => 4004]);
+        $I->cantSeeResponseContainsJson(['id' => 4005]);
     }
 
-    public function privateIndex(ApiTester $I)
+    public function privateIndexAdmin(ApiTester $I)
     {
         $I->amBearerAuthenticated("BATMAN;12345");
         $I->sendGet('/common/notifications');
@@ -75,6 +77,68 @@ class CommonNotificationsCest
         );
         $I->cantSeeResponseContainsJson(['id' => 4001]);
         $I->cantSeeResponseContainsJson(['id' => 4003]);
+        $I->cantSeeResponseContainsJson(['id' => 4004]);
+        $I->cantSeeResponseContainsJson(['id' => 4005]);
+    }
+
+    public function privateIndexStudent(ApiTester $I)
+    {
+        $I->amBearerAuthenticated("STUD02;VALID");
+        $I->sendGet('/common/notifications');
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::NOTIFICATION_SCHEMA, '$.[*]');
+        $I->seeResponseContainsJson(
+            [
+                [
+                    'id' => 4000,
+                    'message' => 'Test message 1.',
+                    'dismissable' => true,
+                ],
+                [
+                    'id' => 4002,
+                    'message' => 'Test message 3.',
+                    'dismissable' => true,
+                ],
+                [
+                    'id' => 4004,
+                    'message' => 'Test message 5.',
+                    'dismissable' => true,
+                ],
+            ]
+        );
+        $I->cantSeeResponseContainsJson(['id' => 4001]);
+        $I->cantSeeResponseContainsJson(['id' => 4003]);
+        $I->cantSeeResponseContainsJson(['id' => 4005]);
+    }
+
+    public function privateIndexInstructor(ApiTester $I)
+    {
+        $I->amBearerAuthenticated("TEACH5;VALID");
+        $I->sendGet('/common/notifications');
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::NOTIFICATION_SCHEMA, '$.[*]');
+        $I->seeResponseContainsJson(
+            [
+                [
+                    'id' => 4000,
+                    'message' => 'Test message 1.',
+                    'dismissable' => true,
+                ],
+                [
+                    'id' => 4002,
+                    'message' => 'Test message 3.',
+                    'dismissable' => true,
+                ],
+                [
+                    'id' => 4005,
+                    'message' => 'Test message 6.',
+                    'dismissable' => true,
+                ],
+            ]
+        );
+        $I->cantSeeResponseContainsJson(['id' => 4001]);
+        $I->cantSeeResponseContainsJson(['id' => 4003]);
+        $I->cantSeeResponseContainsJson(['id' => 4004]);
     }
 
     public function dismissUnauthorized(ApiTester $I)

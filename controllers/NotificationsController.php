@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Notification;
 use app\models\NotificationUser;
 use app\resources\NotificationResource;
 use yii\data\ActiveDataProvider;
@@ -64,19 +65,48 @@ class NotificationsController extends BaseRestController
      */
     public function actionIndex(): ActiveDataProvider
     {
-        if (Yii::$app->user->isGuest) {
-            $query = NotificationResource::find()
-                -> andWhere('isAvailableForAll')
-                -> findAvailable();
+        if (!Yii::$app->user->isGuest) {
+            /** @var \app\models\User $user */
+            $user = Yii::$app->user->identity;
+            if ($user->isAdmin) {
+                // User is an admin, find notifications with scope everyone or user
+                $query = NotificationResource::find()
+                    -> where(['in', 'scope', [Notification::SCOPE_EVERYONE, Notification::SCOPE_USER]])
+                    -> notDismissedBy($user->id)
+                    -> findAvailable();
 
-            return new ActiveDataProvider([
-                'query' => $query,
-                'pagination' => false,
-            ]);
+                return new ActiveDataProvider([
+                    'query' => $query,
+                    'pagination' => false,
+                ]);
+            } elseif ($user->isStudent) {
+                // User is a student, find notifications with scope everyone, user or student
+                $query = NotificationResource::find()
+                    -> where(['in', 'scope', [Notification::SCOPE_EVERYONE, Notification::SCOPE_USER, Notification::SCOPE_STUDENT]])
+                    -> notDismissedBy($user->id)
+                    -> findAvailable();
+
+                return new ActiveDataProvider([
+                    'query' => $query,
+                    'pagination' => false,
+                ]);
+            } elseif ($user->isFaculty) {
+                // User is an instructor, find notifications with scope everyone, user or faculty
+                $query = NotificationResource::find()
+                    -> where(['in', 'scope', [Notification::SCOPE_EVERYONE, Notification::SCOPE_USER, Notification::SCOPE_FACULTY]])
+                    -> notDismissedBy($user->id)
+                    -> findAvailable();
+
+                return new ActiveDataProvider([
+                    'query' => $query,
+                    'pagination' => false,
+                ]);
+            }
         }
 
+        // User is a guest, find notifications with scope everyone
         $query = NotificationResource::find()
-            -> notDismissedBy(Yii::$app->user->id)
+            -> andWhere(['scope' => Notification::SCOPE_EVERYONE])
             -> findAvailable();
 
         return new ActiveDataProvider([

@@ -18,7 +18,7 @@ class AdminNotificationsCest
         'message' => 'string',
         'startTime' => 'string',
         'endTime' => 'string',
-        'isAvailableForAll' => 'boolean',
+        'scope' => 'string',
         'dismissable' => 'boolean',
     ];
 
@@ -56,7 +56,7 @@ class AdminNotificationsCest
                     'startTime' => '2020-01-01T00:00:00+01:00',
                     'endTime' => '3023-12-05T00:00:00+01:00',
                     'dismissable' => true,
-                    'isAvailableForAll' => true,
+                    'scope' => Notification::SCOPE_EVERYONE,
                 ],
                 [
                     'id' => 4001,
@@ -64,7 +64,7 @@ class AdminNotificationsCest
                     'startTime' => '2020-01-01T00:00:00+01:00',
                     'endTime' => '2020-01-02T00:00:00+01:00',
                     'dismissable' => false,
-                    'isAvailableForAll' => true,
+                    'scope' => Notification::SCOPE_EVERYONE,
                 ],
                 [
                     'id' => 4002,
@@ -72,7 +72,7 @@ class AdminNotificationsCest
                     'startTime' => '2020-01-01T00:00:00+01:00',
                     'endTime' => '3023-12-05T00:00:00+01:00',
                     'dismissable' => true,
-                    'isAvailableForAll' => false,
+                    'scope' => Notification::SCOPE_USER,
                 ],
                 [
                     'id' => 4003,
@@ -80,7 +80,7 @@ class AdminNotificationsCest
                     'startTime' => '3020-01-01T00:00:00+01:00',
                     'endTime' => '3020-01-02T00:00:00+01:00',
                     'dismissable' => false,
-                    'isAvailableForAll' => false,
+                    'scope' => Notification::SCOPE_USER,
                 ],
             ]
         );
@@ -98,7 +98,7 @@ class AdminNotificationsCest
                 'startTime' => '2020-01-01T00:00:00+01:00',
                 'endTime' => '3023-12-05T00:00:00+01:00',
                 'dismissable' => true,
-                'isAvailableForAll' => true,
+                'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
     }
@@ -120,7 +120,7 @@ class AdminNotificationsCest
                 'startTime' => $startTime->format(\DateTime::ATOM),
                 'endTime' => $endTime->format(\DateTime::ATOM),
                 'dismissable' => true,
-                'isAvailableForAll' => true,
+                'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
         $I->seeResponseCodeIs(HttpCode::CREATED);
@@ -131,7 +131,7 @@ class AdminNotificationsCest
                 'startTime' => $startTime->format(\DateTime::ATOM),
                 'endTime' => $endTime->format(\DateTime::ATOM),
                 'dismissable' => true,
-                'isAvailableForAll' => true,
+                'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
         $I->seeRecord(
@@ -141,7 +141,7 @@ class AdminNotificationsCest
                 'startTime' => $startTime->format(DateFormat::MYSQL),
                 'endTime' => $endTime->format(DateFormat::MYSQL),
                 'dismissable' => true,
-                'isAvailableForAll' => true,
+                'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
     }
@@ -157,7 +157,7 @@ class AdminNotificationsCest
                 'startTime' => $startTime,
                 'endTime' => $endTime,
                 'dismissable' => true,
-                'isAvailableForAll' => true,
+                'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
@@ -168,7 +168,7 @@ class AdminNotificationsCest
                 'startTime' => $startTime,
                 'endTime' => $endTime,
                 'dismissable' => true,
-                'isAvailableForAll' => true,
+                'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
     }
@@ -185,7 +185,7 @@ class AdminNotificationsCest
                 'startTime' => $startTime,
                 'endTime' => $endTime,
                 'dismissable' => true,
-                'isAvailableForAll' => true,
+                'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
@@ -196,7 +196,7 @@ class AdminNotificationsCest
                 'startTime' => $startTime,
                 'endTime' => $endTime,
                 'dismissable' => true,
-                'isAvailableForAll' => true,
+                'scope' => Notification::SCOPE_EVERYONE,
             ]
         );
     }
@@ -257,7 +257,7 @@ class AdminNotificationsCest
             [
                 'message' => 'Updated.',
                 'dismissable' => false,
-                'isAvailableForAll' => false,
+                'scope' => Notification::SCOPE_USER,
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -268,7 +268,7 @@ class AdminNotificationsCest
                 'startTime' => '2020-01-01T00:00:00+01:00',
                 'endTime' => '3023-12-05T00:00:00+01:00',
                 'dismissable' => false,
-                'isAvailableForAll' => false,
+                'scope' => Notification::SCOPE_USER,
             ]
         );
         $I->seeRecord(
@@ -277,7 +277,7 @@ class AdminNotificationsCest
                 'id' => 4000,
                 'message' => 'Updated.',
                 'dismissable' => false,
-                'isAvailableForAll' => false,
+                'scope' => Notification::SCOPE_USER,
             ]
         );
     }

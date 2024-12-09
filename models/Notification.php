@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\behaviors\ISODateTimeBehavior;
+use app\components\openapi\generators\OAList;
 use app\components\openapi\IOpenApiFieldTypes;
 use app\components\openapi\generators\OAProperty;
 use app\models\queries\NotificationQuery;
@@ -15,12 +16,25 @@ use Yii;
  * @property string $message
  * @property string $startTime
  * @property string $endTime
- * @property bool $isAvailableForAll
+ * @property string $scope
  * @property bool $dismissable
  */
 
 class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
+    public const SCOPE_EVERYONE = 'everyone';
+    public const SCOPE_USER = 'user';
+    public const SCOPE_STUDENT = 'student';
+    public const SCOPE_FACULTY = 'faculty';
+
+    // Supported scopes
+    public const SCOPES = [
+        self::SCOPE_EVERYONE,
+        self::SCOPE_USER,
+        self::SCOPE_STUDENT,
+        self::SCOPE_FACULTY,
+    ];
+
     /**
      * @inheritdoc
      */
@@ -45,10 +59,11 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public function rules(): array
     {
         return [
-            [['message', 'startTime', 'endTime', 'isAvailableForAll', 'dismissable'], 'required'],
+            [['message', 'startTime', 'endTime', 'scope', 'dismissable'], 'required'],
             [['message'], 'string'],
+            [['scope'], 'in', 'range' => self::SCOPES],
             [['startTime', 'endTime'], 'safe'],
-            [['isAvailableForAll', 'dismissable'], 'boolean'],
+            [['dismissable'], 'boolean'],
             [
                 ['endTime'],
                 function ($attribute, $params, $validator) {
@@ -71,7 +86,7 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'message' => Yii::t('app', 'Message'),
             'startTime' => Yii::t('app', 'Start time'),
             'endTime' => Yii::t('app', 'End time'),
-            'isAvailableForAll' => Yii::t('app', 'Is available for all users'),
+            'scope' => Yii::t('app', 'Scope'),
             'dismissable' => Yii::t('app', 'Dismissable'),
         ];
     }
@@ -83,7 +98,7 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'message' => new OAProperty(['type' => 'string']),
             'startTime' => new OAProperty(['type' => 'string']),
             'endTime' => new OAProperty(['type' => 'string']),
-            'isAvailableForAll' => new OAProperty(['type' => 'boolean']),
+            'scope' => new OAProperty(['type' => 'string', 'enum' => new OAList(self::SCOPES)]),
             'dismissable' => new OAProperty(['type' => 'boolean']),
         ];
     }
@@ -103,7 +118,6 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public function afterFind(): void
     {
         parent::afterFind();
-        $this->isAvailableForAll = (bool)$this->isAvailableForAll;
         $this->dismissable = (bool)$this->dismissable;
     }
 }
