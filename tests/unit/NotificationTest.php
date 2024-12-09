@@ -61,7 +61,7 @@ class NotificationTest extends \Codeception\Test\Unit
         $this->notification->startTime = '2020-01-01T00:00:00+01:00';
         $this->notification->endTime = '2020-01-01T00:00:00+01:00';
         $this->notification->dismissable = true;
-        $this->notification->isAvailableForAll = true;
+        $this->notification->scope = Notification::SCOPE_EVERYONE;
 
         $this->specify("All fields should be set in Notification", function () {
             unset($this->notification->message);
@@ -79,8 +79,8 @@ class NotificationTest extends \Codeception\Test\Unit
             unset($this->notification->dismissable);
             $this->assertFalse($this->notification->validate('dismissable'), "Dismissable should be required");
 
-            unset($this->notification->isAvailableForAll);
-            $this->assertFalse($this->notification->validate('isAvailableForAll'), "Is available for all should be required");
+            unset($this->notification->scope);
+            $this->assertFalse($this->notification->validate('scope'), "Scope should be required");
         });
 
         $this->notificationUser = new NotificationUser();

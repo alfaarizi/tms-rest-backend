@@ -18,6 +18,7 @@ class NotificationResource extends Notification
         return [
             'id',
             'message',
+            'scope',
             'dismissable',
         ];
     }

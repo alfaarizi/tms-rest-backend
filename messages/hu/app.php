@@ -519,6 +519,7 @@ return [
     "End time" => "Befejezési idő",
     "Is available for all users" => "Elérhető minden felhasználó számára",
     "Dismissable" => "Elrejthető",
+    "Scope" => "Hatókör",
     "End time must be after start time" => "A befejezési időnek a kezdési idő után kell lennie",
     "The combination of  Notification ID and User ID has already been taken." => "Ez az értesítés, felhasználó kombináció már foglalt.",
     "Notification not found." => "Az értesítés nem található.",
