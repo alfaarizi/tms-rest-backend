@@ -3,9 +3,11 @@
 namespace app\models;
 
 use app\behaviors\ISODateTimeBehavior;
+use app\components\openapi\generators\OAList;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
 use app\models\queries\GroupQuery;
+use app\validators\CanvasSyncLevelValidator;
 use app\validators\TimeZoneValidator;
 use Yii;
 use yii\db\ActiveRecord;
@@ -24,6 +26,8 @@ use yii\db\ActiveRecord;
  * @property boolean $isExamGroup
  * @property string $timezone
  * @property string $canvasErrors
+ * @property array|null $syncLevelArray
+ * @property string|null $syncLevel
  * @property-read boolean $isCanvasCourse
  * @property-read boolean $canvasCanBeSynchronized
  * @property-read ?string $canvasUrl
@@ -41,6 +45,14 @@ class Group extends ActiveRecord implements IOpenApiFieldTypes
 {
     public const SCENARIO_CREATE = 'create';
     public const SCENARIO_UPDATE = 'update';
+
+    public const SYNC_LEVEL_NAME_LISTS = 'Name lists';
+    public const SYNC_LEVEL_TASKS = 'Tasks';
+
+    public const SYNC_LEVEL_VALUES = [
+        self::SYNC_LEVEL_NAME_LISTS,
+        self::SYNC_LEVEL_TASKS,
+    ];
 
     public function scenarios()
     {
@@ -128,6 +140,10 @@ class Group extends ActiveRecord implements IOpenApiFieldTypes
                 'string',
                 'max' => 2000
             ],
+            [
+                'syncLevelArray',
+                CanvasSyncLevelValidator::class
+            ],
         ];
     }
 
@@ -145,6 +161,7 @@ class Group extends ActiveRecord implements IOpenApiFieldTypes
             'isExamGroup' => Yii::t('app', 'Exam Group'),
             'canvasSectionID' => Yii::t('app', 'Canvas Section'),
             'canvasCourseID' => Yii::t('app', 'Canvas Course'),
+            'syncLevelArray' => Yii::t('app', 'Canvas synchronization level'),
             'timezone' => Yii::t('app', 'Timezone')
         ];
     }
@@ -161,12 +178,37 @@ class Group extends ActiveRecord implements IOpenApiFieldTypes
             'canvasCourseID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'canvasCanBeSynchronized' => new OAProperty(['type' => 'boolean']),
             'isCanvasCourse' => new OAProperty(['type' => 'boolean']),
+            'syncLevelArray' => new OAProperty(['type' => 'array', 'items' => new OAList(self::SYNC_LEVEL_VALUES)]),
             'isExamGroup' => new OAProperty(['type' => 'boolean']),
             'timezone' => new OAProperty(['type' => 'string', 'example' => 'Europe/Budapest']),
             'canvasUrl' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
             'lastSyncTime' => new OAProperty(['type' => 'string']),
             'canvasErrors' => new OAProperty(['type' => 'string']),
         ];
+    }
+
+    /**
+     * Convert syncLevel set field from comma separated string to array.
+     * @return array syncLevel as an array.
+     */
+    public function getSyncLevelArray(): ?array
+    {
+        if (is_null($this->syncLevel)) {
+            return null;
+        }
+        return explode(',', $this->syncLevel);
+    }
+
+    /**
+     * Convert syncLevel from array to comma separated string.
+     * @param array $array syncLevel as an array.
+     */
+    public function setSyncLevelArray($array)
+    {
+        if (empty($array)) {
+            return;
+        }
+        $this->syncLevel = implode(',', $array);
     }
 
     /**

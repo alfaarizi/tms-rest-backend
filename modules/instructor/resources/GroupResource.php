@@ -14,7 +14,6 @@ use yii\helpers\ArrayHelper;
  */
 class GroupResource extends \app\models\Group
 {
-
     /**
      * @inheritdoc
      */
@@ -28,6 +27,7 @@ class GroupResource extends \app\models\Group
             'semesterID',
             'canvasCanBeSynchronized',
             'isCanvasCourse',
+            'syncLevelArray',
             'timezone',
             'canvasUrl',
             'lastSyncTime',
