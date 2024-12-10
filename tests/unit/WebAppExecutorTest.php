@@ -128,6 +128,7 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
             Yii::$app->params['evaluator']['webApp']['windows']['reservedPorts'] = array('from' => 8081, 'to' => 8083);
             $submission = Submission::findOne(['id' => 4]);
             $submission->task->appType = 'Web';
+            $submission->task->testOS = 'linux';
 
             $this->tester->expectThrowable(WebAppExecutionException::class, function () use ($submission) {
                 $this->webAppExecutor->startWebApplication($submission, $this->user->id, $this->setupData);
@@ -144,39 +145,45 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
 
     public function testStartWebApplicationSuccess()
     {
-            $containerName = 'myTestContainer';
-            $this->submissionRunnerMock
-                ->method('run')
-                ->willReturn(
-                    $this->makeEmpty(DockerContainer::class, ['getContainerName' => $containerName])
-                );
-            Yii::$app->params['evaluator']['webApp']['linux']['reservedPorts'] = array('from' => 8081, 'to' => 8083);
-            Yii::$app->params['evaluator']['webApp']['windows']['reservedPorts'] = array('from' => 8081, 'to' => 8083);
-            $submission = Submission::findOne(['id' => 4]);
-            $submission->task->appType = 'Web';
+        $containerName = 'myTestContainer';
+        $this->submissionRunnerMock
+            ->method('run')
+            ->willReturn(
+                $this->makeEmpty(DockerContainer::class, ['getContainerName' => $containerName])
+            );
+        Yii::$app->params['evaluator']['webApp']['linux']['reservedPorts'] = array('from' => 8081, 'to' => 8083);
+        Yii::$app->params['evaluator']['webApp']['windows']['reservedPorts'] = array('from' => 8081, 'to' => 8083);
+        $submission = Submission::findOne(['id' => 4]);
+        $submission->task->appType = 'Web';
 
-            $webAppExecutionResource = $this->webAppExecutor
-                ->startWebApplication($submission, $this->user->id, $this->setupData);
+        if (!empty(Yii::$app->params['evaluator']['linux'])) {
+            $submission->task->testOS = 'linux';
+        } else if (!empty(Yii::$app->params['evaluator']['windows'])) {
+            $submission->task->testOS = 'windows';
+        }
 
-            $record = $this->tester->grabRecord(WebAppExecution::class, ['dockerHostUrl' => 'https://tms.elte.hu', 'port' => 8081]);
-            self::assertNotEmpty($record, 'Record must not be null');
-            self::assertEquals($containerName, $record->containerName);
-            self::assertEquals($submission->id, $record->submissionID);
-            self::assertEquals($this->user->id, $record->instructorID);
-            self::assertEquals(8081, $record->port);
-            self::assertEquals(Yii::$app->params['backendUrl'], $record->dockerHostUrl);
-            self::assertNotEmpty($record->startedAt);
-            self::assertNotEmpty($record->shutdownAt);
+        $webAppExecutionResource = $this->webAppExecutor
+            ->startWebApplication($submission, $this->user->id, $this->setupData);
 
-            self::assertEquals($containerName, $webAppExecutionResource->containerName);
-            self::assertEquals(8081, $webAppExecutionResource->port);
-            self::assertEquals('https://tms.elte.hu:8081', $webAppExecutionResource->url);
-            self::assertNotEmpty($webAppExecutionResource->startedAt);
-            self::assertNotEmpty($webAppExecutionResource->shutdownAt);
-            //self::assertObjectNotHasAttribute('dockerHostUrl', $webAppExecutionResource); // deprecated
-            // todo: use assertObjectHasNotProperty(), once it becomes available. Until then:
-            self::assertIsObject($webAppExecutionResource);
-            self::assertFalse(property_exists($webAppExecutionResource, 'dockerHostUrl'));
+        $record = $this->tester->grabRecord(WebAppExecution::class, ['dockerHostUrl' => 'https://tms.elte.hu', 'port' => 8081]);
+        self::assertNotEmpty($record, 'Record must not be null');
+        self::assertEquals($containerName, $record->containerName);
+        self::assertEquals($submission->id, $record->submissionID);
+        self::assertEquals($this->user->id, $record->instructorID);
+        self::assertEquals(8081, $record->port);
+        self::assertEquals(Yii::$app->params['backendUrl'], $record->dockerHostUrl);
+        self::assertNotEmpty($record->startedAt);
+        self::assertNotEmpty($record->shutdownAt);
+
+        self::assertEquals($containerName, $webAppExecutionResource->containerName);
+        self::assertEquals(8081, $webAppExecutionResource->port);
+        self::assertEquals('https://tms.elte.hu:8081', $webAppExecutionResource->url);
+        self::assertNotEmpty($webAppExecutionResource->startedAt);
+        self::assertNotEmpty($webAppExecutionResource->shutdownAt);
+        //self::assertObjectNotHasAttribute('dockerHostUrl', $webAppExecutionResource); // deprecated
+        // todo: use assertObjectHasNotProperty(), once it becomes available. Until then:
+        self::assertIsObject($webAppExecutionResource);
+        self::assertFalse(property_exists($webAppExecutionResource, 'dockerHostUrl'));
     }
 
     public function testStopWebApplication()

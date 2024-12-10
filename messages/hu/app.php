@@ -289,6 +289,7 @@ return [
     'Input' => 'Bemenet',
     'In Progress' => 'Kiértékelés folyamatban',
     'Output' => 'Kimenet',
+    'Operating system must be configured first.' => 'Előbb az operációs rendszer beállítása szükséges.',
     'Passed' => 'Sikeres tesztelés',
     'Failed' => 'Sikertelen tesztelés',
     'Tests' => 'Tesztek',

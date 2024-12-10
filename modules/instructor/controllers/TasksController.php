@@ -26,7 +26,6 @@ use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
-
 /**
  * @OA\PathItem(
  *   path="/instructor/tasks/{id}",
@@ -783,8 +782,8 @@ class TasksController extends BaseInstructorRestController
             } catch (ImageDeleteConflictException $ex) {
                 throw new ConflictHttpException(Yii::t(
                     'app',
-                    'Cannot change package installing script while CodeCompass is running!')
-                );
+                    'Cannot change package installing script while CodeCompass is running!'
+                ));
             }
         }
 
