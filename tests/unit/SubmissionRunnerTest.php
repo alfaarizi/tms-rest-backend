@@ -64,6 +64,7 @@ class SubmissionRunnerTest extends \Codeception\Test\Unit
             $this->submission->task->imageName = 'busybox';
             $this->submission->task->port = 8080;
             $this->submission->task->compileInstructions = 'echo hi';
+            $this->submission->task->testOS = 'linux';
 
             $container = $this->submissionRunner
                 ->run($this->submission, 8009, $this->submission->containerName);

@@ -3,7 +3,6 @@
 namespace app\modules\instructor\controllers;
 
 use app\components\docker\DockerImageManager;
-use app\models\EvaluatorTemplate;
 use app\models\Submission;
 use app\models\Task;
 use app\modules\instructor\resources\EvaluatorTemplateResource;
@@ -53,7 +52,7 @@ class EvaluatorController extends BaseInstructorRestController
 
         if (!Yii::$app->params['evaluator']['enabled']) {
             throw new BadRequestHttpException(
-                Yii::t('app', 'Evaluator is disabled. Contact the administrator for more information.' )
+                Yii::t('app', 'Evaluator is disabled. Contact the administrator for more information.')
             );
         }
 
@@ -244,12 +243,19 @@ class EvaluatorController extends BaseInstructorRestController
             );
         }
 
+        // Check Test OS configuration
+        if (is_null($task->testOS)) {
+            throw new BadRequestHttpException(Yii::t('app', 'Operating system must be configured first.'));
+        }
+
         $setupData = new SetupAutoTesterResource();
         $setupData->load(Yii::$app->request->post(), '');
 
         // Check platform support
-        if ($setupData->appType == Task::APP_TYPE_WEB &&
-            empty(Yii::$app->params['evaluator']['webApp'][$task->testOS]['reservedPorts'])) {
+        if (
+            $setupData->appType == Task::APP_TYPE_WEB &&
+            empty(Yii::$app->params['evaluator']['webApp'][$task->testOS]['reservedPorts'])
+        ) {
             throw new BadRequestHttpException(
                 Yii::t('app', 'Platform not supported for web application testing.')
             );
@@ -298,6 +304,7 @@ class EvaluatorController extends BaseInstructorRestController
      * @return EvaluatorAdditionalInformationResource
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
      *
      * @OA\Get(
      *     path="/instructor/tasks/{id}/evaluator/additional-information",
@@ -368,6 +375,12 @@ class EvaluatorController extends BaseInstructorRestController
     public function actionUpdateDockerImage(int $id): EvaluatorAdditionalInformationResource
     {
         $task = $this->getTaskWithAuthorizationCheck($id);
+
+        // Check Test OS configuration
+        if (is_null($task->testOS)) {
+            throw new BadRequestHttpException(Yii::t('app', 'Operating system must be configured first.'));
+        }
+
         $dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $task->testOS]);
         if (!$task->isLocalImage) {
             $dockerImageManager->pullImage($task->imageName);
@@ -458,6 +471,11 @@ class EvaluatorController extends BaseInstructorRestController
             );
         }
 
+        // Check Test OS configuration
+        if (is_null($task->testOS)) {
+            throw new BadRequestHttpException(Yii::t('app', 'Operating system must be configured first.'));
+        }
+
         $setupData = new SetupCodeCheckerResource();
         $setupData->load(Yii::$app->request->post(), '');
 
@@ -482,8 +500,7 @@ class EvaluatorController extends BaseInstructorRestController
         }
 
         if ($task->save(false)) {
-
-            if ($setupData->reevaluateStaticCodeAnalysis){
+            if ($setupData->reevaluateStaticCodeAnalysis) {
                 Submission::updateAll(
                     [
                         'codeCheckerResultID' => null,
@@ -508,7 +525,10 @@ class EvaluatorController extends BaseInstructorRestController
      */
     private function createAdditionalInformationResponse(TaskResource $task): EvaluatorAdditionalInformationResource
     {
-        $dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $task->testOS]);
+        $dockerImageManager = null;
+        if (!is_null($task->testOS)) {
+            $dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $task->testOS]);
+        }
         $osMap = $task->testOSMap();
 
         $templates = EvaluatorTemplateResource::find()
@@ -520,7 +540,7 @@ class EvaluatorController extends BaseInstructorRestController
         $response->templates = $templates;
         $response->osMap = $osMap;
         $response->appTypes = Task::APP_TYPES;
-        $response->imageSuccessfullyBuilt = $dockerImageManager->alreadyBuilt($task->imageName);
+        $response->imageSuccessfullyBuilt = is_null($dockerImageManager) ? false :  $dockerImageManager->alreadyBuilt($task->imageName);
 
         if ($response->imageSuccessfullyBuilt) {
             $response->imageCreationDate = $dockerImageManager->inspectImage($task->imageName)->getCreated();

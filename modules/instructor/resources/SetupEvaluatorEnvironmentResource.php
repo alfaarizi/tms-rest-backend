@@ -15,11 +15,11 @@ class SetupEvaluatorEnvironmentResource extends Model implements IOpenApiFieldTy
     public $imageName;
     public $files;
 
-    public function rules()
+    public function rules(): array
     {
         return [
             [['testOS'], 'required'],
-            [['testOS'], 'string'],
+            [['testOS'], 'in', 'range' => Task::TEST_OS],
             [['imageName'], 'string', 'max' => 255],
             [['files'], 'file', 'skipOnEmpty' => true, 'maxFiles' => 20],
         ];

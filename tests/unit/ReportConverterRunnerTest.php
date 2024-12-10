@@ -57,6 +57,7 @@ class ReportConverterRunnerTest extends Unit
     protected function _before()
     {
         $this->submission = $this->tester->grabRecord(Submission::class, ['id' => 5]);
+        $this->submission->task->testOS = 'linux';
         $this->submission->task->imageName = 'imageName:latest';
         $this->submission->task->staticCodeAnalyzerTool = 'roslynator';
         $this->submission->task->staticCodeAnalyzerInstructions = 'roslynator analyze';
