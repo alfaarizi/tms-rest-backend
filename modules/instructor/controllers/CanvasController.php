@@ -199,7 +199,7 @@ class CanvasController extends BaseInstructorRestController
         $group = Group::findOne($groupID);
 
         if (is_null($group)) {
-            throw new NotFoundHttpException(Yii::t('app','Group not found.'));
+            throw new NotFoundHttpException(Yii::t('app', 'Group not found.'));
         }
 
         // Authorization check
@@ -236,7 +236,8 @@ class CanvasController extends BaseInstructorRestController
         $group = $this->canvas->saveCanvasGroup(
             $groupID,
             $canvasCourse->canvasSection,
-            $canvasCourse->canvasCourse
+            $canvasCourse->canvasCourse,
+            $canvasCourse->syncLevel
         );
 
         $this->canvas->synchronizeGroupData($group);
@@ -285,7 +286,7 @@ class CanvasController extends BaseInstructorRestController
         $group = Group::findOne($groupID);
 
         if (is_null($group)) {
-            throw new NotFoundHttpException(Yii::t('app','Group not found.'));
+            throw new NotFoundHttpException(Yii::t('app', 'Group not found.'));
         }
 
         // Authorization check

@@ -238,14 +238,16 @@ class CanvasIntegration
      * @param int $tmsId the id of the group in the tms
      * @param int $canvasSectionId the id of the section in the canvas
      * @param int $canvasCourseId the id of the course in the canvas
+     * @param array $syncLevel the level of the synchronization
      * @return Group the updated group
      */
-    public function saveCanvasGroup(int $tmsId, int $canvasSectionId, int $canvasCourseId): Group
+    public function saveCanvasGroup(int $tmsId, int $canvasSectionId, int $canvasCourseId, array $syncLevel): Group
     {
         $group = Group::findOne($tmsId);
         $group->canvasSectionID = $canvasSectionId;
         $group->canvasCourseID = $canvasCourseId;
         $group->synchronizerID = Yii::$app->user->id;
+        $group->syncLevelArray = $syncLevel;
         $group->save();
 
         Yii::info(
@@ -268,9 +270,12 @@ class CanvasIntegration
             $group->save(); // Update last sync time, so in case of error the queue won't get stuck
 
             $this->saveCanvasTeachersToGroup($group);
-            $this->saveTasksToCourse($group);
             $this->saveCanvasStudentsToGroup($group);
-            $this->saveSubmissions($group);
+
+            if (in_array(Group::SYNC_LEVEL_TASKS, $group->syncLevelArray)) {
+                $this->saveTasksToCourse($group);
+                $this->saveSubmissions($group);
+            }
 
             $syncErrorMsgsString = null;
             if (count($this->syncErrorMsgs) != 0) {
