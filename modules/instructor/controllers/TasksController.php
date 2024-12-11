@@ -242,6 +242,10 @@ class TasksController extends BaseInstructorRestController
             );
         }
 
+        // Long process, increase maximum execution time
+        set_time_limit(ini_get('max_execution_time') +
+                       count($task->group->subscriptions) * 6);
+
         if (!$task->save(false)) {
             throw new ServerErrorHttpException(
                 Yii::t('app', 'Failed to save task. Message: ') . Yii::t('app', 'A database error occurred')

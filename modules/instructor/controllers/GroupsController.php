@@ -914,7 +914,17 @@ class GroupsController extends BaseInstructorRestController
         /** @var UserAddErrorResource[] */
         $failed = [];
 
+        // Create new submission for student to add to tasks in group
+        $tasks = Task::findAll(['groupID' => $group->id]);
+
+        // Long process, increase maximum execution time
+        set_time_limit(ini_get('max_execution_time') +
+                       count($userCodes) * count($tasks) * 6);
+
         foreach ($userCodes as $userCode) {
+            // Starts DB transaction
+            $transaction = \Yii::$app->db->beginTransaction();
+            $transactionSucceeded = false;
             try {
                 // First we try as an id aka already existing user.
                 $user = UserResource::findOne(['userCode' => $userCode]);
@@ -928,7 +938,6 @@ class GroupsController extends BaseInstructorRestController
                     }
                 }
 
-
                 // Add the student to the group.
                 $subscription = new Subscription(
                     [
@@ -938,8 +947,10 @@ class GroupsController extends BaseInstructorRestController
                     ]
                 );
 
-                // Create new submission for student to add to tasks in group
-                $tasks = Task::findAll(['groupID' => $group->id]);
+                if (!$subscription->save()) {
+                    throw new AddFailedException($userCode, $subscription->errors);
+                }
+
                 foreach ($tasks as $task) {
                     $submission = new Submission();
                     $submission->taskID = $task->id;
@@ -965,29 +976,31 @@ class GroupsController extends BaseInstructorRestController
                     }
                 }
 
-                if (!$subscription->save()) {
-                    throw new AddFailedException($userCode, $subscription->errors);
-                }
-
-                if (!empty($user->notificationEmail)) {
-                    $originalLanguage = Yii::$app->language;
-                    Yii::$app->language = $user->locale;
-                    $messages[] = Yii::$app->mailer->compose(
-                        'student/newGroup',
-                        [
-                            'group' => Group::findOne(['id' => $group->id]),
-                            'actor' => Yii::$app->user->identity,
-                        ]
-                    )
-                        ->setFrom(Yii::$app->params['systemEmail'])
-                        ->setTo($user->notificationEmail)
-                        ->setSubject(Yii::t('app/mail', 'Added to new group'));
-                    Yii::$app->language = $originalLanguage;
-                }
-
                 $users[] = $user;
+                $transaction->commit();
+                $transactionSucceeded = true;
             } catch (AddFailedException $e) {
                 $failed[] = new UserAddErrorResource($e->getIdentifier(), $e->getCause());
+                $transaction->rollBack();
+            } catch (Exception $e) {
+                $failed[] = new UserAddErrorResource($userCode, Yii::t('app', 'Database error'));
+                $transaction->rollBack();
+            }
+
+            if ($transactionSucceeded && !empty($user->notificationEmail)) {
+                $originalLanguage = Yii::$app->language;
+                Yii::$app->language = $user->locale;
+                $messages[] = Yii::$app->mailer->compose(
+                    'student/newGroup',
+                    [
+                        'group' => Group::findOne(['id' => $group->id]),
+                        'actor' => Yii::$app->user->identity,
+                    ]
+                )
+                    ->setFrom(Yii::$app->params['systemEmail'])
+                    ->setTo($user->notificationEmail)
+                    ->setSubject(Yii::t('app/mail', 'Added to new group'));
+                Yii::$app->language = $originalLanguage;
             }
         }
 
