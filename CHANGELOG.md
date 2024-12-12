@@ -4,6 +4,28 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.6](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.5...v4.0.0-alpha.6) (2024-12-12)
+
+### ⚠ BREAKING CHANGES
+
+* Fix typo in Notification::dismissible name ([357a73](https://gitlab.com/tms-elte/backend-core/commit/357a73e097a1e199deeca573b37370d6c015a2dc))
+
+### Features
+
+* Added notification scopes ([84fd3e](https://gitlab.com/tms-elte/backend-core/commit/84fd3e3a44f00156e6b617b335100cda8754d078))
+* Entry level password for tasks ([aeedc7](https://gitlab.com/tms-elte/backend-core/commit/aeedc7d12c8ec56e46de7f6815655843e9d62a38))
+* Late submissions should bypass upload count restrictions ([11d1e7](https://gitlab.com/tms-elte/backend-core/commit/11d1e7555c7302c3777294fce4de5eb929565ada))
+* More extensive IP address logging for exam type assignments ([c92280](https://gitlab.com/tms-elte/backend-core/commit/c92280b91fe528805a68375600467d7eb06b4f47))
+* Partial Canvas synchronization ([a941d7](https://gitlab.com/tms-elte/backend-core/commit/a941d7cebc3a5701fdc4b204f555d6ce3feae630))
+
+### Bug Fixes
+
+* Block adding students to groups multiple times ([ff3a9b](https://gitlab.com/tms-elte/backend-core/commit/ff3a9bbcdcb77244eb63a046117a062a34665183))
+* Test OS should not be configured for new tasks ([9baa7b](https://gitlab.com/tms-elte/backend-core/commit/9baa7bdced4d58dd4f0ec8410643dddcb8157b2e))
+
+
+---
+
 ## [4.0.0-alpha.5](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.4...v4.0.0-alpha.5) (2024-11-19)
 
 ### Features
