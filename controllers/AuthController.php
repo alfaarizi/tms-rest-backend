@@ -2,19 +2,21 @@
 
 namespace app\controllers;
 
+use app\models\IpAddress;
 use app\models\LdapAuth;
+use app\models\Task;
 use app\resources\LdapLoginResource;
 use app\resources\LoginResponseResource;
-use app\resources\SemesterResource;
 use Yii;
 use app\models\AccessToken;
 use app\models\MockAuth;
+use app\models\Submission;
 use app\models\User;
 use app\resources\MockLoginResource;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
-use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
 /**
@@ -99,6 +101,8 @@ class AuthController extends BaseRestController
             $accessToken = AccessToken::createForUser($user);
             $accessToken->save();
 
+            $this->logIpAddress($user);
+
             $loginResponse = new LoginResponseResource();
             $loginResponse->accessToken = $accessToken->token;
             $loginResponse->imageToken = $accessToken->imageToken;
@@ -173,6 +177,8 @@ class AuthController extends BaseRestController
         $accessToken->save();
         Yii::info("$user->name ($user->userCode) logged in", __METHOD__);
 
+        $this->logIpAddress($user);
+
         $loginResponse = new LoginResponseResource();
         $loginResponse->accessToken = $accessToken->token;
         $loginResponse->imageToken = $accessToken->imageToken;
@@ -222,5 +228,31 @@ class AuthController extends BaseRestController
         AccessToken::deleteAll(['userId' => Yii::$app->user->id]);
         $this->response->statusCode = 204;
         Yii::info("A user has logged out from all devices", __METHOD__);
+    }
+
+    private function logIpAddress(User $user)
+    {
+        $submissionIds = Submission::find()
+            ->alias('s')
+            ->joinWith('task t')
+            ->select('s.id')
+            ->where(
+                [
+                    'and',
+                    ['uploaderID' => $user->id],
+                    ['t.category' => Task::CATEGORY_TYPE_EXAMS],
+                    ['<=', 't.available', new Expression('NOW()')],
+                    ['>=', 't.hardDeadline', new Expression('NOW()')],
+                ]
+            )->column();
+
+        foreach ($submissionIds as $id) {
+            $ipAddress = new IpAddress();
+            $ipAddress->submissionId = $id;
+            $ipAddress->type = IpAddress::TYPE_LOGIN;
+            if (!$ipAddress->save()) {
+                throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
+            }
+        }
     }
 }

@@ -3,6 +3,8 @@
 namespace app\tests\api;
 
 use ApiTester;
+use app\models\IpAddress;
+use app\tests\unit\fixtures\IpAddressFixture;
 use app\tests\unit\fixtures\TaskAccessTokenFixture;
 use Yii;
 use app\models\Submission;
@@ -65,6 +67,9 @@ class SubmissionsCest
             'testresults' => [
                 'class' => TestResultFixture::class
             ],
+            'ipaddress' => [
+                'class' => IpAddressFixture::class
+            ]
         ];
     }
 
@@ -179,6 +184,14 @@ class SubmissionsCest
         $I->sendGet("/student/submissions/1/download");
         $I->seeResponseCodeIs(HttpCode::OK);
 
+        $I->seeRecord(
+            IpAddress::class,
+            [
+                "submissionId" => 1,
+                "type" => IpAddress::TYPE_SUBMISSION_DOWNLOAD
+            ]
+        );
+
         $I->openFile(Yii::getAlias("@appdata/uploadedfiles/5001/stud01/stud01.zip"));
         $I->seeFileContentsEqual($I->grabResponse());
     }
@@ -237,7 +250,7 @@ class SubmissionsCest
             [
                 "name" => "stud01_upload_test.zip",
                 "status" => Submission::STATUS_UPLOADED,
-               "translatedStatus" => "Uploaded",
+                "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -256,6 +269,14 @@ class SubmissionsCest
                 "uploadCount" => 2,
             ]
         );
+        $I->seeRecord(
+            IpAddress::class,
+            [
+                "submissionId" => 6,
+                "type" => IpAddress::TYPE_SUBMISSION_UPLOAD
+            ]
+        );
+
         $I->cantSeeFileFound("stud01.zip", Yii::getAlias("@appdata/uploadedfiles/5004/stud01/"));
         $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5004/stud01/"));
     }
@@ -288,7 +309,7 @@ class SubmissionsCest
             [
                 "name" => "stud01_upload_test.zip",
                 "status" => Submission::STATUS_UPLOADED,
-               "translatedStatus" => "Uploaded",
+                "translatedStatus" => "Uploaded",
                 "grade" => 4,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -306,6 +327,13 @@ class SubmissionsCest
                 "status" => Submission::STATUS_UPLOADED,
                 "grade" => 4,
                 "uploadCount" => 2,
+            ]
+        );
+        $I->seeRecord(
+            IpAddress::class,
+            [
+                "submissionId" => 1,
+                "type" => IpAddress::TYPE_SUBMISSION_UPLOAD
             ]
         );
         $I->cantSeeFileFound("stud01.zip", Yii::getAlias("@appdata/uploadedfiles/5001/stud01/"));
@@ -342,7 +370,7 @@ class SubmissionsCest
             [
                 "name" => "stud01_upload_test.zip",
                 "status" => Submission::STATUS_UPLOADED,
-               "translatedStatus" => "Uploaded",
+                "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -377,7 +405,7 @@ class SubmissionsCest
             [
                 "name" => "stud01_upload_test.zip",
                 "status" => Submission::STATUS_UPLOADED,
-               "translatedStatus" => "Uploaded",
+                "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -437,7 +465,6 @@ class SubmissionsCest
 
     public function uploadToEntryPasswordProtectedTaskUnauthorized(ApiTester $I)
     {
-
         $I->amBearerAuthenticated("STUD02;VALID");
         $I->sendPost(
             "/student/submissions/upload",
@@ -463,7 +490,7 @@ class SubmissionsCest
             [
                 "name" => "stud01_upload_test.zip",
                 "status" => Submission::STATUS_UPLOADED,
-               "translatedStatus" => "Uploaded",
+                "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -484,6 +511,13 @@ class SubmissionsCest
                 "verified" => false,
             ]
         );
+        $I->seeRecord(
+            IpAddress::class,
+            [
+                "submissionId" => 12,
+                "type" => IpAddress::TYPE_SUBMISSION_UPLOAD
+            ]
+        );
         $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5011/stud01/"));
     }
 
@@ -501,7 +535,7 @@ class SubmissionsCest
             [
                 "name" => "stud01_upload_test.zip",
                 "status" => Submission::STATUS_UPLOADED,
-               "translatedStatus" => "Uploaded",
+                "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -520,6 +554,13 @@ class SubmissionsCest
                 "status" => Submission::STATUS_UPLOADED,
                 "uploadCount" => 2,
                 "verified" => false,
+            ]
+        );
+        $I->seeRecord(
+            IpAddress::class,
+            [
+                "submissionId" => 13,
+                "type" => IpAddress::TYPE_SUBMISSION_UPLOAD
             ]
         );
         $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5012/stud01/"));
@@ -543,7 +584,7 @@ class SubmissionsCest
                 "id" => 12,
                 "name" => "stud01.zip",
                 "status" => Submission::STATUS_UPLOADED,
-               "translatedStatus" => "Uploaded",
+                "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -658,7 +699,7 @@ class SubmissionsCest
                 "id" => 15,
                 "name" => "stud01.zip",
                 "status" => Submission::STATUS_UPLOADED,
-               "translatedStatus" => "Uploaded",
+                "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,
@@ -709,7 +750,7 @@ class SubmissionsCest
                 "id" => 16,
                 "name" => "stud01.zip",
                 "status" => Submission::STATUS_UPLOADED,
-               "translatedStatus" => "Uploaded",
+                "translatedStatus" => "Uploaded",
                 "grade" => null,
                 "notes" => "",
                 "isVersionControlled" => 0,

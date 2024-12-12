@@ -163,18 +163,4 @@ class SubmissionResource extends Submission
     {
         return $this->hasOne(CodeCheckerResultResource::class, ['id' => 'codeCheckerResultID']);
     }
-
-
-    /**
-     * @return array
-     */
-    public function getIpAddresses(): array
-    {
-        $adresses = IpAddress::find()
-            ->select('ipAddress')
-            ->where(['submissionID' => $this->id])
-            ->distinct()
-            ->all();
-        return ArrayHelper::getColumn($adresses, 'ipAddress');
-    }
 }
