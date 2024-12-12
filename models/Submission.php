@@ -8,6 +8,8 @@ use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
 use app\models\queries\SubmissionQuery;
 use Yii;
+use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 use yii\helpers\StringHelper;
 
 /**
@@ -404,11 +406,53 @@ class Submission extends File implements IOpenApiFieldTypes
     }
 
     /**
-     * Lists unique upload ip addresses for the current file from the log messages
-     * @return array
+     * Lists unique upload IP addresses for the current submission
+     *
+     * For newer submissions, IP address are fetched from the IpAddress records.
+     * In case of Exam category tasks, all IP addresses used for login, upload and download (any submission) is returned.
+     *
+     * For older submissions, submission upload IP address are fetched from the log messages.
      */
     public function getIpAddresses(): array
     {
+        // Not submitted solutions should not have IP addresses
+        if ($this->status == self::STATUS_NO_SUBMISSION) {
+            return [];
+        }
+
+        // Expect entries in the IpAddress table
+        $selfActivities = IpAddress::find()
+            ->select('ipAddress')
+            ->where(['submissionID' => $this->id]);
+
+        if ($this->task->category == Task::CATEGORY_TYPE_EXAMS) {
+            $otherActivities = IpAddress::find()
+                ->alias('ip')
+                ->select('ipAddress')
+                ->joinWith('submission s')
+                ->joinWith('submission.task t')
+                ->where(
+                    [
+                        'and',
+                        ['s.uploaderID' => $this->uploaderID],
+                        ['or',
+                            ['t.available' => null],
+                            ['<=', 't.available', new Expression('`ip`.`logTime`')],
+                        ],
+                        ['>=', 't.hardDeadline', new Expression('`ip`.`logTime`')],
+                    ]
+                );
+
+            $addresses = $selfActivities->union($otherActivities)->distinct()->all();
+        } else {
+            $addresses = $selfActivities->distinct()->all();
+        }
+
+        if (count($addresses) > 0) {
+            return ArrayHelper::getColumn($addresses, 'ipAddress');
+        }
+
+        // Fallback: check the logs for upload IP addresses
         $logs = Log::find()
             ->select(['prefix'])
             ->andWhere(['category' => 'app\modules\student\controllers\SubmissionsController::saveFile'])

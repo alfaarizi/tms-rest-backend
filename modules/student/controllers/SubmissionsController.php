@@ -90,6 +90,7 @@ class SubmissionsController extends BaseSubmissionsController
      * Download a student file
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
      *
      * @OA\Get(
      *     path="/student/submissions/{id}/download",
@@ -123,6 +124,8 @@ class SubmissionsController extends BaseSubmissionsController
 
         PermissionHelpers::isItMySubmission($file);
         PermissionHelpers::checkIfTaskUnlocked($file->task);
+
+        $this->logIpAddress($file, IpAddress::TYPE_SUBMISSION_DOWNLOAD);
 
         Yii::$app->response->sendFile($file->path, basename($file->path));
     }
@@ -244,9 +247,9 @@ class SubmissionsController extends BaseSubmissionsController
         }
 
         // Verify that the task is open for submissions or the student has a special late submission permission.
-        if (strtotime($task->hardDeadline) < time() && (is_null(
-                    $prevSubmission
-                ) || $prevSubmission->status !== Submission::STATUS_LATE_SUBMISSION)) {
+        if (strtotime($task->hardDeadline) < time() &&
+            (is_null($prevSubmission) || $prevSubmission->status !== Submission::STATUS_LATE_SUBMISSION))
+        {
             throw new BadRequestHttpException(Yii::t('app', 'The hard deadline of the solution has passed!'));
         }
 
@@ -268,7 +271,12 @@ class SubmissionsController extends BaseSubmissionsController
      * @throws ServerErrorHttpException
      * @throws \CzProject\GitPhp\GitException
      */
-    private function saveFile(SubmissionResource $prevSubmission, UploadedFile $newFile, int $taskID, bool $versionControlled): SubmissionResource
+    private function saveFile(
+        SubmissionResource $prevSubmission,
+        UploadedFile $newFile,
+        int $taskID,
+        bool $versionControlled
+    ): SubmissionResource
     {
         /** @var User $user */
         $user = Yii::$app->user->identity;
@@ -320,11 +328,10 @@ class SubmissionsController extends BaseSubmissionsController
                 "{$submission->task->name} ($taskID)",
                 __METHOD__
             );
-            $ipAddress = new IpAddress();
-            $ipAddress->submissionId = $submission->id;
-            $ipAddress->ipAddress = $this->request->userIP;
-            if(!$ipAddress->save()) throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
-            if($versionControlled) {
+
+            $this->logIpAddress($submission, IpAddress::TYPE_SUBMISSION_UPLOAD);
+
+            if ($versionControlled) {
                 GitManager::afterStatusUpdate($submission);
             }
             return $submission;
@@ -359,7 +366,6 @@ class SubmissionsController extends BaseSubmissionsController
      *    @OA\Response(response=422, ref="#/components/responses/422"),
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * )
-
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
@@ -417,7 +423,10 @@ class SubmissionsController extends BaseSubmissionsController
 
         $file->verified = true;
         if ($file->save()) {
-            Yii::info("A student file (#$file->id) has been verified. Upload IP addresses: $uploadAddressesStringList.", __METHOD__);
+            Yii::info(
+                "A submission (#$file->id) has been verified. Upload IP addresses: $uploadAddressesStringList.",
+                __METHOD__
+            );
             return $file;
         } else {
             throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
@@ -477,5 +486,22 @@ class SubmissionsController extends BaseSubmissionsController
                 $result->safeErrorMsg,
             );
         }, $results);
+    }
+
+    /**
+     * Logs an IP address into table `ip_addresses`
+     * @param Submission $submission the file being interacted with
+     * @param string $type type of interaction (possible values in IpAddress::TYPE_VALUES)
+     * @return void
+     * @throws ServerErrorHttpException
+     */
+    private function logIpAddress(Submission $submission, string $type): void
+    {
+        $ipAddress = new IpAddress();
+        $ipAddress->submissionId = $submission->id;
+        $ipAddress->type = $type;
+        if (!$ipAddress->save()) {
+            throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
+        }
     }
 }
