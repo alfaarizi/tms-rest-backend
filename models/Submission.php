@@ -423,7 +423,7 @@ class Submission extends File implements IOpenApiFieldTypes
         // Expect entries in the IpAddress table
         $selfActivities = IpAddress::find()
             ->select('ipAddress')
-            ->where(['submissionID' => $this->id]);
+            ->where(['submissionId' => $this->id]);
 
         if ($this->task->category == Task::CATEGORY_TYPE_EXAMS) {
             $otherActivities = IpAddress::find()
