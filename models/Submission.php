@@ -440,7 +440,9 @@ class Submission extends File implements IOpenApiFieldTypes
             return [];
         }
 
-        return $this->fetchIpAddresses()->all();
+        $addresses = $this->fetchIpAddresses()->all();
+        usort($addresses, fn(IpAddress $a, IpAddress $b) => $a->logTime <=> $b->logTime);
+        return $addresses;
     }
 
     /**
@@ -454,7 +456,8 @@ class Submission extends File implements IOpenApiFieldTypes
     {
         // IP entries for this submission
         $selfActivities = IpAddress::find()
-            ->where(['submissionID' => $this->id]);
+            ->where(['submissionID' => $this->id])
+            ->orderBy('logTime');
 
         if ($this->task->category != Task::CATEGORY_TYPE_EXAMS) {
             return $selfActivities;
@@ -464,24 +467,22 @@ class Submission extends File implements IOpenApiFieldTypes
         $otherActivities = IpAddress::find()
             ->alias('ip')
             ->joinWith('submission s')
-            ->joinWith('submission.task t')
-            ->where(
-                [
-                    'and',
-                    ['s.uploaderID' => $this->uploaderID],
-                    ['or',
-                        ['t.available' => null],
-                        ['<=', 't.available', new Expression('`ip`.`logTime`')],
-                    ],
-                    ['>=', 't.hardDeadline', new Expression('`ip`.`logTime`')],
-                ]
-            )->andWhere(
+            ->where(['s.uploaderID' => $this->uploaderID])
+            ->andWhere(['<=', 'ip.logTime', $this->task->hardDeadline]);
+
+        if ($this->task->available) {
+            $otherActivities = $otherActivities->andWhere(['>=', 'ip.logTime', $this->task->available]);
+        }
+
+        $otherActivities = $otherActivities
+            ->andWhere(
                 [
                     'or',
                     ['not', ['ip.activity' => 'Login']],
                     ['ip.submissionID' => $this->id],
                 ]
-            )->orderBy('logTime');
+            )
+            ->orderBy('logTime');
 
         return $selfActivities->union($otherActivities);
     }
