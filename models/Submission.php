@@ -481,7 +481,7 @@ class Submission extends File implements IOpenApiFieldTypes
                     ['not', ['ip.activity' => 'Login']],
                     ['ip.submissionID' => $this->id],
                 ]
-            );
+            )->orderBy('logTime');
 
         return $selfActivities->union($otherActivities);
     }
