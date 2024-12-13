@@ -200,7 +200,7 @@ class TasksController extends BaseSubmissionsController
 
         PermissionHelpers::isItMyTask($task->id);
 
-        if($task->entryPassword !== $unlockTaskResource->password) {
+        if ($task->entryPassword !== $unlockTaskResource->password) {
             $unlockTaskResource->addError('password', Yii::t('app', 'Invalid password'));
         }
 
@@ -221,6 +221,11 @@ class TasksController extends BaseSubmissionsController
         if (!$taskAccessToken->save(false)) {
             throw new ServerErrorHttpException(
                 Yii::t('app', 'Failed to save access token. Message: ') . Yii::t('app', 'A database error occurred')
+            );
+        } else {
+            Yii::info(
+                "Task has been unlocked: {$task->name} ($task->id)",
+                __METHOD__
             );
         }
 
