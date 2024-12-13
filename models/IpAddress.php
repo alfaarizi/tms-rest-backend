@@ -2,29 +2,33 @@
 
 namespace app\models;
 
+use app\components\openapi\generators\OAList;
+use app\components\openapi\generators\OAProperty;
+use app\components\openapi\IOpenApiFieldTypes;
 use Yii;
 
 /**
- * This is the model class for table "ip_address".
+ * This is the model class for table "ip_addresses".
  *
  * @property integer $id
- * @property integer $submissionId
- * @property string $type
+ * @property integer $submissionID
+ * @property string $activity
+ * @property string $translatedActivity
  * @property string $logTime
  * @property string $ipAddress
  *
  * @property-read Submission $submission
  */
-class IpAddress extends \yii\db\ActiveRecord
+class IpAddress extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
-    public const TYPE_LOGIN = 'Login';
-    public const TYPE_SUBMISSION_UPLOAD = 'Submission upload';
-    public const TYPE_SUBMISSION_DOWNLOAD = 'Submission download';
+    public const ACTIVITY_LOGIN = 'Login';
+    public const ACTIVITY_SUBMISSION_UPLOAD = 'Submission upload';
+    public const ACTIVITY_SUBMISSION_DOWNLOAD = 'Submission download';
 
-    const TYPE_VALUES = [
-        self::TYPE_LOGIN,
-        self::TYPE_SUBMISSION_UPLOAD,
-        self::TYPE_SUBMISSION_DOWNLOAD
+    const ACTIVITY_VALUES = [
+        self::ACTIVITY_LOGIN,
+        self::ACTIVITY_SUBMISSION_UPLOAD,
+        self::ACTIVITY_SUBMISSION_DOWNLOAD
     ];
 
     /**
@@ -32,16 +36,15 @@ class IpAddress extends \yii\db\ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%ip_address}}';
+        return '{{%ip_addresses}}';
     }
 
     public function rules(): array
     {
         return [
-            [['type', 'submissionId', 'ipAddress', 'logTime'], 'required'],
-            [['id'], 'unique'],
-            [['id', 'submissionId'], 'integer'],
-            [['type', 'ipAddress'], 'string'],
+            [['activity', 'submissionID', 'ipAddress', 'logTime'], 'required'],
+            [['submissionID'], 'integer'],
+            [['activity', 'ipAddress'], 'string'],
             [['ipAddress'], 'ip',]
         ];
     }
@@ -50,10 +53,23 @@ class IpAddress extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('app', 'ID'),
-            'submissionId' => Yii::t('app', 'Submission ID'),
-            'type' => Yii::t('app', 'Type'),
+            'submissionID' => Yii::t('app', 'Submission ID'),
+            'activity' => Yii::t('app', 'Activity'),
+            'translatedActivity' => Yii::t('app', 'Activity'),
             'logTime' => Yii::t('app', 'Log time'),
             'ipAddress' => Yii::t('app', 'IP Address'),
+        ];
+    }
+
+    public function fieldTypes(): array
+    {
+        return [
+            'id' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'submissionID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'activity' => new OAProperty(['type' => 'string', 'enum' => new OAList(self::ACTIVITY_VALUES)]),
+            'translatedActivity' => new OAProperty(['type' => 'string']),
+            'logTime' => new OAProperty(['type' => 'string']),
+            'ipAddress' => new OAProperty(['type' => 'string'])
         ];
     }
 
@@ -61,11 +77,18 @@ class IpAddress extends \yii\db\ActiveRecord
     {
         parent::__construct($config);
         $this->logTime = date('Y-m-d H:i:s');
-        $this->ipAddress = Yii::$app->request->userIP;
+        if (isset(Yii::$app->request->userIP)) {
+            $this->ipAddress = Yii::$app->request->userIP;
+        }
+    }
+
+    public function getTranslatedActivity(): string
+    {
+        return Yii::t('app', $this->activity);
     }
 
     public function getSubmission(): \yii\db\ActiveQuery
     {
-        return $this->hasOne(Submission::class, ['id' => 'submissionId']);
+        return $this->hasOne(Submission::class, ['id' => 'submissionID']);
     }
 }

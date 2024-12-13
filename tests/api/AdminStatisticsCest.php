@@ -68,7 +68,7 @@ class AdminStatisticsCest
             [
                 'groupsCount' => 11,
                 'tasksCount' => 21,
-                'submissionsCount' => 22,
+                'submissionsCount' => 23,
                 'testedSubmissionCount' => 9,
                 'submissionsUnderTestingCount' => 1,
                 'submissionsToBeTested' => 1,
@@ -87,7 +87,7 @@ class AdminStatisticsCest
             [
                 'groupsCount' => 11,
                 'tasksCount' => 21,
-                'submissionsCount' => 22,
+                'submissionsCount' => 23,
                 'testedSubmissionCount' => 9,
                 'submissionsUnderTestingCount' => 1,
                 'submissionsToBeTested' => 1,
@@ -105,7 +105,7 @@ class AdminStatisticsCest
             [
                 'groupsCount' => 8,
                 'tasksCount' => 20,
-                'submissionsCount' => 21,
+                'submissionsCount' => 22,
                 'testedSubmissionCount' => 9,
             ]
         );

@@ -125,7 +125,7 @@ class SubmissionsController extends BaseSubmissionsController
         PermissionHelpers::isItMySubmission($file);
         PermissionHelpers::checkIfTaskUnlocked($file->task);
 
-        $this->logIpAddress($file, IpAddress::TYPE_SUBMISSION_DOWNLOAD);
+        $this->logIpAddress($file, IpAddress::ACTIVITY_SUBMISSION_DOWNLOAD);
 
         Yii::$app->response->sendFile($file->path, basename($file->path));
     }
@@ -329,7 +329,7 @@ class SubmissionsController extends BaseSubmissionsController
                 __METHOD__
             );
 
-            $this->logIpAddress($submission, IpAddress::TYPE_SUBMISSION_UPLOAD);
+            $this->logIpAddress($submission, IpAddress::ACTIVITY_SUBMISSION_UPLOAD);
 
             if ($versionControlled) {
                 GitManager::afterStatusUpdate($submission);
@@ -491,15 +491,15 @@ class SubmissionsController extends BaseSubmissionsController
     /**
      * Logs an IP address into table `ip_addresses`
      * @param Submission $submission the file being interacted with
-     * @param string $type type of interaction (possible values in IpAddress::TYPE_VALUES)
+     * @param string $activity type of interaction (possible values in IpAddress::ACTIVITY_VALUES)
      * @return void
      * @throws ServerErrorHttpException
      */
-    private function logIpAddress(Submission $submission, string $type): void
+    private function logIpAddress(Submission $submission, string $activity): void
     {
         $ipAddress = new IpAddress();
-        $ipAddress->submissionId = $submission->id;
-        $ipAddress->type = $type;
+        $ipAddress->submissionID = $submission->id;
+        $ipAddress->activity = $activity;
         if (!$ipAddress->save()) {
             throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
         }

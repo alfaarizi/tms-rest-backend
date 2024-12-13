@@ -7,10 +7,12 @@ use app\components\CodeCompass;
 use app\components\CodeCompassHelper;
 use app\components\GitManager;
 use app\models\CodeCompassInstance;
+use app\models\IpAddress;
 use app\models\Submission;
 use app\models\User;
 use app\modules\instructor\resources\CodeCompassInstanceResource;
 use app\modules\instructor\resources\GroupResource;
+use app\modules\instructor\resources\IpAddressResource;
 use app\resources\AutoTesterResultResource;
 use app\resources\SemesterResource;
 use Yii;
@@ -951,5 +953,55 @@ class SubmissionsController extends BaseInstructorRestController
                 $result->errorMsg
             );
         }, $results);
+    }
+
+    /**
+     * Get information about used IP addresses
+     * @return IpAddressResource[]
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/submissions/{id}/ip-addresses",
+     *     operationId="instructor::SubmissionsController::actionIpAddresses",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the submission",
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_IpAddressResource_Read"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionIpAddresses(int $id): array
+    {
+        $submission = Submission::findOne($id);
+
+        if (is_null($submission)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Submission not found'));
+        }
+
+        // Authorization check
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $submission->task->groupID])) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
+        }
+
+        $ipAddresses = array_map(function($ipAddress): IpAddressResource {
+            return new IpAddressResource($ipAddress);
+        }, $submission->detailedIpAddresses);
+        return $ipAddresses;
     }
 }

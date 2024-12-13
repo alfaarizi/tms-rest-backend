@@ -3,7 +3,7 @@
 namespace app\tests\unit;
 
 use app\models\Submission;
-use app\tests\unit\fixtures\LogFixture;
+use app\tests\unit\fixtures\IpAddressFixture;
 use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskFixture;
 
@@ -25,11 +25,11 @@ class SubmissionsTest extends \Codeception\Test\Unit
             'tasks' => [
                 'class' => TaskFixture::class,
             ],
-            'submission' => [
+            'submissions' => [
                 'class' => SubmissionsFixture::class,
             ],
-            'logs' => [
-                'class' => LogFixture::class,
+            'ipaddress' => [
+                'class' => IpAddressFixture::class,
             ],
         ];
     }
