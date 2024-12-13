@@ -35,7 +35,8 @@ use yii\helpers\StringHelper;
  * @property boolean $verified
  * @property integer|null $codeCheckerResultID
  * @property-read string $containerName
- * @property-read array $ipAddresses
+ * @property-read IpAddress[] $ipAddresses
+ * @property-read string[] $detailedIpAddresses
  * @property-read string $safeErrorMsg
  *
  * @property Task $task
@@ -406,12 +407,12 @@ class Submission extends File implements IOpenApiFieldTypes
     }
 
     /**
-     * Lists unique upload IP addresses for the current submission
+     * Lists used and unique IP addresses for the current submission.
      *
-     * For newer submissions, IP address are fetched from the IpAddress records.
-     * In case of Exam category tasks, all IP addresses used for login, upload and download (any submission) is returned.
-     *
-     * For older submissions, submission upload IP address are fetched from the log messages.
+     * For NOT Exam category tasks, only IP addresses used to upload this submission are listed.
+     * In case of Exam category tasks, all IP addresses used for login, upload and download (any submission)
+     * are returned in the timeframe of the exam.
+     * @return array String array of IP addresses.
      */
     public function getIpAddresses(): array
     {
@@ -420,53 +421,63 @@ class Submission extends File implements IOpenApiFieldTypes
             return [];
         }
 
-        // Expect entries in the IpAddress table
+        $addresses = $this->fetchIpAddresses()->all();
+        return array_values(array_unique(ArrayHelper::getColumn($addresses, 'ipAddress')));
+    }
+
+    /**
+     * Lists used IP addresses for the current submission
+     *
+     * For NOT Exam category tasks, only IP addresses used to upload this submission are listed.
+     * In case of Exam category tasks, all IP addresses used for login, upload and download (any submission)
+     * are returned in the timeframe of the exam.
+     * @return array|IpAddress[] Array of IP addresses structures.
+     */
+    public function getDetailedIpAddresses(): array
+    {
+        // Not submitted solutions should not have IP addresses
+        if ($this->status == self::STATUS_NO_SUBMISSION) {
+            return [];
+        }
+
+        return $this->fetchIpAddresses()->all();
+    }
+
+    /**
+     * Lists used IP addresses for the current submission as a query.
+     *
+     * For NOT Exam category tasks, only IP addresses used to upload this submission are listed.
+     * In case of Exam category tasks, all IP addresses used for login, upload and download (any submission)
+     * are returned in the timeframe of the exam.
+     */
+    private function fetchIpAddresses(): \yii\db\ActiveQuery
+    {
+        // IP entries for this submission
         $selfActivities = IpAddress::find()
-            ->select('ipAddress')
-            ->where(['submissionId' => $this->id]);
+            ->where(['submissionID' => $this->id]);
 
-        if ($this->task->category == Task::CATEGORY_TYPE_EXAMS) {
-            $otherActivities = IpAddress::find()
-                ->alias('ip')
-                ->select('ipAddress')
-                ->joinWith('submission s')
-                ->joinWith('submission.task t')
-                ->where(
-                    [
-                        'and',
-                        ['s.uploaderID' => $this->uploaderID],
-                        ['or',
-                            ['t.available' => null],
-                            ['<=', 't.available', new Expression('`ip`.`logTime`')],
-                        ],
-                        ['>=', 't.hardDeadline', new Expression('`ip`.`logTime`')],
-                    ]
-                );
-
-            $addresses = $selfActivities->union($otherActivities)->distinct()->all();
-        } else {
-            $addresses = $selfActivities->distinct()->all();
+        if ($this->task->category != Task::CATEGORY_TYPE_EXAMS) {
+            return $selfActivities;
         }
 
-        if (count($addresses) > 0) {
-            return ArrayHelper::getColumn($addresses, 'ipAddress');
-        }
+        // In case of Exam tasks, fetch IP entries for other submissions, for the current user
+        $otherActivities = IpAddress::find()
+            ->alias('ip')
+            ->joinWith('submission s')
+            ->joinWith('submission.task t')
+            ->where(
+                [
+                    'and',
+                    ['s.uploaderID' => $this->uploaderID],
+                    ['or',
+                        ['t.available' => null],
+                        ['<=', 't.available', new Expression('`ip`.`logTime`')],
+                    ],
+                    ['>=', 't.hardDeadline', new Expression('`ip`.`logTime`')],
+                ]
+            );
 
-        // Fallback: check the logs for upload IP addresses
-        $logs = Log::find()
-            ->select(['prefix'])
-            ->andWhere(['category' => 'app\modules\student\controllers\SubmissionsController::saveFile'])
-            ->andWhere(['level' => 4])
-            ->andWhere(['like', 'prefix', "({$this->uploader->userCode})"])
-            ->andWhere(['like', 'message', 'A new solution has been uploaded for%', false])
-            ->andWhere(['like', 'message', "%({$this->taskID})", false])
-            ->distinct()
-            ->all();
-
-        return array_map(function (Log $log) {
-            preg_match_all('/\[([^]]*)]/', $log->prefix, $prefixSections, PREG_SET_ORDER);
-            return $prefixSections[0][1];
-        }, $logs);
+        return $selfActivities->union($otherActivities);
     }
 
     /**

@@ -190,6 +190,7 @@ return [
     'TMS static code analyzer result: ' => 'A TMS statikus kódelemző eredménye: ',
     'No issues were found in the uploaded submission.' => 'Nem találhatóak problémák a feltölött megoldásban.',
     '{count} issue(s) were found in the uploaded submission. Visit TMS ({url}) for more information.' => '{count} hiba található a feltöltött megoldásban. Látogasson el a TMS oldalára ({url}) további információért.',
+    'Activity' => 'Aktivitás',
     'Type' => 'Típus',
     'Type userCode here' => 'userCode',
     'Unknown' => 'Ismeretlen',
@@ -239,6 +240,8 @@ return [
     'Port' => 'Port',
     'TestCase ID' => 'Teszteset azonosítója',
     'Submission ID' => 'Beküldés azonosítója',
+    'Submission upload' => 'Megoldás feltöltése',
+    'Submission download' => 'Megoldás letöltése',
 
     "Task not found." => "A feladat nem található.",
     "Group not found." => "A csoport nem található.",

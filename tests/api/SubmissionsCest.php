@@ -187,8 +187,8 @@ class SubmissionsCest
         $I->seeRecord(
             IpAddress::class,
             [
-                "submissionId" => 1,
-                "type" => IpAddress::TYPE_SUBMISSION_DOWNLOAD
+                "submissionID" => 1,
+                "activity" => IpAddress::ACTIVITY_SUBMISSION_DOWNLOAD
             ]
         );
 
@@ -272,8 +272,8 @@ class SubmissionsCest
         $I->seeRecord(
             IpAddress::class,
             [
-                "submissionId" => 6,
-                "type" => IpAddress::TYPE_SUBMISSION_UPLOAD
+                "submissionID" => 6,
+                "activity" => IpAddress::ACTIVITY_SUBMISSION_UPLOAD
             ]
         );
 
@@ -332,8 +332,8 @@ class SubmissionsCest
         $I->seeRecord(
             IpAddress::class,
             [
-                "submissionId" => 1,
-                "type" => IpAddress::TYPE_SUBMISSION_UPLOAD
+                "submissionID" => 1,
+                "activity" => IpAddress::ACTIVITY_SUBMISSION_UPLOAD
             ]
         );
         $I->cantSeeFileFound("stud01.zip", Yii::getAlias("@appdata/uploadedfiles/5001/stud01/"));
@@ -514,8 +514,8 @@ class SubmissionsCest
         $I->seeRecord(
             IpAddress::class,
             [
-                "submissionId" => 12,
-                "type" => IpAddress::TYPE_SUBMISSION_UPLOAD
+                "submissionID" => 12,
+                "activity" => IpAddress::ACTIVITY_SUBMISSION_UPLOAD
             ]
         );
         $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5011/stud01/"));
@@ -559,8 +559,8 @@ class SubmissionsCest
         $I->seeRecord(
             IpAddress::class,
             [
-                "submissionId" => 13,
-                "type" => IpAddress::TYPE_SUBMISSION_UPLOAD
+                "submissionID" => 13,
+                "activity" => IpAddress::ACTIVITY_SUBMISSION_UPLOAD
             ]
         );
         $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5012/stud01/"));
@@ -568,10 +568,11 @@ class SubmissionsCest
 
     public function verifySolution(ApiTester $I)
     {
+        $I->amBearerAuthenticated("STUD03;VALID");
         $I->sendPost(
             '/student/submissions/verify',
             [
-                'id' => 12,
+                'id' => 34,
                 'password' => 'password',
                 'disableIpCheck' => false,
             ]
@@ -581,8 +582,8 @@ class SubmissionsCest
 
         $I->seeResponseContainsJson(
             [
-                "id" => 12,
-                "name" => "stud01.zip",
+                "id" => 34,
+                "name" => "stud03.zip",
                 "status" => Submission::STATUS_UPLOADED,
                 "translatedStatus" => "Uploaded",
                 "grade" => null,
@@ -597,7 +598,7 @@ class SubmissionsCest
         $I->seeRecord(
             Submission::class,
             [
-                "id" => 12,
+                "id" => 34,
                 "status" => Submission::STATUS_UPLOADED,
                 "verified" => true,
             ]
@@ -768,6 +769,19 @@ class SubmissionsCest
                 "verified" => true,
             ]
         );
+    }
+
+    public function verifyMultipleIpAddressesBecauseExam(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/submissions/verify',
+            [
+                'id' => 12,
+                'password' => 'password',
+                'disableIpCheck' => false,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
     }
 
     public function viewTestResultsWithFullErrorMessage(ApiTester $I)

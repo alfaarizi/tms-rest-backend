@@ -248,8 +248,8 @@ class AuthController extends BaseRestController
 
         foreach ($submissionIds as $id) {
             $ipAddress = new IpAddress();
-            $ipAddress->submissionId = $id;
-            $ipAddress->type = IpAddress::TYPE_LOGIN;
+            $ipAddress->submissionID = $id;
+            $ipAddress->activity = IpAddress::ACTIVITY_LOGIN;
             if (!$ipAddress->save()) {
                 throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
             }

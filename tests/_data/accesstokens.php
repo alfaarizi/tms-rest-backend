@@ -43,4 +43,10 @@ return [
         "validUntil" => date('Y-m-d H:i:s', time() + 1200),
         "imageToken" => "TEACH5;VALID",
     ],
+    "token7" => [
+        "token" => "STUD03;VALID",
+        "userID" => 1003,
+        "validUntil" => date('Y-m-d H:i:s', time() + 1200),
+        "imageToken" => "STUD03;VALID",
+    ],
 ];

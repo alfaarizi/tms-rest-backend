@@ -123,7 +123,7 @@ return [
         'errorMsg' => null,
         'autoTesterStatus' => \app\models\Submission::AUTO_TESTER_STATUS_NOT_TESTED,
         'uploadCount' => 1,
-        'verified' => true,
+        'verified' => false,
     ],
     'file9' => [
         'id' => 9,
@@ -167,7 +167,7 @@ return [
         'uploadCount' => 1,
         'verified' => true,
     ],
-    'file12_unverified' => [
+    'file12_unverified_multiple_exam_ips' => [
         'id' => 12,
         'name' => 'stud01.zip',
         'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
@@ -494,20 +494,20 @@ return [
         'uploadCount' => 0,
         'verified' => true,
     ],
-    'file33' => [
+    'file33_unverified' => [
         'id' => 34,
-        'name' => null,
-        'uploadTime' => null,
+        'name' => 'stud03.zip',
+        'uploadTime' => date('Y-m-d H:i:s', strtotime('-3 minute')),
         'taskID' => 5011,
         'uploaderID' => 1003,
-        'status' => \app\models\Submission::STATUS_NO_SUBMISSION,
+        'status' => \app\models\Submission::STATUS_UPLOADED,
         'isVersionControlled' => 0,
         'grade' => null,
         'notes' => '',
         'errorMsg' => null,
         'autoTesterStatus' => \app\models\Submission::AUTO_TESTER_STATUS_NOT_TESTED,
-        'uploadCount' => 0,
-        'verified' => true,
+        'uploadCount' => 1,
+        'verified' => false,
     ],
     'file34' => [
         'id' => 35,
