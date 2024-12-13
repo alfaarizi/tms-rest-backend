@@ -475,6 +475,12 @@ class Submission extends File implements IOpenApiFieldTypes
                     ],
                     ['>=', 't.hardDeadline', new Expression('`ip`.`logTime`')],
                 ]
+            )->andWhere(
+                [
+                    'or',
+                    ['not', ['ip.activity' => 'Login']],
+                    ['ip.submissionID' => $this->id],
+                ]
             );
 
         return $selfActivities->union($otherActivities);
