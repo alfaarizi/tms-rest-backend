@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.7](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.6...v4.0.0-alpha.7) (2024-12-13)
+
+### Features
+
+* Added endpoint for detailed IP logs of submissions ([5d3940](https://gitlab.com/tms-elte/backend-core/commit/5d3940a4cfd8d70823869d93b2c50b9028fe2b03))
+
+
+---
+
 ## [4.0.0-alpha.6](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.5...v4.0.0-alpha.6) (2024-12-12)
 
 ### ⚠ BREAKING CHANGES
