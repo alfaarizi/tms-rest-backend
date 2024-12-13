@@ -4,6 +4,16 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.8](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.7...v4.0.0-alpha.8) (2024-12-13)
+
+### Bug Fixes
+
+* Apply timestamp based ordering of the returned IP log records ([bf4a04](https://gitlab.com/tms-elte/backend-core/commit/bf4a04f70dbe81326f1cdeb01116d60581e06881))
+* Do not display login activity records for other submissions in the IP log ([2bae87](https://gitlab.com/tms-elte/backend-core/commit/2bae87a2927faa993bdbeea1d90506271ffc5fe6))
+
+
+---
+
 ## [4.0.0-alpha.7](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.6...v4.0.0-alpha.7) (2024-12-13)
 
 ### Features
