@@ -323,4 +323,12 @@ class Group extends ActiveRecord implements IOpenApiFieldTypes
             ? rtrim($canvasParams['url'], '/') . '/courses/' . $this->canvasCourseID
             : null;
     }
+
+    public function groupHasAnySubmission(): bool
+    {
+        return $this->getTasks()
+            ->joinWith('submissions s')
+            ->andWhere(['>', 's.uploadCount', 0])
+            ->exists();
+    }
 }

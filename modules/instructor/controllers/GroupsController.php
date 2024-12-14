@@ -183,7 +183,7 @@ class GroupsController extends BaseInstructorRestController
         $group = GroupResource::findOne($id);
 
         if (is_null($group)) {
-            throw new NotFoundHttpException(Yii::t('app','Group not found.'));
+            throw new NotFoundHttpException(Yii::t('app', 'Group not found.'));
         }
 
         // Authorization check
@@ -312,23 +312,45 @@ class GroupsController extends BaseInstructorRestController
             );
         }
 
+        $transaction = Yii::$app->db->beginTransaction();
         // Try to delete the entry.
         try {
+            // Check if there are any submissions
+            if (!$group->groupHasAnySubmission()) {
+                foreach ($group->tasks as $task) {
+                    $allTaskFile = $task->getTaskFiles()->all();
+                    foreach ($allTaskFile as $taskFile) {
+                        $taskFile->delete();
+                    }
+                    foreach ($task->submissions as $submission) {
+                        $submission->delete();
+                    }
+                    $task->delete();
+                }
+            }
+
             if ($group->delete()) {
                 // Returns empty page with status code 204
                 $this->response->statusCode = 204;
+
+                $transaction->commit();
                 return;
             } else {
+                $transaction->rollBack();
                 throw new ServerErrorHttpException(
                     Yii::t('app', 'Failed to remove group. Message: ')
-                    . Yii::t('app', 'A database error occurred'));
+                    . Yii::t('app', 'A database error occurred')
+                );
             }
         } catch (\yii\db\IntegrityException $e) {
+            $transaction->rollBack();
             throw new ConflictHttpException(Yii::t('app', 'Failed to remove group. First you should remove the corresponding tasks!'));
         } catch (ErrorException $e) {
+            $transaction->rollBack();
             throw new ServerErrorHttpException(
                 Yii::t('app', 'Failed to remove group. Message: ')
-                . Yii::t('app', 'A database error occurred'));
+                . Yii::t('app', 'A database error occurred')
+            );
         }
     }
 
@@ -398,7 +420,8 @@ class GroupsController extends BaseInstructorRestController
         } else {
             throw new ServerErrorHttpException(
                 Yii::t('app', 'Failed to update group. Message: ')
-                . Yii::t('app', 'A database error occurred'));
+                . Yii::t('app', 'A database error occurred')
+            );
         }
     }
 
@@ -1060,11 +1083,12 @@ class GroupsController extends BaseInstructorRestController
                 'groupID' => $groupID,
                 'userID' => $userID
 
-            ]);
+            ]
+        );
 
         // Check if the subscription exists
         if (is_null($subscription)) {
-            throw new NotFoundHttpException(Yii::t('app','Subscription not found for the given groupID, userID pair.'));
+            throw new NotFoundHttpException(Yii::t('app', 'Subscription not found for the given groupID, userID pair.'));
         }
 
         // Authorization check
@@ -1134,7 +1158,8 @@ class GroupsController extends BaseInstructorRestController
         } else {
             throw new ServerErrorHttpException(
                 Yii::t('app', 'Can not remove student. Message: ')
-                . Yii::t('app', 'A database error occurred'));
+                . Yii::t('app', 'A database error occurred')
+            );
         }
     }
 
@@ -1190,10 +1215,11 @@ class GroupsController extends BaseInstructorRestController
                 'groupID' => $groupID,
                 'userID' => $userID
 
-            ]);
+            ]
+        );
         // Check if the subscription exists
         if (is_null($subscription)) {
-            throw new NotFoundHttpException(Yii::t('app','Subscription not found for the given groupID, userID pair.'));
+            throw new NotFoundHttpException(Yii::t('app', 'Subscription not found for the given groupID, userID pair.'));
         }
 
         // Authorization check
@@ -1240,7 +1266,8 @@ class GroupsController extends BaseInstructorRestController
         } else {
             throw new ServerErrorHttpException(
                 Yii::t('app', 'Failed to update note on subscription. Message: ')
-                . Yii::t('app', 'A database error occurred'));
+                . Yii::t('app', 'A database error occurred')
+            );
         }
     }
 
@@ -1291,11 +1318,12 @@ class GroupsController extends BaseInstructorRestController
                 'groupID' => $groupID,
                 'userID' => $userID
 
-            ]);
+            ]
+        );
 
         // Check if the subscription exists
         if (is_null($subscription)) {
-            throw new NotFoundHttpException(Yii::t('app','Subscription not found for the given groupID, userID pair.'));
+            throw new NotFoundHttpException(Yii::t('app', 'Subscription not found for the given groupID, userID pair.'));
         }
 
         // Authorization check
@@ -1366,7 +1394,7 @@ class GroupsController extends BaseInstructorRestController
             $groupScores = [];
 
             foreach ($task->submissions as $submission) {
-                if($submission->status !== Submission::STATUS_NO_SUBMISSION) {
+                if ($submission->status !== Submission::STATUS_NO_SUBMISSION) {
                     if ($task->softDeadline != null) {
                         if ($submission->uploadTime <= $task->softDeadline) {
                             $submittedInTime += 1;
