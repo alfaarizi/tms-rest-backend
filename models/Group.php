@@ -40,6 +40,7 @@ use yii\db\ActiveRecord;
  * @property InstructorCourse[] $instructorCourses
  * @property User[] $instructors
  * @property User $synchronizer
+ * @property Notification[] $notifications
  */
 class Group extends ActiveRecord implements IOpenApiFieldTypes
 {
@@ -322,6 +323,11 @@ class Group extends ActiveRecord implements IOpenApiFieldTypes
         return ($canvasParams['enabled'] && !is_null($this->canvasCourseID))
             ? rtrim($canvasParams['url'], '/') . '/courses/' . $this->canvasCourseID
             : null;
+    }
+
+    public function getNotifications(): \yii\db\ActiveQuery
+    {
+        return $this->hasMany(Notification::class, ['groupID' => 'id']);
     }
 
     public function groupHasAnySubmission(): bool
