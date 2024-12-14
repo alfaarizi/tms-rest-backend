@@ -65,49 +65,56 @@ class NotificationsController extends BaseRestController
      */
     public function actionIndex(): ActiveDataProvider
     {
-        if (!Yii::$app->user->isGuest) {
-            /** @var \app\models\User $user */
-            $user = Yii::$app->user->identity;
-            if ($user->isAdmin) {
-                // User is an admin, find notifications with scope everyone or user
-                $query = NotificationResource::find()
-                    -> where(['in', 'scope', [Notification::SCOPE_EVERYONE, Notification::SCOPE_USER]])
-                    -> notDismissedBy($user->id)
-                    -> findAvailable();
+        if (Yii::$app->user->isGuest) {
+            // User is a guest, find notifications with scope everyone
+            $query = NotificationResource::find()
+                ->andWhere(['scope' => Notification::SCOPE_EVERYONE])
+                ->notGroupNotification()
+                ->findAvailable();
 
-                return new ActiveDataProvider([
-                    'query' => $query,
-                    'pagination' => false,
-                ]);
-            } elseif ($user->isStudent) {
-                // User is a student, find notifications with scope everyone, user or student
-                $query = NotificationResource::find()
-                    -> where(['in', 'scope', [Notification::SCOPE_EVERYONE, Notification::SCOPE_USER, Notification::SCOPE_STUDENT]])
-                    -> notDismissedBy($user->id)
-                    -> findAvailable();
-
-                return new ActiveDataProvider([
-                    'query' => $query,
-                    'pagination' => false,
-                ]);
-            } elseif ($user->isFaculty) {
-                // User is an instructor, find notifications with scope everyone, user or faculty
-                $query = NotificationResource::find()
-                    -> where(['in', 'scope', [Notification::SCOPE_EVERYONE, Notification::SCOPE_USER, Notification::SCOPE_FACULTY]])
-                    -> notDismissedBy($user->id)
-                    -> findAvailable();
-
-                return new ActiveDataProvider([
-                    'query' => $query,
-                    'pagination' => false,
-                ]);
-            }
+            return new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false,
+            ]);
         }
 
-        // User is a guest, find notifications with scope everyone
+        /** @var \app\models\User $user */
+        $user = Yii::$app->user->identity;
+
+        // Fetch notifications for logged in users
         $query = NotificationResource::find()
-            -> andWhere(['scope' => Notification::SCOPE_EVERYONE])
-            -> findAvailable();
+            ->where(['in', 'scope', [Notification::SCOPE_EVERYONE, Notification::SCOPE_USER]])
+            ->notGroupNotification()
+            ->notDismissedBy($user->id)
+            ->findAvailable();
+
+        // Fetch group notifications for user
+        $query = $query->union(
+            NotificationResource::find()
+                ->groupNotification($user->id)
+                ->notDismissedBy($user->id)
+                ->findAvailable()
+        );
+
+        if ($user->isFaculty) {
+            // User is an instructor, find notifications with scope faculty
+            $query = $query->union(
+                NotificationResource::find()
+                    ->where(['scope' => Notification::SCOPE_FACULTY])
+                    ->notDismissedBy($user->id)
+                    ->findAvailable()
+            );
+        }
+
+        if ($user->isStudent) {
+            // User is a student, find notifications with scope student
+            $query = $query->union(
+                NotificationResource::find()
+                    ->where(['scope' => Notification::SCOPE_STUDENT])
+                    ->notDismissedBy($user->id)
+                    ->findAvailable()
+            );
+        }
 
         return new ActiveDataProvider([
             'query' => $query,

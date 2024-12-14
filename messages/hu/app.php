@@ -530,13 +530,17 @@ return [
     "Start time" => "Kezdési idő",
     "End time" => "Befejezési idő",
     "Is available for all users" => "Elérhető minden felhasználó számára",
+    "Is group level notification" => "Csoport szintű értesítés",
     "Dismissible" => "Elrejthető",
     "Scope" => "Hatókör",
+    "Scope must be group level when group ID is provided." => "A hatókör csak csoport szintű lehet csoport hozzárendelése esetén.",
     "End time must be after start time" => "A befejezési időnek a kezdési idő után kell lennie",
     "The combination of  Notification ID and User ID has already been taken." => "Ez az értesítés, felhasználó kombináció már foglalt.",
     "Notification not found." => "Az értesítés nem található.",
     "Notification is not dismissible." => "Az értesítés nem elrejthető.",
     "Failed to dismiss notification." => "Az értesítés elrejtése sikertelen.",
+    "Notification is a group notification." => "Az értesítés csoport szintű.",
+    "Notification is not a group notification." => "Az értesítés nem csoport szintű.",
 
     //Web App Test
     "Web test suite" => "Web tesztek",

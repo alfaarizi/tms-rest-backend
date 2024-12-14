@@ -2,7 +2,10 @@
 
 namespace app\models\queries;
 
+use app\models\InstructorGroup;
 use app\models\NotificationUser;
+use app\models\Subscription;
+use app\models\User;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
 
@@ -26,6 +29,9 @@ class NotificationQuery extends ActiveQuery
         return parent::one($db);
     }
 
+    /**
+     * Find notifications that are not dismissible or already dismissed by user
+     */
     public function notDismissedBy(int $userID): NotificationQuery
     {
         return $this
@@ -47,5 +53,28 @@ class NotificationQuery extends ActiveQuery
                 ['>', 'endTime', new Expression('NOW()')]
             ]
         );
+    }
+
+    /**
+     * Find notifications that are not group level notifications
+     */
+    public function notGroupNotification(): NotificationQuery
+    {
+        return $this->andWhere(['groupID' => null]);
+    }
+
+    /**
+     * Find group level notifications where the user is signed up as a student or is an instructor of the group.
+     */
+    public function groupNotification(int $userID): NotificationQuery
+    {
+        return $this
+            ->andWhere(
+                [
+                    'or',
+                    ['in', 'groupID', Subscription::find()->select('groupID')->where(['userID' => $userID])],
+                    ['in', 'groupID', InstructorGroup::find()->select('groupID')->where(['userID' => $userID])],
+                ]
+            );
     }
 }

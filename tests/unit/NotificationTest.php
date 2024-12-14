@@ -4,6 +4,7 @@ namespace app\tests\unit;
 
 use app\models\Notification;
 use app\models\NotificationUser;
+use app\tests\unit\fixtures\InstructorGroupFixture;
 
 class NotificationTest extends \Codeception\Test\Unit
 {
@@ -26,7 +27,13 @@ class NotificationTest extends \Codeception\Test\Unit
             ],
             'notificationusers' => [
                 'class' => \app\tests\unit\fixtures\NotificationUserFixture::class
-            ]
+            ],
+            'subscriptions' => [
+                'class' => \app\tests\unit\fixtures\SubscriptionFixture::class
+            ],
+            'instructorctorgroups' => [
+                'class' => InstructorGroupFixture::class,
+            ],
         ];
     }
 
@@ -52,6 +59,35 @@ class NotificationTest extends \Codeception\Test\Unit
         $this->tester->assertContains(4002, array_column($notifications, 'id'), "Notification with id 4002 should be fetched");
         $this->tester->assertNotContains(4001, array_column($notifications, 'id'), "Notification with id 4001 should not be fetched");
         $this->tester->assertNotContains(4003, array_column($notifications, 'id'), "Notification with id 4003 should not be fetched");
+    }
+
+    public function testNotGroupNotification()
+    {
+        $notifications = Notification::find()->notGroupNotification()->all();
+        $this->tester->assertNotEmpty($notifications, "Available notifications should be fetched");
+
+        $this->tester->assertContains(4000, array_column($notifications, 'id'), "Notification with id 4000 should be fetched");
+        $this->tester->assertContains(4003, array_column($notifications, 'id'), "Notification with id 4003 should be fetched");
+        $this->tester->assertNotContains(4006, array_column($notifications, 'id'), "Notification with id 4006 should not be fetched");
+        $this->tester->assertNotContains(4007, array_column($notifications, 'id'), "Notification with id 4007 should not be fetched");
+    }
+
+    public function testGroupNotification()
+    {
+        $notifications = Notification::find()->groupNotification(1001)->all();
+        $this->tester->assertNotEmpty($notifications, "Group notifications for student should be fetched");
+
+        $this->tester->assertContains(4006, array_column($notifications, 'id'), "Student notification with id 4006 should be fetched");
+        $this->tester->assertNotContains(4000, array_column($notifications, 'id'), "Student notification with id 4000 should not be fetched");
+        $this->tester->assertNotContains(4002, array_column($notifications, 'id'), "Student notification with id 4002 should not be fetched");
+        $this->tester->assertNotContains(4003, array_column($notifications, 'id'), "Student notification with id 4003 should not be fetched");
+
+        $notifications = Notification::find()->groupNotification(1007)->all();
+        $this->tester->assertNotEmpty($notifications, "Group notifications for instructor should be fetched");
+        $this->tester->assertContains(4006, array_column($notifications, 'id'), "Instructor notification with id 4006 should be fetched");
+        $this->tester->assertNotContains(4000, array_column($notifications, 'id'), "Instructor notification with id 4000 should not be fetched");
+        $this->tester->assertNotContains(4002, array_column($notifications, 'id'), "Instructor notification with id 4002 should not be fetched");
+        $this->tester->assertNotContains(4003, array_column($notifications, 'id'), "Instructor notification with id 4003 should not be fetched");
     }
 
     public function testValidation()

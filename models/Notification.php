@@ -13,6 +13,7 @@ use Yii;
  * This is the model class for table "notifications".
  *
  * @property integer $id
+ * @property integer $groupID
  * @property string $message
  * @property string $startTime
  * @property string $endTime
@@ -26,6 +27,7 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public const SCOPE_USER = 'user';
     public const SCOPE_STUDENT = 'student';
     public const SCOPE_FACULTY = 'faculty';
+    public const SCOPE_GROUP = 'group';
 
     // Supported scopes
     public const SCOPES = [
@@ -33,6 +35,7 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         self::SCOPE_USER,
         self::SCOPE_STUDENT,
         self::SCOPE_FACULTY,
+        self::SCOPE_GROUP,
     ];
 
     /**
@@ -60,12 +63,13 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     {
         return [
             [['message', 'startTime', 'endTime', 'scope', 'dismissible'], 'required'],
+            [['groupID'], 'integer'],
             [['message'], 'string'],
             [['scope'], 'in', 'range' => self::SCOPES],
             [['startTime', 'endTime'], 'safe'],
             [['dismissible'], 'boolean'],
             [
-                ['endTime'],
+                'endTime',
                 function ($attribute, $params, $validator) {
                     if (strtotime($this->endTime) < strtotime($this->startTime)) {
                         $validator->addError(
@@ -76,6 +80,18 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
                     }
                 }
             ],
+            [
+                'groupID',
+                function ($attribute, $params, $validator) {
+                    if (!is_null($this->groupID) && $this->scope != self::SCOPE_GROUP) {
+                        $validator->addError(
+                            $this,
+                            $attribute,
+                            Yii::t("app", "Scope must be group level when group ID is provided.")
+                        );
+                    }
+                },
+            ],
         ];
     }
 
@@ -83,6 +99,7 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     {
         return [
             'id' => Yii::t('app', 'ID'),
+            'groupID' => Yii::t('app', 'Group ID'),
             'message' => Yii::t('app', 'Message'),
             'startTime' => Yii::t('app', 'Start time'),
             'endTime' => Yii::t('app', 'End time'),
@@ -95,6 +112,7 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     {
         return [
             'id' => new OAProperty(['type' => 'integer']),
+            'groupID' => new OAProperty(['type' => 'integer']),
             'message' => new OAProperty(['type' => 'string']),
             'startTime' => new OAProperty(['type' => 'string']),
             'endTime' => new OAProperty(['type' => 'string']),
@@ -119,5 +137,10 @@ class Notification extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     {
         parent::afterFind();
         $this->dismissible = (bool)$this->dismissible;
+    }
+
+    public function getGroup(): \yii\db\ActiveQuery
+    {
+        return $this->hasOne(Group::class, ['id' => 'groupID']);
     }
 }

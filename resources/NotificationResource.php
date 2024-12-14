@@ -20,6 +20,7 @@ class NotificationResource extends Notification
             'message',
             'scope',
             'dismissible',
+            'isGroupNotification',
         ];
     }
 
@@ -29,5 +30,19 @@ class NotificationResource extends Notification
     public function extraFields(): array
     {
         return [];
+    }
+
+    public function getIsGroupNotification(): bool
+    {
+        return $this->scope == self::SCOPE_GROUP;
+    }
+
+    public function fieldTypes(): array
+    {
+        $types = parent::fieldTypes();
+
+        $types['isGroupNotification'] = new OAProperty(['type' => 'boolean']);
+
+        return $types;
     }
 }

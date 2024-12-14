@@ -49,4 +49,22 @@ return [
         'dismissible' => true,
         'scope' => \app\models\Notification::SCOPE_FACULTY,
     ],
+    'notification6' => [
+        'id' => 4006,
+        'message' => 'Test message 7.',
+        'startTime' => '2020-01-01 00:00:00',
+        'endTime' => '3023-01-02 00:00:00',
+        'dismissible' => false,
+        'scope' => \app\models\Notification::SCOPE_GROUP,
+        'groupID' => 2000,
+    ],
+    'notification7' => [
+        'id' => 4007,
+        'message' => 'Test message 8.',
+        'startTime' => '2020-01-01 00:00:00',
+        'endTime' => '3023-12-05 00:00:00',
+        'dismissible' => true,
+        'scope' => \app\models\Notification::SCOPE_GROUP,
+        'groupID' => 2007,
+    ],
 ];
