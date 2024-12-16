@@ -162,11 +162,19 @@ return [
         'message' => 'A new solution has been uploaded for Task 16 (5015)',
     ],
     'file33_upload_log1' => [
-        'id' => 22,
+        'id' => 21,
         'level' => 4,
         'category' => 'app\modules\student\controllers\SubmissionsController::saveFile',
         'log_time' => strtotime(date('Y-m-d H:i:s', strtotime('-3 minute'))),
         'prefix' => '[192.168.1.1][Student Three (stud03)]',
         'message' => 'A new solution has been uploaded for Task 12 (5011)',
+    ],
+    'file12_login_other' => [
+        'id' => 22,
+        'level' => 4,
+        'category' => 'app\controllers\AuthController::actionMockLogin',
+        'log_time' => date('Y-m-d H:i:s', strtotime('-1 minute')),
+        'prefix' => '[192.168.1.2][-]',
+        'message' => 'Student Two (stud02) logged in)',
     ],
 ];

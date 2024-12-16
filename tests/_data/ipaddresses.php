@@ -148,4 +148,11 @@ return [
         'ipAddress' => '192.168.1.1',
         'submissionID' => 34,
     ],
+    'file12_login_other' => [
+        'id' => 22,
+        'activity' => \app\models\IpAddress::ACTIVITY_LOGIN,
+        'logTime' => date('Y-m-d H:i:s', strtotime('-1 minute')),
+        'ipAddress' => '192.168.1.2',
+        'submissionID' => 12,
+    ],
 ];
