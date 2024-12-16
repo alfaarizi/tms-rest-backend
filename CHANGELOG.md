@@ -4,6 +4,20 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.9](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.8...v4.0.0-alpha.9) (2024-12-16)
+
+### Features
+
+* Introduce group level notifications ([925b35](https://gitlab.com/tms-elte/backend-core/commit/925b35f462dc3a7af1332e00406840854c328294))
+
+### Bug Fixes
+
+* Improve filtering related IP log records for exam tasks ([cfca75](https://gitlab.com/tms-elte/backend-core/commit/cfca750197bf03d4f0fd9df42cad00934dfd7231))
+* Make groups deletable with no submission ([372169](https://gitlab.com/tms-elte/backend-core/commit/372169fff76ad542e21c525d9d81e5d8afd36cba))
+
+
+---
+
 ## [4.0.0-alpha.8](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.7...v4.0.0-alpha.8) (2024-12-13)
 
 ### Bug Fixes
