@@ -459,22 +459,17 @@ class Submission extends File implements IOpenApiFieldTypes
             ->where(['submissionID' => $this->id])
             ->orderBy('logTime');
 
-        if ($this->task->category != Task::CATEGORY_TYPE_EXAMS) {
+        if ($this->task->category != Task::CATEGORY_TYPE_EXAMS || empty($this->task->available)) {
             return $selfActivities;
         }
 
-        // In case of Exam tasks, fetch IP entries for other submissions, for the current user
-        $otherActivities = IpAddress::find()
+        // In case of Exam tasks, fetch IP entries for other accessed submissions during the exam
+        $sameUserActivities = IpAddress::find()
             ->alias('ip')
             ->joinWith('submission s')
             ->where(['s.uploaderID' => $this->uploaderID])
-            ->andWhere(['<=', 'ip.logTime', $this->task->hardDeadline]);
-
-        if ($this->task->available) {
-            $otherActivities = $otherActivities->andWhere(['>=', 'ip.logTime', $this->task->available]);
-        }
-
-        $otherActivities = $otherActivities
+            ->andWhere(['>=', 'ip.logTime', $this->task->available])
+            ->andWhere(['<=', 'ip.logTime', $this->task->hardDeadline])
             ->andWhere(
                 [
                     'or',
@@ -484,7 +479,7 @@ class Submission extends File implements IOpenApiFieldTypes
             )
             ->orderBy('logTime');
 
-        return $selfActivities->union($otherActivities);
+        return $selfActivities->union($sameUserActivities);
     }
 
     /**
