@@ -3,6 +3,7 @@
 namespace app\components\plagiarism;
 
 use app\models\Plagiarism;
+use app\models\Submission;
 use Yii;
 use yii\helpers\FileHelper;
 use yii\web\BadRequestHttpException;
@@ -75,6 +76,11 @@ abstract class AbstractPlagiarismFinder
 
         // Iterate through on the tasks.
         foreach ($this->plagiarism->submissions as $submission) {
+            // Skip submissions without valid upload
+            if (in_array($submission->status, [Submission::STATUS_NO_SUBMISSION, Submission::STATUS_CORRUPTED])) {
+                continue;
+            }
+
             // Get the uploaded zip for version controlled and non version controlled tasks as well
             $zipfile = $submission->path;
 
