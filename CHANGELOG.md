@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.10](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.9...v4.0.0-alpha.10) (2024-12-23)
+
+### Bug Fixes
+
+* Do not try to extract submissions without valid upload during plagiarism check ([40c659](https://gitlab.com/tms-elte/backend-core/commit/40c659ba01fa91afc0e1643cd362efa42a30b242))
+
+
+---
+
 ## [4.0.0-alpha.9](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.8...v4.0.0-alpha.9) (2024-12-16)
 
 ### Features
