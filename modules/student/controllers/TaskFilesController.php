@@ -118,6 +118,10 @@ class TaskFilesController extends BaseSubmissionsController
             throw new ForbiddenHttpException(Yii::t('app', 'Task File not available.'));
         }
 
+        if (!$file->task->entryPasswordUnlocked) {
+            throw new ForbiddenHttpException(Yii::t('app', 'This task is password protected, unlock it with the password first!'));
+        }
+
         Yii::$app->response->sendFile($file->path, basename($file->path));
     }
 }

@@ -77,9 +77,15 @@ class TaskResource extends Task
 
     public function getTaskFiles(): ActiveQuery
     {
-        return $this->hasMany(TaskFileResource::class, ['taskID' => 'id'])
+        $query = $this->hasMany(TaskFileResource::class, ['taskID' => 'id'])
             ->andOnCondition(['not', ['name' => 'Dockerfile']])
             ->andOnCondition(['category' => TaskFileResource::CATEGORY_ATTACHMENT]);
+
+        if (!$this->entryPasswordUnlocked) {
+            $query->andWhere('0=1'); // Return no records
+        }
+
+        return $query;
     }
 
     public function getSubmissions(): ActiveQuery
