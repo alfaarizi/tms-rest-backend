@@ -47,7 +47,7 @@ class TaskResource extends Task
     public function extraFields(): array
     {
         return [
-            'submissions',
+            'submission',
             'taskFiles'
         ];
     }
@@ -59,10 +59,9 @@ class TaskResource extends Task
             [
                 'creatorName' => new OAProperty(['type' => 'string']),
                 'gitInfo' => new OAProperty(['type' => 'object']),
-                'submissions' => new OAProperty(
+                'submission' => new OAProperty(
                     [
-                        'type' => 'array',
-                        new OAItems(['ref' => '#/components/schemas/Student_SubmissionResource_Read'])
+                    'ref' => '#/components/schemas/Student_SubmissionResource_Read'
                     ]
                 ),
                 'taskFiles' => new OAProperty(
@@ -82,9 +81,9 @@ class TaskResource extends Task
             ->andOnCondition(['category' => TaskFileResource::CATEGORY_ATTACHMENT]);
     }
 
-    public function getSubmissions(): ActiveQuery
+    public function getSubmission(): ActiveQuery
     {
-        return $this->hasMany(SubmissionResource::class, ['taskID' => 'id']);
+        return $this->hasOne(SubmissionResource::class, ['taskID' => 'id']);
     }
 
     public function getCreatorName(): string
