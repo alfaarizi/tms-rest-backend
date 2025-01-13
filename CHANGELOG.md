@@ -4,6 +4,19 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.11](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.10...v4.0.0-alpha.11) (2025-01-13)
+
+### ⚠ BREAKING CHANGES
+
+* TaskResource for students should only contain one submission ([e322d2](https://gitlab.com/tms-elte/backend-core/commit/e322d265ac70028a6f9cc274d1809bad4737c2f9))
+
+### Bug Fixes
+
+* Restrict task file download for unlocked tasks ([65f8a3](https://gitlab.com/tms-elte/backend-core/commit/65f8a306fda0860fdd413ae22f33e86bd869dad5))
+
+
+---
+
 ## [4.0.0-alpha.10](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.9...v4.0.0-alpha.10) (2024-12-23)
 
 ### Bug Fixes
