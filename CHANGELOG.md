@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.12](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.11...v4.0.0-alpha.12) (2025-01-16)
+
+### Bug Fixes
+
+* Task resources could include incorrect submissions ([e6a07f](https://gitlab.com/tms-elte/backend-core/commit/e6a07fbb5dc1c63cbb8cc1cd336ae98f19f4878e))
+
+
+---
+
 ## [4.0.0-alpha.11](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.10...v4.0.0-alpha.11) (2025-01-13)
 
 ### ⚠ BREAKING CHANGES
