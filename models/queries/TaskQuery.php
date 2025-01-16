@@ -40,11 +40,11 @@ class TaskQuery extends ActiveQuery
      * @param int $userID
      * @return TaskQuery
      */
-    public function withSubmissionsForUser(int $userID): TaskQuery
+    public function withSubmissionForUser(int $userID): TaskQuery
     {
         return $this->joinWith(
             [
-                'submissions' => function (ActiveQuery $query) use ($userID) {
+                'submission' => function (ActiveQuery $query) use ($userID) {
                     $query->andOnCondition(['uploaderID' => $userID]);
                 }
             ],

@@ -82,7 +82,7 @@ class TasksController extends BaseSubmissionsController
         $dataProviders = [];
         foreach ($categories as $category) {
             $query = TaskResource::find()
-                ->withSubmissionsForUser(Yii::$app->user->id)
+                ->withSubmissionForUser(Yii::$app->user->id)
                 ->where(['groupID' => $groupID])
                 ->andWhere(['category' => $category])
                 ->findAvailable();
@@ -129,7 +129,7 @@ class TasksController extends BaseSubmissionsController
     public function actionView(int $id): TaskResource
     {
         $task = TaskResource::find()
-            ->withSubmissionsForUser(Yii::$app->user->id)
+            ->withSubmissionForUser(Yii::$app->user->id)
             ->where(['{{%tasks}}.id' => $id])
             ->one();
 
