@@ -511,7 +511,9 @@ class Submission extends File implements IOpenApiFieldTypes
                     ? $this->errorMsg
                     : Yii::t('app', 'Your solution failed the tests');
             case self::AUTO_TESTER_STATUS_PASSED:
-                return Yii::t('app', 'Your solution passed the tests');
+                return $this->task->showFullErrorMsg
+                    ? $this->errorMsg
+                    : Yii::t('app', 'Your solution passed the tests');
             case self::AUTO_TESTER_STATUS_IN_PROGRESS:
                 return Yii::t('app', 'Your solution is being tested');
             default:

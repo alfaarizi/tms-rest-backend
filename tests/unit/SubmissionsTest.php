@@ -87,12 +87,90 @@ class SubmissionsTest extends \Codeception\Test\Unit
     }
 
     /**
-     * Tests getSafeErrorMsg getter: showFullErrorMsg is enabled for the given task
-     * @return void
+     * Tests the getSafeErrorMsg getter for different autoTesterStatus values
      */
-    public function testSafeErrorMsgShowFullEnabled()
+    public function testSafeErrorMsgWhenAutoTesterStatusIsNotTested()
     {
-        $file = new Submission([
+        $file = $this->createFile();
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
+        $this->assertNull($file->safeErrorMsg);
+    }
+
+    public function testSafeErrorMsgWhenAutoTesterStatusIsLegacyFailed()
+    {
+        $file = $this->createFile();
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_LEGACY_FAILED;
+        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
+    }
+
+    public function testSafeErrorMsgWhenAutoTesterStatusIsCompilationFailed()
+    {
+        $file = $this->createFile();
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_COMPILATION_FAILED;
+        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
+    }
+
+    public function testSafeErrorMsgWhenAutoTesterStatusIsInitiationFailed()
+    {
+        $file = $this->createFile();
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_INITIATION_FAILED;
+        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
+    }
+
+    public function testSafeErrorMsgWhenAutoTesterStatusIsExecutionFailed()
+    {
+        $file = $this->createFile();
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_EXECUTION_FAILED;
+        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
+    }
+
+    public function testSafeErrorMsgWhenAutoTesterStatusIsTestsFailed()
+    {
+        $file = $this->createFile();
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_TESTS_FAILED;
+        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
+    }
+
+    public function testSafeErrorMsgWhenAutoTesterStatusIsPassedAndShowFullErrorMsgIsFalse()
+    {
+        $file = $this->createFile();
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_PASSED;
+        $file->task->showFullErrorMsg = false;
+        $this->assertEquals('Your solution passed the tests', $file->safeErrorMsg);
+    }
+
+    public function testSafeErrorMsgWhenAutoTesterStatusIsPassedAndShowFullErrorMsgIsTrue()
+    {
+        $file = $this->createFile();
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_PASSED;
+        $file->task->showFullErrorMsg = true;
+        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
+    }
+
+    public function testSafeErrorMsgWhenAutoTesterStatusIsInProgress()
+    {
+        $file = $this->createFile();
+        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_IN_PROGRESS;
+        $this->assertEquals('Your solution is being tested', $file->safeErrorMsg);
+    }
+
+    public function testSafeErrorMsgWhenAutoTesterStatusIsInvalid()
+    {
+        $file = $this->createFile();
+        $this->expectException(\UnexpectedValueException::class);
+        $file->autoTesterStatus = 'Invalid';
+        $file->getSafeErrorMsg();
+    }
+
+    /**
+     * Helper method to create a Submission object for testing purposes with predefined attributes.
+     * This method is used to avoid code duplication across individual test cases.
+     *
+     * @return Submission
+     */
+    private function createFile()
+    {
+        return new Submission([
             'name' => 'test.zip',
             'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
             'taskID' => 5002,
@@ -105,34 +183,6 @@ class SubmissionsTest extends \Codeception\Test\Unit
             'errorMsg' => self::FULL_ERROR_MSG,
             'verified' => true,
         ]);
-
-        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
-        $this->assertNull($file->safeErrorMsg);
-
-        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_LEGACY_FAILED;
-        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
-
-        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_COMPILATION_FAILED;
-        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
-
-        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_INITIATION_FAILED;
-        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
-
-        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_EXECUTION_FAILED;
-        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
-
-        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_TESTS_FAILED;
-        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
-
-        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_PASSED;
-        $this->assertEquals('Your solution passed the tests', $file->safeErrorMsg);
-
-        $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_IN_PROGRESS;
-        $this->assertEquals('Your solution is being tested', $file->safeErrorMsg);
-
-        $this->expectException(\UnexpectedValueException::class);
-        $file->autoTesterStatus = 'Invalid';
-        $file->getSafeErrorMsg();
     }
 
     public function testValidateAutoTesterStatusPassed()
