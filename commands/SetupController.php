@@ -3,6 +3,7 @@
 namespace app\commands;
 
 use app\models\CourseCode;
+use app\models\InstructorCourse;
 use app\models\InstructorGroup;
 use app\models\Semester;
 use app\models\Course;
@@ -254,6 +255,17 @@ class SetupController extends BaseController
                 $this->stdout("Failed to insert initial group instructor permission for '{$instructorGroup->user->userCode}'." . PHP_EOL, Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
+        }
+
+        // Seed for Lecturer
+        $instructorCourse = new InstructorCourse();
+        $instructorCourse->userID = 2;
+        $instructorCourse->courseID = $course->id;
+        if ($instructorCourse->save()) {
+            $this->stdout("Successfully inserted course instructor for '{$instructorCourse->user->userCode}'." . PHP_EOL, Console::FG_GREEN);
+        } else {
+            $this->stdout("Failed to insert course instructor for '{$instructorGroup->user->userCode}'." . PHP_EOL, Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
         }
 
         $transaction->commit();
