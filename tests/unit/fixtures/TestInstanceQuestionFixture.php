@@ -6,7 +6,7 @@ use yii\test\ActiveFixture;
 
 class TestInstanceQuestionFixture extends ActiveFixture
 {
-    public $modelClass = 'app\models\ExamTestInstanceQuestion';
+    public $modelClass = 'app\models\QuizTestInstanceQuestion';
     public $dataFile =  __DIR__ . '/../../_data/testinstancequestions.php';
     public $depends = [
         'app\tests\unit\fixtures\QuestionFixture',

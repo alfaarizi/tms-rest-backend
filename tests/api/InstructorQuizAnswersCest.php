@@ -1,0 +1,457 @@
+<?php
+
+namespace app\tests\api;
+
+use ApiTester;
+use app\models\QuizAnswer;
+use app\tests\unit\fixtures\AccessTokenFixture;
+use app\tests\unit\fixtures\AnswerFixture;
+use app\tests\unit\fixtures\QuestionFixture;
+use app\tests\unit\fixtures\SubmittedAnswerFixture;
+use app\tests\unit\fixtures\TestInstanceFixture;
+use app\tests\unit\fixtures\TestInstanceQuestionFixture;
+use Codeception\Util\HttpCode;
+
+class InstructorQuizAnswersCest
+{
+    public const ANSWER_SCHEMA =
+        [
+            'id' => 'integer',
+            'text' => 'string',
+            'correct' => 'integer|string',
+            'questionID' => 'integer|string'
+        ];
+
+    public function _fixtures()
+    {
+        return [
+            'accesstokens' => [
+                'class' => AccessTokenFixture::class,
+            ],
+            'testinstances' => [
+                'class' => TestInstanceFixture::class,
+            ],
+            'testinstancequestion' => [
+                'class' => TestInstanceQuestionFixture::class,
+            ],
+            "question" => [
+                'class' => QuestionFixture::class
+            ],
+            "answers" => [
+                'class' => AnswerFixture::class
+            ],
+            "submittedanswers" => [
+                'class' => SubmittedAnswerFixture::class
+            ],
+        ];
+    }
+
+    public function _before(ApiTester $I)
+    {
+        $I->amBearerAuthenticated("TEACH2;VALID");
+    }
+
+    // tests
+    public function indexQuestionNotFound(ApiTester $I)
+    {
+        $I->sendGet('/instructor/quiz-answers?questionID=0');
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function indexQuestionWithoutPermission(ApiTester $I)
+    {
+        $I->sendGet('/instructor/quiz-answers?questionID=5');
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function index(ApiTester $I)
+    {
+        $I->sendGet('/instructor/quiz-answers?questionID=1');
+        $I->seeResponseCodeIs(HttpCode::OK);
+
+        $I->seeResponseContainsJson(
+            [
+                [
+                    "id" => 1,
+                    "text" => "Answer 1",
+                    "correct" => 1,
+                    "questionID" => 1,
+                ],
+                [
+                    "id" => 2,
+                    "text" => "Answer 2",
+                    "correct" => 0,
+                    "questionID" => 1,
+                ],
+                [
+                    "id" => 3,
+                    "text" => "Answer 3",
+                    "correct" => 0,
+                    "questionID" => 1,
+                ],
+                [
+                    "id" => 4,
+                    "text" => "Answer 4",
+                    "correct" => 0,
+                    "questionID" => 1,
+                ],
+                [
+                    "id" => 5,
+                    "text" => "Answer 5",
+                    "correct" => 0,
+                    "questionID" => 1,
+                ],
+            ]
+        );
+
+        $I->cantSeeResponseContainsJson([['id' => 6]]);
+        $I->cantSeeResponseContainsJson([['id' => 7]]);
+        $I->cantSeeResponseContainsJson([['id' => 8]]);
+        $I->cantSeeResponseContainsJson([['id' => 9]]);
+        $I->cantSeeResponseContainsJson([['id' => 10]]);
+        $I->cantSeeResponseContainsJson([['id' => 11]]);
+        $I->cantSeeResponseContainsJson([['id' => 12]]);
+        $I->cantSeeResponseContainsJson([['id' => 13]]);
+        $I->cantSeeResponseContainsJson([['id' => 14]]);
+
+        $I->seeResponseMatchesJsonType(self::ANSWER_SCHEMA, '$.[*]');
+    }
+
+    public function createInvalid(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/quiz-answers',
+            [
+                'questionID' => 0
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseMatchesJsonType(['string'], '$.[*]');
+    }
+
+    public function createWithoutPermission(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/quiz-answers',
+            [
+                'questionID' => 5,
+                'text' => 'Created',
+                'correct' => 1
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function createForFinalized(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/quiz-answers',
+            [
+                'questionID' => 1,
+                'text' => 'Created',
+                'correct' => 1
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::CONFLICT);
+    }
+
+    public function createValidCorrect(ApiTester $I)
+    {
+        // there is already a correct answer to this question
+        $I->seeRecord(
+            QuizAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+
+        $I->sendPost(
+            '/instructor/quiz-answers',
+            [
+                'questionID' => 6,
+                'text' => 'Created',
+                'correct' => 1
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeResponseMatchesJsonType(self::ANSWER_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                'questionID' => 6,
+                'text' => 'Created',
+                'correct' => 1
+            ]
+        );
+
+        // the initially correct other answer should be set to not correct
+        // because only one correct answer should be for a question
+        $I->seeRecord(
+            QuizAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 0,
+                "questionID" => 6,
+            ]
+        );
+    }
+    public function createValidNotCorrect(ApiTester $I)
+    {
+        // there is already a correct answer to this question
+        $I->seeRecord(
+            QuizAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+
+        $I->sendPost(
+            '/instructor/quiz-answers',
+            [
+                'questionID' => 6,
+                'text' => 'Created',
+                'correct' => 0
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeResponseMatchesJsonType(self::ANSWER_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                'questionID' => 6,
+                'text' => 'Created',
+                'correct' => 0
+            ]
+        );
+
+        // there is still a correct answer to this question
+        $I->seeRecord(
+            QuizAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+    }
+
+    public function updateNotFound(ApiTester $I)
+    {
+        $I->sendPatch('/instructor/quiz-answers/0');
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function updateWithoutPermission(ApiTester $I)
+    {
+        $I->sendPatch(
+            '/instructor/quiz-answers/14',
+            [
+                'text' => 'Updated',
+                'correct' => 1
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+
+        $I->seeRecord(
+            QuizAnswer::class,
+            [
+                "id" => 14,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 5,
+            ]
+        );
+    }
+
+    public function updateFinalized(ApiTester $I)
+    {
+        $I->sendPatch(
+            '/instructor/quiz-answers/1',
+            [
+                'text' => 'Updated',
+                'correct' => 1
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::CONFLICT);
+
+        $I->seeRecord(
+            QuizAnswer::class,
+            [
+                "id" => 1,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 1,
+            ]
+        );
+    }
+
+    public function updateInvalid(ApiTester $I)
+    {
+        $I->sendPatch(
+            '/instructor/quiz-answers/15',
+            [
+                'text' => '',
+                'correct' => "Correct"
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+
+        $I->seeRecord(
+            QuizAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+    }
+
+    public function updateValid(ApiTester $I)
+    {
+        $I->sendPatch(
+            '/instructor/quiz-answers/15',
+            [
+                'text' => 'Updated',
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+
+        $I->seeRecord(
+            QuizAnswer::class,
+            [
+                "id" => 15,
+                'text' => 'Updated',
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+
+        $I->seeResponseMatchesJsonType(self::ANSWER_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                'id' => 15,
+                'text' => 'Updated',
+                'correct' => 1,
+                "questionID" => 6,
+            ]
+        );
+    }
+
+    public function updateValidCorrectToCorrect(ApiTester $I)
+    {
+        $I->sendPatch(
+            '/instructor/quiz-answers/15',
+            [
+                'text' => 'Updated',
+                "correct" => 1,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+
+
+        $I->seeResponseMatchesJsonType(self::ANSWER_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                "id" => 15,
+                "text" => "Updated",
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+    }
+
+    public function updateValidIncorrectToCorrect(ApiTester $I)
+    {
+        // other answer that was correct initially
+        $I->seeRecord(
+            QuizAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+        $I->sendPatch(
+            '/instructor/quiz-answers/16',
+            [
+                'text' => 'Updated',
+                'correct' => 1,
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+
+        $I->seeResponseMatchesJsonType(self::ANSWER_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                "id" => 16,
+                "text" => "Updated",
+                "correct" => 1,
+                "questionID" => 6,
+            ]
+        );
+
+        // other answer that was correct has changed to incorrect
+        $I->seeRecord(
+            QuizAnswer::class,
+            [
+                "id" => 15,
+                "text" => "Answer 1",
+                "correct" => 0,
+                "questionID" => 6,
+            ]
+        );
+    }
+
+    public function deleteNotFound(ApiTester $I)
+    {
+        $I->sendDelete('/instructor/quiz-answers/0');
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function deleteWithoutPermission(ApiTester $I)
+    {
+        $I->sendDelete('/instructor/quiz-answers/14');
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+
+        $I->seeRecord(
+            QuizAnswer::class,
+            [
+                "id" => 14,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 5,
+            ]
+        );
+    }
+
+    public function deleteFinalized(ApiTester $I)
+    {
+        $I->sendDelete('/instructor/quiz-answers/1');
+        $I->seeResponseCodeIs(HttpCode::CONFLICT);
+
+        $I->seeRecord(
+            QuizAnswer::class,
+            [
+                "id" => 1,
+                "text" => "Answer 1",
+                "correct" => 1,
+                "questionID" => 1,
+            ]
+        );
+    }
+
+    public function delete(ApiTester $I)
+    {
+        $I->sendDelete('/instructor/quiz-answers/15');
+        $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
+        $I->cantSeeRecord(QuizAnswer::class, ['id' => 15]);
+    }
+}

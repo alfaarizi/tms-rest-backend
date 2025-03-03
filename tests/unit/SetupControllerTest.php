@@ -5,11 +5,11 @@ namespace app\tests\unit;
 use app\commands\SetupController;
 use app\models\Course;
 use app\models\CourseCode;
-use app\models\ExamAnswer;
-use app\models\ExamQuestion;
-use app\models\ExamQuestionSet;
-use app\models\ExamTest;
-use app\models\ExamTestInstance;
+use app\models\QuizAnswer;
+use app\models\QuizQuestion;
+use app\models\QuizQuestionSet;
+use app\models\QuizTest;
+use app\models\QuizTestInstance;
 use app\models\Group;
 use app\models\InstructorGroup;
 use app\models\Semester;
@@ -65,11 +65,11 @@ class SetupControllerTest extends \Codeception\Test\Unit
         $this->assertEquals(6, Subscription::find()->count());
         $this->assertEquals(2, Task::find()->count());
         $this->assertEquals(12, Submission::find()->count());
-        $this->assertEquals(1, ExamQuestionSet::find()->count());
-        $this->assertEquals(5, ExamQuestion::find()->count());
-        $this->assertEquals(25, ExamAnswer::find()->count());
-        $this->assertEquals(2, ExamTest::find()->count());
-        $this->assertEquals(12, ExamTestInstance::find()->count());
+        $this->assertEquals(1, QuizQuestionSet::find()->count());
+        $this->assertEquals(5, QuizQuestion::find()->count());
+        $this->assertEquals(25, QuizAnswer::find()->count());
+        $this->assertEquals(2, QuizTest::find()->count());
+        $this->assertEquals(12, QuizTestInstance::find()->count());
 
         $this->tester->seeRecord(Semester::class, [
             'actual' => true
@@ -142,23 +142,23 @@ class SetupControllerTest extends \Codeception\Test\Unit
             'grade' => null,
             'notes' => ''
         ]);
-        $this->tester->seeRecord(ExamQuestionSet::class, [
+        $this->tester->seeRecord(QuizQuestionSet::class, [
             'courseID' => 1,
             'name' => 'Quick question set'
         ]);
-        $this->tester->seeRecord(ExamQuestion::class, [
+        $this->tester->seeRecord(QuizQuestion::class, [
             'id' => 5,
             'text' => 'Question 5',
             'questionsetID' => 1
         ]);
-        $this->tester->seeRecord(ExamAnswer::class, [
+        $this->tester->seeRecord(QuizAnswer::class, [
             'text' => 'Answer 5',
             'correct' => 0,
             'questionID' => 5
         ]);
-        $this->tester->seeRecord(ExamTest::class, [
+        $this->tester->seeRecord(QuizTest::class, [
             'id' => 2,
-            'name' => 'Exam',
+            'name' => 'Quiz',
             'questionamount' => 5,
             'duration' => 60,
             'shuffled' => 1,
@@ -166,7 +166,7 @@ class SetupControllerTest extends \Codeception\Test\Unit
             'questionsetID' => 1,
             'groupID' => 1
         ]);
-        $this->tester->seeRecord(ExamTestInstance::class, [
+        $this->tester->seeRecord(QuizTestInstance::class, [
             'score' => 0,
             'submitted' => false,
             'userID' => 10,

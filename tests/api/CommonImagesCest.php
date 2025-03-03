@@ -29,31 +29,31 @@ class CommonImagesCest
         $I->deleteDir(Yii::getAlias("@appdata"));
     }
 
-    public function examImageWithoutToken(ApiTester $I)
+    public function quizImageWithoutToken(ApiTester $I)
     {
         $I->sendGet("/examination/image/1/img1.jpg");
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
-    public function examImageExpiredToken(ApiTester $I)
+    public function quizImageExpiredToken(ApiTester $I)
     {
         $I->sendGet("/examination/image/1/img1.jpg", ['imageToken' => 'STUD01;EXPIRED']);
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
     }
 
-    public function examImageValidTokenSetNotFound(ApiTester $I)
+    public function quizImageValidTokenSetNotFound(ApiTester $I)
     {
         $I->sendGet("/examination/image/0/img1.jpg", ['imageToken' => 'STUD01;VALID']);
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
-    public function examImageValidTokenImageNotFound(ApiTester $I)
+    public function quizImageValidTokenImageNotFound(ApiTester $I)
     {
         $I->sendGet("/examination/image/1/img0.jpg", ['imageToken' => 'STUD01;VALID']);
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
-    public function examImageValidTokenImageFound(ApiTester $I)
+    public function quizImageValidTokenImageFound(ApiTester $I)
     {
         $I->sendGet("/examination/image/1/img1.jpg", ['imageToken' => 'STUD01;VALID']);
         $I->seeResponseCodeIs(HttpCode::OK);

@@ -65,15 +65,15 @@ class Module extends \yii\base\Module implements BootstrapInterface
             "GET <module:{$this->id}>/<controller:submissions>/<id>/auto-tester-results" => '<module>/<controller>/auto-tester-results',
             "GET <module:{$this->id}>/<controller:submissions>/<id>/ip-addresses" => '<module>/<controller>/ip-addresses',
 
-            // instructor/exam-question-sets
-            "<module:{$this->id}>/<controller:exam-question-sets>/<id>/duplicate" => '<module>/<controller>/duplicate',
-            "GET <module:{$this->id}>/<controller:exam-question-sets>/<id>/images" => '<module>/<controller>/list-images',
-            "POST <module:{$this->id}>/<controller:exam-question-sets>/<id>/images" => '<module>/<controller>/upload-images',
-            "DELETE <module:{$this->id}>/<controller:exam-question-sets>/<id>/images/<filename>" => '<module>/<controller>/remove-image',
+            // instructor/quiz-question-sets
+            "<module:{$this->id}>/<controller:quiz-question-sets>/<id>/duplicate" => '<module>/<controller>/duplicate',
+            "GET <module:{$this->id}>/<controller:quiz-question-sets>/<id>/images" => '<module>/<controller>/list-images',
+            "POST <module:{$this->id}>/<controller:quiz-question-sets>/<id>/images" => '<module>/<controller>/upload-images',
+            "DELETE <module:{$this->id}>/<controller:quiz-question-sets>/<id>/images/<filename>" => '<module>/<controller>/remove-image',
 
-            // instructor/exam-tests
-            "<module:{$this->id}>/<controller:exam-tests>/<id>/duplicate" => '<module>/<controller>/duplicate',
-            "<module:{$this->id}>/<controller:exam-tests>/<id>/finalize" => '<module>/<controller>/finalize',
+            // instructor/quiz-tests
+            "<module:{$this->id}>/<controller:quiz-tests>/<id>/duplicate" => '<module>/<controller>/duplicate',
+            "<module:{$this->id}>/<controller:quiz-tests>/<id>/finalize" => '<module>/<controller>/finalize',
 
             // /instructor/web-app-execution
             "<module:{$this->id}>/<controller:web-app-execution>/<id>/download-run-log" => '<module>/<controller>/download-run-log',
