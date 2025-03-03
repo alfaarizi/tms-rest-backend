@@ -670,7 +670,7 @@ class CanvasIntegration
             $morePages = !empty($response->data);
 
             foreach ($out as $assignment) {
-                if ($assignment['published'] && !$assignment['is_exam_assignment']) {
+                if ($assignment['published'] && !$assignment['is_quiz_assignment']) {
                     if ($group->canvasSectionID == -1 && !empty($assignment['lock_at'])) {
                         $id = $this->saveTask($assignment, $group);
                         if ($id !== null) {
