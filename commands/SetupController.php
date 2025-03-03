@@ -11,10 +11,10 @@ use app\models\Group;
 use app\models\Submission;
 use app\models\Task;
 use app\models\User;
-use app\models\ExamQuestion;
-use app\models\ExamQuestionSet;
-use app\models\ExamAnswer;
-use app\models\ExamTest;
+use app\models\QuizQuestion;
+use app\models\QuizQuestionSet;
+use app\models\QuizAnswer;
+use app\models\QuizTest;
 use Yii;
 use yii\console\ExitCode;
 use yii\db\Exception;
@@ -227,7 +227,7 @@ class SetupController extends BaseController
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
-        // Seed for exam module
+        // Seed for quiz module
         // Seed Groups
         $transaction = \Yii::$app->db->beginTransaction();
         $group = new Group();
@@ -328,7 +328,7 @@ class SetupController extends BaseController
         }
 
         // Seed Question Set
-        $questionSet = new ExamQuestionSet();
+        $questionSet = new QuizQuestionSet();
         $questionSet->id = 1;
         $questionSet->courseID = 1;
         $questionSet->name = "Quick question set";
@@ -340,13 +340,13 @@ class SetupController extends BaseController
         }
 
         for ($i = 0; $i < 5; ++$i) {
-            $question = new ExamQuestion();
+            $question = new QuizQuestion();
             $question->id = $i + 1;
             $question->text = "Question " . ($i + 1);
             $question->questionsetID = $questionSet->id;
             $question->save();
             for ($j = 0; $j < 5; ++$j) {
-                $answer = new ExamAnswer();
+                $answer = new QuizAnswer();
                 $answer->text = "Answer " . ($j + 1);
                 $answer->correct = ($j == 1);
                 $answer->questionID = $question->id;
@@ -355,10 +355,10 @@ class SetupController extends BaseController
         }
 
         // Seed Test and Test Instance
-        $test = new ExamTest();
+        $test = new QuizTest();
         $test->id = 1;
         $test->name = "Quick questions";
-        $test->questionamount = ExamQuestion::find()->count();
+        $test->questionamount = QuizQuestion::find()->count();
         $test->duration = 60;
         $test->shuffled = true;
         $test->unique = 0;
@@ -367,10 +367,10 @@ class SetupController extends BaseController
         $test->availablefrom = date('Y-m-d H:i:s');
         $test->availableuntil = date('Y-m-d H:i:s', strtotime('+7 day'));
 
-        $test2 = new ExamTest();
+        $test2 = new QuizTest();
         $test2->id = 2;
-        $test2->name = "Exam";
-        $test2->questionamount = ExamQuestion::find()->count();
+        $test2->name = "Quiz";
+        $test2->questionamount = QuizQuestion::find()->count();
         $test2->duration = 60;
         $test2->shuffled = true;
         $test2->unique = 0;

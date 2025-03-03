@@ -4,7 +4,7 @@ return [
     "/" => "site/index",
 
     // Keep the old examination image path for compatibility
-    "examination/image/<id>/<filename>" => 'images/view-exam-image',
+    "examination/image/<id>/<filename>" => 'images/view-quiz-image',
     // Keep the old git path for compatibility
     "git/<action>" => "git/<action>",
     // User settings receives the user ID implicitly from

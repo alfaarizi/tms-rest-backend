@@ -2,8 +2,8 @@
 
 namespace app\tests\unit;
 
-use app\models\ExamTestInstance;
-use app\models\ExamTest;
+use app\models\QuizTestInstance;
+use app\models\QuizTest;
 use app\models\User;
 use app\tests\unit\fixtures\TestFixture;
 use app\tests\unit\fixtures\UserFixture;
@@ -27,13 +27,13 @@ class TestInstanceTest extends \Codeception\Test\Unit
 
     public function testValidateWithoutParams()
     {
-        $testinstance = new ExamTestInstance();
+        $testinstance = new QuizTestInstance();
         $this->assertFalse($testinstance->validate(), "Test instance created without parameters should not be valid.");
     }
 
     public function testValidateCorrectModel()
     {
-        $testinstance = new ExamTestInstance();
+        $testinstance = new QuizTestInstance();
         $testinstance->userID = 1000;
         $testinstance->testID = 1;
         $this->assertTrue($testinstance->validate(), "Test instance created with correct parameters should be valid.");
@@ -41,8 +41,8 @@ class TestInstanceTest extends \Codeception\Test\Unit
 
     public function testGetTest()
     {
-        $this->assertNotNull(ExamTest::findOne(1));
-        $testInstance = new ExamTestInstance();
+        $this->assertNotNull(QuizTest::findOne(1));
+        $testInstance = new QuizTestInstance();
         $testInstance->testID = 1;
         $test = $testInstance->getTest();
         $this->assertNotNull($test, "Related test should be returned");
@@ -51,7 +51,7 @@ class TestInstanceTest extends \Codeception\Test\Unit
     public function testGetUser()
     {
         $this->assertNotNull(User::findOne(1000));
-        $testInstance = new ExamTestInstance();
+        $testInstance = new QuizTestInstance();
         $testInstance->userID = 1000;
         $user = $testInstance->getUser();
         $this->assertNotNull($user, "Related user should be returned");
@@ -59,20 +59,20 @@ class TestInstanceTest extends \Codeception\Test\Unit
 
     public function testDeleteTest()
     {
-        $this->assertNotNull(ExamTest::findOne(1));
-        $test = new ExamTestInstance();
+        $this->assertNotNull(QuizTest::findOne(1));
+        $test = new QuizTestInstance();
         $test->testID = 1;
         $test->userID = 1000;
         $test->save();
         $this->tester->expectException(\yii\db\IntegrityException::class, function () {
-            ExamTest::findOne(1)->delete();
+            QuizTest::findOne(1)->delete();
         });
     }
 
     public function testDeleteUser()
     {
-        $this->assertNotNull(ExamTest::findOne(1));
-        $test = new ExamTestInstance();
+        $this->assertNotNull(QuizTest::findOne(1));
+        $test = new QuizTestInstance();
         $test->testID = 1;
         $test->userID = 1000;
         $test->save();

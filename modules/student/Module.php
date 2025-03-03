@@ -30,9 +30,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
             "GET <module:{$this->id}>/<controller:(submissions)>/<id>/auto-tester-results" => '<module>/<controller>/auto-tester-results',
 
-            "GET <module:{$this->id}>/<controller:(exam-test-instances)>/<id>/results" => '<module>/<controller>/results',
-            "POST <module:{$this->id}>/<controller:(exam-test-instances)>/<id>/start-write" => '<module>/<controller>/start-write',
-            "POST <module:{$this->id}>/<controller:(exam-test-instances)>/<id>/finish-write" => '<module>/<controller>/finish-write',
+            "GET <module:{$this->id}>/<controller:(quiz-test-instances)>/<id>/results" => '<module>/<controller>/results',
+            "POST <module:{$this->id}>/<controller:(quiz-test-instances)>/<id>/start-write" => '<module>/<controller>/start-write',
+            "POST <module:{$this->id}>/<controller:(quiz-test-instances)>/<id>/finish-write" => '<module>/<controller>/finish-write',
 
             "POST <module:{$this->id}>/<controller:(tasks)>/<id>/<action>" => '<module>/<controller>/<action>'
         ], false);

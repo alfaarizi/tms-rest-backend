@@ -2,8 +2,8 @@
 
 namespace app\tests\unit;
 
-use app\models\ExamTest;
-use app\models\ExamQuestionSet;
+use app\models\QuizTest;
+use app\models\QuizQuestionSet;
 use app\models\Group;
 use app\tests\unit\fixtures\TestFixture;
 
@@ -20,13 +20,13 @@ class TestmodelTest extends \Codeception\Test\Unit
 
     public function testValidateWithoutParams()
     {
-        $test = new ExamTest();
+        $test = new QuizTest();
         $this->assertFalse($test->validate(), "Test created without parameters should not be valid.");
     }
 
     public function testValidateCorrectModel()
     {
-        $test = new ExamTest();
+        $test = new QuizTest();
         $test->name = 'Test';
         $test->unique = 1;
         $test->shuffled = true;
@@ -41,21 +41,21 @@ class TestmodelTest extends \Codeception\Test\Unit
 
     public function testBothDatesAreInvalid()
     {
-        $test = ExamTest::findOne(5);
+        $test = QuizTest::findOne(5);
         $this->assertGreaterThan($test->availableuntil, $test->availablefrom);
         $this->assertFalse($test->validate(), "Test with availableFrom property set after availableUntil property should not be valid");
     }
 
     public function testAvailableUntilDateIsInvalid()
     {
-        $test = ExamTest::findOne(2);
+        $test = QuizTest::findOne(2);
         $this->assertGreaterThan($test->availableuntil, date('Y-m-d H:i:s'));
         $this->assertFalse($test->validate(), "Test with availableUntil property set to past date should not be valid");
     }
 
     public function testNotEnoughQuestions()
     {
-        $test = ExamTest::findOne(4);
+        $test = QuizTest::findOne(4);
         $questions = $test->questionSet->getQuestions();
         $this->assertGreaterThan($questions->count(), $test->questionamount);
         $this->assertFalse(
@@ -66,7 +66,7 @@ class TestmodelTest extends \Codeception\Test\Unit
 
     public function testLongDuration()
     {
-        $test = ExamTest::findOne(6);
+        $test = QuizTest::findOne(6);
         $this->assertGreaterThan(
             strtotime($test->availableuntil) - strtotime($test->availablefrom),
             $test->duration * 60
@@ -77,7 +77,7 @@ class TestmodelTest extends \Codeception\Test\Unit
     public function testGetGroup()
     {
         $this->assertNotNull(Group::findOne(2000));
-        $test = new ExamTest();
+        $test = new QuizTest();
         $test->groupID = 2000;
         $group = $test->getGroup();
         $this->assertNotNull($group, "Related group should be returned");
@@ -85,8 +85,8 @@ class TestmodelTest extends \Codeception\Test\Unit
 
     public function testGetQuestionSet()
     {
-        $this->assertNotNull(ExamQuestionSet::findOne(1));
-        $test = new ExamTest();
+        $this->assertNotNull(QuizQuestionSet::findOne(1));
+        $test = new QuizTest();
         $test->questionsetID = 1;
         $questionSet = $test->getQuestionSet();
         $this->assertNotNull($questionSet, "Related question set should be returned");

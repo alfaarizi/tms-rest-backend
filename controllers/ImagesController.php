@@ -4,7 +4,7 @@ namespace app\controllers;
 
 use Yii;
 use app\models\AccessToken;
-use app\resources\ExamImageResource;
+use app\resources\QuizImageResource;
 use yii\helpers\ArrayHelper;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -30,7 +30,7 @@ class ImagesController extends BaseRestController
     protected function verbs()
     {
         return ArrayHelper::merge(parent::verbs(), [
-            'view-exam-image' => ['GET']
+            'view-quiz-image' => ['GET']
         ]);
     }
 
@@ -44,7 +44,7 @@ class ImagesController extends BaseRestController
      *
      * @OA\Get(
      *     path="/examination/image/{id}/{filename}",
-     *     operationId="common::ImagesController::actionViewExamImage",
+     *     operationId="common::ImagesController::actionViewQuizImage",
      *     tags={"Common Images"},
      *     @OA\Parameter(
      *        name="id",
@@ -77,11 +77,11 @@ class ImagesController extends BaseRestController
      *    @OA\Response(response=500, ref="#/components/responses/500"),
      * ),
      */
-    public function actionViewExamImage(int $id, string $filename, ?string $imageToken = null): void
+    public function actionViewQuizImage(int $id, string $filename, ?string $imageToken = null): void
     {
         $this->checkImageToken($imageToken);
 
-        $image = new ExamImageResource();
+        $image = new QuizImageResource();
         $image->name = $filename;
         $image->questionSetID = $id;
         if (!file_exists($image->getFilePath())) {

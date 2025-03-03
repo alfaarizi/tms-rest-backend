@@ -6,7 +6,7 @@ use yii\test\ActiveFixture;
 
 class SubmittedAnswerFixture extends ActiveFixture
 {
-    public $modelClass = 'app\models\ExamSubmittedAnswer';
+    public $modelClass = 'app\models\QuizSubmittedAnswer';
     public $dataFile =  __DIR__ . '/../../_data/submittedanswers.php';
     public $depends = [
         'app\tests\unit\fixtures\AnswerFixture',
