@@ -999,8 +999,8 @@ class CanvasIntegration
 
                         foreach (array_keys(Yii::$app->params['supportedLocale']) as $lang) {
                             Yii::$app->language = $lang;
-                            $msg1 = Yii::t('app', 'TMS automatic tester result:');
-                            $msg2 = Yii::t('app', 'TMS static code analyzer result:');
+                            $msg1 = Yii::t('app', 'TMS automatic tester result: ');
+                            $msg2 = Yii::t('app', 'TMS static code analyzer result: ');
                             if (strpos($comment['comment'], $msg1) === 0 || strpos($comment['comment'], $msg2) === 0) {
                                 $isHumanComment = false;
                                 break;
