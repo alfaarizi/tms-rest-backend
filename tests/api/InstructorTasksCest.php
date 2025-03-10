@@ -263,8 +263,134 @@ class InstructorTasksCest
             ]
         );
 
-        $I->seeRecord(Task::class, ['name' => 'Created']);
+        $I->seeRecord(Task::class, ['name' => 'Created', 'sentCreatedEmail' => true]);
         $I->seeEmailIsSent(4);
+    }
+
+    public function createValidAvailableInPast(ApiTester $I)
+    {
+        $data = [
+            'name' => 'CreatedInPast',
+            'available' => date(\DateTime::ATOM, strtotime('-10 day')),
+            'softDeadLine' => date(\DateTime::ATOM, strtotime('+1 day')),
+            'hardDeadline' => date(\DateTime::ATOM, strtotime('+2 day')),
+            'groupID' => 2000,
+            'category' => 'Smaller tasks',
+            'description' => 'Description',
+            'isVersionControlled' => 0,
+            'autoTest' => 0
+        ];
+
+        $I->sendPost(
+            '/instructor/tasks',
+            $data
+        );
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                'name' => $data['name'],
+                'category' => $data['category'],
+                'translatedCategory' => 'Smaller tasks',
+                'description' => $data['description'],
+                'hardDeadline' => $data['hardDeadline'],
+                'softDeadline' => null,
+                'available' => $data['available'],
+                'autoTest' => null,
+                'isVersionControlled' => $data['isVersionControlled'],
+                'groupID' => $data['groupID'],
+                'semesterID' => 3001,
+                'creatorName' => 'Teacher Two',
+            ]
+        );
+
+        $I->seeRecord(Task::class, ['name' => 'CreatedInPast', 'sentCreatedEmail' => true]);
+        $I->seeEmailIsSent(4);
+    }
+
+    public function createValidAvailableTomorrow(ApiTester $I)
+    {
+        $data = [
+            'name' => 'CreatedToday',
+            'available' => date(\DateTime::ATOM, strtotime('+14 hour')),
+            'softDeadLine' => date(\DateTime::ATOM, strtotime('+1 day')),
+            'hardDeadline' => date(\DateTime::ATOM, strtotime('+2 day')),
+            'groupID' => 2000,
+            'category' => 'Smaller tasks',
+            'description' => 'Description',
+            'isVersionControlled' => 0,
+            'autoTest' => 0
+        ];
+
+        $I->sendPost(
+            '/instructor/tasks',
+            $data
+        );
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                'name' => $data['name'],
+                'category' => $data['category'],
+                'translatedCategory' => 'Smaller tasks',
+                'description' => $data['description'],
+                'hardDeadline' => $data['hardDeadline'],
+                'softDeadline' => null,
+                'available' => $data['available'],
+                'autoTest' => null,
+                'isVersionControlled' => $data['isVersionControlled'],
+                'groupID' => $data['groupID'],
+                'semesterID' => 3001,
+                'creatorName' => 'Teacher Two',
+            ]
+        );
+
+        $I->seeRecord(Task::class, ['name' => 'CreatedToday', 'sentCreatedEmail' => true]);
+        $I->seeEmailIsSent(4);
+    }
+
+    public function createValidAvailableInFuture(ApiTester $I)
+    {
+        $data = [
+            'name' => 'CreatedInFuture',
+            'available' => date(\DateTime::ATOM, strtotime('+10 day')),
+            'softDeadLine' => date(\DateTime::ATOM, strtotime('+11 day')),
+            'hardDeadline' => date(\DateTime::ATOM, strtotime('+12 day')),
+            'groupID' => 2000,
+            'category' => 'Smaller tasks',
+            'description' => 'Description',
+            'isVersionControlled' => 0,
+            'autoTest' => 0
+        ];
+
+        $I->sendPost(
+            '/instructor/tasks',
+            $data
+        );
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                'name' => $data['name'],
+                'category' => $data['category'],
+                'translatedCategory' => 'Smaller tasks',
+                'description' => $data['description'],
+                'hardDeadline' => $data['hardDeadline'],
+                'softDeadline' => null,
+                'available' => $data['available'],
+                'autoTest' => null,
+                'isVersionControlled' => $data['isVersionControlled'],
+                'groupID' => $data['groupID'],
+                'semesterID' => 3001,
+                'creatorName' => 'Teacher Two',
+            ]
+        );
+
+        $I->seeRecord(Task::class, ['name' => 'CreatedInFuture', 'sentCreatedEmail' => false]);
+        $I->seeEmailIsSent(0);
     }
 
     public function updateNotFound(ApiTester $I)
@@ -442,6 +568,22 @@ class InstructorTasksCest
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
         $I->seeRecord(Task::class, ['name' => 'Updated', 'available' => $date]);
         $I->seeEmailIsSent(4);
+    }
+
+    public function updateValidChangeAvailableNoEmails(ApiTester $I)
+    {
+        $date = date('Y-m-d H:i:s', strtotime('+7 day'));
+        $I->sendPatch(
+            '/instructor/tasks/5021',
+            [
+                'name' => 'Updated',
+                'available' => $date
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+        $I->seeRecord(Task::class, ['name' => 'Updated', 'available' => $date]);
+        $I->seeEmailIsSent(0);
     }
 
     public function deleteNotFound(ApiTester $I)

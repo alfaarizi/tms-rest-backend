@@ -44,8 +44,8 @@ use yii\helpers\FileHelper;
  * @property string|null $codeCheckerCompileInstructions
  * @property string|null $codeCheckerToggles
  * @property string|null $codeCheckerSkipFile
- * @property-read boolean $isSubmissionCountRestricted
  * @property integer $submissionLimit
+ * @property boolean $sentCreatedEmail
  *
  * @property TaskFile[] $taskFiles
  * @property Submission[] $submissions
@@ -62,6 +62,7 @@ use yii\helpers\FileHelper;
  * @property-read string $localImageName
  * @property-read string $isLocalImage
  * @property-read string $dockerSocket
+ * @property-read boolean $isSubmissionCountRestricted
  */
 class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
@@ -559,6 +560,7 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'codeCheckerToggles' => new OAProperty(['type' => 'string']),
             'isSubmissionCountRestricted' => new OAProperty(['type' => 'boolean']),
             'submissionLimit' => new OAProperty(['type' => 'integer']),
+            'sentCreatedEmail' => new OAProperty(['type' => 'boolean']),
         ];
     }
 }

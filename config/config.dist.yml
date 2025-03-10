@@ -143,6 +143,7 @@ app:
     dates: # 0:00 - 23:59
       nDigestInstructors: '7:00'
       nDigestOncomingTaskDeadlines: '7:00'
+      nDigestAvailableTasksForStudents: '7:00'
     params:
       autoTesterCheckTasksNumber: 50
       codeCheckerCheckSubmissionsNumber: 50
