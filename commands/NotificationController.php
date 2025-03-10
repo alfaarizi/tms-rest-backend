@@ -3,6 +3,8 @@
 namespace app\commands;
 
 use app\components\DueSubmissionDigester;
+use app\components\TaskEmailer;
+use app\models\Task;
 use app\models\Submission;
 use yii\console\ExitCode;
 use yii\console\widgets\Table;
@@ -165,6 +167,28 @@ class NotificationController extends BaseController
                 $this->stdout("Student $userCode has $count oncoming deadline(s)." .  PHP_EOL, Console::FG_GREEN);
             }
         }
+        return ExitCode::OK;
+    }
+
+    /**
+     * Send creation notifications for students about tasks becoming available in the upcoming 24 hours.
+     * @return int
+     */
+    public function actionDigestAvailableTasksForStudents()
+    {
+        // Get all tasks which will became available in the next 24 hours
+        $tasks = Task::find()
+            ->where(['<', 'available', new Expression('DATE_ADD(NOW(), INTERVAL 24 HOUR)')])
+            ->andWhere(['>', 'available', new Expression('NOW()')])
+            ->all();
+
+        foreach ($tasks as $task) {
+            if (!$task->sentCreatedEmail) {
+                $emailer = new TaskEmailer($task);
+                $emailer->sendCreatedNotification();
+            }
+        }
+
         return ExitCode::OK;
     }
 }

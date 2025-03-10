@@ -4,6 +4,7 @@ namespace app\modules\instructor\controllers;
 
 use app\components\CodeCompassHelper;
 use app\components\GitManager;
+use app\components\TaskEmailer;
 use app\models\Group;
 use app\models\TaskFile;
 use app\models\Submission;
@@ -15,6 +16,7 @@ use app\modules\instructor\resources\SetupCodeCompassParserResource;
 use app\modules\instructor\resources\TaskResource;
 use app\resources\SemesterResource;
 use app\resources\UserResource;
+use DateTime;
 use Docker\API\Exception\ImageDeleteConflictException;
 use Yii;
 use yii\base\ErrorException;
@@ -281,28 +283,10 @@ class TasksController extends BaseInstructorRestController
         }
 
         // Email notifications
-        $messages = [];
-
-        $originalLanguage = Yii::$app->language;
-        foreach ($task->group->subscriptions as $subscription) {
-            if (!empty($subscription->user->notificationEmail)) {
-                Yii::$app->language = $subscription->user->locale;
-                $messages[] = Yii::$app->mailer->compose(
-                    'student/newTask',
-                    [
-                        'task' => $task,
-                        'actor' => Yii::$app->user->identity,
-                    ]
-                )
-                    ->setFrom(Yii::$app->params['systemEmail'])
-                    ->setTo($subscription->user->notificationEmail)
-                    ->setSubject(Yii::t('app/mail', 'New task'));
-            }
+        if ($this->shouldSendNotificationEmailsImmediately($task)) {
+            $emailer = new TaskEmailer($task);
+            $emailer->sendCreatedNotification();
         }
-        Yii::$app->language = $originalLanguage;
-
-        // Send mass email notifications
-        Yii::$app->mailer->sendMultiple($messages);
 
         Yii::info(
             "A new task $task->name (id: $task->id) has been created " .
@@ -359,7 +343,6 @@ class TasksController extends BaseInstructorRestController
         }
         $task->scenario = TaskResource::SCENARIO_UPDATE;
 
-
         // Authorization check
         if (!Yii::$app->user->can('manageGroup', ['groupID' => $task->groupID])) {
             throw new ForbiddenHttpException(
@@ -397,41 +380,27 @@ class TasksController extends BaseInstructorRestController
             );
         }
 
+        // Email notifications for task creation if required and haven't been done
+        if ($this->shouldSendNotificationEmailsImmediately($task) && !$task->sentCreatedEmail) {
+            $emailer = new TaskEmailer($task);
+            $emailer->sendCreatedNotification();
+        }
         // Email notifications if deadline changed
-        if (
-            $task->available != $oldAvailable ||
+        elseif (
+            $task->sentCreatedEmail &&
+            ($task->available != $oldAvailable ||
             $task->softDeadline != $oldSoftDeadLine ||
-            $task->hardDeadline != $oldHardDeadLine
+            $task->hardDeadline != $oldHardDeadLine)
         ) {
-            $messages = [];
-            $group = GroupResource::findOne($task->groupID);
+            $emailer = new TaskEmailer($task);
+            $emailer->sendDeadlineChangeNotification();
+        }
 
-            $originalLanguage = Yii::$app->language;
+        if (Yii::$app->params['versionControl']['enabled'] && $task->isVersionControlled) {
+            // Change the hard deadline in the repository git hook as well for version controlled tasks
             foreach ($task->group->subscriptions as $subscription) {
-                if (!empty($subscription->user->notificationEmail)) {
-                    Yii::$app->language = $subscription->user->locale;
-                    $messages[] = Yii::$app->mailer->compose(
-                        'student/updateTaskDeadline',
-                        [
-                            'task' => $task,
-                            'actor' => Yii::$app->user->identity,
-                            'group' => $group,
-                        ]
-                    )
-                        ->setFrom(Yii::$app->params['systemEmail'])
-                        ->setTo($subscription->user->notificationEmail)
-                        ->setSubject(Yii::t('app/mail', 'Task deadline change'));
-                }
-
-                // Change the hard deadline in the repository git hook as well for version controlled tasks
-                if (Yii::$app->params['versionControl']['enabled'] && $task->isVersionControlled) {
-                    GitManager::afterTaskUpdate($task, $subscription);
-                }
+                GitManager::afterTaskUpdate($task, $subscription);
             }
-            Yii::$app->language = $originalLanguage;
-
-            // Send mass email notifications
-            Yii::$app->mailer->sendMultiple($messages);
         }
 
         Yii::info(
@@ -796,5 +765,25 @@ class TasksController extends BaseInstructorRestController
         } else {
             throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
         }
+    }
+
+    /**
+     * Return whether task creation notification emails should be sent immediately or not.
+     *
+     * Task creation notification emails should be sent immediately if the
+     * availability of the task is not defined, in the past or in the next 24 hours.
+     */
+    private function shouldSendNotificationEmailsImmediately(Task $task): bool
+    {
+        if ($task->available === null) {
+            return true;
+        }
+
+        $tomorrow = (new DateTime())->modify('+1 day');
+        $available = new DateTime($task->available);
+        if ($available < $tomorrow)
+            return true;
+
+        return false;
     }
 }

@@ -67,7 +67,7 @@ class AdminStatisticsCest
         $I->seeResponseContainsJson(
             [
                 'groupsCount' => 11,
-                'tasksCount' => 21,
+                'tasksCount' => 22,
                 'submissionsCount' => 23,
                 'testedSubmissionCount' => 9,
                 'submissionsUnderTestingCount' => 1,
@@ -86,7 +86,7 @@ class AdminStatisticsCest
         $I->seeResponseContainsJson(
             [
                 'groupsCount' => 11,
-                'tasksCount' => 21,
+                'tasksCount' => 22,
                 'submissionsCount' => 23,
                 'testedSubmissionCount' => 9,
                 'submissionsUnderTestingCount' => 1,
@@ -104,7 +104,7 @@ class AdminStatisticsCest
         $I->seeResponseContainsJson(
             [
                 'groupsCount' => 8,
-                'tasksCount' => 20,
+                'tasksCount' => 21,
                 'submissionsCount' => 22,
                 'testedSubmissionCount' => 9,
             ]

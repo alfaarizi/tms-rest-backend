@@ -15,6 +15,9 @@ $schedule->command('notification/digest-instructors')
 $schedule->command('notification/digest-oncoming-task-deadlines')
          ->dailyAt($schedulingDates['nDigestOncomingTaskDeadlines'])
          ->withoutOverlapping();
+$schedule->command('notification/digest-available-tasks-for-students')
+         ->dailyAt($schedulingDates['nDigestAvailableTasksForStudents'])
+         ->withoutOverlapping();
 
 $schedule->command('canvas/synchronize-prioritized ' . $schedulingParams['canvasSynchronizePrioritizedNumber'])
          ->everyNMinutes($schedulingPeriods['canvasSynchronizePrioritized'])
