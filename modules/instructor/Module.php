@@ -64,6 +64,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
             "GET <module:{$this->id}>/<controller:task-files>/<id>/download" => '<module>/<controller>/download',
             "GET <module:{$this->id}>/<controller:submissions>/<id>/auto-tester-results" => '<module>/<controller>/auto-tester-results',
             "GET <module:{$this->id}>/<controller:submissions>/<id>/ip-addresses" => '<module>/<controller>/ip-addresses',
+            "POST <module:{$this->id}>/<controller:submissions>/<id>/jwt" => '<module>/<controller>/jwt-generate',
 
             // instructor/quiz-question-sets
             "<module:{$this->id}>/<controller:quiz-question-sets>/<id>/duplicate" => '<module>/<controller>/duplicate',

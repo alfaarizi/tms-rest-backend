@@ -829,4 +829,42 @@ class SubmissionsCest
             ]
         );
     }
+
+    public function generateJWTInvalidSubmission(ApiTester $I)
+    {
+        $I->sendPost("/student/submissions/9999/jwt");
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function generateJWTNotOwnSubmission(ApiTester $I)
+    {
+        $I->sendPost("/student/submissions/2/jwt");
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function generateJWTValidPayload(ApiTester $I)
+    {
+        $submissionId = 1;
+        $expectedPayload = [
+            'submissionId' => $submissionId,
+            'studentId' => 1001,
+        ];
+
+        $I->sendPost("/student/submissions/${submissionId}/jwt");
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseIsJson();
+        $I->seeResponseMatchesJsonType(['token' => 'string']);
+
+        $response = json_decode($I->grabResponse(), true);
+        $jwtToken = $response['token'];
+
+        $parts = explode('.', $jwtToken);
+        if (count($parts) != 3) {
+            $I->fail("Invalid JWT format: Expected 3 parts, got " . count($parts));
+        }
+
+        $decodedPayload = json_decode(base64_decode($parts[1]), true);
+
+        $I->assertEquals($expectedPayload, $decodedPayload, "Decoded JWT payload does not match the expected payload.");
+    }
 }
