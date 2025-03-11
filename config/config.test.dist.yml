@@ -30,3 +30,6 @@ app:
     portRange:
       from: 25565
       to: 25568
+
+  # JWT token secret
+  jwtSecret: 'secret'

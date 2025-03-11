@@ -47,6 +47,9 @@ app:
     bindDN: 'CN=...,OU=...,DC=...,DC=...,DC=...'
     bindPasswd: bindPassword
     uidAttr: sAMAccountName
+ 
+  # JWT token secret
+  jwtSecret: ''
 
   # Version control configuration
   versionControl:

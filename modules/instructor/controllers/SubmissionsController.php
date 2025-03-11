@@ -6,19 +6,21 @@ use app\components\CanvasIntegration;
 use app\components\CodeCompass;
 use app\components\CodeCompassHelper;
 use app\components\GitManager;
+use app\components\JwtHelper;
 use app\models\CodeCompassInstance;
-use app\models\IpAddress;
 use app\models\Submission;
 use app\models\User;
 use app\modules\instructor\resources\CodeCompassInstanceResource;
 use app\modules\instructor\resources\GroupResource;
 use app\modules\instructor\resources\IpAddressResource;
-use app\resources\AutoTesterResultResource;
-use app\resources\SemesterResource;
-use Yii;
+use app\modules\instructor\resources\JwtValidationResource;
 use app\modules\instructor\resources\SubmissionResource;
 use app\modules\instructor\resources\TaskResource;
+use app\resources\AutoTesterResultResource;
+use app\resources\JwtResource;
+use app\resources\SemesterResource;
 use app\resources\UserResource;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\data\BaseDataProvider;
 use yii\db\StaleObjectException;
@@ -29,8 +31,8 @@ use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 use yii\web\UnauthorizedHttpException;
-use yii2tech\spreadsheet\Spreadsheet;
 use yii2tech\csvgrid\CsvGrid;
+use yii2tech\spreadsheet\Spreadsheet;
 
 /**
  * This class provides access to student files for instructors
@@ -53,6 +55,8 @@ class SubmissionsController extends BaseInstructorRestController
             'stop-code-compass' => ['POST'],
             'auto-tester-results' => ['GET'],
             'download-report' => ['GET'],
+            'jwt-generate' => ['POST'],
+            'jwt-validate' => ['GET'],
         ]);
     }
 
@@ -991,7 +995,7 @@ class SubmissionsController extends BaseInstructorRestController
         $submission = Submission::findOne($id);
 
         if (is_null($submission)) {
-            throw new NotFoundHttpException(Yii::t('app', 'Submission not found'));
+            throw new NotFoundHttpException(Yii::t('app', Yii::t('app', 'Submission not found')));
         }
 
         // Authorization check
@@ -1003,5 +1007,120 @@ class SubmissionsController extends BaseInstructorRestController
             return new IpAddressResource($ipAddress);
         }, $submission->detailedIpAddresses);
         return $ipAddresses;
+    }
+
+    /**
+     * Returns a signed JWT for a submission.
+     *
+     * The payload of the JWT contains the student ID and the submission ID.
+     *
+     * @throws NotFoundHttpException
+     * @throws ForbiddenHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/submissions/{id}/jwt",
+     *     operationId="instructor::SubmissionsController::actionJwtGenerate",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         description="Submission data to generate a JWT",
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"id"},
+     *             @OA\Property(
+     *                 property="id",
+     *                 type="integer",
+     *                 description="ID of the submission",
+     *                 example=123
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="JWT successfully signed.",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Common_JwtResource_Read")
+     *          ),
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     */
+    public function actionJwtGenerate(int $id): JwtResource
+    {
+        $submission = SubmissionResource::findOne($id);
+
+        if (is_null($submission)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Submission not found'));
+        }
+
+        // Authorization check
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $submission->task->groupID])) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
+        }
+
+        $studentId = $submission->uploaderID;
+        $tokenData = ['studentId' => $studentId, 'submissionId' => $id];
+
+        $jwtResource = new JwtResource();
+        $jwtResource->token = JwtHelper::create($tokenData);
+
+        return $jwtResource;
+    }
+
+    /**
+     * Validate a JWT for submission.
+     * @throws BadRequestHttpException
+     *
+     * @OA\Get(
+     *     path="/instructor/submissions/jwt-validate",
+     *     operationId="instructor::SubmissionsController::actionJwtValidate",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         required=true,
+     *         description="JWT token to validate.",
+     *         @OA\Schema(type="string")
+     *     ),
+     *  @OA\Response(
+     *         response=200,
+     *         description="JWT validation result.",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_JwtValidationResource_Read")
+     *          ),
+     *     ),
+     *     @OA\Response(response=400, ref="#/components/responses/400"),
+     *     @OA\Response(response=401, ref="#/components/responses/401"),
+     *     @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     */
+    public function actionJwtValidate(string $token): JwtValidationResource
+    {
+        $response = new JwtValidationResource();
+        $response->payload = [];
+
+        if (empty($token)) {
+            throw new BadRequestHttpException(Yii::t('app', 'Missing token'));
+        }
+
+        try {
+            $payload = JwtHelper::validate($token);
+
+            $response->success = true;
+            $response->payload = $payload;
+            $response->message = Yii::t('app', 'JWT is valid.');
+            return $response;
+        } catch (\Exception $e) {
+            $response->success = false;
+            $response->message = Yii::t('app', 'Invalid JWT: ') . $e->getMessage();
+            return $response;
+        }
     }
 }

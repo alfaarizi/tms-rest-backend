@@ -504,4 +504,106 @@ class InstructorSubmissionsCest
             ]
         );
     }
+
+    public function generateJWTInvalidSubmission(ApiTester $I)
+    {
+        $I->sendPost("/instructor/submissions/9999/jwt");
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
+
+    public function generateJWTNotManagedSubmission(ApiTester $I)
+    {
+        $I->sendPost("/instructor/submissions/5/jwt");
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function generateJWTValidPayload(ApiTester $I)
+    {
+        $submissionId = 1;
+        $expectedPayload = [
+            'submissionId' => $submissionId,
+            'studentId' => 1001,
+        ];
+
+        $I->sendPost("/instructor/submissions/${submissionId}/jwt");
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseIsJson();
+        $I->seeResponseMatchesJsonType(['token' => 'string']);
+
+        $response = json_decode($I->grabResponse(), true);
+        $jwtToken = $response['token'];
+
+        $parts = explode('.', $jwtToken);
+        if (count($parts) != 3) {
+            $I->fail("Invalid JWT format: Expected 3 parts, got " . count($parts));
+        }
+
+        $decodedPayload = json_decode(base64_decode($parts[1]), true);
+
+        $I->assertEquals($expectedPayload, $decodedPayload, "Decoded JWT payload does not match the expected payload.");
+    }
+
+    public function validateJWTMissingToken(ApiTester $I)
+    {
+        $I->sendGet("/instructor/submissions/jwt-validate", []);
+        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+    }
+
+    public function validateJWTValid(ApiTester $I)
+    {
+        $submissionId = 1;
+        $expectedPayload = [
+            'submissionId' => $submissionId,
+            'studentId' => 1001,
+        ];
+
+        $I->sendPost("/instructor/submissions/${submissionId}/jwt");
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $response = json_decode($I->grabResponse(), true);
+        $jwtToken = $response['token'];
+
+        $I->sendGet("/instructor/submissions/jwt-validate", ['token' => $jwtToken]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseIsJson();
+        $I->seeResponseMatchesJsonType([
+            'success' => 'boolean',
+            'payload' => 'array',
+            'message' => 'string',
+        ]);
+
+        $I->seeResponseContainsJson(
+            [
+                'success' => true,
+                'payload' => $expectedPayload,
+            ]
+        );
+    }
+
+    public function validateJWTInvalidSignature(ApiTester $I)
+    {
+        $submissionId = 1;
+
+        $I->sendPost("/instructor/submissions/${submissionId}/jwt");
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $response = json_decode($I->grabResponse(), true);
+        $jwtToken = $response['token'];
+
+        $parts = explode('.', $jwtToken);
+        $parts[2] = str_repeat('x', strlen($parts[2])); //header.payload.xxxxxx
+        $invalidJwtToken = implode('.', $parts);
+
+        $I->sendGet("/instructor/submissions/jwt-validate", ['token' => $invalidJwtToken]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseIsJson();
+        $I->seeResponseMatchesJsonType([
+            'success' => 'boolean',
+            'message' => 'string',
+        ]);
+
+        $I->seeResponseContainsJson(
+            [
+                'success' => false,
+            ]
+        );
+    }
 }

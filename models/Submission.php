@@ -36,7 +36,7 @@ use yii\helpers\StringHelper;
  * @property integer|null $codeCheckerResultID
  * @property-read string $containerName
  * @property-read IpAddress[] $ipAddresses
- * @property-read string[] $detailedIpAddresses
+ * @property-read IpAddress[] $detailedIpAddresses
  * @property-read string $safeErrorMsg
  *
  * @property Task $task

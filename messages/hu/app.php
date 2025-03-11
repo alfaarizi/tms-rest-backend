@@ -242,6 +242,10 @@ return [
     'Submission ID' => 'Beküldés azonosítója',
     'Submission upload' => 'Megoldás feltöltése',
     'Submission download' => 'Megoldás letöltése',
+    "Submission not found" => "A megoldás nem található",
+    "JWT is valid" => "A JWT helyes",
+    "Invalid JWT: " => "Hibás JWT: ",
+    'Missing token' => 'Hiányzó token',
 
     "Task not found." => "A feladat nem található.",
     "Group not found." => "A csoport nem található.",

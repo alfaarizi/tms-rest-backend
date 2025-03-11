@@ -39,7 +39,8 @@
         "omnilight/yii2-scheduling": "^1.1",
         "phpoffice/phpspreadsheet": "^1.24.0",
         "spatie/crawler": "^4.7.4",
-        "symfony/yaml": "^5.4"
+        "symfony/yaml": "^5.4",
+        "firebase/php-jwt": "^6.10"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

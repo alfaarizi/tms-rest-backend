@@ -3,6 +3,7 @@
 namespace app\modules\student\controllers;
 
 use app\components\GitManager;
+use app\components\JwtHelper;
 use app\models\Submission;
 use app\models\Task;
 use app\models\User;
@@ -10,6 +11,7 @@ use app\modules\student\resources\SubmissionUploadResource;
 use app\modules\student\resources\VerifyItemResource;
 use app\resources\AutoTesterResultResource;
 use app\models\IpAddress;
+use app\resources\JwtResource;
 use Yii;
 use app\modules\student\resources\TaskResource;
 use app\modules\student\helpers\PermissionHelpers;
@@ -38,6 +40,7 @@ class SubmissionsController extends BaseSubmissionsController
             'verify' => ['POST'],
             'auto-tester-results' => ['GET'],
             'download-report' => ['GET'],
+            'jwt-generate' => ['POST'],
         ]);
     }
 
@@ -486,6 +489,67 @@ class SubmissionsController extends BaseSubmissionsController
                 $result->safeErrorMsg,
             );
         }, $results);
+    }
+
+    /**
+     * Returns a signed JWT for a submission.
+     *
+     * The payload of the JWT contains the student ID and the submission ID.
+     *
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Post(
+     *     path="/student/submissions/{id}/jwt",
+     *     operationId="student::SubmissionsController::actionJwtGenerate",
+     *     tags={"Student Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         description="Submission data to generate a JWT",
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"id"},
+     *             @OA\Property(
+     *                 property="id",
+     *                 type="integer",
+     *                 description="ID of the submission",
+     *                 example=123
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="JWT successfully signed.",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Common_JwtResource_Read")
+     *          ),
+     *    ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     */
+    public function actionJwtGenerate(int $id): JwtResource
+    {
+        $submission = SubmissionResource::findOne($id);
+
+        if (is_null($submission)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Submission not found'));
+        }
+
+        // Authorization check
+        PermissionHelpers::isItMySubmission($submission);
+
+        $studentId = $submission->uploaderID;
+        $tokenData = ['studentId' => $studentId, 'submissionId' => $id];
+
+        $jwtResource = new JwtResource();
+        $jwtResource->token = JwtHelper::create($tokenData);
+
+        return $jwtResource;
     }
 
     /**
