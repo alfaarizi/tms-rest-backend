@@ -4,6 +4,26 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.13](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.12...v4.0.0-alpha.13) (2025-03-13)
+
+### ⚠ BREAKING CHANGES
+
+* Rename "Exam" to "Quiz" ([d4b5f7](https://gitlab.com/tms-elte/backend-core/commit/d4b5f7b954222b68a0c51ebd832f696bf2e49615))
+
+### Features
+
+* Added JWT token generation and validation for submission QR codes ([509c6e](https://gitlab.com/tms-elte/backend-core/commit/509c6ee610f0d147389314a078aa8a01166ed121))
+* Delay e-mail notification of future tasks ([db4098](https://gitlab.com/tms-elte/backend-core/commit/db40981ca87e8f384d34c2befc903218275f10c7))
+* Send stdout and stderr to students on successful evaluation ([6ffd76](https://gitlab.com/tms-elte/backend-core/commit/6ffd76982f80c3f85d212c8650c561ad8d1a5bca))
+
+### Bug Fixes
+
+* Add lecturer for course in sample seed dataset ([2e31de](https://gitlab.com/tms-elte/backend-core/commit/2e31de7c9b2f442df9d97bb7f2b5afcd0618cbae))
+* Static analysis Canvas comments are propagated back to TMS in translations ([d4268e](https://gitlab.com/tms-elte/backend-core/commit/d4268effe91b041c8c0b1150a975e01934ad4392))
+
+
+---
+
 ## [4.0.0-alpha.12](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.11...v4.0.0-alpha.12) (2025-01-16)
 
 ### Bug Fixes
