@@ -78,6 +78,11 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
             // /instructor/web-app-execution
             "<module:{$this->id}>/<controller:web-app-execution>/<id>/download-run-log" => '<module>/<controller>/download-run-log',
+
+            // instructor/lecturers
+            "GET <module:{$this->id}>/<controller:courses>/<courseID>/lecturers" => '<module>/<controller>/list-lecturers',
+            "POST <module:{$this->id}>/<controller:courses>/<courseID>/lecturers" => '<module>/<controller>/add-lecturers',
+            "DELETE <module:{$this->id}>/<controller:courses>/<courseID>/lecturers/<userID>" => '<module>/<controller>/delete-lecturer'
         ], false);
     }
 }

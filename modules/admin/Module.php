@@ -26,11 +26,5 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
     public function bootstrap($app)
     {
-        $app->getUrlManager()->addRules([
-            // admin/lecturers
-            "GET <module:{$this->id}>/<controller:courses>/<courseID>/lecturers" => '<module>/<controller>/list-lecturers',
-            "POST <module:{$this->id}>/<controller:courses>/<courseID>/lecturers" => '<module>/<controller>/add-lecturers',
-            "DELETE <module:{$this->id}>/<controller:courses>/<courseID>/lecturers/<userID>" => '<module>/<controller>/delete-lecturer'
-        ], false);
     }
 }

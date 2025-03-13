@@ -3,9 +3,7 @@
 namespace app\modules\instructor\controllers;
 
 use app\controllers\BaseRestController;
-use Yii;
 use yii\filters\AccessControl;
-use yii\filters\auth\HttpBearerAuth;
 
 /**
  * Common logic in instructor rest controllers
@@ -24,7 +22,7 @@ abstract class BaseInstructorRestController extends BaseRestController
             'rules' => [
                 [
                     'allow' => true,
-                    'roles' => ['faculty'],
+                    'roles' => ['faculty', 'admin'],
                 ],
             ]
         ];
