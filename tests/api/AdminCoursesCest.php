@@ -81,7 +81,7 @@ class AdminCoursesCest
 
     public function view(ApiTester $I)
     {
-        $I->sendGet('/admin/courses/4000');
+        $I->sendGet('/instructor/courses/4000');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::COURSE_SCHEMA);
         $I->seeResponseContainsJson(
@@ -95,7 +95,7 @@ class AdminCoursesCest
 
     public function viewNotFound(ApiTester $I)
     {
-        $I->sendGet('/admin/courses/0');
+        $I->sendGet('/instructor/courses/0');
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
@@ -176,7 +176,7 @@ class AdminCoursesCest
 
     public function deleteLastLecturer(ApiTester $I)
     {
-        $I->sendDelete('admin/courses/4003/lecturers/1006');
+        $I->sendDelete('instructor/courses/4003/lecturers/1006');
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
         $I->seeResponseContainsJson(
             [
@@ -194,14 +194,14 @@ class AdminCoursesCest
 
     public function updateNotFound(ApiTester $I)
     {
-        $I->sendPost('/admin/courses/0');
+        $I->sendPost('/instructor/courses/0');
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function updateInvalid(ApiTester $I)
     {
         $I->sendPatch(
-            '/admin/courses/4000',
+            '/instructor/courses/4000',
             [
                 'name' => '',
                 'codes' => ['10']
@@ -227,7 +227,7 @@ class AdminCoursesCest
     public function updateValid(ApiTester $I)
     {
         $I->sendPatch(
-            '/admin/courses/4000',
+            '/instructor/courses/4000',
             [
                 'name' => 'Updated',
                 'codes' => ['Updated']
@@ -258,13 +258,13 @@ class AdminCoursesCest
 
     public function listLecturersCourseNotFound(ApiTester $I)
     {
-        $I->sendGet('admin/courses/0/lecturers');
+        $I->sendGet('instructor/courses/0/lecturers');
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function listLecturers(ApiTester $I)
     {
-        $I->sendGet('admin/courses/4002/lecturers');
+        $I->sendGet('instructor/courses/4002/lecturers');
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::USER_SCHEMA, '$.[*]');
         $I->seeResponseContainsJson(
@@ -285,19 +285,19 @@ class AdminCoursesCest
 
     public function deleteLecturerCourseNotFound(ApiTester $I)
     {
-        $I->sendDelete('/admin/courses/0/lecturers/7');
+        $I->sendDelete('/instructor/courses/0/lecturers/7');
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function deleteLecturerNotFoundForCourse(ApiTester $I)
     {
-        $I->sendDelete('/admin/courses/4000/lecturers/1006');
+        $I->sendDelete('/instructor/courses/4000/lecturers/1006');
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function deleteLecturer(ApiTester $I)
     {
-        $I->sendDelete('/admin/courses/4000/lecturers/1007');
+        $I->sendDelete('/instructor/courses/4000/lecturers/1007');
         $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
         $I->cantSeeRecord(
             InstructorCourse::class,
@@ -310,13 +310,13 @@ class AdminCoursesCest
 
     public function addLecturerCourseNotFound(ApiTester $I)
     {
-        $I->sendPost('/admin/courses/0/lecturers');
+        $I->sendPost('/instructor/courses/0/lecturers');
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
     }
 
     public function addLecturerInvalidBody(ApiTester $I)
     {
-        $I->sendPost('/admin/courses/4000/lecturers', []);
+        $I->sendPost('/instructor/courses/4000/lecturers', []);
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->seeResponseMatchesJsonType(['string'], '$.[*]');
     }
@@ -324,7 +324,7 @@ class AdminCoursesCest
     public function addLecturer(ApiTester $I)
     {
         $I->sendPost(
-            '/admin/courses/4000/lecturers',
+            '/instructor/courses/4000/lecturers',
             [
                 'userCodes' => ['TEACH0', 'TEACH1', 'TEACH2', 'TEACH3']
             ]
