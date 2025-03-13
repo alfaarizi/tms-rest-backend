@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0-alpha.14](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.13...v4.0.0-alpha.14) (2025-03-13)
+
+### Features
+
+* Added course management API for lecturers ([d5c8df](https://gitlab.com/tms-elte/backend-core/commit/d5c8df4a8ef7242bb91fe02fa33c0cfae83e33f4))
+
+
+---
+
 ## [4.0.0-alpha.13](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0-alpha.12...v4.0.0-alpha.13) (2025-03-13)
 
 ### ⚠ BREAKING CHANGES
