@@ -19,9 +19,9 @@ use yii\db\ActiveRecord;
  * @property integer|null $number
  * @property integer $courseID
  * @property integer $semesterID
- * @property integer $synchronizerID
- * @property integer $canvasSectionID
- * @property integer $canvasCourseID
+ * @property ?integer $synchronizerID
+ * @property ?integer $canvasSectionID
+ * @property ?integer $canvasCourseID
  * @property string $lastSyncTime
  * @property boolean $isExamGroup
  * @property string $timezone

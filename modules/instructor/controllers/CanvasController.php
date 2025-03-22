@@ -60,6 +60,7 @@ class CanvasController extends BaseInstructorRestController
                 'oauth2-response' => ['POST'],
                 'setup' => ['POST'],
                 'sync' => ['POST'],
+                'cancel-sync' => ['POST'],
                 'courses' => ['GET'],
                 'sections' => ['GET'],
             ]
@@ -320,9 +321,66 @@ class CanvasController extends BaseInstructorRestController
     }
 
     /**
+     * Synchronize the selected course and group with Canvas
+     * @param int $groupID the id of the selected group
+     * @throws ConflictHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     *
+     * @OA\Post(
+     *     path="/instructor/canvas/cancel-sync",
+     *     operationId="instructor::CanvasController::actionCancelSync",
+     *     tags={"Instructor Canvas"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="groupID",
+     *         in="query",
+     *         required=true,
+     *         description="ID of the group",
+     *         explode=true,
+     *         @OA\Schema(ref="#/components/schemas/int_id")
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="successful operation",
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(
+     *        response=401,
+     *        description="Unauthorized: missing, invalid or expired access or Canvas token. If Canvas login is required, the Proxy-Authenticate header containains the login URL.",
+     *        @OA\JsonContent(ref="#/components/schemas/Yii2Error"),
+     *    ),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=409, ref="#/components/responses/409"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     */
+    public function actionCancelSync(int $groupID): void
+    {
+        $group = Group::findOne($groupID);
+
+        if (is_null($group)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Group not found.'));
+        }
+
+        // Authorization check
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $groupID])) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
+        }
+
+        // Setup is required before synchronization
+        if (!$group->isCanvasCourse) {
+            throw new ConflictHttpException(Yii::t('app', 'Synchronization is not configured for this group.'));
+        }
+
+        $this->canvas->cancelCanvasSync($group);
+        $this->response->statusCode = 204;
+    }
+
+    /**
      * Lists available Canvas courses
      * @return ArrayDataProvider|void
-     * @throws ServerErrorHttpException
      *
      * @OA\Get(
      *     path="/instructor/canvas/courses",

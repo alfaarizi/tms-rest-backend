@@ -259,6 +259,42 @@ class CanvasIntegration
     }
 
     /**
+     * Cancel the synchronization of the group
+     * @param Group $group the group in the tms
+     * @throws Exception
+     * @throws \yii\db\Exception
+     */
+    public function cancelCanvasSync(Group $group): void
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            /** @var Task[] $tasks */
+            $tasks = $group->getTasks()
+                ->where(['category' => Task::CATEGORY_TYPE_CANVAS_TASKS])
+                ->all();
+            foreach ($tasks as $task) {
+                $task->category = Task::CATEGORY_TYPE_SMALLER_TASKS;
+
+                $task->save();
+            }
+
+            $group->canvasSectionID = null;
+            $group->canvasCourseID = null;
+            $group->save();
+
+            $transaction->commit();
+
+            Yii::info(
+                "Canvas synchronization has been cancelled for the group",
+                __METHOD__
+            );
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
      * Get the given group data from canvas and save in the database
      * @param Group $group the selected group
      */
