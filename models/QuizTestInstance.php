@@ -19,6 +19,8 @@ use app\models\User;
  * @property int $score
  * @property int $userID
  * @property int $testID
+ * @property string|null $token
+ * @property-read boolean $isUnlocked
  * @property-read int $testDuration
  *
  * @property QuizSubmittedAnswer[] $submittedanswers
@@ -61,6 +63,7 @@ class QuizTestInstance extends \yii\db\ActiveRecord implements IOpenApiFieldType
             [['submitted'], 'boolean'],
             [['userID', 'testID'], 'required'],
             [['userID'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['userID' => 'id']],
+            [['token'], 'string', 'max' => 255],
             [['testID'], 'exist', 'skipOnError' => true, 'targetClass' => QuizTest::class, 'targetAttribute' => ['testID' => 'id']],
         ];
     }
@@ -77,6 +80,7 @@ class QuizTestInstance extends \yii\db\ActiveRecord implements IOpenApiFieldType
             'submitted' => Yii::t('app', 'Submitted'),
             'score' => Yii::t('app', 'Score'),
             'userID' => Yii::t('app', 'User ID'),
+            'token' => Yii::t('app', 'Token'),
             'testID' => Yii::t('app', 'Test ID'),
         ];
     }
@@ -90,6 +94,8 @@ class QuizTestInstance extends \yii\db\ActiveRecord implements IOpenApiFieldType
             'submitted' => new OAProperty(['type' => 'integer']),
             'score' => new OAProperty(['type' => 'integer']),
             'userID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
+            'token' => new OAProperty(['type' => 'string']),
+            'isUnlocked' => new OAProperty(['type' => 'boolean']),
             'testID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
         ];
     }
@@ -135,6 +141,16 @@ class QuizTestInstance extends \yii\db\ActiveRecord implements IOpenApiFieldType
     public function getTestDuration()
     {
         return strtotime($this->finishtime) - strtotime($this->starttime);
+    }
+
+    public function getIsUnlocked(): bool
+    {
+        if (!$this->test->isPasswordProtected) {
+            return true;
+        }
+
+        $currentToken = AccessToken::getCurrent()->token;
+        return !is_null($this->token) && !is_null($currentToken) && $this->token === $currentToken;
     }
 
 

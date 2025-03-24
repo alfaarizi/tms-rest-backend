@@ -21,6 +21,7 @@ class QuizTestInstanceResource extends QuizTestInstance
             'score',
             'maxScore',
             'test',
+            'isUnlocked',
         ];
     }
 

@@ -145,4 +145,17 @@ return [
         'questionsetID' => 1,
         'groupID' => 2000,
     ],
+    'testPasswordProtected' => [
+        'id' => 14,
+        'name' => 'Vizsga',
+        'questionamount' => 1,
+        'duration' => 110,
+        'shuffled' => 1,
+        'unique' => 1,
+        'availablefrom' => date('Y-m-d H:i:s', strtotime('-1 day')),
+        'availableuntil' => date('Y-m-d H:i:s', strtotime('+1 day')),
+        'questionsetID' => 1,
+        'groupID' => 2000,
+        'password' => 'password',
+    ],
 ];
