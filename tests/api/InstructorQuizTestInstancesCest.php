@@ -22,7 +22,8 @@ class InstructorQuizTestInstancesCest
             'userCode' => 'string',
             'name' => 'string'
         ],
-        'testDuration' => 'integer'
+        'testDuration' => 'integer',
+        'isUnlocked' => 'boolean'
     ];
 
     public function _fixtures()

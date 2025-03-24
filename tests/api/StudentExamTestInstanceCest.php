@@ -4,6 +4,7 @@ namespace app\tests\api;
 
 use ApiTester;
 use app\models\QuizSubmittedAnswer;
+use app\models\QuizTestInstance;
 use app\tests\unit\fixtures\AccessTokenFixture;
 use app\tests\unit\fixtures\AnswerFixture;
 use app\tests\unit\fixtures\QuestionFixture;
@@ -68,6 +69,7 @@ class StudentQuizTestInstanceCest
                 ['id' => 8],
                 ['id' => 9],
                 ['id' => 10],
+                ['id' => 11]
             ]
         );
 
@@ -91,7 +93,6 @@ class StudentQuizTestInstanceCest
             '$.[*]'
         );
     }
-
     public function indexNotSubmitted(ApiTester $I)
     {
         $I->sendGet("/student/quiz-test-instances?semesterID=3001&submitted=false&future=false");
@@ -375,6 +376,20 @@ class StudentQuizTestInstanceCest
         );
     }
 
+    public function startNotVerified(ApiTester $I)
+    {
+        $I->seeRecord(\app\models\QuizTestInstance::class, ['id' => 11, 'starttime' => null]);
+        $I->sendPost("/student/quiz-test-instances/11/start-write");
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function startVerified(ApiTester $I)
+    {
+        $I->seeRecord(\app\models\QuizTestInstance::class, ['id' => 12, 'starttime' => null]);
+        $I->sendPost("/student/quiz-test-instances/12/start-write");
+        $I->seeResponseCodeIs(HttpCode::OK);
+    }
+
     public function finishWriteNotFound(ApiTester $I)
     {
         $I->sendPost("/student/quiz-test-instances/0/finish-write");
@@ -550,6 +565,108 @@ class StudentQuizTestInstanceCest
         $I->seeResponseContainsJson(
             [
                 "answerID" => ["Answer is already saved for this question"]
+            ]
+        );
+    }
+
+    public function finishNotVerified(ApiTester $I)
+    {
+        $I->sendPost(
+            "/student/quiz-test-instances/13/finish-write",
+            [
+                ['answerID' => 1],
+                ['answerID' => 12],
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function finishVerified(ApiTester $I)
+    {
+        $I->sendPost(
+            "/student/quiz-test-instances/12/finish-write",
+            [
+                ['answerID' => 1],
+                ['answerID' => 12],
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+    }
+
+
+    public function unlockExamAlreadyUnlocked(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/quiz-test-instances/unlock',
+            [
+                'id' => 12,
+                'password' => 'password',
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+    }
+
+    public function unlockExamInvalidRequest(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/quiz-test-instances/unlock',
+            [
+                'password' => 'password'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+    }
+
+    public function unlockExamWrongPassword(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/quiz-test-instances/unlock',
+            [
+                'id' => 11,
+                'password' => 'wrong',
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+    }
+
+    public function unlockWithoutPermission(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/quiz-test-instances/unlock',
+            [
+                'id' => 14,
+                'password' => 'password',
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function unlockSolution(ApiTester $I)
+    {
+        $I->sendPost(
+            '/student/quiz-test-instances/unlock',
+            [
+                'id' => 11,
+                'password' => 'password',
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+
+        $I->seeResponseContainsJson(
+            [
+                'id' => 11,
+                'submitted' => 0,
+                'starttime' => null,
+                'finishtime' => null,
+                'score' => 0,
+                'isUnlocked' => true
+            ]
+        );
+        $I->seeRecord(
+            QuizTestInstance::class,
+            [
+                "id" => 11,
+                "token" => "STUD02;VALID"
             ]
         );
     }

@@ -19,6 +19,8 @@ class QuizTestResource extends QuizTest
             'unique',
             'availablefrom',
             'availableuntil',
+            'password',
+            'isPasswordProtected',
             'groupID',
             'questionsetID',
         ];

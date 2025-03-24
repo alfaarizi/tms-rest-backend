@@ -3,6 +3,7 @@
 namespace app\tests\api;
 
 use ApiTester;
+use app\modules\student\resources\QuizTestInstanceResource;
 use app\tests\DateFormat;
 use DateTime;
 use Yii;
@@ -30,6 +31,7 @@ class InstructorQuizTestsCest
         'availablefrom' => 'string',
         'availableuntil' => 'string',
         'groupID' => 'integer',
+        'password' => 'string|null'
     ];
 
     public function _fixtures()
@@ -86,6 +88,7 @@ class InstructorQuizTestsCest
                 ['id' => 10],
                 ['id' => 11],
                 ['id' => 12],
+                ['id' => 13],
             ]
         );
         $I->cantSeeResponseContainsJson(

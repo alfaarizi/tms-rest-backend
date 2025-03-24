@@ -182,6 +182,7 @@ return [
     'This operation can only be performed on a canvas synchronized task!' => 'Ez a művelet csak canvassal szinkronizált beadandón hajtható végre!',
     'Canvas synchronization is disabled! Contact the administrator for more information.' => 'A Canvas szinkronizáció ki van kapcsolva! Contact the administrator for more information.',
     'The synchronization is disabled if a task or user is assigned to the group!' => 'A szinkronizáció nem engedélyezett, ha a csoporthoz van feladat vagy felhasználó hozzárendelve!',
+    'Token' => 'Token',
     'Canvas login failed' => 'Canvas bejelentkezés sikertelen volt',
     'Group is already synchronized' => 'A csoport már szinkronizálva van.',
     'Synchronization is not configured for this group.' => 'A szinkronizáció nincs beállítva ehhez a csoporthoz.',
@@ -486,6 +487,8 @@ return [
     "(copy)" => "(másolat)",
     "Test instances are unique: you must provide an userID!" => "A tesztpéldányok egyediek: a userID megadása kötelező!",
     "The selected group is empty. Please add at least one student!" => "A kiválaszott csoport üres. Adjon hozzá legalább egy hallgatót!",
+    "Password for exam has not been entered for this session" => "Nem lett megadva jelszó ebben a munkamenetben",
+    "Exam is already verified" => "A vizsga már hitelesítve van",
 
     // CodeCompass integration
     "CodeCompass is not enabled." => "A CodeCompass funkció nincs bekapcsolva.",

@@ -8,6 +8,7 @@ use app\models\User;
 use app\tests\unit\fixtures\TestFixture;
 use app\tests\unit\fixtures\UserFixture;
 use UnitTester;
+use yii\base\ErrorException;
 
 class TestInstanceTest extends \Codeception\Test\Unit
 {
@@ -55,6 +56,18 @@ class TestInstanceTest extends \Codeception\Test\Unit
         $testInstance->userID = 1000;
         $user = $testInstance->getUser();
         $this->assertNotNull($user, "Related user should be returned");
+    }
+
+    public function testGetVerifiedNotPasswordProtected()
+    {
+        $this->assertNotNull(QuizTest::findOne(1));
+
+        $testInstance = new QuizTestInstance();
+        $testInstance->userID = 1000;
+        $testInstance->testID = 1;
+        $testInstance->save();
+
+        $this->assertTrue($testInstance->getIsUnlocked());
     }
 
     public function testDeleteTest()

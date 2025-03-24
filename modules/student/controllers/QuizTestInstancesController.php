@@ -2,6 +2,7 @@
 
 namespace app\modules\student\controllers;
 
+use app\models\AccessToken;
 use app\models\QuizAnswer;
 use app\models\QuizQuestion;
 use app\models\QuizTest;
@@ -12,6 +13,8 @@ use app\modules\student\resources\QuizTestInstanceResource;
 use app\modules\student\resources\QuizWriterAnswerResource;
 use app\modules\student\resources\QuizWriterQuestionResource;
 use app\modules\student\resources\QuizWriterResource;
+use app\modules\student\resources\UnlockTestResource;
+use app\modules\student\helpers\PermissionHelpers;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -38,6 +41,7 @@ class QuizTestInstancesController extends BaseSubmissionsController
                 'results' => ['GET'],
                 'start-write' => ['POST'],
                 'finish-write' => ['POST'],
+                'verify' => ['POST'],
             ]
         );
     }
@@ -277,11 +281,8 @@ class QuizTestInstancesController extends BaseSubmissionsController
             throw new NotFoundHttpException(Yii::t('app', "Test instance does not exist"));
         }
 
-        if ($testInstance->submitted || strtotime($testInstance->test->availablefrom) > time()
-            || strtotime($testInstance->test->availableuntil) < time() || $testInstance->userID != Yii::$app->user->id) {
-
-            throw new ForbiddenHttpException(Yii::t('app', "You don't have permission to access this test instance"));
-        }
+        PermissionHelpers::canStartTest($testInstance);
+        PermissionHelpers::checkTestUnlocked($testInstance);
 
         //Save starttime on the first occasion
         if (is_null($testInstance->starttime)) {
@@ -387,11 +388,8 @@ class QuizTestInstancesController extends BaseSubmissionsController
             throw new NotFoundHttpException(Yii::t('app', "Test instance does not exist"));
         }
 
-        if ($testInstance->submitted || strtotime($testInstance->test->availablefrom) > time()
-            || strtotime($testInstance->test->availableuntil) + 30 < time() || $testInstance->userID != Yii::$app->user->id) {
-            // 30 seconds gratis time, so JavaScript-based auto-submission at the end of the test is still valid
-            throw new ForbiddenHttpException(Yii::t('app', "You don't have permission to access this test instance"));
-        }
+        PermissionHelpers::canFinishTest($testInstance);
+        PermissionHelpers::checkTestUnlocked($testInstance);
 
         $submittedAnswers = [];
         $count = $testInstance->getQuestions()->count();
@@ -505,6 +503,83 @@ class QuizTestInstancesController extends BaseSubmissionsController
                 __METHOD__
             );
             throw new ServerErrorHttpException(Yii::t("app", "A database error occurred"));
+        }
+    }
+
+    /**
+     * Verify exam password.
+     * This actions verifies a password protected exam for this session.
+     * @return QuizTestInstanceResource|array
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     *
+     * @OA\Post(
+     *     path="/student/quiz-test-instances/unlock",
+     *     operationId="student::QuizTestInstancesController::actionUnlock",
+     *     tags={"Student Exam Test Instances"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         description="exam test instance id and password to unlock exam",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Student_UnlockTestResource_ScenarioDefault"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="verified",
+     *         @OA\JsonContent(ref="#/components/schemas/Student_QuizTestInstanceResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+ */
+    public function actionUnlock()
+    {
+        $unlockResource = new UnlockTestResource();
+        $unlockResource->load(Yii::$app->request->post(), '');
+
+        if (!$unlockResource->validate()) {
+            $this->response->statusCode = 422;
+            return $unlockResource->errors;
+        }
+
+        $testInstance = QuizTestInstance::findOne($unlockResource->id);
+
+        if (is_null($testInstance)) {
+            throw new NotFoundHttpException(Yii::t('app', "Test instance does not exist"));
+        }
+
+        if ($testInstance->userID != Yii::$app->user->id) {
+            throw new ForbiddenHttpException(Yii::t('app', "You don't have permission to access this test instance"));
+        }
+
+        if ($testInstance->isUnlocked) {
+            throw new BadRequestHttpException(Yii::t('app', 'Exam is already verified'));
+        }
+
+        if ($unlockResource->password !== $testInstance->test->password) {
+            $unlockResource->addError('password', Yii::t('app', 'Invalid password'));
+        }
+
+        if ($unlockResource->hasErrors()) {
+            $this->response->statusCode = 422;
+            return $unlockResource->errors;
+        }
+
+        $token = AccessToken::getCurrent();
+        $testInstance->token = AccessToken::getCurrent()->token;
+        if ($testInstance->save()) {
+            Yii::info("An exam test instance (#$testInstance->id) has been verified.", __METHOD__);
+            return QuizTestInstanceResource::findOne($testInstance->id);
+        } else {
+            throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
         }
     }
 

@@ -17,7 +17,8 @@ class QuizTestInstanceResource extends QuizTestInstance
             'id',
             'score',
             'user',
-            'testDuration'
+            'testDuration',
+            'isUnlocked'
         ];
     }
 

@@ -22,6 +22,8 @@ use yii\helpers\ArrayHelper;
  * @property int $unique
  * @property string $availablefrom
  * @property string $availableuntil
+ * @property string|null $password;
+ * @property-read boolean $isPasswordProtected;
  * @property int $groupID
  * @property int $questionsetID
  * @property-read string $timezone
@@ -49,7 +51,8 @@ class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
                     'availablefrom',
                     'availableuntil',
                     'groupID',
-                    'questionsetID'
+                    'questionsetID',
+                    'password'
                 ],
                 self::SCENARIO_UPDATE => [
                     'name',
@@ -60,6 +63,7 @@ class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
                     'availablefrom',
                     'availableuntil',
                     'groupID',
+                    'password'
                 ]
             ]
         );
@@ -164,7 +168,8 @@ class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
                         );
                     }
                 }
-            ]
+            ],
+            [['password'], 'string', 'max' => 255],
         ];
     }
 
@@ -217,7 +222,7 @@ class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            $testAttr = ['id', 'starttime', 'finishtime', 'submitted', 'score', 'userID', 'testID'];
+            $testAttr = ['id', 'starttime', 'finishtime', 'submitted', 'score', 'userID', 'token', 'testID'];
             Yii::$app->db->createCommand()->batchInsert(QuizTestInstance::tableName(), $testAttr, $batchTests)->execute();
 
             //Shuffle array of questions and slice the first n where n is the question amount
@@ -275,6 +280,7 @@ class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
             'availablefrom' => Yii::t('app', 'Available from'),
             'availableuntil' => Yii::t('app', 'Available until'),
             'groupID' => Yii::t('app', 'Group ID'),
+            'password' => Yii::t('app', 'Password'),
             'questionsetID' => Yii::t('app', 'Question set ID'),
         ];
     }
@@ -290,6 +296,8 @@ class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
             'unique' => new OAProperty(['type' => 'integer']),
             'availablefrom' => new OAProperty(['type' => 'string']),
             'availableuntil' => new OAProperty(['type' => 'string']),
+            'isPasswordProtected' => new OAProperty(['type' => 'boolean']),
+            'password' => new OAProperty(['type' => 'string']),
             'groupID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'questionsetID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
         ];
@@ -317,6 +325,14 @@ class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
     public function getGroup()
     {
         return $this->hasOne(Group::class, ['id' => 'groupID']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsPasswordProtected(): bool
+    {
+        return !empty($this->password);
     }
 
     /**
