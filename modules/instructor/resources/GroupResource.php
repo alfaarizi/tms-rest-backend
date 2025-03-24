@@ -24,6 +24,7 @@ class GroupResource extends \app\models\Group
             'number',
             'course',
             'isExamGroup',
+            'courseID',
             'semesterID',
             'canvasCanBeSynchronized',
             'isCanvasCourse',
