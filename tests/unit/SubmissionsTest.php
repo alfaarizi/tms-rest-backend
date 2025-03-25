@@ -144,7 +144,7 @@ class SubmissionsTest extends \Codeception\Test\Unit
         $file = $this->createFile();
         $file->autoTesterStatus = Submission::AUTO_TESTER_STATUS_PASSED;
         $file->task->showFullErrorMsg = true;
-        $this->assertEquals(self::FULL_ERROR_MSG, $file->safeErrorMsg);
+        $this->assertEquals('Your solution passed the tests', $file->safeErrorMsg);
     }
 
     public function testSafeErrorMsgWhenAutoTesterStatusIsInProgress()
