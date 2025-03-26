@@ -115,35 +115,31 @@ class AutoTesterController extends BaseController
                 $tester->test();
                 $result = $tester->getResults();
 
-                $errorMsg = '';
                 // If the testing environment couldn't be initialized
                 if (!$result['initialized']) {
-                    $errorMsg = $result['initiationError'];
                     $submission->status = Submission::STATUS_FAILED;
                     $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_INITIATION_FAILED;
-                    $submission->errorMsg = $errorMsg;
+                    $submission->errorMsg = $result['initiationError'];
                     // If the solution didn't compile
                 } elseif (!$result['compiled']) {
-                    $errorMsg = $result['compilationError'];
                     $submission->status = Submission::STATUS_FAILED;
                     $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_COMPILATION_FAILED;
-                    $submission->errorMsg = $errorMsg;
+                    $submission->errorMsg = $result['compilationError'];
                     // If there were errors executing the program
                 } elseif (!$result['executed']) {
-                    $errorMsg = $result['errorMsg'];
                     $submission->status = Submission::STATUS_FAILED;
                     $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_EXECUTION_FAILED;
-                    $submission->errorMsg = $errorMsg;
+                    $submission->errorMsg = $result['errorMsg'];
                     // If the tests passed
                 } elseif ($result['passed']) {
                     $submission->status = Submission::STATUS_PASSED;
                     $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_PASSED;
+                    $submission->errorMsg = null;
                     // If the tests failed
                 } else {
-                    $errorMsg = $result['errorMsg'];
                     $submission->status = Submission::STATUS_FAILED;
                     $submission->autoTesterStatus = Submission::AUTO_TESTER_STATUS_TESTS_FAILED;
-                    $submission->errorMsg = $errorMsg;
+                    $submission->errorMsg = $result['errorMsg'];
                 }
 
                 $transaction = Yii::$app->db->beginTransaction();
