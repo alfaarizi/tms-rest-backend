@@ -40,7 +40,7 @@ All notable changes to this project will be documented in this file.
 * Send stdout and stderr to students on successful evaluation ([6ffd76](https://gitlab.com/tms-elte/backend-core/commit/6ffd76982f80c3f85d212c8650c561ad8d1a5bca))
 * Updated git-php version to 4.2.0 ([077027](https://gitlab.com/tms-elte/backend-core/commit/077027f6458e011582223d2c18ebe063f502688d))
 * Upgrading gcc/g++ based evaluator templates to Ubuntu 24.04 ([d8def7](https://gitlab.com/tms-elte/backend-core/commit/d8def7520388b7f7f6d8e7954402121d9c237ec0))
-* Upgrading MAUI-based evaluator templates to .NET 8. ([76def5](https://gitlab.com/tms-elte/backend-core/commit/76def5b60d85b1469efbd45d0bdd76e8e7206c95))
+* Upgrading MAUI-based evaluator templates to .NET 8 ([76def5](https://gitlab.com/tms-elte/backend-core/commit/76def5b60d85b1469efbd45d0bdd76e8e7206c95))
 
 ### Bug Fixes
 
