@@ -4,10 +4,10 @@ image: registry.gitlab.com/tms-elte/docker-images/php:7.4
 # Stages: lint -> test -> docs -> deploy
 stages:
   - lint
+  - build
   - test
   - docs
   - deploy
-  - scan 
 
 # Cached files between builds
 cache:
@@ -254,8 +254,9 @@ codecov:
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   - docker login -u "$DOCKERHUB_USER" -p "$DOCKERHUB_TOKEN"
 
+# Docker
 .docker:
-  stage: deploy
+  stage: build
   image: docker:latest
   services:
     - docker:dind
@@ -295,8 +296,14 @@ docker_version:
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /^v[^-].*$/ && $CI_PROJECT_NAMESPACE == "tms-elte"'
 
+# Container Scanning
 container_scanning:
-  stage: scan
+  variables:
+    # Default inherited strategy is "none", but the Dockerfile is needed, 
+    # so the container scanner (Trivy) can recommend direct remediations
+    GIT_STRATEGY: fetch
+    CS_SEVERITY_THRESHOLD: MEDIUM
+    CS_IGNORE_UNFIXED: true
   before_script:
     - |
       if [ "$CI_COMMIT_BRANCH" == "master" ]; then
