@@ -1,8 +1,12 @@
 FROM tmselte/php:7.4
 
-# Install cron
-RUN apt-get update -y
-RUN apt-get install -y cron
+# Update package repository
+RUN apt-get update -y \
+    # Install cron
+    && apt-get install -y cron \
+    # Clear caches and metadata
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set up a production configuration for PHP
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
