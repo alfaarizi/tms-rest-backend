@@ -7,6 +7,7 @@ stages:
   - test
   - docs
   - deploy
+  - scan 
 
 # Cached files between builds
 cache:
@@ -14,11 +15,12 @@ cache:
   paths:
     - vendor/
 
-# Dependency scanning & Secret detection & SAST
+# Built-in security scanners
 include:
   - template: Jobs/Dependency-Scanning.gitlab-ci.yml
   - template: Jobs/Secret-Detection.gitlab-ci.yml
   - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Container-Scanning.gitlab-ci.yml
 
 .setup-nodb:
   before_script: &setup-nodb-before-script
@@ -291,4 +293,21 @@ docker_version:
     # Remove v prefix from tag
     - IMAGE_TAG=${IMAGE_TAG#v}
   rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /^v[^-].*$/ && $CI_PROJECT_NAMESPACE == "tms-elte"'
+
+container_scanning:
+  stage: scan
+  before_script:
+    - |
+      if [ "$CI_COMMIT_BRANCH" == "master" ]; then
+        IMAGE_TAG="latest"
+      elif [ "$CI_COMMIT_BRANCH" == "develop" ]; then
+        IMAGE_TAG="nightly"
+      elif [ "$CI_COMMIT_TAG" ]; then
+        IMAGE_TAG=${CI_COMMIT_TAG#v}
+      fi
+      export CS_IMAGE="$CI_REGISTRY_IMAGE:$IMAGE_TAG"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_NAMESPACE == "tms-elte"
+    - if: $CI_COMMIT_BRANCH == "develop" && $CI_PROJECT_NAMESPACE == "tms-elte"
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /^v[^-].*$/ && $CI_PROJECT_NAMESPACE == "tms-elte"'
