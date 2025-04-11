@@ -27,7 +27,7 @@ Yii uses [Composer](http://getcomposer.org/) as dependency manager. If you do no
 Simply install the required dependencies:
 
 ~~~
-composer install --prefer-dist
+composer install
 ~~~
 
 **NOTE:** Modern Yii uses the [Asset Packagist](https://asset-packagist.org/) repository, so the global installation of the [Composer Asset Plugin](https://github.com/francoispluchino/composer-asset-plugin) is no longer required.
