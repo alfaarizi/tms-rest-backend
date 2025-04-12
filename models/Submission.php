@@ -277,7 +277,9 @@ class Submission extends File implements IOpenApiFieldTypes
             return false;
         }
 
-        $this->errorMsg = StringHelper::truncate($this->errorMsg, 65000);
+        if (is_string($this->errorMsg)) {
+            $this->errorMsg = StringHelper::truncate($this->errorMsg, 65000);
+        }
         return true;
     }
 
