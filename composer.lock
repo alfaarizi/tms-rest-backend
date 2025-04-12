@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "047ca76e64fa2778d1ca16b9a0e5bdc0",
+    "content-hash": "d78b82fcca65ee1015a6e6aea81d61be",
     "packages": [
         {
             "name": "bower-asset/bootstrap",
@@ -6664,22 +6664,22 @@
         },
         {
             "name": "codeception/verify",
-            "version": "2.3.0",
+            "version": "3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Verify.git",
-                "reference": "2f8f5ce6ea1be5c011f77eb7f1ca0c9f4d551513"
+                "reference": "2e5e707dfbdf4fbe722ba3d06ebd95bb564e2bb2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Verify/zipball/2f8f5ce6ea1be5c011f77eb7f1ca0c9f4d551513",
-                "reference": "2f8f5ce6ea1be5c011f77eb7f1ca0c9f4d551513",
+                "url": "https://api.github.com/repos/Codeception/Verify/zipball/2e5e707dfbdf4fbe722ba3d06ebd95bb564e2bb2",
+                "reference": "2e5e707dfbdf4fbe722ba3d06ebd95bb564e2bb2",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "php": "^7.4 || ^8.0",
-                "phpunit/phpunit": "^9.5"
+                "phpunit/phpunit": "^9.6.11 || ^10.0 || ^11.0"
             },
             "type": "library",
             "autoload": {
@@ -6707,9 +6707,9 @@
             "description": "BDD assertion library for PHPUnit",
             "support": {
                 "issues": "https://github.com/Codeception/Verify/issues",
-                "source": "https://github.com/Codeception/Verify/tree/2.3.0"
+                "source": "https://github.com/Codeception/Verify/tree/3.2.0"
             },
-            "time": "2023-02-09T07:21:39+00:00"
+            "time": "2024-03-28T09:57:09+00:00"
         },
         {
             "name": "doctrine/instantiator",
