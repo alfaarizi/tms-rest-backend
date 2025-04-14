@@ -2,7 +2,7 @@ Docker Guide
 ==================
 
 This guide describes how to build and use the Docker image for the *TMS REST Backend* project. This image is intended for production usage.
-In case you are interested in setting up a containerized development environment for TMS, please refer to the [TMS Compose](https://gitlab.com/tms-elte/compose) guide instead.
+In case you are interested in setting up a containerized development environment for TMS or a [multi-container environment](#multi-container-environment), please refer to the [TMS Compose](https://gitlab.com/tms-elte/compose) guide instead.
 
 In general, for production, we advise to use the prebuilt images hosted at *DockerHub* (`tmselte/backend-core`) or at the *GitLab Container Registry* (`registry.gitlab.com/tms-elte/backend-core`). Only in special circumstances should you build your own production images.
 
@@ -42,6 +42,8 @@ Keep in mind that there is no RDBMS server installed in the created docker image
 
 Additionally, you should also mount a directory (or a Docker volume) for the `appdata` directory, so persistent data is kept separately from the container.
 
+It's important that the `appdata` folder is created with the right permissions, for more info, please refer to [TMS Backend](README.md#folder-permission)
+
 ```bash
 docker run \
   --name tms-backend-core-container \
@@ -65,7 +67,7 @@ It is advised to **NOT** override the default command, but of course you may exe
 
 E.g. to seed the sample dataset:  
 ```bash
-docker exec tms-backend-core-container ./yii setup/sample
+docker exec --user www-data tms-backend-core-container ./yii setup/sample
 ```
 
 ### Version controlled tasks
