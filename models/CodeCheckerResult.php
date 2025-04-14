@@ -5,8 +5,10 @@ namespace app\models;
 use app\components\openapi\generators\OAList;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
+use Throwable;
 use Yii;
 use yii\db\ActiveQuery;
+use yii\helpers\FileHelper;
 
 /**
  * This is the model class for table "codechecker_results".
@@ -78,6 +80,23 @@ class CodeCheckerResult extends \yii\db\ActiveRecord implements IOpenApiFieldTyp
             'stdout' => Yii::t('app', 'Standard Output'),
             'stderr' => Yii::t('app', 'Standard Error'),
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function afterDelete()
+    {
+        parent::afterDelete();
+
+        $reportDir = $this->getHtmlReportsDirPath();
+        if ($reportDir !== null) {
+            try {
+                FileHelper::removeDirectory($reportDir);
+            } catch (Throwable $e) {
+                Yii::error("Failed to remove CodeChecker HTML report directory: {$reportDir}. Error: " . $e->getMessage(), __METHOD__);
+            }
+        }
     }
 
     /**
