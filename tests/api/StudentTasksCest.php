@@ -4,6 +4,7 @@ namespace app\tests\api;
 
 use ApiTester;
 use app\models\TaskAccessTokens;
+use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskAccessTokenFixture;
 use Yii;
 use app\tests\unit\fixtures\AccessTokenFixture;
@@ -45,6 +46,9 @@ class StudentTasksCest
             'users' => [
                 'class' => UserFixture::class
             ],
+            'submissions' => [
+                'class' => SubmissionsFixture::class,
+            ],
             'subscriptions' => [
                 'class' => SubscriptionFixture::class
             ],
@@ -71,20 +75,21 @@ class StudentTasksCest
 
     public function index(ApiTester $I)
     {
-        $I->sendGet('/student/tasks?groupID=2000');
+        $I->sendGet('/student/tasks?groupID=2000', ['expand' => 'submission']);
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA, '$.[*].[*]');
 
-        $I->seeResponseContainsJson([['id' => 5000]]);
-        $I->seeResponseContainsJson([['id' => 5001]]);
-        $I->seeResponseContainsJson([['id' => 5002]]);
-        $I->seeResponseContainsJson([['id' => 5008]]);
-        $I->seeResponseContainsJson([['id' => 5010]]);
-        $I->seeResponseContainsJson([['id' => 5011]]);
-        $I->seeResponseContainsJson([['id' => 5012]]);
-        $I->seeResponseContainsJson([['id' => 5013]]);
-        $I->seeResponseContainsJson([['id' => 5014]]);
-        $I->seeResponseContainsJson([['id' => 5015]]);
+        $I->seeResponseContainsJson([['id' => 5000, 'submission' => ['id' => 19]]]);
+        $I->seeResponseContainsJson([['id' => 5001, 'submission' => ['id' => 1]]]);
+        $I->seeResponseContainsJson([['id' => 5002, 'submission' => ['id' => 3]]]);
+        $I->seeResponseContainsJson([['id' => 5008, 'submission' => ['id' => 49]]]);
+        $I->seeResponseContainsJson([['id' => 5009, 'submission' => ['id' => 9]]]);
+        $I->seeResponseContainsJson([['id' => 5010, 'submission' => ['id' => 50]]]);
+        $I->seeResponseContainsJson([['id' => 5011, 'submission' => ['id' => 12]]]);
+        $I->seeResponseContainsJson([['id' => 5012, 'submission' => ['id' => 13]]]);
+        $I->seeResponseContainsJson([['id' => 5013, 'submission' => ['id' => 15]]]);
+        $I->seeResponseContainsJson([['id' => 5014, 'submission' => ['id' => 16]]]);
+        $I->seeResponseContainsJson([['id' => 5015, 'submission' => ['id' => 17]]]);
 
         $I->cantSeeResponseContainsJson([['id' => 5003]]);
         $I->cantSeeResponseContainsJson([['id' => 5004]]);
@@ -122,7 +127,7 @@ class StudentTasksCest
                 'name' => 'Task 20',
                 'category' => 'Larger tasks',
                 'translatedCategory' => 'Larger tasks',
-                'description' =>  '',
+                'description' => '',
                 'softDeadline' => null,
                 'available' => null,
                 'semesterID' => 3001,
@@ -132,7 +137,7 @@ class StudentTasksCest
 
     public function view(ApiTester $I)
     {
-        $I->sendGet('/student/tasks/5000');
+        $I->sendGet('/student/tasks/5000', ['expand' => 'submission']);
         $I->seeResponseCodeIs(HttpCode::OK);
         $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
         $I->seeResponseContainsJson(
@@ -147,6 +152,7 @@ class StudentTasksCest
                 'available' => null,
                 'creatorName' => 'Teacher Two',
                 'semesterID' => 3001,
+                'submission' => ['id' => 19]
             ]
         );
     }

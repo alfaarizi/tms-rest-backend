@@ -19,7 +19,7 @@ use Codeception\Util\HttpCode;
 
 class SubmissionsCest
 {
-    public const SUBMISSON_SCHEMA = [
+    public const SUBMISSION_SCHEMA = [
         'id' => 'integer',
         'name' => 'string',
         'uploadTime' => 'string',
@@ -102,7 +102,7 @@ class SubmissionsCest
     {
         $I->sendGet("/student/submissions/1");
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
@@ -125,7 +125,7 @@ class SubmissionsCest
     {
         $I->sendGet("/student/submissions/3");
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
@@ -194,6 +194,11 @@ class SubmissionsCest
 
         $I->openFile(Yii::getAlias("@appdata/uploadedfiles/5001/stud01/stud01.zip"));
         $I->seeFileContentsEqual($I->grabResponse());
+
+        $file = tempnam(sys_get_temp_dir(), "stud01.zip");
+        file_put_contents($file, $I->grabResponse());
+        $I->assertSame(filesize(Yii::getAlias("@appdata/uploadedfiles/5001/stud01/stud01.zip")), filesize($file));
+        $I->assertSame(md5_file(Yii::getAlias("@appdata/uploadedfiles/5001/stud01/stud01.zip")), md5_file($file));
     }
 
     public function uploadInvalid(ApiTester $I)
@@ -245,7 +250,7 @@ class SubmissionsCest
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
         $I->seeResponseContainsJson(
             [
                 "name" => "stud01_upload_test.zip",
@@ -304,7 +309,7 @@ class SubmissionsCest
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
         $I->seeResponseContainsJson(
             [
                 "name" => "stud01_upload_test.zip",
@@ -365,7 +370,7 @@ class SubmissionsCest
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
         $I->seeResponseContainsJson(
             [
                 "name" => "stud01_upload_test.zip",
@@ -399,7 +404,7 @@ class SubmissionsCest
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
@@ -435,7 +440,7 @@ class SubmissionsCest
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
@@ -484,7 +489,7 @@ class SubmissionsCest
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
@@ -529,7 +534,7 @@ class SubmissionsCest
             ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
@@ -578,7 +583,7 @@ class SubmissionsCest
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
@@ -693,7 +698,7 @@ class SubmissionsCest
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
@@ -744,7 +749,7 @@ class SubmissionsCest
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSON_SCHEMA);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
 
         $I->seeResponseContainsJson(
             [
