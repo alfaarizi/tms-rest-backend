@@ -749,6 +749,12 @@ class CanvasIntegration
         $tasksToRemove = Task::find()->where($condition)->all();
         foreach ($tasksToRemove as $task) {
             foreach ($task->submissions as $submission) {
+                if ($submission->codeCheckerResultID != null) {
+                    $codeCheckerResults = CodeCheckerResult::findAll(['submissionID' => $submission->id]);
+                    foreach ($codeCheckerResults as $codeCheckerResult) {
+                        $codeCheckerResult->delete();
+                    }
+                }
                 $submission->delete();
             }
             $task->delete();
