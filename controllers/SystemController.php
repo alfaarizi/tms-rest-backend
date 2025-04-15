@@ -22,7 +22,12 @@ class SystemController extends BaseRestController
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
-        $behaviors['authenticator']['except'] = ['public-info'];
+
+        if (!isset($behaviors['authenticator']['except'])) {
+            $behaviors['authenticator']['except'] = [];
+        }
+        $behaviors['authenticator']['except'][] = 'public-info';
+
         return $behaviors;
     }
 
