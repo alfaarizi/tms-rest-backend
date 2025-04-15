@@ -45,7 +45,7 @@ class CodeCheckerResultNotifier extends BaseObject
                 )
                     ->setFrom(Yii::$app->params['systemEmail'])
                     ->setTo($submission->uploader->notificationEmail)
-                    ->setSubject(Yii::t('app/mail', 'Static code analysis ready'))
+                    ->setSubject(Yii::t('app/mail', 'Static code analysis complete'))
                     ->send();
             }
         } catch (\Throwable $e) {

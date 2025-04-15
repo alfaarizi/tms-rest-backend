@@ -202,7 +202,7 @@ class AutoTesterController extends BaseController
                 )
                     ->setFrom(Yii::$app->params['systemEmail'])
                     ->setTo($submission->uploader->notificationEmail)
-                    ->setSubject(Yii::t('app/mail', 'Automated submission test ready'))
+                    ->setSubject(Yii::t('app/mail', 'Automated submission test completed'))
                     ->send();
             }
 
