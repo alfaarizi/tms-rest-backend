@@ -11,9 +11,9 @@ $task = $submission->task;
 $group = $task->group;
 ?>
 
-<h2><?= \Yii::t('app/mail', 'Automated submission test ready') ?></h2>
+<h2><?= \Yii::t('app/mail', 'Automated submission test completed') ?></h2>
 <p>
-    <?= \Yii::t('app/mail', 'Automated testing on your previously submitted solution is ready.') ?><br>
+    <?= \Yii::t('app/mail', 'Automated testing on your previously submitted solution is complete.') ?><br>
     <?= \Yii::t('app/mail', 'Course') ?>: <?= Html::encode($group->course->name) ?>
     <?php if (!empty($group->number) && !$group->isExamGroup) : ?>
         (<?= \Yii::t('app/mail', 'group') ?>: <?= $group->number ?>)

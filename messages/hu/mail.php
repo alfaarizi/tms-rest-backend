@@ -20,8 +20,8 @@
 
 return [
     'Available from' => 'Elérhető ettől',
-    'Automated submission test ready' => 'Beadandó tesztelés elkészült',
-    'Automated testing on your previously submitted solution is ready.' => 'A beküldött megoldásod tesztelésre került.',
+    'Automated submission test completed' => 'Beadandó tesztelése elkészült',
+    'Automated testing on your previously submitted solution is complete.' => 'A beküldött megoldásod tesztelésre került.',
     'Canvas synchronization errors' => 'Canvas-szinkronizációs hibák',
     'Category' => 'Kategória',
     'Classwork tasks' =>  'Órai munkák',
@@ -87,8 +87,8 @@ return [
     'Notes' => 'Megjegyzések',
     'New notes were added' => 'Új megjegyzések lettek hozzáadva',
     'New Notes' => 'Új megjegyzések',
-    'Static code analysis ready' => 'A statikus kódanalízis elkészült',
-    'Static code analysis on your previously submitted solution is ready.' => 'A statikus kódanalízis elkészült a beküldött megoldáshoz.',
+    'Static code analysis completed' => 'A statikus kódanalízis elkészült',
+    'Static code analysis on your previously submitted solution is complete.' => 'A statikus kódanalízis elkészült a beküldött megoldáshoz.',
     'No issues were found in the uploaded submission.' => 'Nem találhatóak problémák a feltölött megoldásban.',
     'The static analyzer tool failed to run. The uploaded solution may be incorrect or the configuration for the task may be invalid.'
         => 'A statikus elemző futtatása sikertelen volt. Előfordulhat hogy hibás a feltölött megoldás vagy érvénytelen a feladathoz tartozó konfiguráció.',

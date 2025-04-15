@@ -16,9 +16,9 @@ $group = $task->group;
 $codeCheckerResult = $submission->codeCheckerResult;
 ?>
 
-<h2><?= \Yii::t('app/mail', 'Static code analysis ready') ?></h2>
+<h2><?= \Yii::t('app/mail', 'Static code analysis complete') ?></h2>
 <p>
-    <?= \Yii::t('app/mail', 'Static code analysis on your previously submitted solution is ready.') ?><br>
+    <?= \Yii::t('app/mail', 'Static code analysis on your previously submitted solution is complete.') ?><br>
     <?= \Yii::t('app/mail', 'Course') ?>: <?= Html::encode($group->course->name) ?>
     <?php if (!empty($group->number) && !$group->isExamGroup) : ?>
         (<?= \Yii::t('app/mail', 'group') ?>: <?= $group->number ?>)
