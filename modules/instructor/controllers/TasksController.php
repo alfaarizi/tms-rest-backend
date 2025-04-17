@@ -14,12 +14,14 @@ use app\models\TestCase;
 use app\modules\instructor\resources\GroupResource;
 use app\modules\instructor\resources\SetupCodeCompassParserResource;
 use app\modules\instructor\resources\TaskResource;
+use app\modules\instructor\resources\TaskUpdateOptionsResource;
 use app\resources\SemesterResource;
 use app\resources\UserResource;
 use DateTime;
 use Docker\API\Exception\ImageDeleteConflictException;
 use Yii;
 use yii\base\ErrorException;
+use yii\base\Exception;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\web\BadRequestHttpException;
@@ -305,6 +307,7 @@ class TasksController extends BaseInstructorRestController
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
+     * @throws Exception
      *
      * @OA\Put(
      *     path="/instructor/tasks/{id}",
@@ -314,12 +317,21 @@ class TasksController extends BaseInstructorRestController
      *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
      *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
      *     @OA\RequestBody(
-     *         description="updated task",
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(ref="#/components/schemas/Instructor_TaskResource_ScenarioUpdate"),
-     *         )
-     *     ),
+     *            description="updated task",
+     *            @OA\MediaType(
+     *                mediaType="application/json",
+     *                @OA\Schema(
+     *                    @OA\Property(
+     *                       property="task",
+     *                       ref="#/components/schemas/Instructor_TaskResource_ScenarioUpdate"
+     *                   ),
+     *                   @OA\Property(
+     *                       property="options",
+     *                       ref="#/components/schemas/Instructor_TaskUpdateOptionsResource_Read"
+     *                   ),
+     *                )
+     *            )
+     *         ),
      *     @OA\Response(
      *         response=200,
      *         description="task updated",
@@ -367,7 +379,11 @@ class TasksController extends BaseInstructorRestController
         $oldAvailable = $task->available;
         $oldSoftDeadLine = $task->softDeadline;
         $oldHardDeadLine = $task->hardDeadline;
-        $task->load(Yii::$app->request->post(), '');
+
+        $task->load(Yii::$app->request->post(), 'task');
+
+        $updateTask = new TaskUpdateOptionsResource();
+        $updateTask->load(Yii::$app->request->post(), 'options');
 
         if (!$task->validate()) {
             $this->response->statusCode = 422;
@@ -387,7 +403,7 @@ class TasksController extends BaseInstructorRestController
         }
         // Email notifications if deadline changed
         elseif (
-            $task->sentCreatedEmail &&
+            $task->sentCreatedEmail && $updateTask->emailNotification &&
             ($task->available != $oldAvailable ||
             $task->softDeadline != $oldSoftDeadLine ||
             $task->hardDeadline != $oldHardDeadLine)
@@ -781,8 +797,9 @@ class TasksController extends BaseInstructorRestController
 
         $tomorrow = (new DateTime())->modify('+1 day');
         $available = new DateTime($task->available);
-        if ($available < $tomorrow)
+        if ($available < $tomorrow) {
             return true;
+        }
 
         return false;
     }
