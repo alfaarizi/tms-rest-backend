@@ -412,7 +412,12 @@ class InstructorTasksCest
         $I->sendPatch(
             '/instructor/tasks/5005',
             [
-                'name' => 'Updated',
+                'task' => [
+                    'name' => 'Updated',
+                ],
+                'options' => [
+                    'emailNotification' => true,
+                ],
             ]
         );
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
@@ -430,7 +435,12 @@ class InstructorTasksCest
         $I->sendPatch(
             '/instructor/tasks/5006',
             [
-                'name' => 'Updated'
+                'task' => [
+                    'name' => 'Updated'
+                ],
+                'options' => [
+                    'emailNotification' => true,
+                ],
             ]
         );
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
@@ -447,7 +457,12 @@ class InstructorTasksCest
         $I->sendPatch(
             '/instructor/tasks/5000',
             [
-                'hardDeadline' => '',
+                'task' => [
+                    'hardDeadline' => '',
+                ],
+                'options' => [
+                    'emailNotification' => true,
+                ],
             ]
         );
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
@@ -461,7 +476,12 @@ class InstructorTasksCest
         $I->sendPatch(
             '/instructor/tasks/5018',
             [
-                'name' => 'Updated1',
+                'task' => [
+                    'name' => 'Updated1',
+                ],
+                'options' => [
+                    'emailNotification' => true,
+                ],
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -494,7 +514,12 @@ class InstructorTasksCest
         $I->sendPatch(
             '/instructor/tasks/5000',
             [
-                'name' => 'Updated',
+                'task' => [
+                    'name' => 'Updated',
+                ],
+                'options' => [
+                    'emailNotification' => true,
+                ],
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -528,8 +553,13 @@ class InstructorTasksCest
         $I->sendPatch(
             '/instructor/tasks/5000',
             [
-                'name' => 'Updated',
-                'hardDeadline' => $date
+                'task' => [
+                    'name' => 'Updated',
+                    'hardDeadline' => $date,
+                ],
+                'options' => [
+                    'emailNotification' => true,
+                ],
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -544,8 +574,13 @@ class InstructorTasksCest
         $I->sendPatch(
             '/instructor/tasks/5000',
             [
-                'name' => 'Updated',
-                'softDeadline' => $date
+                'task' => [
+                    'name' => 'Updated',
+                    'softDeadline' => $date,
+                ],
+                'options' => [
+                    'emailNotification' => true,
+                ],
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -560,8 +595,13 @@ class InstructorTasksCest
         $I->sendPatch(
             '/instructor/tasks/5000',
             [
-                'name' => 'Updated',
-                'available' => $date
+                'task' => [
+                    'name' => 'Updated',
+                    'available' => $date,
+                ],
+                'options' => [
+                    'emailNotification' => true,
+                ],
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -576,8 +616,13 @@ class InstructorTasksCest
         $I->sendPatch(
             '/instructor/tasks/5021',
             [
-                'name' => 'Updated',
-                'available' => $date
+                'task' => [
+                    'name' => 'Updated',
+                    'available' => $date,
+                ],
+                'options' => [
+                    'emailNotification' => true,
+                ],
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -732,7 +777,14 @@ class InstructorTasksCest
 
         $I->sendPatch(
             '/instructor/tasks/5011',
-            ['exitPassword' => '']
+            [
+                'task' => [
+                    'exitPassword' => '',
+                ],
+                'options' => [
+                    'emailNotification' => true,
+                ],
+            ]
         );
 
         $I->seeResponseCodeIs(HttpCode::OK);
