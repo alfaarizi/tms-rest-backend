@@ -30,7 +30,10 @@ class GroupResource extends Group
             'isCanvasCourse',
             'canvasUrl',
             'lastSyncTime',
-            'isExamGroup'
+            'isExamGroup',
+            'day',
+            'startTime',
+            'roomNumber'
         ];
     }
 

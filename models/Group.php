@@ -7,6 +7,7 @@ use app\components\openapi\generators\OAList;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
 use app\models\queries\GroupQuery;
+use app\validators\DayAndStartTimeValidator;
 use app\validators\CanvasSyncLevelValidator;
 use app\validators\TimeZoneValidator;
 use Yii;
@@ -25,6 +26,9 @@ use yii\db\ActiveRecord;
  * @property string $lastSyncTime
  * @property boolean $isExamGroup
  * @property string $timezone
+ * @property integer $day
+ * @property string|null $startTime
+ * @property string|null $roomNumber
  * @property string $canvasErrors
  * @property array|null $syncLevelArray
  * @property string|null $syncLevel
@@ -58,8 +62,8 @@ class Group extends ActiveRecord implements IOpenApiFieldTypes
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_CREATE] = ['number', 'courseID', 'isExamGroup', 'timezone'];
-        $scenarios[self::SCENARIO_UPDATE] = ['number', 'isExamGroup', 'timezone'];
+        $scenarios[self::SCENARIO_CREATE] = ['number', 'courseID', 'isExamGroup', 'timezone', 'day', 'startTime', 'roomNumber'];
+        $scenarios[self::SCENARIO_UPDATE] = ['number', 'isExamGroup', 'timezone', 'day', 'startTime', 'roomNumber'];
 
         return $scenarios;
     }
@@ -93,6 +97,12 @@ class Group extends ActiveRecord implements IOpenApiFieldTypes
                 'integer'
             ],
             [
+                ['day'],
+                'in',
+                'range' => [1, 2, 3, 4, 5, 6, 7],
+                'message' => Yii::t('app', 'The day must be between Monday (1) and Sunday (7).')
+            ],
+            [
                 ['isExamGroup'],
                 'boolean'
             ],
@@ -104,8 +114,15 @@ class Group extends ActiveRecord implements IOpenApiFieldTypes
                 'message' => Yii::t('app', 'The combination of Group Number, Course ID and Semester ID has already been taken.')
             ],
             [
-                ['timezone'],
+                ['timezone', 'roomNumber'],
                 'string'
+            ],
+            ['startTime', 'time', 'format' => 'php:H:i'],
+            [
+                ['day', 'startTime'],
+                DayAndStartTimeValidator::class,
+                'dayAttribute' => 'day',
+                'startTimeAttribute' => 'startTime',
             ],
             [
                 ['courseID', 'timezone'],
@@ -163,7 +180,10 @@ class Group extends ActiveRecord implements IOpenApiFieldTypes
             'canvasSectionID' => Yii::t('app', 'Canvas Section'),
             'canvasCourseID' => Yii::t('app', 'Canvas Course'),
             'syncLevelArray' => Yii::t('app', 'Canvas synchronization level'),
-            'timezone' => Yii::t('app', 'Timezone')
+            'timezone' => Yii::t('app', 'Timezone'),
+            'day' => Yii::t('app', 'Day'),
+            'startTime' => Yii::t('app', 'Start Time'),
+            'roomNumber' => Yii::t('app', 'Room Number'),
         ];
     }
 
@@ -185,6 +205,9 @@ class Group extends ActiveRecord implements IOpenApiFieldTypes
             'canvasUrl' => new OAProperty(['type' => 'string', 'nullable' => 'true']),
             'lastSyncTime' => new OAProperty(['type' => 'string']),
             'canvasErrors' => new OAProperty(['type' => 'string']),
+            'day' => new OAProperty(['type' => 'integer']),
+            'startTime' => new OAProperty([ 'type' => 'string', 'format' => 'time', 'example' => '14:30']),
+            'roomNumber' => new OAProperty(['type' => 'string']),
         ];
     }
 
