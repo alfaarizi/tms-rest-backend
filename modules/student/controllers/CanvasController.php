@@ -4,7 +4,6 @@ namespace app\modules\student\controllers;
 
 use app\components\CanvasIntegration;
 use app\exceptions\CanvasRequestException;
-use app\models\Group;
 use app\models\Task;
 use app\models\User;
 use app\modules\student\helpers\PermissionHelpers;
@@ -20,7 +19,7 @@ use yii\web\ServerErrorHttpException;
 /**
  * This class controls the canvas integration related actions for students.
  */
-class CanvasController extends BaseSubmissionsController
+class CanvasController extends BaseStudentRestController
 {
     private CanvasIntegration $canvas;
 

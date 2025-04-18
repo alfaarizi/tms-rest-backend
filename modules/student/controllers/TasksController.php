@@ -17,7 +17,7 @@ use yii\web\ServerErrorHttpException;
 /**
  * This class provides access to task actions for students
  */
-class TasksController extends BaseSubmissionsController
+class TasksController extends BaseStudentRestController
 {
     /**
      * @inheritdoc

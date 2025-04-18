@@ -13,7 +13,7 @@ use yii\web\ForbiddenHttpException;
 /**
  * This class provides access to task file actions for students
  */
-class TaskFilesController extends BaseSubmissionsController
+class TaskFilesController extends BaseStudentRestController
 {
     /**
      * @inheritdoc

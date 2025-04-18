@@ -26,7 +26,7 @@ use yii\web\UploadedFile;
 /**
  * This class provides access to student file actions for students
  */
-class SubmissionsController extends BaseSubmissionsController
+class SubmissionsController extends BaseStudentRestController
 {
     /**
      * @inheritdoc

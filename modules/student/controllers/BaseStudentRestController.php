@@ -8,7 +8,7 @@ use yii\filters\AccessControl;
 /**
  * Common logic in student rest controllers
  */
-abstract class BaseSubmissionsController extends BaseRestController
+abstract class BaseStudentRestController extends BaseRestController
 {
     /**
      * @inheritdoc

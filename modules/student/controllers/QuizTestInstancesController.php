@@ -29,7 +29,7 @@ use yii\web\ServerErrorHttpException;
 /**
  * This class provides access to test instance actions for students
  */
-class QuizTestInstancesController extends BaseSubmissionsController
+class QuizTestInstancesController extends BaseStudentRestController
 {
     protected function verbs()
     {
