@@ -33,6 +33,9 @@ class GroupResource extends \app\models\Group
             'canvasUrl',
             'lastSyncTime',
             'canvasErrors',
+            'day',
+            'startTime',
+            'roomNumber'
         ];
     }
 

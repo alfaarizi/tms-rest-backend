@@ -15,6 +15,7 @@ use app\tests\unit\fixtures\InstructorGroupFixture;
 use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskFixture;
 use Codeception\Util\HttpCode;
+use DateTime;
 
 class InstructorGroupsCRUDCest
 {
@@ -29,7 +30,10 @@ class InstructorGroupsCRUDCest
         'number' => 'integer|null',
         'course' => self::COURSE_SCHEMA,
         'isExamGroup' => 'integer',
-        'semesterID' => 'integer'
+        'semesterID' => 'integer',
+        'day' => 'integer|null',
+        'startTime' => 'string|null',
+        'roomNumber' => 'string|null',
     ];
 
     public const USER_SCHEMA = [
@@ -173,6 +177,22 @@ class InstructorGroupsCRUDCest
         $I->seeResponseMatchesJsonType(['string'], '$.[*]');
     }
 
+    public function createInvalidTimetableInfo(ApiTester $I)
+    {
+        // only day is provided
+        $I->sendPost(
+            '/instructor/groups',
+            [
+                'number' => '25',
+                'courseID' => 4000,
+                'isExamGroup' => '1',
+                'day' => 2
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseMatchesJsonType(['string'], '$.[*]');
+    }
+
     public function createValid(ApiTester $I)
     {
         $I->sendPost(
@@ -218,6 +238,60 @@ class InstructorGroupsCRUDCest
         );
     }
 
+    public function createValidWithTimetableInfo(ApiTester $I)
+    {
+        $I->sendPost(
+            '/instructor/groups',
+            [
+                'number' => 101,
+                'courseID' => 4000,
+                'isExamGroup' => '1',
+                'timezone' => 'Europe/Budapest',
+                'day' => 2,
+                'startTime' => '14:30',
+                'roomNumber' => 'D-123'
+            ]
+        );
+
+        $I->seeResponseContainsJson(
+            [
+                'id' => 2011,
+                'number' => '101',
+                'course' => [
+                    'id' => 4000,
+                    'name' => 'Java',
+                    'codes' => ['1']
+                ],
+                'isExamGroup' => '1',
+                'semesterID' => 3001,
+                'day' => '2',
+                'startTime' => '14:30',
+                'roomNumber' => 'D-123'
+            ]
+        );
+
+        $I->seeRecord(
+            Group::class,
+            [
+                'id' => 2011,
+                'number' => 101,
+                'courseID' => 4000,
+                'isExamGroup' => '1',
+                'day' => 2,
+                'startTime' => '14:30',
+                'roomNumber' => 'D-123'
+            ]
+        );
+
+        $I->dontSeeRecord(
+            InstructorGroup::class,
+            [
+                'userID' => 1007,
+                'groupID' => 2011
+            ]
+        );
+    }
+
     public function updateNotFound(ApiTester $I)
     {
         $I->sendPatch('/instructor/groups/0');
@@ -232,16 +306,23 @@ class InstructorGroupsCRUDCest
 
     public function updateInvalid(ApiTester $I)
     {
-        $I->sendPatch(
-            '/instructor/groups/2000',
-            [
-                'number' => 'One',
-                'isExamGroup' => '1',
-            ]
-        );
+        $endpoint = '/instructor/groups/2000';
+
+        $startTime = (new DateTime('09:30'))->format('H:i');
+
+        $this->sendInvalidPatchRequest($I, $endpoint, ['number' => 'One']);
+        $this->sendInvalidPatchRequest($I, $endpoint, ['number' => 1, 'day' => 'Monday']);
+        $this->sendInvalidPatchRequest($I, $endpoint, ['number' => 1, 'day' => 2]);
+        $this->sendInvalidPatchRequest($I, $endpoint, ['number' => 1, 'startTime' => $startTime]);
+    }
+
+    private function sendInvalidPatchRequest(ApiTester $I, string $url, array $data)
+    {
+        $I->sendPatch($url, $data);
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->seeResponseMatchesJsonType(['string'], '$.[*]');
     }
+
 
     public function updateFromPreviousSemester(ApiTester $I)
     {
@@ -285,11 +366,16 @@ class InstructorGroupsCRUDCest
 
     public function updateValid(ApiTester $I)
     {
+        $startTime = (new DateTime('09:30'))->format('H:i');
+
         $I->sendPatch(
             '/instructor/groups/2000',
             [
                 'number' => 111,
                 'isExamGroup' => '1',
+                'day' => 1,
+                'startTime' => $startTime,
+                'roomNumber' => 'D-12',
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -305,7 +391,10 @@ class InstructorGroupsCRUDCest
                 ],
                 'isExamGroup' => '1',
                 'semesterID' => '3001',
-                'timezone' => 'Europe/Budapest'
+                'timezone' => 'Europe/Budapest',
+                'day' => 1,
+                'startTime' => $startTime,
+                'roomNumber' => 'D-12',
             ]
         );
 
@@ -317,7 +406,10 @@ class InstructorGroupsCRUDCest
                 'number' => 111,
                 'courseID' => 4000,
                 'isExamGroup' => 1,
-                'timezone' => 'Europe/Budapest'
+                'timezone' => 'Europe/Budapest',
+                'day' => 1,
+                'startTime' => $startTime,
+                'roomNumber' => 'D-12',
             ]
         );
     }
