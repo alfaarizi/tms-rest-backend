@@ -238,6 +238,7 @@ return [
     'You must be an incumbent instructor of the course to perform this action!' => 'Ezen művelet végrehajtásához a kurzus jelenlegi gyakorlatvezetőjének vagy előadójának kell lenned!',
     'You must be an instructor of the group to perform this action!' => 'Ezen művelet végrehajtásához a csoport gyakorlatvezetőjének vagy előadójának kell lenned!',
     'You must be a lecturer of the course to perform this action!' => 'Ezen művelet végrehajtásához a kurzus előadójának kell lenned!',
+    'You must be a lecturer of the course to modify the group number!' => 'Csak a kurzus előadója módosíthatja a csoport számát!',
     'Enter task deadline ...' => 'Határidő megadása ...',
     'Enter available from ...' => 'Kezdő időpont megadása ...',
     'Application type' => 'Alkalmazás típus',

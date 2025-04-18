@@ -396,7 +396,7 @@ class GroupsController extends BaseInstructorRestController
         }
 
         // Authorization check
-        if (!Yii::$app->user->can('manageCourse', ['groupID' => $id])) {
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $id])) {
             throw new ForbiddenHttpException(
                 Yii::t('app', 'You must be a lecturer of the course to perform this action!')
             );
@@ -409,8 +409,15 @@ class GroupsController extends BaseInstructorRestController
             );
         }
 
+        $oldNumber = $group->number;
         $group->scenario = GroupResource::SCENARIO_UPDATE;
         $group->load(Yii::$app->request->post(), '');
+
+        if ($oldNumber != $group->number && !Yii::$app->user->can('manageCourse', ['groupID' => $id])) {
+            throw new ForbiddenHttpException(
+                Yii::t('app', 'You must be a lecturer of the course to modify the group number!')
+            );
+        }
 
         if ($group->save()) {
             return $group;
