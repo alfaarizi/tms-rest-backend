@@ -433,7 +433,7 @@ class StudentQuizTestInstanceCest
                 'id' => 8,
                 'submitted' => true,
                 'score' => 0,
-                //'finishtime' => date("Y-m-d H:i:s")
+                // 'finishtime' => date("Y-m-d H:i:s")
             ]
         );
 

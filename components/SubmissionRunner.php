@@ -16,7 +16,6 @@ use yii\base\Exception;
  */
 class SubmissionRunner
 {
-    private string $workingDirBasePath;
     private Submission $submission;
 
     /**

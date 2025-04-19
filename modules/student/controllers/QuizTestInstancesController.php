@@ -171,7 +171,8 @@ class QuizTestInstancesController extends BaseStudentRestController
             throw new ForbiddenHttpException(Yii::t('app', "You don't have permission to access this test instance"));
         }
 
-        if (!$testInstance->submitted &&
+        if (
+            !$testInstance->submitted &&
             (strtotime($testInstance->test->availablefrom) > time() || strtotime($testInstance->test->availableuntil) < time())
         ) {
             throw new ForbiddenHttpException(Yii::t('app', "You don't have permission to access this test instance"));
@@ -405,8 +406,8 @@ class QuizTestInstancesController extends BaseStudentRestController
         // 30 seconds gratis time, so JavaScript-based auto-submission at the end of the test is still valid
         if ($duration <= -30000) {
             Yii::info(
-                "A test instance has been saved with 0 points after timeout" .
-                "(testInstanceID: $testInstance->id)." . PHP_EOL ." Post Data: "
+                "A test instance has been saved with 0 points after timeout"
+                . "(testInstanceID: $testInstance->id)." . PHP_EOL . " Post Data: "
                 . VarDumper::dumpAsString(Yii::$app->request->post()),
                 __METHOD__
             );
@@ -464,15 +465,17 @@ class QuizTestInstancesController extends BaseStudentRestController
             /** @var QuizQuestion[] $questions */
             $questions = $testInstance->getQuestions()->all();
             foreach ($questions as $question) {
-                if ($question->getCorrectAnswers()->count() == 0 &&
-                    count(array_filter($submittedAnswers, function($answer) use ($question) {
-                        if (is_null($answer->answerID) || $answer->answerID == "") {
+                if (
+                    $question->getCorrectAnswers()->count() == 0 &&
+                    count(array_filter($submittedAnswers, function ($answer) use ($question) {
+                        if (empty($answer->answerID)) {
                             return false;
                         }
                         /** @var QuizAnswer $ans */
                         $ans = $answer->getAnswer()->one();
                         return $ans->questionID == $question->id;
-                    })) == 0) {
+                    })) == 0
+                ) {
                     $score++;
                 }
             }
@@ -492,9 +495,7 @@ class QuizTestInstancesController extends BaseStudentRestController
             );
 
             return $testInstance;
-
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             Yii::error(
                 "Failed to save answers ($testInstance->id)" . PHP_EOL .

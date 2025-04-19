@@ -23,10 +23,10 @@ use yii\helpers\FileHelper;
  * @property string $softDeadline
  * @property string $hardDeadline
  * @property string $available
- * @property integer $createrID
+ * @property integer|null $createrID
  * @property boolean $isVersionControlled
  * @property boolean $autoTest
- * @property string $testOS
+ * @property string|null $testOS
  * @property boolean $showFullErrorMsg
  * @property string|null $imageName
  * @property string $compileInstructions

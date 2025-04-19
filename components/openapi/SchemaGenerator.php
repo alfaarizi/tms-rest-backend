@@ -34,7 +34,7 @@ class SchemaGenerator extends Component
             throw new InvalidConfigException('SchemaGenerator::outputDir cannot be empty.');
         }
 
-        if (strlen($this->outputDir) > 0 && $this->outputDir[0] == '@') {
+        if ($this->outputDir[0] == '@') {
             $this->outputDir = Yii::getAlias($this->outputDir);
         }
     }

@@ -7,8 +7,8 @@ use Yii;
 /**
  * This is the model class for table "notification_users".
  *
- * @property int $userID
- * @property int $notificationID
+ * @property int|null $userID
+ * @property int|null $notificationID
  *
  * @property-read User $user
  * @property-read Notification $notification

@@ -18,7 +18,7 @@ class NotificationController extends BaseController
      * Sends digest email notifications to instructors about new student solutions.
      *
      * @param int $hours Time interval to analyze.
-     * @param null $userCode Instructor to analyze. (Null for all.)
+     * @param string|null $userCode Instructor to analyze. (Null for all.)
      * @return int Error code.
      */
     public function actionDigestInstructors($hours = 24, $userCode = null)

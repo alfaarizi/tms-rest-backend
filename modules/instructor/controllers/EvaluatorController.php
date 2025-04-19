@@ -540,7 +540,7 @@ class EvaluatorController extends BaseInstructorRestController
         $response->templates = $templates;
         $response->osMap = $osMap;
         $response->appTypes = Task::APP_TYPES;
-        $response->imageSuccessfullyBuilt = is_null($dockerImageManager) ? false :  $dockerImageManager->alreadyBuilt($task->imageName);
+        $response->imageSuccessfullyBuilt = is_null($dockerImageManager) ? false : $dockerImageManager->alreadyBuilt($task->imageName);
 
         if ($response->imageSuccessfullyBuilt) {
             $response->imageCreationDate = $dockerImageManager->inspectImage($task->imageName)->getCreated();

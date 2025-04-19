@@ -12,8 +12,8 @@ use Yii;
  * @property int $testinstanceID
  * @property int $answerID
  *
- * @property QuizTestInstance $testInstance
- * @property QuizAnswer $answer
+ * @property QuizTestInstance|null $testInstance
+ * @property QuizAnswer|null $answer
  */
 class QuizSubmittedAnswer extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {

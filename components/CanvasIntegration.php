@@ -982,12 +982,12 @@ class CanvasIntegration
         }
 
         // Load Submission by Canvas ID
-        /** @var Submission $tmsFile */
+        /** @var Submission|null $tmsFile */
         $tmsFile = $task->getSubmissions()->where(['canvasID' => $submission['id']])->one();
 
         // For first sync, load submission by uploader user ID
         if (is_null($tmsFile)) {
-            /** @var Submission $tmsFile */
+            /** @var Submission|null $tmsFile */
             $tmsFile = $task->getSubmissions()->where(['uploaderID' => $user->id])->one();
 
             if (is_null($tmsFile)) {
