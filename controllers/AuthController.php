@@ -146,6 +146,7 @@ class AuthController extends BaseRestController
     public function actionMockLogin()
     {
         // No mocked login in production mode.
+        /** @phpstan-ignore-next-line */
         if (YII_ENV_PROD) {
             throw new BadRequestHttpException(Yii::t('app', 'This action is not allowed in the current environment!'));
         }

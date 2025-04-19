@@ -37,11 +37,6 @@ class AssignmentTester
     private $testCases;
 
     /**
-     * @var string The docker connection socket.
-     */
-    private $socket;
-
-    /**
      * @var Docker The docker connection.
      */
     private $docker;
@@ -77,7 +72,6 @@ class AssignmentTester
     {
         $this->testCases = $testCases;
         $this->submission = $submission;
-        $this->socket = $socket;
         $this->docker = self::connect($socket);
     }
 

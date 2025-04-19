@@ -98,6 +98,7 @@ class TasksController extends BaseSubmissionsController
 
     /**
      * View task
+     * @param int $id
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @OA\Get(

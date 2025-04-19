@@ -261,13 +261,14 @@ class TaskFilesController extends BaseInstructorRestController
                     throw new AddFailedException($taskFile->name, $taskFile->errors);
                 }
 
+                /** @phpstan-ignore-next-line */
                 if (!$file->saveAs($taskFile->path, !YII_ENV_TEST)) {
                     // Log
                     Yii::error(
                         "Failed to save file to the disc ($taskFile->path), error code: $file->error",
                         __METHOD__
                     );
-                    throw new AddFailedException($taskFile->name, ['path' => Yii::t("app", "Failed to save file. Error logged." )]);
+                    throw new AddFailedException($taskFile->name, ['path' => Yii::t("app", "Failed to save file. Error logged.")]);
                 }
 
                 if ($taskFile->category == TaskFile::CATEGORY_WEB_TEST_SUITE) {
@@ -279,7 +280,7 @@ class TaskFilesController extends BaseInstructorRestController
                 } else if ($taskFile->hasErrors()) {
                     throw new AddFailedException($taskFile->name, $taskFile->errors);
                 } else {
-                    throw new ServerErrorHttpException(Yii::t("app", "A database error occurred" ));
+                    throw new ServerErrorHttpException(Yii::t("app", "A database error occurred"));
                 }
             } catch (AddFailedException $e) {
                 $failedResource = new UploadFailedResource();

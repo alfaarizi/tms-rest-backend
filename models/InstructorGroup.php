@@ -8,7 +8,7 @@ use Yii;
  * This is the model class for table "instuctorgroups".
  *
  * @property int $userID
- * @property int $groupID
+ * @property int|null $groupID
  *
  * @property User $user
  * @property Group $group

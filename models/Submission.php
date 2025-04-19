@@ -35,7 +35,7 @@ use yii\helpers\StringHelper;
  * @property boolean $verified
  * @property integer|null $codeCheckerResultID
  * @property-read string $containerName
- * @property-read IpAddress[] $ipAddresses
+ * @property-read string[] $ipAddresses
  * @property-read IpAddress[] $detailedIpAddresses
  * @property-read string $safeErrorMsg
  *

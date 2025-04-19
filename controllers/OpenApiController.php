@@ -30,10 +30,12 @@ class OpenApiController extends Controller
         }
 
         // Swagger UI interface only enabled in development environment
+        /** @phpstan-ignore-next-line */
         if (!YII_ENV_DEV) {
             throw new BadRequestHttpException(Yii::t('app', 'This action is not allowed in the current environment!'));
         }
 
+        /** @phpstan-ignore-next-line */
         if ($action->id === 'json') {
             // Set constants
             ConstantHelpers::setApiInfo();

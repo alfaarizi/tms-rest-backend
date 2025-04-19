@@ -189,6 +189,7 @@ class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
      *
      * @return void
      * @throws \yii\db\Exception
+     * @throws \LengthException
      */
     public function finalize()
     {

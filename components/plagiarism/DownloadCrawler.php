@@ -13,7 +13,6 @@ use yii\helpers\Url;
 
 class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
 {
-    private int $plagiarismId;
     private string $ids;
     private string $dirPath;
 
@@ -24,7 +23,6 @@ class DownloadCrawler extends \Spatie\Crawler\CrawlObserver
 
     public function __construct(int $id, string $token, string $dirPath)
     {
-        $this->plagiarismId = $id;
         $this->ids = "?id=$id&token=$token";
         $this->dirPath = $dirPath;
     }

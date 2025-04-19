@@ -12,7 +12,7 @@ class CanvasController extends BaseController
 {
     /**
      * Runs the automatic synchronization with Canvas
-     * @param null $groupId Group to synchronize (empty for all)
+     * @param int|null $groupId Group to synchronize (empty for all)
      */
     public function actionSynchronize($groupId = null)
     {

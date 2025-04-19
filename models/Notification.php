@@ -13,7 +13,7 @@ use Yii;
  * This is the model class for table "notifications".
  *
  * @property integer $id
- * @property integer $groupID
+ * @property integer|null $groupID
  * @property string $message
  * @property string $startTime
  * @property string $endTime

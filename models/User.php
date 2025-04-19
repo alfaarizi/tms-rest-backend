@@ -115,7 +115,7 @@ class User extends ActiveRecord implements IdentityInterface, IOpenApiFieldTypes
      * Get the user corresponding to an email confirmation code.
      *
      * @param string $code The confirmation code.
-     * @return static|null The user corresponding to the code, if any.
+     * @return ActiveRecord|array|null
      */
     public static function findByConfirmationCode(string $code): ?User
     {

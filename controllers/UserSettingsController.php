@@ -153,7 +153,7 @@ class UserSettingsController extends BaseRestController
     public function actionConfirmEmail(string $code): array
     {
         $user = User::findByConfirmationCode($code);
-        if ($user) {
+        if ($user instanceof User) {
             $user->customEmailConfirmed = true;
             $user->save();
             return ['currentUser' => $user->id === Yii::$app->user->id];

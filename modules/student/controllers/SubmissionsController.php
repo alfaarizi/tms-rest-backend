@@ -241,18 +241,21 @@ class SubmissionsController extends BaseSubmissionsController
         // Get previous file
         $prevSubmission = SubmissionResource::findOne(['uploaderID' => Yii::$app->user->id, 'taskID' => $task->id]);
 
-        if($task->isSubmissionCountRestricted
+        if (
+            $task->isSubmissionCountRestricted
             && $prevSubmission->status !== Submission::STATUS_LATE_SUBMISSION
-            && $task->submissionLimit <= $prevSubmission->uploadCount) {
+            && $task->submissionLimit <= $prevSubmission->uploadCount
+        ) {
             throw new BadRequestHttpException(
                 Yii::t('app', 'The maximum number of submissions have been reached!')
             );
         }
 
         // Verify that the task is open for submissions or the student has a special late submission permission.
-        if (strtotime($task->hardDeadline) < time() &&
-            (is_null($prevSubmission) || $prevSubmission->status !== Submission::STATUS_LATE_SUBMISSION))
-        {
+        if (
+            strtotime($task->hardDeadline) < time() &&
+            (is_null($prevSubmission) || $prevSubmission->status !== Submission::STATUS_LATE_SUBMISSION)
+        ) {
             throw new BadRequestHttpException(Yii::t('app', 'The hard deadline of the solution has passed!'));
         }
 
@@ -279,8 +282,7 @@ class SubmissionsController extends BaseSubmissionsController
         UploadedFile $newFile,
         int $taskID,
         bool $versionControlled
-    ): SubmissionResource
-    {
+    ): SubmissionResource {
         /** @var User $user */
         $user = Yii::$app->user->identity;
         // Set basepath
@@ -297,6 +299,7 @@ class SubmissionsController extends BaseSubmissionsController
         }
 
         // Save file to disc.
+        /** @phpstan-ignore-next-line */
         $result = $newFile->saveAs($basepath . $newFile->name, !YII_ENV_TEST);
         if (!$result) {
             // Log
@@ -405,7 +408,8 @@ class SubmissionsController extends BaseSubmissionsController
                     'disableIpCheck',
                     Yii::t(
                         'app',
-                        'The current IP address and the IP address used for the file upload do not match. Current address: {currentIp}. Addresses of uploads: {uploadAddresses}.',
+                        'The current IP address and the IP address used for the file upload do not match.
+                         Current address: {currentIp}. Addresses of uploads: {uploadAddresses}.',
                         [
                             'currentIp' => $currentIp,
                             'uploadAddresses' => $uploadAddressesStringList

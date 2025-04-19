@@ -39,7 +39,7 @@ use yii\db\ActiveRecord;
  * @property InstructorGroup[] $instructorGroups
  * @property InstructorCourse[] $instructorCourses
  * @property User[] $instructors
- * @property User $synchronizer
+ * @property User|null $synchronizer
  * @property Notification[] $notifications
  */
 class Group extends ActiveRecord implements IOpenApiFieldTypes

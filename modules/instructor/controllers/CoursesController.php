@@ -483,7 +483,7 @@ class CoursesController extends BaseInstructorRestController
         }
     }
 
-    private function saveCourse(Course $course, array $codes): ?array
+    private function saveCourse(Course $course, array $codes): array
     {
         if ($course->save()) {
             CourseCode::deleteAll(['courseId' => $course->id]);

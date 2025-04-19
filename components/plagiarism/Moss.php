@@ -36,7 +36,8 @@ use Yii;
  * @version 1.1
  * @moss-version 2.0
  */
-class Moss {
+class Moss
+{
     private $language_extensions = [
         "c" => ["c", "h"],
         "cc" => ["cc", "cpp", "cxx", "c++", "h", "hpp", "hxx", "h++"],
@@ -77,18 +78,20 @@ class Moss {
     private $userid;
 
     /**
-     * @param int  	  $userid
-     * @param string  $server
+     * @param int $userid
+     * @param string $server
      * @param integer $port
      */
-    public function __construct($userid, $server = "moss.stanford.edu", $port = 7690){
+    public function __construct($userid, $server = "moss.stanford.edu", $port = 7690)
+    {
         $this->allowed_languages = array_keys($this->language_extensions);
         foreach ($this->language_extensions as $lang => $extensions) {
             $this->allowed_extensions = array_merge($this->allowed_extensions, $extensions);
 
             foreach ($extensions as $ext) {
-                if (!isset($this->extension_languages[$ext]))
+                if (!isset($this->extension_languages[$ext])) {
                     $this->extension_languages[$ext] = [];
+                }
                 array_push($this->extension_languages[$ext], $lang);
             }
         }
@@ -109,12 +112,12 @@ class Moss {
      * set the language of the source files
      * @param string $lang
      */
-    public function setLanguage($lang){
-        if(in_array($lang, $this->allowed_languages)){
+    public function setLanguage($lang)
+    {
+        if (in_array($lang, $this->allowed_languages)) {
             $this->options['l'] = $lang;
             return true;
-        }
-        else{
+        } else {
             throw new Exception("Unsupported language", 1);
         }
     }
@@ -123,7 +126,8 @@ class Moss {
      * get a list with all supported languages
      * @return array
      */
-    public function getAllowedLanguages(){
+    public function getAllowedLanguages()
+    {
         return $this->allowed_languages;
     }
 
@@ -131,7 +135,8 @@ class Moss {
      * get a list with all supported language extensions
      * @return array
      */
-    public function getAllowedExtensions() {
+    public function getAllowedExtensions()
+    {
         return $this->allowed_extensions;
     }
 
@@ -139,11 +144,11 @@ class Moss {
      * get a list of supported extensions for a language
      * @return array
      */
-    public function getLanguageExtensions($lang) {
+    public function getLanguageExtensions($lang)
+    {
         if (in_array($lang, $this->allowed_languages)) {
             return $this->language_extensions[$lang];
-        }
-        else{
+        } else {
             throw new Exception("Unsupported language", 1);
         }
     }
@@ -152,96 +157,97 @@ class Moss {
      * get a list of supported languages for an extension
      * @return array
      */
-    public function getExtensionLanguages($ext) {
+    public function getExtensionLanguages($ext)
+    {
         if (in_array($ext, $this->allowed_extensions)) {
             return $this->extension_languages[$ext];
-        }
-        else{
+        } else {
             throw new Exception("Unsupported extension", 1);
         }
     }
 
     /**
      * Enable Directory-Mode
-     * @see -d in MOSS-Documentation
      * @param bool $enabled
+     * @see -d in MOSS-Documentation
      */
-    public function setDirectoryMode($enabled){
-        if(is_bool($enabled)){
+    public function setDirectoryMode($enabled)
+    {
+        if (is_bool($enabled)) {
             $this->options['d'] = (int)$enabled;
             return true;
-        }
-        else{
+        } else {
             throw new Exception("DirectoryMode must be a boolean", 2);
         }
     }
 
     /**
      * Add a basefile
-     * @see -b in MOSS-Documentation
      * @param string $file
+     * @see -b in MOSS-Documentation
      */
-    public function addBaseFile($file){
-        if(file_exists($file) && is_readable($file)){
+    public function addBaseFile($file)
+    {
+        if (file_exists($file) && is_readable($file)) {
             $this->basefiles[] = $file;
             return true;
-        }
-        else{
-            throw new Exception("Can't find or read the basefile (".$file.")", 3);
+        } else {
+            throw new Exception("Can't find or read the basefile (" . $file . ")", 3);
         }
     }
 
     /**
      * Occurences of a string over the limit will be ignored
-     * @see -m in MOSS-Documentation
      * @param int $limit
+     * @see -m in MOSS-Documentation
      */
-    public function setIgnoreLimit($limit){
-        if(is_int($limit) && $limit > 1){
+    public function setIgnoreLimit($limit)
+    {
+        if (is_int($limit) && $limit > 1) {
             $this->options['m'] = (int)$limit;
             return true;
-        }
-        else{
+        } else {
             throw new Exception("The limit needs to be greater than 1", 4);
         }
     }
 
     /**
      * Set the comment for the request
-     * @see -s in MOSS-Documentation
      * @param string $comment
+     * @see -s in MOSS-Documentation
      */
-    public function setCommentString($comment){
+    public function setCommentString($comment)
+    {
         $this->options['c'] = $comment;
         return true;
     }
 
     /**
      * Set the number of results
-     * @see -n in MOSS-Documentation
      * @param int $limit
+     * @see -n in MOSS-Documentation
      */
-    public function setResultLimit($limit){
-        if(is_int($limit) && $limit > 1){
+    public function setResultLimit($limit)
+    {
+        if (is_int($limit) && $limit > 1) {
             $this->options['n'] = (int)$limit;
             return true;
-        }
-        else{
+        } else {
             throw new Exception("The limit needs to be greater than 1", 5);
         }
     }
 
     /**
      * Enable the Experimental Server
-     * @see -x in MOSS-Documentation
      * @param bool $enabled
+     * @see -x in MOSS-Documentation
      */
-    public function setExperimentalServer($enabled){
-        if(is_bool($enabled)){
+    public function setExperimentalServer($enabled)
+    {
+        if (is_bool($enabled)) {
             $this->options['x'] = (int)$enabled;
             return true;
-        }
-        else{
+        } else {
             throw new Exception("Needs to be a boolean", 6);
         }
     }
@@ -250,23 +256,24 @@ class Moss {
      * Add a file to the request
      * @param string $file
      */
-    public function addFile($file){
-        if(file_exists($file) && is_readable($file)){
+    public function addFile($file)
+    {
+        if (file_exists($file) && is_readable($file)) {
             $this->files[] = $file;
             return true;
-        }
-        else{
-            throw new Exception("Can't find or read the file (".$file.")", 7);
+        } else {
+            throw new Exception("Can't find or read the file (" . $file . ")", 7);
         }
     }
 
     /**
      * Add files by a wildcard
-     * @example addByWildcard("/files/*.c")
      * @param string $path
+     * @example addByWildcard("/files/*.c")
      */
-    public function addByWildcard($path){
-        foreach(glob($path) as $file){
+    public function addByWildcard($path)
+    {
+        foreach (glob($path) as $file) {
             $this->addFile($file);
         }
     }
@@ -275,40 +282,40 @@ class Moss {
      * Send the request to the server and wait for the response
      * @return string
      */
-    public function send(){
+    public function send()
+    {
         try {
-            $socket = fsockopen($this->server,$this->port, $errno, $errstr);
+            $socket = fsockopen($this->server, $this->port, $errno, $errstr);
         } catch (\ErrorException $e) {
             Yii::error($e->getMessage(), __METHOD__);
-            throw new PlagiarismServiceException(Yii::t('app','Moss server currently unavailable'));
+            throw new PlagiarismServiceException(Yii::t('app', 'Moss server currently unavailable'));
         }
 
-        if(!$socket){
-            throw new Exception("Socket-Error: ".$errstr." (".$errno.")", 8);
-        }
-        else{
-            fwrite($socket, "moss ".$this->userid."\n");
-            fwrite($socket, "directory ".$this->options['d']."\n");
-            fwrite($socket, "X ".$this->options['x']."\n");
-            fwrite($socket, "maxmatches ".$this->options['m']."\n");
-            fwrite($socket, "show ".$this->options['n']."\n");
+        if (!$socket) {
+            throw new Exception("Socket-Error: " . $errstr . " (" . $errno . ")", 8);
+        } else {
+            fwrite($socket, "moss " . $this->userid . "\n");
+            fwrite($socket, "directory " . $this->options['d'] . "\n");
+            fwrite($socket, "X " . $this->options['x'] . "\n");
+            fwrite($socket, "maxmatches " . $this->options['m'] . "\n");
+            fwrite($socket, "show " . $this->options['n'] . "\n");
             //Language Check
-            fwrite($socket, "language ".$this->options['l']."\n");
+            fwrite($socket, "language " . $this->options['l'] . "\n");
             $read = trim(fgets($socket));
-            if($read == "no"){
+            if ($read == "no") {
                 fwrite($socket, "end\n");
                 fclose($socket);
                 throw new Exception("Unsupported language", 1);
             }
-            foreach($this->basefiles as $bfile){
+            foreach ($this->basefiles as $bfile) {
                 $this->uploadFile($socket, $bfile, 0);
             }
             $i = 1;
-            foreach($this->files as $file){
+            foreach ($this->files as $file) {
                 $this->uploadFile($socket, $file, $i);
                 $i++;
             }
-            fwrite($socket, "query 0 ".$this->options['c']."\n");
+            fwrite($socket, "query 0 " . $this->options['c'] . "\n");
             $read = fgets($socket);
             fwrite($socket, "end\n");
             fclose($socket);
@@ -319,14 +326,15 @@ class Moss {
     /**
      * Upload a file to the server
      * @param resource $handle A handle from fsockopen
-     * @param string $file   The Path of the file
-     * @param int $id     0 = Basefile, incrementing for every normal file
+     * @param string $file The Path of the file
+     * @param int $id 0 = Basefile, incrementing for every normal file
      * @return void
      */
-    private function uploadFile($handle, $file, $id){
+    private function uploadFile($handle, $file, $id)
+    {
         $size = filesize($file);
         $file_name_fixed = str_replace(" ", "_", $file);
-        fwrite($handle, "file ".$id." ".$this->options['l']." ".$size." ".$file_name_fixed."\n");
+        fwrite($handle, "file " . $id . " " . $this->options['l'] . " " . $size . " " . $file_name_fixed . "\n");
         fwrite($handle, file_get_contents($file));
     }
 }

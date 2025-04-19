@@ -13,7 +13,7 @@ use app\models\User;
  * This is the model class for table "testinstances".
  *
  * @property int $id
- * @property string $starttime
+ * @property string|null $starttime
  * @property string $finishtime
  * @property boolean $submitted
  * @property int $score
@@ -149,7 +149,11 @@ class QuizTestInstance extends \yii\db\ActiveRecord implements IOpenApiFieldType
             return true;
         }
 
-        $currentToken = AccessToken::getCurrent()->token;
+        $currentToken = AccessToken::getCurrent();
+        $currentToken = $currentToken != null
+            ? $currentToken->token
+            : null;
+
         return !is_null($this->token) && !is_null($currentToken) && $this->token === $currentToken;
     }
 

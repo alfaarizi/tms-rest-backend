@@ -12,10 +12,10 @@ use Yii;
 /**
  * This is the model class for table "taskFiles".
  *
- * @property integer $id
+ * @property integer|null $id
  * @property string $name
  * @property string $uploadTime
- * @property integer $taskID
+ * @property integer|null $taskID
  * @property string $category
  * @property-read boolean $isAttachment
  * @property-read boolean $isTestFile

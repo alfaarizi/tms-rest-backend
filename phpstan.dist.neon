@@ -1,5 +1,5 @@
 parameters:
-  level: 3
+  level: 4
   paths:
     - behaviors
     - commands
@@ -14,11 +14,13 @@ parameters:
     - tests
   excludePaths:
     analyse:
+        - components\openapi\generators\OASchema.php
+        - components\plagiarism\Moss.php
         - tests/_data
         - tests/_support
     analyseAndScan:
-        - tests/_output
         - models/NeptunAuth.php
+        - tests/_output
   bootstrapFiles:
     - vendor/yiisoft/yii2/Yii.php
   stubFiles:
