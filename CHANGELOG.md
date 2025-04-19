@@ -4,6 +4,75 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.0.0](https://gitlab.com/tms-elte/backend-core/compare/v3.4.0...v4.0.0) (2025-04-19)
+
+### ⚠ BREAKING CHANGES
+
+* Fix typo in Notification::dismissible name ([357a73](https://gitlab.com/tms-elte/backend-core/commit/357a73e097a1e199deeca573b37370d6c015a2dc))
+* Optional email notification for students upon task update ([110980](https://gitlab.com/tms-elte/backend-core/commit/110980dab6e86d4b3f3dd1d626dc9950b7805c79))
+* Rename "Exam" to "Quiz" ([d4b5f7](https://gitlab.com/tms-elte/backend-core/commit/d4b5f7b954222b68a0c51ebd832f696bf2e49615))
+* Rename all Neptun code occurrences to User code ([0bdfeb](https://gitlab.com/tms-elte/backend-core/commit/0bdfebb23112439c181923520912dafcede1350d))
+* Rename task related entities ([bbeb3b](https://gitlab.com/tms-elte/backend-core/commit/bbeb3b935a25bdb684660b9443ff694f4243a203))
+* Separate StatisticsResource into 2 resources ([71f306](https://gitlab.com/tms-elte/backend-core/commit/71f306ec33768ca6b57ba907826887ec3ae1f7c5))
+* Support multiple course codes ([5048e4](https://gitlab.com/tms-elte/backend-core/commit/5048e454d7b9358985329e073ec61793a505ae7b))
+* TaskResource for students should only contain one submission ([e322d2](https://gitlab.com/tms-elte/backend-core/commit/e322d265ac70028a6f9cc274d1809bad4737c2f9))
+
+### Features
+
+* Added course management API for lecturers ([d5c8df](https://gitlab.com/tms-elte/backend-core/commit/d5c8df4a8ef7242bb91fe02fa33c0cfae83e33f4))
+* Added endpoint for detailed IP logs of submissions ([5d3940](https://gitlab.com/tms-elte/backend-core/commit/5d3940a4cfd8d70823869d93b2c50b9028fe2b03))
+* Added JWT token generation and validation for submission QR codes ([509c6e](https://gitlab.com/tms-elte/backend-core/commit/509c6ee610f0d147389314a078aa8a01166ed121))
+* Added notification scopes ([84fd3e](https://gitlab.com/tms-elte/backend-core/commit/84fd3e3a44f00156e6b617b335100cda8754d078))
+* Add maxWebAppRunTime to PrivateSystemInfo ([78b9a0](https://gitlab.com/tms-elte/backend-core/commit/78b9a0fb9f5b719eae69cc977546823e13ddfae7))
+* Add server time to private system response ([8f2a72](https://gitlab.com/tms-elte/backend-core/commit/8f2a723ef6bdb3835bfcda41696cc369678b5849))
+* Add timetable information for groups ([1e8dff](https://gitlab.com/tms-elte/backend-core/commit/1e8dff5341f8ac3569cc00986f06993f5417a6c6))
+* Cancel Canvas synchronization ([eb6d05](https://gitlab.com/tms-elte/backend-core/commit/eb6d05f5a6895e04f7003d25e935bb5c41583bd5))
+* Configurable university code formatting validation ([ab3a0b](https://gitlab.com/tms-elte/backend-core/commit/ab3a0bc53a4f09b9ce1fb217f3efff5500cc4144))
+* Delay e-mail notification of future tasks ([db4098](https://gitlab.com/tms-elte/backend-core/commit/db40981ca87e8f384d34c2befc903218275f10c7))
+* Enable CORS configuration support ([384b61](https://gitlab.com/tms-elte/backend-core/commit/384b61e6f89334c5b4a2dd034c5d08d84c1cb543))
+* Entry level password for tasks ([aeedc7](https://gitlab.com/tms-elte/backend-core/commit/aeedc7d12c8ec56e46de7f6815655843e9d62a38))
+* Extend Windows-based .NET evaluator templates with optional architectural analysis ([94d541](https://gitlab.com/tms-elte/backend-core/commit/94d541d4dc00ed74c8bb9175d67464a5dc309d01))
+* Include IP addresses into Excel exports for tasks ([4c0109](https://gitlab.com/tms-elte/backend-core/commit/4c01095703a5e69c08442179e611c2616b18f859))
+* Introduce group level notifications ([925b35](https://gitlab.com/tms-elte/backend-core/commit/925b35f462dc3a7af1332e00406840854c328294))
+* Late submissions should bypass upload count restrictions ([11d1e7](https://gitlab.com/tms-elte/backend-core/commit/11d1e7555c7302c3777294fce4de5eb929565ada))
+* Mandatory lecturer assignment for course creation ([d914ec](https://gitlab.com/tms-elte/backend-core/commit/d914ecd81a3ef9869b73a7937f0f03bb83e072cc))
+* More extensive IP address logging for exam type assignments ([c92280](https://gitlab.com/tms-elte/backend-core/commit/c92280b91fe528805a68375600467d7eb06b4f47))
+* Partial Canvas synchronization ([a941d7](https://gitlab.com/tms-elte/backend-core/commit/a941d7cebc3a5701fdc4b204f555d6ce3feae630))
+* Protect exams with entry password ([5be9a1](https://gitlab.com/tms-elte/backend-core/commit/5be9a144c614fedf4038af299cb090e023f6eb2b))
+* Restrictable number of submission attempts ([5686f1](https://gitlab.com/tms-elte/backend-core/commit/5686f1483d56066a3d968625c181d8ad434ffc7b))
+* Send stdout and stderr to students on successful evaluation ([6ffd76](https://gitlab.com/tms-elte/backend-core/commit/6ffd76982f80c3f85d212c8650c561ad8d1a5bca))
+* Updated git-php version to 4.2.0 ([077027](https://gitlab.com/tms-elte/backend-core/commit/077027f6458e011582223d2c18ebe063f502688d))
+* Upgrading gcc/g++ based evaluator templates to Ubuntu 24.04 ([d8def7](https://gitlab.com/tms-elte/backend-core/commit/d8def7520388b7f7f6d8e7954402121d9c237ec0))
+* Upgrading MAUI-based evaluator templates to .NET 8. ([76def5](https://gitlab.com/tms-elte/backend-core/commit/76def5b60d85b1469efbd45d0bdd76e8e7206c95))
+
+### Bug Fixes
+
+* Add lecturer for course in sample seed dataset ([2e31de](https://gitlab.com/tms-elte/backend-core/commit/2e31de7c9b2f442df9d97bb7f2b5afcd0618cbae))
+* Add validation rules for course code fields ([d6cdc5](https://gitlab.com/tms-elte/backend-core/commit/d6cdc51053d76bb86b47957daefee4f8ac789a97))
+* Apply timestamp based ordering of the returned IP log records ([bf4a04](https://gitlab.com/tms-elte/backend-core/commit/bf4a04f70dbe81326f1cdeb01116d60581e06881))
+* Block adding students to groups multiple times ([ff3a9b](https://gitlab.com/tms-elte/backend-core/commit/ff3a9bbcdcb77244eb63a046117a062a34665183))
+* Delete CodeChecker results with submissions ([2f8851](https://gitlab.com/tms-elte/backend-core/commit/2f8851f084f66ce6458d1a5ffab844aff57b9255))
+* Do not display login activity records for other submissions in the IP log ([2bae87](https://gitlab.com/tms-elte/backend-core/commit/2bae87a2927faa993bdbeea1d90506271ffc5fe6))
+* Do not try to extract submissions without valid upload during plagiarism check ([40c659](https://gitlab.com/tms-elte/backend-core/commit/40c659ba01fa91afc0e1643cd362efa42a30b242))
+* Enable group metadata edit for instructors except for the group number ([51e0d6](https://gitlab.com/tms-elte/backend-core/commit/51e0d6795f19d16f81700de6d8cfb9c9501bfbed))
+* Exam questions should only have 1 correct answer ([76e96d](https://gitlab.com/tms-elte/backend-core/commit/76e96d55c123069f225e0f4a0f0a282fba43e428))
+* Groups are not listed when editing a test ([d4b692](https://gitlab.com/tms-elte/backend-core/commit/d4b69289eb5b39a89780998aaf3b6d05bd2787a1))
+* Improve filtering related IP log records for exam tasks ([cfca75](https://gitlab.com/tms-elte/backend-core/commit/cfca750197bf03d4f0fd9df42cad00934dfd7231))
+* Improve Neptun code format validation ([9d4d88](https://gitlab.com/tms-elte/backend-core/commit/9d4d8854c85adba8cfa79e28f536ee350664cf05))
+* Incorrect error message for Canvas upon successful evaluation ([388b08](https://gitlab.com/tms-elte/backend-core/commit/388b08491743e2251e7a83c56e205bc0100c059b))
+* Incorrect git repository path for non-submitted solutions ([6eed17](https://gitlab.com/tms-elte/backend-core/commit/6eed1771234804cc289503f42f149776093b0940))
+* Instructor digest notification email sending issue, introduced by Neptun renaming. ([593651](https://gitlab.com/tms-elte/backend-core/commit/5936513bb4c9c6169b392a1844ec76ac82c2e49d))
+* Instructor files can not be added to regular tasks in canvas synced courses ([f0b26d](https://gitlab.com/tms-elte/backend-core/commit/f0b26dc67711b94b6b9433fa25453874ace3711d))
+* Make groups deletable with no submission ([372169](https://gitlab.com/tms-elte/backend-core/commit/372169fff76ad542e21c525d9d81e5d8afd36cba))
+* Reset static analysis status for submissions upon new upload ([04317a](https://gitlab.com/tms-elte/backend-core/commit/04317abf47ea7feacb00e16b8d53ca20cd3ba62f))
+* Restrict task file download for unlocked tasks ([65f8a3](https://gitlab.com/tms-elte/backend-core/commit/65f8a306fda0860fdd413ae22f33e86bd869dad5))
+* Static analysis Canvas comments are propagated back to TMS in translations ([d4268e](https://gitlab.com/tms-elte/backend-core/commit/d4268effe91b041c8c0b1150a975e01934ad4392))
+* Task resources could include incorrect submissions ([e6a07f](https://gitlab.com/tms-elte/backend-core/commit/e6a07fbb5dc1c63cbb8cc1cd336ae98f19f4878e))
+* Test OS should not be configured for new tasks ([9baa7b](https://gitlab.com/tms-elte/backend-core/commit/9baa7bdced4d58dd4f0ec8410643dddcb8157b2e))
+
+
+---
+
 ## [4.0.0-beta.1](https://gitlab.com/tms-elte/backend-core/compare/v3.4.0...v4.0.0-beta.1) (2025-03-26)
 
 ### ⚠ BREAKING CHANGES
