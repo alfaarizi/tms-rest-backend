@@ -80,11 +80,6 @@ class JPlagPlagiarismFinder extends AbstractPlagiarismFinder
             $result = exec($cmd, $output, $result_code);
         }
 
-        // PHPStan believes $result can't be bool,
-        // even though both passthru() can return bool, and exec() can return false.
-        // This makes $result's type to be bool|null|string,
-        // hence why the next line's "error" should be ignored.
-        /** @phpstan-ignore-next-line */
         if ($result === false) {
             Yii::error([
                 'msg' => 'JPlag command execution failure',
