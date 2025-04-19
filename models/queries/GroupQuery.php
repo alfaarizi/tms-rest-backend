@@ -52,26 +52,21 @@ class GroupQuery extends ActiveQuery
 
     public function instructorAccessibleGroups(int $userID, ?int $semesterID = null, ?int $courseID = null): self
     {
-        // Collect the instructor/lecturer courses.
-        $query = $this
-            ->alias('g')
+        // Select all the groups where either:
+        // ic.userID === $userID -> my course, I can view every group
+        // ig.userID === $userID -> my group
+        $query = $this->alias('g')
             ->joinWith(['instructorGroups ig', 'course.instructorCourses ic'])
             ->select('g.*')
-            ->andWhere(
-                [
-                    'or',
-                    ['ig.userID' => $userID],
-                    ['ic.userID' => $userID]
-                ]
-            );
+            ->andWhere(['or', ['ig.userID' => $userID], ['ic.userID' => $userID]]);
 
         if (!is_null($semesterID)) {
-            $query->andWhere(['semesterID' => $semesterID]);
+            $query->andWhere(['g.semesterID' => $semesterID]);
         }
 
-        // Filter courses if courseID is not null
+        // Important to restrict g.courseID instead of ic.courseID
         if (!is_null($courseID)) {
-            $query->andWhere(['ic.courseID' => $courseID]);
+            $query->andWhere(['g.courseID' => $courseID]);
         }
 
         return $query;
