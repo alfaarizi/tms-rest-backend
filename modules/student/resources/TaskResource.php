@@ -6,6 +6,7 @@ use app\components\GitManager;
 use app\components\openapi\generators\OAItems;
 use app\components\openapi\generators\OAProperty;
 use app\models\Task;
+use app\models\TaskIpRestriction;
 use app\models\User;
 use Yii;
 use yii\db\ActiveQuery;
@@ -13,6 +14,8 @@ use yii\helpers\ArrayHelper;
 
 /**
  * Resource class for module 'Task'
+ *
+ * @property-read boolean $isIpAddressAllowed
  */
 class TaskResource extends Task
 {
@@ -24,8 +27,13 @@ class TaskResource extends Task
             'name',
             'category',
             'translatedCategory',
-            'description' => function(TaskResource $model) {
-                return $model->entryPasswordUnlocked ? $model->description : "";
+            'description' => function (TaskResource $model) {
+                // No description if the task is not unlocked or if the IP address is not whitelisted
+                if (!$model->entryPasswordUnlocked || !$model->isIpAddressAllowed) {
+                    return "";
+                }
+
+                return $model->description;
             },
             'softDeadline',
             'hardDeadline',
@@ -37,6 +45,7 @@ class TaskResource extends Task
             'exitPasswordProtected',
             'entryPasswordProtected',
             'entryPasswordUnlocked',
+            'isIpAddressAllowed',
             'canvasUrl',
             'appType',
             'isSubmissionCountRestricted',
@@ -59,6 +68,7 @@ class TaskResource extends Task
             [
                 'creatorName' => new OAProperty(['type' => 'string']),
                 'gitInfo' => new OAProperty(['type' => 'object']),
+                'isIpAddressAllowed' => new OAProperty(['type' => 'boolean']),
                 'submission' => new OAProperty(
                     [
                     'ref' => '#/components/schemas/Student_SubmissionResource_Read'
@@ -80,7 +90,7 @@ class TaskResource extends Task
             ->andOnCondition(['not', ['name' => 'Dockerfile']])
             ->andOnCondition(['category' => TaskFileResource::CATEGORY_ATTACHMENT]);
 
-        if (!$this->entryPasswordUnlocked) {
+        if (!$this->entryPasswordUnlocked || !$this->isIpAddressAllowed) {
             $query->andWhere('0=1'); // Return no records
         }
 
@@ -113,5 +123,25 @@ class TaskResource extends Task
         } else {
             return null;
         }
+    }
+
+    public function getIsIpAddressAllowed(): bool
+    {
+        /** @var TaskIpRestriction[] $ipRestrictions */
+        $ipRestrictions = $this->getIpRestrictions()->all();
+        $ip = Yii::$app->request->userIP;
+
+        if (count($ipRestrictions) == 0) {
+            return true;
+        }
+
+        foreach ($ipRestrictions as $ipRestriction) {
+            // check if the IP address is in the range based on the restricted IP address and restricted IP mask
+            if ((ip2long($ip) & ip2long($ipRestriction->ipMask)) == (ip2long($ipRestriction->ipAddress) & ip2long($ipRestriction->ipMask))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

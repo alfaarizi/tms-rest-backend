@@ -229,6 +229,7 @@ class SubmissionsController extends BaseStudentRestController
         // Permission checks
         PermissionHelpers::isItMyTask($task->id);
         PermissionHelpers::checkIfTaskAvailable($task);
+        PermissionHelpers::checkIfTaskIpAddressAllowed($task);
         PermissionHelpers::checkIfTaskUnlocked($task);
 
         // Canvas synchronization check

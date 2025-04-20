@@ -559,5 +559,13 @@ return [
     "Web test suite" => "Web tesztek",
     "Test reports not exist for this student file." => "Ehhez a beadandóhoz nem készült teszt riport.",
     "Check web reports for details." => "A részleteket megtalálod a web test riportban.",
-    'Failed to setup container for file validation.' => 'A konténer elindítása sikertelen volt az fájl ellenőrzéséhez.'
+    'Failed to setup container for file validation.' => 'A konténer elindítása sikertelen volt az fájl ellenőrzéséhez.',
+
+    //Ip restriction
+    "Failed to delete the IP restriction due to a database error." => "Az IP korlátozás törlése adatbázis hiba miatt sikertelen.",
+    "The requested IP restriction does not exist." => "A kért IP korlátozás nem létezik.",
+    "Failed to update the IP restriction due to a database error." => "Az IP korlátozás frissítése adatbázis hiba miatt sikertelen.",
+    "Your IP address is not allowed to access this task!" => "Az IP címed nem engedélyezett a feladat eléréséhez!",
+    "Failed to save IP restriction." => "Az IP korlátozás mentése sikertelen.",
+    "Failed to create the IP restriction due to a database error." => "Az IP korlátozás létrehozása adatbázis hiba miatt sikertelen.",
 ];

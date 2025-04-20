@@ -9,6 +9,8 @@ use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
 use app\models\queries\TaskQuery;
 use Yii;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 use yii\helpers\FileHelper;
 
 /**
@@ -53,6 +55,7 @@ use yii\helpers\FileHelper;
  * @property Group $group
  * @property Semester $semester
  * @property User $creator
+ * @property TaskIpRestriction[] $ipRestrictions
  *
  * @property-read string $timezone
  * @property-read boolean $exitPasswordProtected
@@ -519,6 +522,11 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         $taskAccessToken = TaskAccessTokens::findOne(['accessToken' => $currentAccessToken, 'taskId' => $this->id]);
 
         return !is_null($taskAccessToken);
+    }
+
+    public function getIpRestrictions(): ActiveQuery
+    {
+        return $this->hasMany(TaskIpRestriction::class, ['taskID' => 'id']);
     }
 
     public function fieldTypes(): array
