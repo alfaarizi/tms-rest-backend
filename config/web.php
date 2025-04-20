@@ -119,7 +119,7 @@ $fullConfig = [
                     'logVars' => [],
                     'prefix' => function () {
                         // Get ip address
-                        $ip = Yii::$app->request->getUserIP();
+                        $ip = Yii::$app->request->userIP;
 
                         // Get user identity
                         $identity = Yii::$app->user->identity;

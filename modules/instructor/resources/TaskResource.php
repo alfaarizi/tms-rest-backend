@@ -5,6 +5,7 @@ namespace app\modules\instructor\resources;
 use app\components\GitManager;
 use app\components\openapi\generators\OAItems;
 use app\components\openapi\generators\OAProperty;
+use app\models\Task;
 use app\resources\SemesterResource;
 use yii\helpers\ArrayHelper;
 use \yii\db\ActiveQuery;
@@ -12,7 +13,7 @@ use \yii\db\ActiveQuery;
 /**
  * Resource class for module 'Task'
  */
-class TaskResource extends \app\models\Task
+class TaskResource extends Task
 {
     public function fields(): array
     {
@@ -63,6 +64,7 @@ class TaskResource extends \app\models\Task
             'group',
             'semester',
             'taskLevelGitRepo',
+            'ipRestrictions',
         ];
     }
 
@@ -86,6 +88,12 @@ class TaskResource extends \app\models\Task
                 'group' => new OAProperty(['ref' => '#/components/schemas/Instructor_GroupResource_Read']),
                 'semester' => new OAProperty(['ref' => '#/components/schemas/Common_SemesterResource_Read']),
                 'taskLevelGitRepo' => new OAProperty(['type' => 'string']),
+                'ipRestrictions' => new OAProperty(
+                    [
+                        'type' => 'array',
+                        new OAItems(['ref' => '#/components/schemas/Instructor_TaskIpRestrictionResource_Read'])
+                    ]
+                ),
             ]
         );
     }
@@ -121,5 +129,10 @@ class TaskResource extends \app\models\Task
     public function getSemester(): ActiveQuery
     {
         return $this->hasOne(SemesterResource::class, ['id' => 'semesterID']);
+    }
+
+    public function getIpRestrictions(): ActiveQuery
+    {
+        return $this->hasMany(TaskIpRestrictionResource::class, ['taskID' => 'id']);
     }
 }

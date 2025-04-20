@@ -2,12 +2,11 @@
 
 namespace app\modules\student\helpers;
 
-use app\models\AccessToken;
 use app\models\QuizTestInstance;
 use app\models\Submission;
 use app\models\Subscription;
 use app\models\Task;
-use app\models\TaskAccessTokens;
+use app\modules\student\resources\TaskResource;
 use Yii;
 use yii\web\ForbiddenHttpException;
 
@@ -80,10 +79,22 @@ class PermissionHelpers
      * @param Task $task
      * @throws ForbiddenHttpException
      */
-    public static function checkIfTaskAvailable($task)
+    public static function checkIfTaskAvailable(Task $task)
     {
         if (!empty($task->available) && strtotime($task->available) > time()) {
             throw new ForbiddenHttpException(Yii::t('app', 'This task is not available yet!'));
+        }
+    }
+
+    /**
+     * Verify that the tasks is available for the current IP address.
+     * @param TaskResource $task
+     * @throws ForbiddenHttpException
+     */
+    public static function checkIfTaskIpAddressAllowed(TaskResource $task)
+    {
+        if (!$task->isIpAddressAllowed) {
+            throw new ForbiddenHttpException(Yii::t('app', 'Your IP address is not allowed to access this task!'));
         }
     }
 
@@ -96,8 +107,12 @@ class PermissionHelpers
     public static function checkIfTaskUnlocked(Task $task)
     {
         if (!$task->entryPasswordUnlocked) {
-            throw new ForbiddenHttpException(Yii::t('app',
-                                                    'This task is password protected, unlock it with the password first!'));
+            throw new ForbiddenHttpException(
+                Yii::t(
+                    'app',
+                    'This task is password protected, unlock it with the password first!'
+                )
+            );
         }
     }
 

@@ -11,6 +11,7 @@ use app\models\Submission;
 use app\models\Subscription;
 use app\models\Task;
 use app\models\TestCase;
+use app\models\TaskIpRestriction;
 use app\modules\instructor\resources\GroupResource;
 use app\modules\instructor\resources\SetupCodeCompassParserResource;
 use app\modules\instructor\resources\TaskResource;
@@ -24,6 +25,7 @@ use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
+use yii\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\ConflictHttpException;
 use yii\web\ForbiddenHttpException;
@@ -175,7 +177,6 @@ class TasksController extends BaseInstructorRestController
                 Yii::t('app', 'You must be an instructor of the group to perform this action!')
             );
         }
-
         return $task;
     }
 
@@ -254,6 +255,21 @@ class TasksController extends BaseInstructorRestController
             throw new ServerErrorHttpException(
                 Yii::t('app', 'Failed to save task. Message: ') . Yii::t('app', 'A database error occurred')
             );
+        }
+
+        $ipRestrictionsData = Yii::$app->request->post('ipRestrictions');
+        if (is_array($ipRestrictionsData)) {
+            foreach ($ipRestrictionsData as $ipRestrictionItem) {
+                $ipRestriction = new TaskIpRestriction();
+                $ipRestriction->taskID = $task->id;
+                $ipRestriction->ipAddress = $ipRestrictionItem['ipAddress'];
+                $ipRestriction->ipMask = $ipRestrictionItem['ipMask'];
+
+                if (!$ipRestriction->save()) {
+                    throw new ServerErrorHttpException(
+                        Yii::t('app', 'Failed to save IP restriction. Message: '));
+                }
+            }
         }
 
         // Create new Submission for everybody in the group
@@ -390,10 +406,64 @@ class TasksController extends BaseInstructorRestController
             return $task->errors;
         }
 
-        if (!$task->save(false)) {
-            throw new ServerErrorHttpException(
-                Yii::t('app', 'Failed to save task. Message: ') . Yii::t('app', 'A database error occurred')
-            );
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            if (!$task->save(false)) {
+                throw new ServerErrorHttpException(
+                    Yii::t('app', 'Failed to save task. Message: ') . Yii::t('app', 'A database error occurred')
+                );
+            }
+
+            $currentIpRestrictions = $task->ipRestrictions;
+            $newIpRestrictionsData = ArrayHelper::getValue(Yii::$app->request->post(), 'task.ipRestrictions');
+            if (!is_array($newIpRestrictionsData)) {
+                $newIpRestrictionsData = [];
+            }
+
+            // Filter old IP restrictions to delete
+            $deleteIpRestrictionIds = [];
+            foreach ($currentIpRestrictions as $currentIpRestriction) {
+                $keep = false;
+                foreach ($newIpRestrictionsData as $key => $newIpRestriction) {
+                    if ($currentIpRestriction->ipAddress == $newIpRestriction['ipAddress'] &&
+                        $currentIpRestriction->ipMask == $newIpRestriction['ipMask']) {
+                        $keep = true;
+                        unset($newIpRestrictionsData[$key]); // Remove from new IP restrictions
+                        break;
+                    }
+                }
+
+                if (!$keep) {
+                    $deleteIpRestrictionIds[] = $currentIpRestriction->id;
+                }
+            }
+            // Delete unwanted old IP restrictions
+            TaskIpRestriction::deleteAll(['id' => $deleteIpRestrictionIds]);
+
+            // Create new IP restrictions
+            foreach ($newIpRestrictionsData as $ipRestrictionItem) {
+                $ipRestriction = new TaskIpRestriction();
+                $ipRestriction->taskID = $task->id;
+                $ipRestriction->ipAddress = $ipRestrictionItem['ipAddress'];
+                $ipRestriction->ipMask = $ipRestrictionItem['ipMask'];
+
+                if (!$ipRestriction->save()) {
+                    throw new ServerErrorHttpException(
+                        Yii::t('app', 'Failed to save IP restriction.')
+                    );
+                }
+            }
+
+            // Commit all changes
+            $transaction->commit();
+
+            // Reload the task to contain the latest IP restrictions
+            if (!empty($deleteIpRestrictionIds) || !empty($newIpRestrictionsData)) {
+                $task->refresh();
+            }
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
 
         // Email notifications for task creation if required and haven't been done
