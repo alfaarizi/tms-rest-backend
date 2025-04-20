@@ -7,6 +7,16 @@ use yii\web\View;
 /* @var $this View view component instance */
 /* @var $message MessageInterface the message being composed */
 /* @var $content string main view render result */
+
+$logoImagePath = Yii::getAlias('@webroot/logo192-inverted.png');
+$logoImageData = file_get_contents($logoImagePath);
+$logoImageBase64 = 'data:image/png;base64,' . base64_encode($logoImageData);
+$headerText = Yii::t('app/mail', 'Undefined');
+if (preg_match('/<h2>(.*?)<\/h2>/is', $content, $matches)) {
+    $headerText = trim($matches[1]);
+    $content = str_replace($matches[0], '', $content);
+}
+
 ?>
 
 <?php $this->beginPage() ?>
