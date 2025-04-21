@@ -12,10 +12,12 @@ use yii\web\View;
 <?php $this->beginPage() ?>
 <?php
 
-$logoImagePath = Yii::getAlias('@webroot/logo192-inverted.png');
-$logoImageData = file_get_contents($logoImagePath);
-$logoImageBase64 = 'data:image/png;base64,' . base64_encode($logoImageData);
-$headerText = Yii::t('app/mail', 'Undefined');
+$logoPath = Yii::getAlias('@webroot/logo192-inverted.png');
+$logoBase64 = (is_file($logoPath) && ($logoImg = file_get_contents($logoPath)))
+    ? 'data:image/png;base64,' . base64_encode($logoImg)
+    : '';
+
+$headerText = '';
 if (preg_match('/<h2>(.*?)<\/h2>/is', $content, $matches)) {
     $headerText = trim($matches[1]);
     $content = str_replace($matches[0], '', $content);
@@ -23,7 +25,7 @@ if (preg_match('/<h2>(.*?)<\/h2>/is', $content, $matches)) {
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=<?= Yii::$app->charset ?>" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -142,7 +144,7 @@ if (preg_match('/<h2>(.*?)<\/h2>/is', $content, $matches)) {
                                 <tr>
                                     <td width="50%" style="text-align: right; padding-right: 2px;">
                                         <img
-                                            src="<?= $logoImageBase64 ?>"
+                                            src="<?= $logoBase64 ?>"
                                             alt=""
                                             width="30"
                                             height="30"
