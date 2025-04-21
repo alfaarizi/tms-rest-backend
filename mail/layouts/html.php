@@ -26,6 +26,7 @@ if (preg_match('/<h2>(.*?)<\/h2>/is', $content, $matches)) {
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="">
+
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=<?= Yii::$app->charset ?>" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,182 +44,196 @@ if (preg_match('/<h2>(.*?)<\/h2>/is', $content, $matches)) {
         <?php $this->head() ?>
     </head>
 
-    <body style="margin: 0; padding: 0; width: 100%; -webkit-font-smoothing: antialiased; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #fafafa;">
-    <!-- Branding Line start -->
-    <div style="width: 100%; height: 4px; background-color: #231F20;"></div>
-    <!-- Branding Line end -->
-    <?php $this->beginBody() ?>
-    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-        <tbody>
+    <body
+        style="
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        -webkit-font-smoothing: antialiased;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: #fafafa;"
+    >
 
-        <!-- Branding Name start -->
-        <tr>
-            <td style="background-color: #fafafa; padding: 32px 0; text-align: center;">
-                <h1
-                    style="
-                    margin: 0;
-                    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                    font-size: 24px;
-                    color: #231F20;"
-                >
-                    <?= Yii::t('app/mail', 'Task Management System') ?>
-                </h1>
-            </td>
-        </tr>
-        <!-- Branding Name end -->
+        <!-- Branding Line start -->
+        <div style="width: 100%; height: 4px; background-color: #231F20;"></div>
+        <!-- Branding Line end -->
 
-        <!-- Container start-->
-        <tr>
-            <td align="center">
-                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0" style="max-width: 640px; margin: 0 auto;">
-                    <tbody>
+        <?php $this->beginBody() ?>
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+            <tbody>
 
-                    <!-- Content Section start -->
-                    <tr>
-                        <td style="border-radius:3px; border:1px solid #ededed; padding: 18px 25px; background-color: #ffffff;">
-                            <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-                                <tbody>
-                                <tr>
-                                    <td>
-                                        <!-- Header Box start -->
-                                        <div
-                                            style="
-                                            background-color: #ffffff;
-                                            padding: 8px;
-                                            text-align: center;
-                                            border-radius:3px;
-                                            border:1px solid #ededed;
-                                            margin-bottom: 16px;"
-                                        >
-                                            <p
+            <!-- Branding Name start -->
+            <tr>
+                <td style="background-color: #fafafa; padding: 32px 0; text-align: center;">
+                    <h1
+                        style="
+                        margin: 0;
+                        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                        font-size: 24px;
+                        color: #231F20;"
+                    >
+                        <?= Yii::t('app/mail', 'Task Management System') ?>
+                    </h1>
+                </td>
+            </tr>
+            <!-- Branding Name end -->
+
+            <!-- Container start-->
+            <tr>
+                <td align="center">
+                    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0" style="max-width: 640px; margin: 0 auto;">
+                        <tbody>
+
+                        <!-- Content Section start -->
+                        <tr>
+                            <td style="border-radius:3px; border:1px solid #ededed; padding: 18px 25px; background-color: #ffffff;">
+                                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                                    <tbody>
+                                    <tr>
+                                        <td>
+                                            <!-- Header Box start -->
+                                            <div
+                                                style="
+                                                background-color: #ffffff;
+                                                padding: 8px;
+                                                text-align: center;
+                                                border-radius:3px;
+                                                border:1px solid #ededed;
+                                                margin-bottom: 16px;"
+                                            >
+                                                <p
+                                                    style="
+                                                    margin: 0;
+                                                    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                                                    font-size: 14px;
+                                                    color: #231F20;"
+                                                >
+                                                    <?= $headerText ?>
+                                                </p>
+                                            </div>
+                                            <!-- Header Box end -->
+
+                                            <!-- Content Box start -->
+                                            <div
+                                                style="
+                                                background-color: #ffffff;
+                                                padding: 48px 32px;
+                                                border-radius:3px;
+                                                border:1px solid #ededed;"
+                                            >
+                                                <p
+                                                    style="
+                                                    margin: 0;
+                                                    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                                                    font-size: 15px;
+                                                    line-height: 23px;
+                                                    color: #333;"
+                                                >
+                                                    <?= $content ?>
+                                                </p>
+                                            </div>
+                                            <!-- Content Box end -->
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <!-- Content Section end -->
+
+                        <!-- Spacer start-->
+                        <tr>
+                            <td style="height: 16px"></td>
+                        </tr>
+                        <!-- Spacer end-->
+
+                        <!-- Branding Section start -->
+                        <tr>
+                            <td>
+                                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                                    <tbody>
+                                    <tr>
+                                        <td width="50%" style="text-align: right; padding-right: 2px;">
+                                            <img
+                                                src="<?= $logoBase64 ?>"
+                                                alt=""
+                                                width="30"
+                                                height="30"
+                                                style="
+                                                vertical-align: middle;
+                                                display: inline-block;"
+                                            >
+                                        </td>
+                                        <td width="50%" style="text-align: left; padding-left: 2px;">
+                                            <span
                                                 style="
                                                 margin: 0;
                                                 font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                                                font-weight: 700;
                                                 font-size: 14px;
-                                                color: #231F20;"
+                                                color: #231F20;
+                                                vertical-align: middle;"
                                             >
-                                                <?= $headerText ?>
-                                            </p>
-                                        </div>
-                                        <!-- Header Box end -->
+                                                TMS
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <!-- Branding Section end -->
 
-                                        <!-- Content Box start -->
-                                        <div
-                                            style="
-                                            background-color: #ffffff;
-                                            padding: 48px 32px;
-                                            border-radius:3px;
-                                            border:1px solid #ededed;"
-                                        >
+                        <!-- Footer Section start -->
+                        <tr>
+                            <td style="padding: 8px 16px 16px; background-color: #fafafa;">
+                                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                                    <tbody>
+                                    <tr>
+                                        <td style="text-align: center; padding-bottom: 8px;">
                                             <p
                                                 style="
                                                 margin: 0;
                                                 font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                                                font-size: 15px;
-                                                line-height: 23px;
-                                                color: #333;"
+                                                font-size: 13px;
+                                                color: #5c5c5c;"
                                             >
-                                                <?= $content ?>
+                                                <?= Yii::t('app/mail', 'You are receiving this email because of your account on') ?>
+                                                <?= Yii::t('app/mail', 'Task Management System') ?>.
                                             </p>
-                                        </div>
-                                        <!-- Content Box end -->
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <!-- Content Section end -->
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <a
+                                                href="<?= Yii::$app->params['frontendUrl'] ?>"
+                                                target="_blank"
+                                                style="
+                                                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                                                font-size: 13px;
+                                                color: #1068bf;
+                                                text-decoration: underline;"
+                                            >
+                                                <?= Yii::t('app/mail', 'View in the browser') ?>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <!-- Footer Section end -->
 
-                    <!-- Spacer start-->
-                    <tr>
-                        <td style="height: 16px"></td>
-                    </tr>
-                    <!-- Spacer end-->
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <!-- Container end -->
 
-                    <!-- Branding Section start -->
-                    <tr>
-                        <td>
-                            <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-                                <tbody>
-                                <tr>
-                                    <td width="50%" style="text-align: right; padding-right: 2px;">
-                                        <img
-                                            src="<?= $logoBase64 ?>"
-                                            alt=""
-                                            width="30"
-                                            height="30"
-                                            style="
-                                            vertical-align: middle;
-                                            display: inline-block;"
-                                        >
-                                    </td>
-                                    <td width="50%" style="text-align: left; padding-left: 2px;">
-                                        <span
-                                            style="
-                                            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                                            font-weight: 700;
-                                            font-size: 16px;
-                                            color: #231F20;
-                                            vertical-align: middle;"
-                                        >
-                                            TMS
-                                        </span>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <!-- Branding Section end -->
-
-                    <!-- Footer Section start -->
-                    <tr>
-                        <td style="padding: 8px 16px 16px; background-color: #fafafa;">
-                            <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-                                <tbody>
-                                <tr>
-                                    <td style="text-align: center; padding-bottom: 8px;">
-                                        <p
-                                            style="
-                                            margin: 0;
-                                            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                                            font-size: 13px;
-                                            color: #5c5c5c;"
-                                        >
-                                            You're receiving this email because of your account on
-                                            <?= Yii::t('app/mail', 'Task Management System') ?>.
-                                        </p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="text-align: center;">
-                                        <a
-                                            href="<?= Yii::$app->params['frontendUrl'] ?>"
-                                            target="_blank"
-                                            style="
-                                            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                                            font-size: 13px;
-                                            color: #1068bf;
-                                            text-decoration: underline;"
-                                        >
-                                            View in the browser
-                                        </a>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <!-- Footer Section end -->
-                    </tbody>
-                </table>
-            </td>
-        </tr>
-        <!-- Container end -->
-        </tbody>
-    </table>
-    <?php $this->endBody() ?>
+            </tbody>
+        </table>
+        <?php $this->endBody() ?>
     </body>
+
 </html>
 <?php $this->endPage() ?>
