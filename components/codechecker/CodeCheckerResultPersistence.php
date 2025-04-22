@@ -63,7 +63,7 @@ class CodeCheckerResultPersistence extends BaseObject
                 throw new CodeCheckerPersistenceException("Failed to modify student file");
             }
             $transaction->commit();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $transaction->rollback();
             throw new CodeCheckerPersistenceException(
                 "Unable to create new result for student file {$e->getMessage()}" . PHP_EOL
@@ -133,7 +133,7 @@ class CodeCheckerResultPersistence extends BaseObject
             } catch (CodeCheckerPersistenceException $e) {
                 $transaction->rollBack();
                 throw $e;
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 throw new CodeCheckerPersistenceException("Failed to commit transaction");
             } finally {
                 $this->deleteTemporaryFiles($workDir);
@@ -201,7 +201,7 @@ class CodeCheckerResultPersistence extends BaseObject
         try {
             $phar = new PharData($tarPath);
             $phar->extractTo($destPath);
-        } catch (Throwable $e) {
+        } catch (\Exception $e) {
             throw new CodeCheckerPersistenceException("Failed to extract tar file: " . $tarPath);
         }
     }

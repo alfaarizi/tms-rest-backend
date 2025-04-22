@@ -12,7 +12,6 @@ use app\resources\CourseResource;
 use app\resources\UserAddErrorResource;
 use app\resources\UserResource;
 use app\resources\UsersAddedResource;
-use Exception;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\ServerErrorHttpException;
@@ -131,7 +130,7 @@ class CoursesController extends BaseAdminActiveController
 
             $this->response->statusCode = 201;
             return $course;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
             throw new ServerErrorHttpException(Yii::t('app', "Couldn't save new course."));
         }

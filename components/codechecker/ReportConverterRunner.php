@@ -108,7 +108,7 @@ class ReportConverterRunner extends AnalyzerRunner
             $container = $builder->build("tms_report_converter_" . $this->submission->id);
             $container->startContainer();
             return $container;
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             throw new CodeCheckerRunnerException(
                 Yii::t('app', 'Failed to create or start Docker container'),
                 CodeCheckerRunnerException::PARSE_FAILURE,
@@ -136,7 +136,7 @@ class ReportConverterRunner extends AnalyzerRunner
                 $tarPath
             );
             $reportConverterContainer->uploadArchive($tarPath, '/');
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             throw new CodeCheckerRunnerException(
                 Yii::t('app', 'Failed to copy project files to the Report Converter container'),
                 CodeCheckerRunnerException::PARSE_FAILURE,
@@ -168,7 +168,7 @@ class ReportConverterRunner extends AnalyzerRunner
                    $resultFilePath
                 ]
             );
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             throw new CodeCheckerRunnerException(
                 Yii::t('app', 'Failed to run the Report Converter tool'),
                 CodeCheckerRunnerException::PARSE_FAILURE,
@@ -194,7 +194,7 @@ class ReportConverterRunner extends AnalyzerRunner
                 $tarPath
             );
             return $tarPath;
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             throw new CodeCheckerRunnerException(
                 Yii::t('app', 'Failed to download reports from the Report Converter container'),
                 CodeCheckerRunnerException::PARSE_FAILURE,

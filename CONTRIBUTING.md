@@ -67,6 +67,14 @@ This is also important for error handling in the frontend.
 - **Multi-status responses** *SHOULD* status code 207 and report both succeeded and failed results.
 For example return a list with successfully added items a list with failed items.
 
+### Internal error handling
+
+When expecting exceptions in the code, aim to catch the most specific exception type possible. This way you can handle the error in a more precise way and avoid catching unrelated exceptions. In case of an unexpected exception, always log the exception with `Yii::error()` or `Yii::warning()`.
+
+In case of an unhandled exception, the Yii framework will catch it and return a 500 error. (The exception message is only included in development mode.)
+
+As the most generic exception type, use the `\Exception` type to catch in the business logic of the application. `\Throwable` objects (which are not exceptions) are mostly unrecoverable errors anyway, and should be handled by the framework. Catch `\Throwable` only when direct handling is required even in case of a fatal error, e.g. initiating the immediate rollback of an open database transaction.
+
 ### URL routing
 
 The project uses [Yii's routing engine](https://www.yiiframework.com/doc/guide/2.0/en/rest-routing) for URL resolution. General, module-independent rules are defined in the [config/rules.php](config/rules.php) configuration file.

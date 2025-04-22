@@ -345,7 +345,7 @@ class GroupsController extends BaseInstructorRestController
         } catch (\yii\db\IntegrityException $e) {
             $transaction->rollBack();
             throw new ConflictHttpException(Yii::t('app', 'Failed to remove group. First you should remove the corresponding tasks!'));
-        } catch (ErrorException $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
             throw new ServerErrorHttpException(
                 Yii::t('app', 'Failed to remove group. Message: ')
@@ -550,7 +550,7 @@ class GroupsController extends BaseInstructorRestController
             } else {
                 throw new ServerErrorHttpException('Failed to save group:' . VarDumper::dumpAsString($group->firstErrors));
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
 
             foreach ($directoryPaths as $dir) {
@@ -1012,7 +1012,7 @@ class GroupsController extends BaseInstructorRestController
             } catch (AddFailedException $e) {
                 $failed[] = new UserAddErrorResource($e->getIdentifier(), $e->getCause());
                 $transaction->rollBack();
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 $failed[] = new UserAddErrorResource($userCode, Yii::t('app', 'Database error'));
                 $transaction->rollBack();
             }

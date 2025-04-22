@@ -461,7 +461,7 @@ class TasksController extends BaseInstructorRestController
             if (!empty($deleteIpRestrictionIds) || !empty($newIpRestrictionsData)) {
                 $task->refresh();
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }

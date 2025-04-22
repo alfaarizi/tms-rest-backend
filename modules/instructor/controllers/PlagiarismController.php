@@ -406,7 +406,7 @@ class PlagiarismController extends BaseInstructorRestController
         try {
             $model->delete();
             $this->response->statusCode = 204;
-        } catch (Throwable $e) {
+        } catch (\Exception $e) {
             throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'), 0, $e);
         }
     }
