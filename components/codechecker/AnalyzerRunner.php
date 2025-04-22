@@ -144,7 +144,7 @@ abstract class AnalyzerRunner extends BaseObject
                 $tarPath,
                 $this->submission->task->testOS == 'windows' ? 'C:\\test' : '/test'
             );
-        } catch (Throwable $e) {
+        } catch (\Exception $e) {
             throw new CodeCheckerRunnerException(
                 Yii::t("app", "Failed to package and upload tar archive to the container: ")
                 . $e->getMessage(),
@@ -180,7 +180,7 @@ abstract class AnalyzerRunner extends BaseObject
                 ->build("tms_codechecker_{$this->submission->id}");
             $container->startContainer();
             return $container;
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             throw new CodeCheckerRunnerException(
                 Yii::t('app', 'Failed to create or start Docker container'),
                 CodeCheckerRunnerException::PREPARE_FAILURE,

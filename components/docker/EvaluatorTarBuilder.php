@@ -159,7 +159,7 @@ class EvaluatorTarBuilder extends BaseObject
             $phar = new PharData($this->tarPath);
             $phar->buildFromDirectory($this->workDirPath);
             return $this->tarPath;
-        } catch (Throwable $e) {
+        } catch (\Exception $e) {
             throw new EvaluatorTarBuilderException($e->getMessage(), EvaluatorTarBuilderException::BUILD, $e);
         }
     }
@@ -179,7 +179,7 @@ class EvaluatorTarBuilder extends BaseObject
                 FileHelper::removeDirectory($this->workDirPath);
             }
             return $this;
-        } catch (Throwable $e) {
+        } catch (\Exception $e) {
             throw new EvaluatorTarBuilderException($e->getMessage(), EvaluatorTarBuilderException::CLEANUP, $e);
         }
     }

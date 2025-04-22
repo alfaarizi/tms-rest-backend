@@ -477,7 +477,7 @@ class CoursesController extends BaseInstructorRestController
 
             $transaction->commit();
             return $course;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
             throw new ServerErrorHttpException(Yii::t('app', "Couldn't update course."));
         }

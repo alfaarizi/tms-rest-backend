@@ -260,7 +260,7 @@ class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
                 "Group number: {$this->group->number}, groupID: {$this->groupID}",
                 __METHOD__
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }

@@ -3,7 +3,6 @@
 namespace app\components\openapi;
 
 use app\components\openapi\generators\OASchema;
-use Throwable;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\base\Model;
@@ -90,7 +89,7 @@ class SchemaGenerator extends Component
 
         try {
             $model = new $class();
-        } catch (Throwable $e) {
+        } catch (\Exception $e) {
             if ($this->fromConsole()) {
                 Console::stderr("$class skipped: cannot create a new instance from this class" . PHP_EOL);
             }

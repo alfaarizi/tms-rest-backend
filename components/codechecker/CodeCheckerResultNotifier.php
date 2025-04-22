@@ -48,7 +48,7 @@ class CodeCheckerResultNotifier extends BaseObject
                     ->setSubject(Yii::t('app/mail', 'Static code analysis complete'))
                     ->send();
             }
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             throw new CodeCheckerResultNotifierException(
                 "Failed to send email: {$e->getMessage()}",
                 CodeCheckerResultNotifierException::EMAIL
@@ -61,7 +61,7 @@ class CodeCheckerResultNotifier extends BaseObject
                 $canvas = Yii::$container->get(CanvasIntegration::class);
                 $canvas->uploadCodeCheckerResultToCanvas($submission);
             }
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             throw new CodeCheckerResultNotifierException(
                 "Failed to save Canvas comment for CodeChecker result: {$e->getMessage()}",
                 CodeCheckerResultNotifierException::CANVAS

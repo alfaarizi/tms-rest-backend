@@ -288,7 +288,7 @@ class CanvasIntegration
                 "Canvas synchronization has been cancelled for the group",
                 __METHOD__
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -852,7 +852,7 @@ class CanvasIntegration
                 }
             }
             $transaction->commit();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }

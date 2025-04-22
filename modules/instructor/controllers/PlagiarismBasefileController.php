@@ -320,7 +320,7 @@ class PlagiarismBasefileController extends BaseInstructorRestController
             }
         } catch (StaleObjectException $e) {
             throw new ServerErrorHttpException(Yii::t('app', 'Failed to remove BaseFile') . ' StaleObjectException:' . $e->getMessage());
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             throw new ServerErrorHttpException(Yii::t('app', 'Failed to remove BaseFile'), 0, $e);
         }
     }

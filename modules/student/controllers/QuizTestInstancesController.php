@@ -422,7 +422,7 @@ class QuizTestInstancesController extends BaseStudentRestController
                 $testInstance->save();
                 $transaction->commit();
                 return $testInstance;
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $transaction->rollBack();
                 throw new ServerErrorHttpException(Yii::t("app", "A database error occurred"));
             }
@@ -495,7 +495,7 @@ class QuizTestInstancesController extends BaseStudentRestController
             );
 
             return $testInstance;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
             Yii::error(
                 "Failed to save answers ($testInstance->id)" . PHP_EOL .

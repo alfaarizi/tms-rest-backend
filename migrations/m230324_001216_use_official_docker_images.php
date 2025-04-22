@@ -74,7 +74,7 @@ class m230324_001216_use_official_docker_images extends Migration
             } catch (NotInstantiableException | InvalidConfigException $e) {
                 echo "Unable to get DockerImageManager from the DI container: {$e->getMessage()}" . PHP_EOL;
                 return false;
-            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
                 echo "Unexpected error, failed to pull docker image: {$e->getMessage()}" . PHP_EOL;
                 return false;
             }
@@ -115,7 +115,7 @@ class m230324_001216_use_official_docker_images extends Migration
             } catch (NotInstantiableException | InvalidConfigException $e) {
                 echo "Unable to get DockerImageManager from the DI container: {$e->getMessage()}" . PHP_EOL;
                 return false;
-            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
                 echo "Unexpected error, failed to pull docker image: {$e->getMessage()}" . PHP_EOL;
                 return false;
             }

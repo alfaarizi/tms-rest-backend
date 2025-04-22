@@ -108,7 +108,7 @@ class SemestersController extends BaseAdminRestController
                     $transaction->rollBack();
                     throw new ServerErrorHttpException(Yii::t('app', "Couldn't save new semester."));
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $transaction->rollBack();
                 throw new ServerErrorHttpException(Yii::t('app', "Couldn't save new semester."));
             }

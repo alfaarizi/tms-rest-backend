@@ -165,7 +165,7 @@ class CodeCheckerController extends BaseController
         } catch (NotInstantiableException | InvalidConfigException $e) {
             $this->stderr("Unable to get DockerImageManager from the DI container: {$e->getMessage()}" . PHP_EOL);
             return ExitCode::CONFIG;
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             $this->stderr("Unexpected error, failed to pull docker image: {$e->getMessage()}" . PHP_EOL);
             return  ExitCode::UNSPECIFIED_ERROR;
         }
