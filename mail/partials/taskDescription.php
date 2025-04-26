@@ -1,18 +1,26 @@
 <?php
 
+use app\models\Task;
+use app\mail\layouts\MailHtml;
 use yii\helpers\Markdown;
 use yii\helpers\HtmlPurifier;
+use yii\web\View;
 
-/* @var $this \yii\web\View view component instance */
-/* @var $task \app\models\Task The new group subscribed */
+/* @var $this View view component instance */
+/* @var $task Task The new group subscribed */
 ?>
 
 <?php if (empty($task->available)) : ?>
-    <p><?= Yii::t('app/mail', 'Task description') ?>: </p>
-    <div>
-        <?= $task->category == 'Canvas tasks' ?
-            nl2br($task->description)
-            : HtmlPurifier::process(Markdown::process($task->description, 'gfm'))
-        ?>
-    </div>
-<?php endif; ?>
+    <?=
+    MailHtml::p(
+        Yii::t('app/mail', 'Task description')
+    )
+    ?>
+    <?=
+    MailHtml::p(
+        $task->category == 'Canvas tasks' ?
+             nl2br($task->description)
+             : HtmlPurifier::process(Markdown::process($task->description, 'gfm'))
+    )
+    ?>
+<?php endif;

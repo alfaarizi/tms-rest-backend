@@ -1,24 +1,44 @@
 <?php
 
+use app\mail\layouts\MailHtml;
 use yii\helpers\Html;
-use yii\helpers\Url;
+use yii\mail\BaseMessage;
+use yii\web\View;
 
-/* @var $this \yii\web\View view component instance */
-/* @var $message \yii\mail\BaseMessage instance of newly created mail message */
-
+/* @var $this View view component instance */
+/* @var $message BaseMessage instance of newly created mail message */
 /* @var $subscription app\models\Subscription  */
 
 $group = $subscription->group;
 $notes = $subscription->notes;
 ?>
 
-<h2><?= \Yii::t('app/mail', 'New Notes') ?></h2>
-<p>
-    <?= \Yii::t('app/mail', 'New notes were added') ?><br>
-    <?= \Yii::t('app/mail', 'Course') ?>: <?= Html::encode($group->course->name) ?>
-    <?php if (!empty($group->number) && !$group->isExamGroup) : ?>
-        (<?= \Yii::t('app/mail', 'group') ?>: <?= $group->number ?>)
-    <?php endif; ?>
-    <br>
-    <?= \Yii::t('app/mail', 'Notes') ?>: <?= Html::encode($notes) ?><br>
-</p>
+<?php
+$tableData = [
+    Html::encode($group->course->name),
+    Html::encode($notes)
+];
+
+$tableHeaders = [
+    Yii::t('app/mail', 'Course'),
+    Yii::t('app/mail', 'Notes')
+];
+
+if (!empty($group->number) && !$group->isExamGroup) {
+    array_splice($tableData, 1, 0, [$group->number]);
+    array_splice($tableHeaders, 1, 0, [Yii::t('app/mail', 'group')]);
+}
+?>
+
+<h2><?= Yii::t('app/mail', 'New Notes') ?></h2>
+<?=
+MailHtml::p(
+    Yii::t('app/mail', 'New notes were added')
+)
+?>
+<?=
+MailHtml::table(
+    $tableData,
+    $tableHeaders,
+)
+?>

@@ -1,45 +1,60 @@
 <?php
 
 use app\models\Submission;
+use app\mail\layouts\MailHtml;
 use yii\helpers\Html;
 use yii\mail\BaseMessage;
 use yii\web\View;
 
 /* @var $this View view component instance */
 /* @var $message BaseMessage instance of newly created mail message */
-
 /* @var $solutions Submission[] The new student solution submitted */
 /* @var $hours integer The digest interval */
 ?>
 
 <h2><?= Yii::t('app/mail', 'Submitted solutions') ?></h2>
-<p>
-    <b><?= Yii::t('app/mail', 'Student solutions submitted in the past {hours} hours', ['hours' => $hours]) ?>:</b>
-</p>
-<ul>
+<?=
+MailHtml::p(
+    Yii::t('app/mail', 'Student solutions submitted in the past {hours} hours', ['hours' => $hours])
+)
+?>
 <?php foreach ($solutions as $solution) : ?>
-    <li>
-        <?= Yii::t('app/mail', 'Name') ?>: <?= Html::encode($solution->uploader->name) ?> (<?= Html::encode($solution->uploader->userCode) ?>)<br>
-        <?= Yii::t('app/mail', 'Course') ?>: <?= Html::encode($solution->task->group->course->name) ?>
+    <?php
+    $tableData = [
+        Html::encode($solution->uploader->name) . ' ' . (Html::encode($solution->uploader->userCode)),
+        Html::encode($solution->task->group->course->name),
+        Html::encode($solution->task->name)
+    ];
 
-        <?php if (!empty($solution->task->group->number)) : ?>
-            (<?= Yii::t('app/mail', 'group') ?>: <?= $solution->task->group->number ?>)
-        <?php endif; ?><br>
+    $tableHeaders = [
+        Yii::t('app/mail', 'Name'),
+        Yii::t('app/mail', 'Course'),
+        Yii::t('app/mail', 'Task name')
+    ];
 
-        <?= Yii::t('app/mail', 'Task name')?>: <?= Html::encode($solution->task->name) ?><br>
+    if (!empty($solution->task->group->number)) {
+        array_splice($tableData, 2, 0, [$solution->task->group->number]);
+        array_splice($tableHeaders, 2, 0, [Yii::t('app/mail', 'group')]);
+    }
 
-        <?php if ($solution->status == Submission::STATUS_CORRUPTED) : ?>
-            <div style="color: #dc4126;"> <?= Yii::t('app/mail', 'Corrupted') ?> </div> <br>
-        <?php endif; ?>
+    if ($solution->status == Submission::STATUS_CORRUPTED) {
+        $tableData[] = '<span style="color: #dc4126;">' . Yii::t('app/mail', 'Corrupted') . '</span>';
+    }
 
-        <?= Html::a(
-            Yii::t('app/mail', 'View solution'),
-            Yii::$app->params['frontendUrl'] . '/instructor/task-manager/submissions/' . $solution->id
-        )
-        ?>
-    </li>
+    $tableData[] = Html::a(
+        Yii::t('app/mail', 'View solution'),
+        Yii::$app->params['frontendUrl'] . '/instructor/task-manager/submissions/' . $solution->id
+    )
+    ?>
+    <?=
+    MailHtml::table(
+        $tableData,
+        $tableHeaders
+    )
+    ?>
 <?php endforeach; ?>
-</ul>
-<p>
-    <?= Yii::t('app/mail', 'The list does not contain the already graded solutions.') ?>
-</p>
+<?=
+MailHtml::p(
+    Yii::t('app/mail', 'The list does not contain the already graded solutions.')
+)
+?>
