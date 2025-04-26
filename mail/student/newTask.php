@@ -1,46 +1,79 @@
 <?php
 
+use app\models\Task;
+use app\mail\layouts\MailHtml;
 use yii\helpers\Html;
-use yii\helpers\Url;
 use app\components\DateTimeHelpers;
+use yii\mail\BaseMessage;
+use yii\web\View;
 
-/* @var $this \yii\web\View view component instance */
-/* @var $message \yii\mail\BaseMessage instance of newly created mail message */
-
+/* @var $this View view component instance */
+/* @var $message BaseMessage instance of newly created mail message */
 /* @var $actor \app\models\User The actor of the action */
-/* @var $task \app\models\Task The new task added */
+/* @var $task Task The new task added */
 
 ?>
 
-<h2><?= \Yii::t('app/mail', 'New task') ?></h2>
-<p>
-    <?php if (!empty($task->group->number) && !$task->group->isExamGroup) : ?>
-        <?= \Yii::t('app/mail', 'New task was assigned to the course {course} (group: {group}).', [
-        'course' => Html::encode($task->group->course->name),
-        'group' => $task->group->number
-    ]) ?>
-    <?php else : ?>
-        <?= \Yii::t('app/mail', 'New task was assigned to the course {course}.', [
-        'course' => Html::encode($task->group->course->name)
-    ]) ?>
-    <?php endif; ?>
-    <br>
-    <?php if (!$task->group->isExamGroup) : ?>
-        <?= \Yii::t('app/mail', 'Modifier') ?>: <?= Html::encode($actor->name) ?>
-    <?php endif; ?>
-</p>
-<p>
-    <?= \Yii::t('app/mail', 'Task name') ?>: <?= Html::encode($task->name) ?><br>
-    <?= \Yii::t('app/mail', 'Category') ?>: <?=\Yii::t('app/mail', $task->category)?><br>
-<?php if (!empty($task->available)) : ?>
-    <?= \Yii::t('app/mail', 'Available from') ?>: <?= DateTimeHelpers::timeZoneConvert($task->available, $task->group->timezone, true) ?><br>
-<?php endif; ?>
-<?php if (!empty($task->softDeadline)) : ?>
-    <?= \Yii::t('app/mail', 'Soft deadline of task') ?>: <?= DateTimeHelpers::timeZoneConvert($task->softDeadline, $task->group->timezone, true) ?><br>
-<?php endif; ?>
-    <?= \Yii::t('app/mail', 'Hard deadline of task') ?>: <?= DateTimeHelpers::timeZoneConvert($task->hardDeadline, $task->group->timezone, true) ?><br>
-</p>
+<?php
+$tableData = [
+    Html::encode($task->name),
+    Yii::t('app/mail', $task->category)
+];
 
+$tableHeaders = [
+    Yii::t('app/mail', 'Task name'),
+    Yii::t('app/mail', 'Category')
+];
+
+if (!empty($task->available)) {
+    $tableData[] = DateTimeHelpers::timeZoneConvert($task->available, $task->group->timezone, true);
+    $tableHeaders[] = Yii::t('app/mail', 'Available from');
+}
+
+if (!empty($task->softDeadline)) {
+    $tableData[] = DateTimeHelpers::timeZoneConvert($task->softDeadline, $task->group->timezone, true);
+    $tableHeaders[] = Yii::t('app/mail', 'Soft deadline of task');
+}
+
+if (!empty($task->hardDeadline)) {
+    $tableData[] = DateTimeHelpers::timeZoneConvert($task->hardDeadline, $task->group->timezone, true);
+    $tableHeaders[] = Yii::t('app/mail', 'Hard deadline of task');
+}
+?>
+
+<h2><?= Yii::t('app/mail', 'New task') ?></h2>
+<?php if (!empty($task->group->number) && !$task->group->isExamGroup) : ?>
+    <?=
+    MailHtml::p(
+        Yii::t('app/mail', 'New task was assigned to the course {course} (group: {group}).', [
+            'course' => Html::encode($task->group->course->name),
+            'group' => $task->group->number
+        ])
+    );
+    ?>
+<?php else : ?>
+    <?=
+    MailHtml::p(
+        Yii::t('app/mail', 'New task was assigned to the course {course}.', [
+            'course' => Html::encode($task->group->course->name)
+        ])
+    );
+    ?>
+<?php endif; ?>
+<?php if (!$task->group->isExamGroup) : ?>
+    <?=
+    MailHtml::table(
+        [Html::encode($actor->name)],
+        [Yii::t('app/mail', 'Modifier')]
+    )
+    ?>
+<?php endif; ?>
+<?=
+MailHtml::table(
+    $tableData,
+    $tableHeaders
+);
+?>
 <?php if (!$task->entryPasswordProtected) : ?>
     <?= $this->render('../partials/taskDescription', ['task' => $task]) ?>
 <?php endif; ?>

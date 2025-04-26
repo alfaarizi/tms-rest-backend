@@ -12,12 +12,12 @@ use yii\web\View;
 <?php $this->beginPage() ?>
 <?php
 
-$logoPath = Yii::getAlias('@webroot/logo192-inverted.png');
+$logoPath = Yii::getAlias('@app/web/logo192-inverted.png');
 $logoBase64 = (is_file($logoPath) && ($logoImg = file_get_contents($logoPath)))
     ? 'data:image/png;base64,' . base64_encode($logoImg)
     : '';
 
-$headerText = '';
+$headerText = 'Notice';
 if (preg_match('/<h2>(.*?)<\/h2>/is', $content, $matches)) {
     $headerText = trim($matches[1]);
     $content = str_replace($matches[0], '', $content);
@@ -64,7 +64,7 @@ if (preg_match('/<h2>(.*?)<\/h2>/is', $content, $matches)) {
 
             <!-- Branding Name start -->
             <tr>
-                <td style="background-color: #fafafa; padding: 32px 0; text-align: center;">
+                <td style="background-color: #fafafa; padding: 24px 0; text-align: center;">
                     <h1
                         style="
                         margin: 0;
@@ -81,7 +81,7 @@ if (preg_match('/<h2>(.*?)<\/h2>/is', $content, $matches)) {
             <!-- Container start-->
             <tr>
                 <td align="center">
-                    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0" style="max-width: 640px; margin: 0 auto;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0" style="max-width: 540px; margin: 0 auto;">
                         <tbody>
 
                         <!-- Content Section start -->
@@ -94,19 +94,19 @@ if (preg_match('/<h2>(.*?)<\/h2>/is', $content, $matches)) {
                                             <!-- Header Box start -->
                                             <div
                                                 style="
-                                                background-color: #ffffff;
+                                                background-color: #231F20;
                                                 padding: 8px;
                                                 text-align: center;
                                                 border-radius:3px;
                                                 border:1px solid #ededed;
-                                                margin-bottom: 16px;"
+                                                margin-bottom: 8px;"
                                             >
                                                 <p
                                                     style="
                                                     margin: 0;
                                                     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
                                                     font-size: 14px;
-                                                    color: #231F20;"
+                                                    color: #ffffff;"
                                                 >
                                                     <?= $headerText ?>
                                                 </p>
@@ -116,21 +116,10 @@ if (preg_match('/<h2>(.*?)<\/h2>/is', $content, $matches)) {
                                             <!-- Content Box start -->
                                             <div
                                                 style="
-                                                background-color: #ffffff;
-                                                padding: 48px 32px;
-                                                border-radius:3px;
-                                                border:1px solid #ededed;"
+                                                margin: 0;
+                                                background-color: #ffffff;"
                                             >
-                                                <p
-                                                    style="
-                                                    margin: 0;
-                                                    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                                                    font-size: 15px;
-                                                    line-height: 23px;
-                                                    color: #333;"
-                                                >
-                                                    <?= $content ?>
-                                                </p>
+                                                <?= $content ?>
                                             </div>
                                             <!-- Content Box end -->
                                         </td>
@@ -143,7 +132,7 @@ if (preg_match('/<h2>(.*?)<\/h2>/is', $content, $matches)) {
 
                         <!-- Spacer start-->
                         <tr>
-                            <td style="height: 16px"></td>
+                            <td style="height: 8px"></td>
                         </tr>
                         <!-- Spacer end-->
 

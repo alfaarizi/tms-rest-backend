@@ -2,6 +2,7 @@
 
 use app\models\CodeCheckerResult;
 use app\models\Submission;
+use app\mail\layouts\MailHtml;
 use yii\helpers\Html;
 use yii\mail\BaseMessage;
 use yii\web\View;
@@ -16,35 +17,77 @@ $group = $task->group;
 $codeCheckerResult = $submission->codeCheckerResult;
 ?>
 
-<h2><?= \Yii::t('app/mail', 'Static code analysis complete') ?></h2>
-<p>
-    <?= \Yii::t('app/mail', 'Static code analysis on your previously submitted solution is complete.') ?><br>
-    <?= \Yii::t('app/mail', 'Course') ?>: <?= Html::encode($group->course->name) ?>
-    <?php if (!empty($group->number) && !$group->isExamGroup) : ?>
-        (<?= \Yii::t('app/mail', 'group') ?>: <?= $group->number ?>)
-    <?php endif; ?>
-    <br>
-    <?= \Yii::t('app/mail', 'Task name') ?>:
-    <?= Html::a(Html::encode($task->name), Yii::$app->params['frontendUrl'] . '/student/task-manager/tasks/' . $task->id) ?>
-</p>
+<h2><?= Yii::t('app/mail', 'Static code analysis complete') ?></h2>
+<?=
+MailHtml::p(
+    Yii::t('app/mail', 'Static code analysis on your previously submitted solution is complete.')
+)
+?>
+<?php
+$tableData = [
+    Html::encode($group->course->name),
+    Html::a(Html::encode($task->name), Yii::$app->params['frontendUrl'] . '/student/task-manager/tasks/' . $task->id)
+];
 
-<h3><?= \Yii::t('app/mail', 'Reports') ?></h3>
+$tableHeaders = [
+    Yii::t('app/mail', 'Course'),
+    Yii::t('app/mail', 'Task name')
+];
+
+if (!empty($group->number) && !$group->isExamGroup) {
+    array_splice($tableData, 1, 0, [$group->number]);
+    array_splice($tableHeaders, 1, 0, [Yii::t('app/mail', 'group')]);
+}
+?>
+<?=
+MailHtml::table(
+    $tableData,
+    $tableHeaders
+);
+?>
+
+<?=
+MailHtml::p(
+    Yii::t('app/mail', 'Reports')
+)
+?>
 <?php if ($codeCheckerResult->status === CodeCheckerResult::STATUS_NO_ISSUES) : ?>
-    <p><?= \Yii::t('app/mail', 'No issues were found in the uploaded submission.') ?></p>
+    <?=
+    MailHtml::table(
+        [Yii::t('app/mail', 'No issues were found in the uploaded submission.')]
+    )
+    ?>
 <?php elseif ($codeCheckerResult->status === CodeCheckerResult::STATUS_RUNNER_ERROR) : ?>
-    <p><?= \Yii::t('app/mail', 'The static analyzer tool failed to run. The uploaded solution may be incorrect or the configuration for the task may be invalid.') ?></p>
+    <?=
+    MailHtml::table(
+        [Yii::t('app/mail', 'The static analyzer tool failed to run. The uploaded solution may be incorrect or the configuration for the task may be invalid.')]
+    )
+    ?>
 <?php elseif ($codeCheckerResult->status === CodeCheckerResult::STATUS_RUNNER_ERROR) : ?>
-    <p><?= \Yii::t('app/mail', 'Runner Error') ?></p>
+    <?=
+    MailHtml::table(
+        [Yii::t('app/mail', 'Runner Error')]
+    )
+    ?>
 <?php else : ?>
-    <ul>
-        <?php foreach ($codeCheckerResult->codeCheckerReports as $report) : ?>
-            <li>
-                <strong><?= \Yii::t('app/mail', 'File (line, column)') ?>:</strong> <?= "$report->filePath ($report->line, $report->column)" ?><br>
-                <strong><?= \Yii::t('app/mail', 'Checker') ?>:</strong> <?= $report->checkerName ?><br>
-                <strong><?= \Yii::t('app/mail', 'Severity') ?>:</strong> <?= $report->severity ?><br>
-                <strong><?= \Yii::t('app/mail', 'Category') ?>:</strong> <?= $report->category ?><br>
-                <strong><?= \Yii::t('app/mail', 'Message') ?>:</strong> <?= $report->message ?>
-            </li>
-        <?php endforeach; ?>
-    </ul>
+    <?php foreach ($codeCheckerResult->codeCheckerReports as $report) : ?>
+        <?=
+        MailHtml::table(
+            [
+                "$report->filePath ($report->line, $report->column)",
+                $report->checkerName,
+                $report->severity,
+                $report->category,
+                $report->message
+            ],
+            [
+                Yii::t('app/mail', 'File (line, column)'),
+                Yii::t('app/mail', 'Checker'),
+                Yii::t('app/mail', 'Severity'),
+                Yii::t('app/mail', 'Category'),
+                Yii::t('app/mail', 'Message')
+            ]
+        )
+        ?>
+    <?php endforeach; ?>
 <?php endif; ?>
