@@ -4,6 +4,7 @@ namespace app\modules\instructor\controllers;
 
 use app\components\GitManager;
 use app\models\Group;
+use app\models\StructuralRequirements;
 use app\models\TaskFile;
 use app\models\InstructorGroup;
 use app\models\Semester;
@@ -520,6 +521,17 @@ class GroupsController extends BaseInstructorRestController
                     $task->semesterID = $actualSemester;
 
                     if ($task->save()) {
+                        foreach ($taskToDuplicate->structuralRequirements as $structuralRequirement) {
+                            $newStructuralRequirement = new StructuralRequirements($structuralRequirement);
+                            unset($newStructuralRequirement->id);
+                            $newStructuralRequirement->taskID = $task->id;
+                            if (!$newStructuralRequirement->save()) {
+                                throw new ServerErrorHttpException(
+                                    'Failed to save StructuralRequirements to the database: ' . VarDumper::dumpAsString($newStructuralRequirement->firstErrors)
+                                );
+                            }
+                        }
+
                         // If the task can be saved we copy the files as well.
                         $filesToDuplicate = TaskFile::findAll(['taskID' => $taskToDuplicate->id]);
                         $directoryPath = Yii::getAlias("@appdata/uploadedfiles/") . $task->id . '/';

@@ -809,5 +809,19 @@ return [
         'uploadCount' => 1,
         'verified' => true,
     ],
-
+    'file54' => [
+        'id' => 55,
+        'name' => null,
+        'uploadTime' => date('Y-m-d H:i:s', strtotime('-5 minute')),
+        'taskID' => 5024,
+        'uploaderID' => 1001,
+        'status' => \app\models\Submission::STATUS_FAILED,
+        'isVersionControlled' => 0,
+        'grade' => null,
+        'notes' => '',
+        'errorMsg' => 'FULL_ERROR_MESSAGE',
+        'autoTesterStatus' => \app\models\Submission::AUTO_TESTER_STATUS_TESTS_FAILED,
+        'uploadCount' => 0,
+        'verified' => true,
+    ],
 ];

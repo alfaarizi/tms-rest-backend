@@ -3,12 +3,14 @@
 namespace app\tests\api;
 
 use ApiTester;
+use app\models\StructuralRequirements;
 use app\models\TaskFile;
 use app\models\Submission;
 use app\models\Task;
 use app\models\TestCase;
 use app\tests\unit\fixtures\AccessTokenFixture;
 use app\tests\unit\fixtures\GroupFixture;
+use app\tests\unit\fixtures\StructuralRequirementFixture;
 use app\tests\unit\fixtures\TaskFilesFixture;
 use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\SubscriptionFixture;
@@ -76,6 +78,9 @@ class InstructorTasksCest
             ],
             'submission' => [
                 'class' => SubmissionsFixture::class
+            ],
+            'structuralrequirements' => [
+                'class' => StructuralRequirementFixture::class
             ]
         ];
     }
@@ -236,7 +241,13 @@ class InstructorTasksCest
             'category' => 'Smaller tasks',
             'description' => 'Description',
             'isVersionControlled' => 0,
-            'autoTest' => 0
+            'autoTest' => 0,
+            'structuralRequirements' => [
+                [
+                    'regexExpression' => '.*\.txt$',
+                    'type' => 'Includes',
+                ]
+            ]
         ];
 
         $I->sendPost(
@@ -260,11 +271,44 @@ class InstructorTasksCest
                 'groupID' => $data['groupID'],
                 'semesterID' => 3001,
                 'creatorName' => 'Teacher Two',
+                'structuralRequirements' => $data['structuralRequirements'],
             ]
         );
 
         $I->seeRecord(Task::class, ['name' => 'Created', 'sentCreatedEmail' => true]);
         $I->seeEmailIsSent(4);
+    }
+
+    public function createInvalidStructuralRequirement(ApiTester $I)
+    {
+        $data = [
+            'name' => 'Created',
+            'softDeadLine' => date(\DateTime::ATOM, strtotime('+1 day')),
+            'hardDeadline' => date(\DateTime::ATOM, strtotime('+2 day')),
+            'groupID' => 2000,
+            'category' => 'Smaller tasks',
+            'description' => 'Description',
+            'isVersionControlled' => 0,
+            'autoTest' => 0,
+            'structuralRequirements' => [
+                [
+                    'regexExpression' => '.*/.txt$',
+                    'type' => 'Includes',
+                ]
+            ]
+        ];
+
+        $I->sendPost(
+            '/instructor/tasks',
+            $data
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseContainsJson(
+            [
+                "regexExpression" => ['Invalid regular expression: .*/.txt$']
+            ]
+        );
+        $I->cantSeeRecord(Task::class, ['name' => 'Created invalid']);
     }
 
     public function createValidAvailableInPast(ApiTester $I)
@@ -452,6 +496,37 @@ class InstructorTasksCest
         $I->seeRecord(Task::class, ['id' => 5006, 'name' => 'Task 7']);
     }
 
+    public function updateCanvasTaskStructuralRequirement(ApiTester $I)
+    {
+        $I->sendPatch(
+            '/instructor/tasks/update-canvas-task/5025',
+            [
+                'structuralRequirements' => [
+                    [
+                        'regexExpression' => '.*\.updated$',
+                        'type' => 'Includes',
+                    ]
+                ]
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                'id' => 5025,
+                'structuralRequirements' => [
+                    [
+                        'regexExpression' => '.*\.updated$',
+                        'type' => 'Includes',
+                    ]
+                ]
+            ]
+        );
+
+        $I->seeRecord(StructuralRequirements::class, ['regexExpression' => '.*\.updated$']);
+    }
+
     public function updateInvalid(ApiTester $I)
     {
         $I->sendPatch(
@@ -469,6 +544,73 @@ class InstructorTasksCest
         $I->seeResponseMatchesJsonType(['string'], '$.[*]');
         $I->cantSeeRecord(Task::class, ['name' => 'Updated']);
         $I->seeEmailIsSent(0);
+    }
+
+    public function updateInvalidStructuralRequirement(ApiTester $I)
+    {
+        $I->sendPatch(
+            '/instructor/tasks/5024',
+            [
+                'task' => [
+                    'name' => 'Updated',
+                    'structuralRequirements' => [
+                        [
+                            'regexExpression' => '.*/.txt$',
+                            'type' => 'Includes',
+                        ]
+                    ]
+                ],
+                'options' => [
+                    'emailNotification' => true,
+                ],
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseContainsJson(
+            [
+                "regexExpression" => ['Invalid regular expression: .*/.txt$']
+            ]
+        );
+        $I->cantSeeRecord(Task::class, ['name' => 'Updated']);
+        $I->seeEmailIsSent(0);
+    }
+
+    public function updateStructuralRequirement(ApiTester $I)
+    {
+        $I->sendPatch(
+            '/instructor/tasks/5024',
+            [
+                'task' => [
+                    'name' => 'Updated',
+                    'structuralRequirements' => [
+                        [
+                            'regexExpression' => '.*\.updated$',
+                            'type' => 'Includes',
+                        ]
+                    ]
+                ],
+                'options' => [
+                    'emailNotification' => false,
+                ],
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::TASK_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                'id' => 5024,
+                'name' => 'Updated',
+                'structuralRequirements' => [
+                    [
+                        'regexExpression' => '.*\.updated$',
+                        'type' => 'Includes',
+                    ]
+                ]
+            ]
+        );
+
+        $I->seeRecord(Task::class, ['name' => 'Updated']);
     }
 
     public function updateRegularTaskInCanvasGroup(ApiTester $I)
