@@ -6,6 +6,7 @@ use app\components\CodeCompassHelper;
 use app\components\GitManager;
 use app\components\TaskEmailer;
 use app\models\Group;
+use app\models\StructuralRequirements;
 use app\models\TaskFile;
 use app\models\Submission;
 use app\models\Subscription;
@@ -14,6 +15,7 @@ use app\models\TestCase;
 use app\models\TaskIpRestriction;
 use app\modules\instructor\resources\GroupResource;
 use app\modules\instructor\resources\SetupCodeCompassParserResource;
+use app\modules\instructor\resources\StructuralRequirementResource;
 use app\modules\instructor\resources\TaskResource;
 use app\modules\instructor\resources\TaskUpdateOptionsResource;
 use app\resources\SemesterResource;
@@ -65,7 +67,8 @@ class TasksController extends BaseInstructorRestController
                 'update' => ['PATCH', 'PUT'],
                 'list-for-course' => ['GET'],
                 'list-for-users' => ['POST'],
-                'setup-code-compass-parser' => ['POST']
+                'setup-code-compass-parser' => ['POST'],
+                'update-canvas-task' => ['PATCH', 'PUT']
             ]
         );
     }
@@ -219,7 +222,7 @@ class TasksController extends BaseInstructorRestController
         $task->scenario = TaskResource::SCENARIO_CREATE;
         $task->load(Yii::$app->request->post(), '');
         $task->createrID = Yii::$app->user->id;
-
+        $transaction = Yii::$app->db->beginTransaction();
         if (!$task->validate()) {
             $this->response->statusCode = 422;
             return $task->errors;
@@ -252,6 +255,7 @@ class TasksController extends BaseInstructorRestController
                        count($task->group->subscriptions) * 6);
 
         if (!$task->save(false)) {
+            $transaction->rollback();
             throw new ServerErrorHttpException(
                 Yii::t('app', 'Failed to save task. Message: ') . Yii::t('app', 'A database error occurred')
             );
@@ -266,8 +270,31 @@ class TasksController extends BaseInstructorRestController
                 $ipRestriction->ipMask = $ipRestrictionItem['ipMask'];
 
                 if (!$ipRestriction->save()) {
+                    $transaction->rollBack();
                     throw new ServerErrorHttpException(
                         Yii::t('app', 'Failed to save IP restriction. Message: '));
+                }
+            }
+        }
+
+        $structuralRequirementsData = Yii::$app->request->post('structuralRequirements');
+        if(is_array($structuralRequirementsData)) {
+            foreach ($structuralRequirementsData as $structuralRequirementItem) {
+                $structuralRequirement = new StructuralRequirementResource();
+                $structuralRequirement->taskID = $task->id;
+                $structuralRequirement->regexExpression = $structuralRequirementItem['regexExpression'];
+                $structuralRequirement->type = $structuralRequirementItem['type'];
+                if(!$structuralRequirement->validate()) {
+                    $transaction->rollBack();
+                    $this->response->statusCode = 422;
+                    return $structuralRequirement->errors;
+                }
+                if (!$structuralRequirement->save()) {
+                    $transaction->rollBack();
+                    throw new ServerErrorHttpException(
+                        Yii::t('app', 'Failed to save structural requirement. Message: ') .
+                        Yii::t('app', 'A database error occurred')
+                    );
                 }
             }
         }
@@ -292,9 +319,11 @@ class TasksController extends BaseInstructorRestController
                 );
                 $this->response->statusCode = 201;
             } elseif ($submission->hasErrors()) {
+                $transaction->rollBack();
                 $this->response->statusCode = 422;
                 return $submission->errors;
             } else {
+                $transaction->rollBack();
                 $this->response->statusCode = 500;
                 throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
             }
@@ -311,7 +340,14 @@ class TasksController extends BaseInstructorRestController
             "for {$task->group->course->name} ({$task->group->number})",
             __METHOD__
         );
-
+        try {
+            $transaction->commit();
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw new ServerErrorHttpException(
+                Yii::t('app', 'Failed to save task. Message: ') . Yii::t('app', 'A database error occurred')
+            );
+        }
         $this->response->statusCode = 201;
         return $task;
     }
@@ -365,6 +401,7 @@ class TasksController extends BaseInstructorRestController
     {
         // Get the task.
         $task = TaskResource::findOne($id);
+        $transaction = Yii::$app->db->beginTransaction();
 
         if (is_null($task)) {
             throw new NotFoundHttpException(Yii::t('app', 'Task not found.'));
@@ -406,13 +443,37 @@ class TasksController extends BaseInstructorRestController
             return $task->errors;
         }
 
-        $transaction = Yii::$app->db->beginTransaction();
+        StructuralRequirements::deleteAll(['taskID' => $task->id]);
+
+        $structuralRequirementsData = ArrayHelper::getValue(Yii::$app->request->post(), 'task.structuralRequirements');
+
+        if(is_array($structuralRequirementsData)) {
+            foreach ($structuralRequirementsData as $structuralRequirementItem) {
+                $structuralRequirement = new StructuralRequirementResource();
+                $structuralRequirement->taskID = $task->id;
+                $structuralRequirement->regexExpression = $structuralRequirementItem['regexExpression'];
+                $structuralRequirement->type = $structuralRequirementItem['type'];
+                if(!$structuralRequirement->validate()) {
+                    $transaction->rollBack();
+                    $this->response->statusCode = 422;
+                    return $structuralRequirement->errors;
+                }
+                if (!$structuralRequirement->save()) {
+                    $transaction->rollBack();
+                    throw new ServerErrorHttpException(
+                        Yii::t('app', 'Failed to save structural requirement. Message: ') .
+                        Yii::t('app', 'A database error occurred')
+                    );
+                }
+            }
+        }
         try {
             if (!$task->save(false)) {
                 throw new ServerErrorHttpException(
                     Yii::t('app', 'Failed to save task. Message: ') . Yii::t('app', 'A database error occurred')
                 );
             }
+
 
             $currentIpRestrictions = $task->ipRestrictions;
             $newIpRestrictionsData = ArrayHelper::getValue(Yii::$app->request->post(), 'task.ipRestrictions');
@@ -495,6 +556,102 @@ class TasksController extends BaseInstructorRestController
             __METHOD__
         );
 
+        return $task;
+    }
+
+    /**
+     * Update a canvas synced task
+     * @return TaskResource|array
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     *
+     * @OA\Patch(
+     *     path="/instructor/tasks/update-canvas-task/{id}",
+     *     operationId="instructor::TasksController::actionUpdateCanvasTask",
+     *     tags={"Instructor Tasks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="updated structural requirement",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Instructor_StructuralRequirementResource_ScenarioUpdate")
+     *              ),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="task updated",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_TaskResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     */
+    public function actionUpdateCanvasTask(int $id)
+    {
+        $task = TaskResource::findOne($id);
+        $transaction = Yii::$app->db->beginTransaction();
+
+        if (is_null($task)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Task not found.'));
+        }
+
+        // Authorization check
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $task->groupID])) {
+            throw new ForbiddenHttpException(
+                Yii::t('app', 'You must be an instructor of the group to perform this action!')
+            );
+        }
+
+        // Check semester
+        if ($task->semesterID !== SemesterResource::getActualID()) {
+            throw new BadRequestHttpException(
+                Yii::t('app', "You can't modify a task from a previous semester!")
+            );
+        }
+
+        StructuralRequirements::deleteAll(['taskID' => $task->id]);
+        $structuralRequirementsData = Yii::$app->request->post('structuralRequirements');
+
+        if(is_array($structuralRequirementsData)) {
+            foreach ($structuralRequirementsData as $structuralRequirementItem) {
+                $structuralRequirement = new StructuralRequirementResource();
+                $structuralRequirement->taskID = $task->id;
+                $structuralRequirement->regexExpression = $structuralRequirementItem['regexExpression'];
+                $structuralRequirement->type = $structuralRequirementItem['type'];
+                if(!$structuralRequirement->validate()) {
+                    $transaction->rollBack();
+                    $this->response->statusCode = 422;
+                    return $structuralRequirement->errors;
+                }
+                if (!$structuralRequirement->save()) {
+                    $transaction->rollBack();
+                    throw new ServerErrorHttpException(
+                        Yii::t('app', 'Failed to save structural requirement. Message: ') .
+                        Yii::t('app', 'A database error occurred')
+                    );
+                }
+            }
+        }
+
+        try {
+            $transaction->commit();
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw new ServerErrorHttpException(
+                Yii::t('app', 'Failed to save task. Message: ') . Yii::t('app', 'A database error occurred')
+            );
+        }
         return $task;
     }
 

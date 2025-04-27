@@ -53,6 +53,7 @@ class TaskResource extends Task
             'codeCheckerSkipFile',
             'isSubmissionCountRestricted',
             'submissionLimit',
+            'structuralRequirements',
         ];
     }
 
@@ -88,6 +89,12 @@ class TaskResource extends Task
                 'group' => new OAProperty(['ref' => '#/components/schemas/Instructor_GroupResource_Read']),
                 'semester' => new OAProperty(['ref' => '#/components/schemas/Common_SemesterResource_Read']),
                 'taskLevelGitRepo' => new OAProperty(['type' => 'string']),
+                'structuralRequirements' => new OAProperty(
+                    [
+                        'type' => 'array',
+                        new OAItems(['ref' => '#/components/schemas/Instructor_StructuralRequirementResource_Read'])
+                    ]
+                ),
                 'ipRestrictions' => new OAProperty(
                     [
                         'type' => 'array',

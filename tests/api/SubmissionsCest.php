@@ -5,6 +5,7 @@ namespace app\tests\api;
 use ApiTester;
 use app\models\IpAddress;
 use app\tests\unit\fixtures\IpAddressFixture;
+use app\tests\unit\fixtures\StructuralRequirementFixture;
 use app\tests\unit\fixtures\TaskAccessTokenFixture;
 use Yii;
 use app\models\Submission;
@@ -69,6 +70,9 @@ class SubmissionsCest
             ],
             'ipaddress' => [
                 'class' => IpAddressFixture::class
+            ],
+            'structuralrequirements' => [
+                'class' => StructuralRequirementFixture::class
             ]
         ];
     }
@@ -210,6 +214,66 @@ class SubmissionsCest
         );
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->seeResponseMatchesJsonType(['string'], '$.[*]');
+    }
+
+    public function uploadInvalidExcludedStructuralRequirement(ApiTester $I)
+    {
+        $I->sendPost(
+            "/student/submissions/upload",
+            ['taskID' => 5022],
+            ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseMatchesJsonType(
+            ['file' => 'array']
+        );
+    }
+
+    public function uploadInvalidIncludedStructuralRequirement(ApiTester $I)
+    {
+        $I->sendPost(
+            "/student/submissions/upload",
+            ['taskID' => 5023],
+            ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
+        );
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseMatchesJsonType(
+            ['file' => 'array']
+        );
+    }
+
+    public function uploadStructuralRequirementPassed(ApiTester $I)
+    {
+        $I->sendPost(
+            "/student/submissions/upload",
+            ['taskID' => 5024],
+            ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
+        $I->seeResponseContainsJson(
+            [
+                "name" => "stud01_upload_test.zip",
+                "status" => Submission::STATUS_UPLOADED,
+                "translatedStatus" => "Uploaded",
+                "grade" => null,
+                "notes" => "",
+                "isVersionControlled" => 0,
+                "graderName" => "",
+                "errorMsg" => null,
+                "uploadCount" => 1,
+                "verified" => true,
+            ]
+        );
+        $I->seeRecord(
+            Submission::class,
+            [
+                "id" => 55,
+                "name" => "stud01_upload_test.zip",
+                "status" => Submission::STATUS_UPLOADED,
+                "uploadCount" => 1,
+            ]
+        );
     }
 
     public function uploadNotAvailable(ApiTester $I)

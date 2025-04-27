@@ -56,6 +56,7 @@ use yii\helpers\FileHelper;
  * @property Semester $semester
  * @property User $creator
  * @property TaskIpRestriction[] $ipRestrictions
+ * @property StructuralRequirements[] $structuralRequirements
  *
  * @property-read string $timezone
  * @property-read boolean $exitPasswordProtected
@@ -424,6 +425,14 @@ class Task extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public function getSubmissions()
     {
         return $this->hasMany(Submission::class, ['taskID' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStructuralRequirements()
+    {
+        return $this->hasMany(StructuralRequirements::class, ['taskID' => 'id']);
     }
 
     /**

@@ -7,11 +7,13 @@ use app\models\AccessToken;
 use app\models\CodeCheckerResult;
 use app\models\Group;
 use app\models\InstructorGroup;
+use app\models\StructuralRequirements;
 use app\models\Submission;
 use app\models\Subscription;
 use app\models\Task;
 use app\models\User;
 use Yii;
+use yii\base\ErrorException;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\helpers\FileHelper;
@@ -999,9 +1001,11 @@ class CanvasIntegration
             $tmsFile->canvasID = $submission['id'];
         }
 
+        $structuralReqErrorMsg = null;
+
         // Check if there is a submission in Canvas by the student
         if (!is_null($canvasFile)) {
-            // Canvas file upload by student is invalid or corrupted
+            // Check that the submission is not corrupted
             if ($canvasFile['size'] == 0) { // deliberately == 0, so it checks for null as well
                 if (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
                     $this->saveCanvasFile($task->id, $canvasFile['display_name'], Yii::$app->basePath . Submission::PATH_OF_CORRUPTED_FILE, $user->userCode);
@@ -1012,8 +1016,61 @@ class CanvasIntegration
                     $tmsFile->codeCheckerResultID = null;
                     $newFileCorrupted = true;
                 }
-            } else {
-                if (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
+            } else if (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
+                // Check if the submission passes the structural requirements
+                $structuralReqErrorMsg = $this->checkStructuralRequirements(
+                    $task,
+                    $canvasFile['display_name'],
+                    $canvasFile['url'],
+                    $user->userCode
+                );
+                if (!is_null($structuralReqErrorMsg)) {
+                    // Send a message to the Canvas task saying that the submission failed the structural requirement test
+                    $synchronizer = $task->group->synchronizer;
+
+                    if (is_null($synchronizer) || is_null($synchronizer->canvasToken)) {
+                        Yii::error(
+                            "Group #{$task->groupID} has no valid Canvas synchronizer.",
+                            __METHOD__
+                        );
+                        return null;
+                    }
+
+                    $client = new Client(['baseUrl' => Yii::$app->params['canvas']['url']]);
+                    $url = 'api/v1/courses/' . $task->group->canvasCourseID .
+                        '/assignments/' . $task->canvasID . '/submissions/' . $tmsFile->uploader->canvasID;
+
+                    $response = $client->createRequest()
+                        ->setMethod('PUT')
+                        ->setHeaders(['Authorization' => 'Bearer ' . $synchronizer->canvasToken])
+                        ->setUrl($url)
+                        ->setData(['comment[text_comment]' => $structuralReqErrorMsg])
+                        ->send();
+
+                    if (!$response->isOk) {
+                        Yii::error(
+                            'Saving structural requirement results to Canvas failed' . PHP_EOL .
+                            "Student File ID: {$tmsFile->id}",
+                            __METHOD__
+                        );
+                        return null;
+                    }
+
+                    if (!empty($user->notificationEmail)) {
+                        Yii::$app->language = $user->locale;
+                        Yii::$app->mailer->compose(
+                            'student/structuralRequirementFailedSubmission',
+                            [
+                                'task' => $task,
+                                'errorMsg' => $structuralReqErrorMsg
+                            ]
+                        )
+                            ->setFrom(Yii::$app->params['systemEmail'])
+                            ->setTo($user->notificationEmail)
+                            ->setSubject(Yii::t('app/mail', 'Submission upload failed'))
+                            ->send();
+                    }
+                } else {
                     $this->saveCanvasFile($task->id, $canvasFile['display_name'], $canvasFile['url'], $user->userCode);
                     $tmsFile->name = $canvasFile['display_name'];
                     $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
@@ -1027,7 +1084,7 @@ class CanvasIntegration
         }
 
         // Update grade and notes
-        if (!empty($submission['grader_id'])) {
+        if (!empty($submission['grader_id']) && !is_null($structuralReqErrorMsg)) {
             $tmsFile->grade = filter_var($submission['score'], FILTER_VALIDATE_FLOAT) === false ? null : $submission['score'];
             $grader = User::findOne(['canvasID' => $submission['grader_id']]);
             $tmsFile->graderID = $grader->id ?? null;
@@ -1115,6 +1172,60 @@ class CanvasIntegration
         }
 
         return $tmsFile;
+    }
+
+    /**
+     * Check if the uploaded solution complies with the structural requirements
+     * @param Task $task the given task
+     * @param string $name the name of the file
+     * @param string $url the file download link
+     * @param string $userCode the userCode of the uploader
+     * @return string|null error message if there is a structural requirement error, null otherwise
+     * @throws ErrorException
+     * @throws \yii\base\Exception
+     */
+    private function checkStructuralRequirements(Task $task, string $name, string $url, string $userCode): ?string
+    {
+        $errorMsg = null;
+        $structuralRequirements = StructuralRequirements::find()
+            ->where(['taskID' => $task->id])
+            ->all();
+
+        $path = Yii::getAlias("@tmp/canvas/$task->id/") . strtolower($userCode) . '/';
+
+        if (!file_exists($path)) {
+            FileHelper::createDirectory($path, 0755, true);
+        }
+
+        $context = file_get_contents($url);
+        file_put_contents($path . $name, $context);
+
+        $fileNames = [];
+        $zip = new \ZipArchive();
+        if ($zip->open($path . $name) === true) {
+            for ($i = 0; $i < $zip->numFiles; ++$i) {
+                $filename = $zip->getNameIndex($i);
+                $fileNames[] = $filename;
+            }
+
+            $structuralRequirementResult = StructuralRequirementChecker::validatePaths($structuralRequirements, $fileNames);
+
+            if (count($structuralRequirementResult["failedIncludedRequirements"]) > 0) {
+                $errorMsg = Yii::t('app', 'The uploaded solution should contain all required files and directories.') . ' ' .
+                    Yii::t('app', 'You are not complying with the following regular expressions: ') .
+                    implode(", ", $structuralRequirementResult["failedIncludedRequirements"]);
+            }
+
+            if (count($structuralRequirementResult["failedExcludedPaths"]) > 0) {
+                $errorMsg = $errorMsg . ' ' .
+                    Yii::t('app', 'The uploaded solution contains the following excluded files or directories: ') .
+                    implode(", ", $structuralRequirementResult["failedExcludedPaths"]);
+            }
+        }
+
+        FileHelper::removeDirectory($path);
+
+        return $errorMsg;
     }
 
     /**

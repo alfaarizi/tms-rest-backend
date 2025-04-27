@@ -28,6 +28,8 @@ return [
     'Course' => 'Kurzus',
     'Corrupted' => 'Sérült',
     'Corrupted Submission' => 'Sérült feltöltés',
+    'Submission upload failed' => 'Sikertelen fájl feltöltés',
+    'Failed structural requirements on submission' => 'A feltöltött megoldás nem felel meg a strukturális követelményeknek',
     'View solution' => 'Megoldás megtekintése',
     'Exams' => 'Vizsgafeladatok',
     'Examinations' => 'Vizsgák',
