@@ -47,22 +47,6 @@ class UploadTaskFileResource extends Model implements IOpenApiFieldTypes
         }
     }
 
-    public function validateOverride() : void {
-        // Check if the value is null
-        if (is_null($this->override)) {
-            $this->override = false;
-        }
-        // If it was sent by POST, then it was assigned as a string
-        if (is_string($this->override)) {
-            // Converts 'true' to true, everything else as false
-            $this->override = $this->override === 'true';
-        }
-        // If neither the checks convert it to bool, then error
-        if (!is_bool($this->override)) {
-            $this->addError('override', 'Override must be a boolean');
-        }
-    }
-
     public function fieldTypes(): array
     {
         return [
