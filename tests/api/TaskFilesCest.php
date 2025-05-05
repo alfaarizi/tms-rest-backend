@@ -219,6 +219,7 @@ class TaskFilesCest
             "/instructor/task-files",
             [
                 "taskID" => 5000,
+                "override" => false
             ],
             [
                 "files" => [
@@ -249,12 +250,46 @@ class TaskFilesCest
         );
     }
 
+    // Should override every file, so no failures should arise
+    public function createWithOverride(ApiTester $I)
+    {
+        $I->sendPost(
+            "/instructor/task-files",
+            [
+                "taskID" => 5000,
+                "override" => true,
+            ],
+            [
+                "files" => [
+                    codecept_data_dir("upload_samples/file1.txt"),
+                    codecept_data_dir("upload_samples/file2.txt"),
+                    codecept_data_dir("upload_samples/file3.txt"),
+                    codecept_data_dir("upload_samples/file4.txt"),
+                ]
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::MULTI_STATUS);
+        $I->seeResponseContainsJson(
+            [
+                'uploaded' => [
+                    ['name' => 'file4.txt'],
+                    ['name' => 'file1.txt'],
+                    ['name' => 'file2.txt'],
+                    ['name' => 'file3.txt'],
+                ],
+                'failed' => []
+            ]
+        );
+        $I->seeResponseMatchesJsonType(self::TASK_FILE_SCHEMA, "$.[uploaded].[*]");
+    }
+
     public function createInvalid(ApiTester $I)
     {
         $I->sendPost(
             "/instructor/task-files",
             [
-                "taskID" => 0
+                "taskID" => 0,
+                "override" => false
             ]
         );
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
@@ -267,6 +302,7 @@ class TaskFilesCest
             "/instructor/task-files",
             [
                 "taskID" => 5004,
+                "override" => false
             ],
             [
                 "files" => [
@@ -283,6 +319,7 @@ class TaskFilesCest
             "/instructor/task-files",
             [
                 "taskID" => 5005,
+                "override" => false
             ],
             [
                 "files" => [
