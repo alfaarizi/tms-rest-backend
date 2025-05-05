@@ -14,13 +14,15 @@ use yii\web\UploadedFile;
  * @property integer $taskID
  * @property string $category
  * @property UploadedFile[] $files
+ * @property bool $override
  */
 
 class UploadTaskFileResource extends Model implements IOpenApiFieldTypes
 {
-    public $taskID;
-    public $category = TaskFile::CATEGORY_ATTACHMENT;
-    public $files;
+    public int $taskID;
+    public string $category = TaskFile::CATEGORY_ATTACHMENT;
+    public array $files;
+    public bool $override;
 
     /**
      * @inheritdoc
@@ -30,6 +32,7 @@ class UploadTaskFileResource extends Model implements IOpenApiFieldTypes
         return [
             [['taskID', 'category', 'files'], 'required'],
             [['taskID'], 'integer'],
+            [['override'], 'boolean'],
             [['taskID'], 'checkIfTaskExists'],
             [['category'], 'in', 'range' => array_keys(TaskFile::categoryMap())],
             [['files'], 'file', 'skipOnEmpty' => false, 'maxFiles' => 20],
@@ -44,12 +47,29 @@ class UploadTaskFileResource extends Model implements IOpenApiFieldTypes
         }
     }
 
+    public function validateOverride() : void {
+        // Check if the value is null
+        if (is_null($this->override)) {
+            $this->override = false;
+        }
+        // If it was sent by POST, then it was assigned as a string
+        if (is_string($this->override)) {
+            // Converts 'true' to true, everything else as false
+            $this->override = $this->override === 'true';
+        }
+        // If neither the checks convert it to bool, then error
+        if (!is_bool($this->override)) {
+            $this->addError('override', 'Override must be a boolean');
+        }
+    }
+
     public function fieldTypes(): array
     {
         return [
             'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'category' => new OAProperty(['type' => 'string']),
             'files' => new OAProperty(['type' => 'array', new OAItems(['type' => 'string', 'format' => 'binary'])]),
+            'override' => new OAProperty(['type' => 'bool']),
         ];
     }
 }

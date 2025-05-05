@@ -257,6 +257,24 @@ class TaskFilesController extends BaseInstructorRestController
                 $taskFile->uploadTime = date('Y-m-d H:i:s');
                 $taskFile->name = $file->baseName . '.' . $file->extension;
 
+                if ($upload->override) {
+                    $existingFile = TaskFileResource::find()
+                        ->andWhere(['taskID' => $taskFile->taskID])
+                        ->andWhere(['name' => $taskFile->name])
+                        ->one();
+                    if ($existingFile) {
+                        try {
+                            if (!$existingFile->delete()) {
+                                throw new Exception(Yii::t('app', 'Database Error'));
+                            }
+                        } catch (StaleObjectException $e) {
+                            throw new ServerErrorHttpException(Yii::t('app', 'Failed to remove TaskFile') . ' StaleObjectException:' . $e->getMessage());
+                        } catch (\Throwable $e) {
+                            throw new ServerErrorHttpException(Yii::t('app', 'Failed to remove TaskFile') . $e->getMessage());
+                        }
+                    }
+                }
+
                 if (!$taskFile->validate()) {
                     throw new AddFailedException($taskFile->name, $taskFile->errors);
                 }
@@ -298,7 +316,7 @@ class TaskFilesController extends BaseInstructorRestController
     }
 
     /**
-     * Delete an task file
+     * Delete a task file
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      * @throws ServerErrorHttpException
