@@ -58,12 +58,10 @@ class StructuralRequirements extends \yii\db\ActiveRecord implements IOpenApiFie
     public function validateRegex()
     {
         try {
-            preg_match('/' . $this->regexExpression . '/', "Test regex");
+            $escapedRegexExpression = str_replace("#", "\\#", $this->regexExpression);
+            preg_match('#' . $escapedRegexExpression . '#', "Test regex");
         } catch (\Exception $e) {
-            $this->addError(
-                'regexExpression',
-                Yii::t('app', 'Invalid regular expression: ') . $this->regexExpression
-            );
+            $this->addError('regexExpression.invalid');
         }
     }
 

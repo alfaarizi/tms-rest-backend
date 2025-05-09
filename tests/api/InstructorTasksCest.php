@@ -292,7 +292,7 @@ class InstructorTasksCest
             'autoTest' => 0,
             'structuralRequirements' => [
                 [
-                    'regexExpression' => '.*/.txt$',
+                    'regexExpression' => '[.*/.txt$',
                     'type' => 'Includes',
                 ]
             ]
@@ -305,7 +305,7 @@ class InstructorTasksCest
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->seeResponseContainsJson(
             [
-                "regexExpression" => ['Invalid regular expression: .*/.txt$']
+                "structuralRequirements.0.regexExpression" => ['Invalid regular expression']
             ]
         );
         $I->cantSeeRecord(Task::class, ['name' => 'Created invalid']);
@@ -555,7 +555,7 @@ class InstructorTasksCest
                     'name' => 'Updated',
                     'structuralRequirements' => [
                         [
-                            'regexExpression' => '.*/.txt$',
+                            'regexExpression' => '[.*/.txt$',
                             'type' => 'Includes',
                         ]
                     ]
@@ -568,7 +568,7 @@ class InstructorTasksCest
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->seeResponseContainsJson(
             [
-                "regexExpression" => ['Invalid regular expression: .*/.txt$']
+                "structuralRequirements.0.regexExpression" => ['Invalid regular expression']
             ]
         );
         $I->cantSeeRecord(Task::class, ['name' => 'Updated']);

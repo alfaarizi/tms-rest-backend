@@ -403,7 +403,7 @@ return [
     'Failed to copy project files to the Report Converter container' => 'Nem sikerült a fájlokat átmásolni a Report Converter konténerbe',
     'Failed to run the Report Converter tool' => 'A Report Converter eszköz futtatása sikertelen volt',
     'Search text is too short' => 'A keresett szöveg túl rövid',
-    'Invalid regular expression: ' => 'Érvénytelen reguláris kifejezés: ',
+    'Invalid regular expression' => 'Érvénytelen reguláris kifejezés',
     // CodeChecker Task Fields
     'Static Code Analysis' => 'Statikus kódanalízis',
     'Static Code Analyzer Tool' => 'Statikus kódelemző eszköz',

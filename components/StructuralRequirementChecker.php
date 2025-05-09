@@ -58,12 +58,13 @@ class StructuralRequirementChecker
     ): array {
         $failedExcludedPaths = [];
         foreach ($structuralRequirements as $structuralRequirement) {
+            $escapedRegexExpression = str_replace("#", "\\#", $structuralRequirement->regexExpression);
             if (
                 $structuralRequirement->type === StructuralRequirements::SUBMISSION_INCLUDES &&
-                preg_match('/' . $structuralRequirement->regexExpression . '/', $path)
+                preg_match('#' . $escapedRegexExpression . '#', $path)
             ) {
                 $failedIncludedRequirements = array_diff($failedIncludedRequirements, [$structuralRequirement->regexExpression]);
-            } else if (preg_match('/' . $structuralRequirement->regexExpression . '/', $path)) {
+            } else if (preg_match('#' . $escapedRegexExpression . '#', $path)) {
                 $failedExcludedPaths[] = $path;
             }
         }
