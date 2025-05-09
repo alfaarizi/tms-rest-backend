@@ -279,23 +279,17 @@ class TasksController extends BaseInstructorRestController
 
         $structuralRequirementsData = Yii::$app->request->post('structuralRequirements');
         if(is_array($structuralRequirementsData)) {
-            foreach ($structuralRequirementsData as $structuralRequirementItem) {
-                $structuralRequirement = new StructuralRequirementResource();
-                $structuralRequirement->taskID = $task->id;
-                $structuralRequirement->regexExpression = $structuralRequirementItem['regexExpression'];
-                $structuralRequirement->type = $structuralRequirementItem['type'];
-                if(!$structuralRequirement->validate()) {
-                    $transaction->rollBack();
-                    $this->response->statusCode = 422;
-                    return $structuralRequirement->errors;
-                }
-                if (!$structuralRequirement->save()) {
-                    $transaction->rollBack();
-                    throw new ServerErrorHttpException(
-                        Yii::t('app', 'Failed to save structural requirement. Message: ') .
-                        Yii::t('app', 'A database error occurred')
-                    );
-                }
+            try {
+                $structuralRequirementErrors = $this->saveAndValidateStructuralRequirements($structuralRequirementsData, $task->id);
+            } catch(Exception $e) {
+                $transaction->rollBack();
+                throw new ServerErrorHttpException($e->getMessage());
+            }
+
+            if(!empty($structuralRequirementErrors)) {
+                $transaction->rollBack();
+                $this->response->statusCode = 422;
+                return $structuralRequirementErrors;
             }
         }
 
@@ -448,23 +442,17 @@ class TasksController extends BaseInstructorRestController
         $structuralRequirementsData = ArrayHelper::getValue(Yii::$app->request->post(), 'task.structuralRequirements');
 
         if(is_array($structuralRequirementsData)) {
-            foreach ($structuralRequirementsData as $structuralRequirementItem) {
-                $structuralRequirement = new StructuralRequirementResource();
-                $structuralRequirement->taskID = $task->id;
-                $structuralRequirement->regexExpression = $structuralRequirementItem['regexExpression'];
-                $structuralRequirement->type = $structuralRequirementItem['type'];
-                if(!$structuralRequirement->validate()) {
-                    $transaction->rollBack();
-                    $this->response->statusCode = 422;
-                    return $structuralRequirement->errors;
-                }
-                if (!$structuralRequirement->save()) {
-                    $transaction->rollBack();
-                    throw new ServerErrorHttpException(
-                        Yii::t('app', 'Failed to save structural requirement. Message: ') .
-                        Yii::t('app', 'A database error occurred')
-                    );
-                }
+            try {
+                $structuralRequirementErrors = $this->saveAndValidateStructuralRequirements($structuralRequirementsData, $task->id);
+            } catch(Exception $e) {
+                $transaction->rollBack();
+                throw new ServerErrorHttpException($e->getMessage());
+            }
+
+            if(!empty($structuralRequirementErrors)) {
+                $transaction->rollBack();
+                $this->response->statusCode = 422;
+                return $structuralRequirementErrors;
             }
         }
         try {
@@ -624,26 +612,19 @@ class TasksController extends BaseInstructorRestController
         $structuralRequirementsData = Yii::$app->request->post('structuralRequirements');
 
         if(is_array($structuralRequirementsData)) {
-            foreach ($structuralRequirementsData as $structuralRequirementItem) {
-                $structuralRequirement = new StructuralRequirementResource();
-                $structuralRequirement->taskID = $task->id;
-                $structuralRequirement->regexExpression = $structuralRequirementItem['regexExpression'];
-                $structuralRequirement->type = $structuralRequirementItem['type'];
-                if(!$structuralRequirement->validate()) {
-                    $transaction->rollBack();
-                    $this->response->statusCode = 422;
-                    return $structuralRequirement->errors;
-                }
-                if (!$structuralRequirement->save()) {
-                    $transaction->rollBack();
-                    throw new ServerErrorHttpException(
-                        Yii::t('app', 'Failed to save structural requirement. Message: ') .
-                        Yii::t('app', 'A database error occurred')
-                    );
-                }
+            try {
+                $structuralRequirementErrors = $this->saveAndValidateStructuralRequirements($structuralRequirementsData, $task->id);
+            } catch(Exception $e) {
+                $transaction->rollBack();
+                throw new ServerErrorHttpException($e->getMessage());
+            }
+
+            if(!empty($structuralRequirementErrors)) {
+                $transaction->rollBack();
+                $this->response->statusCode = 422;
+                return $structuralRequirementErrors;
             }
         }
-
         try {
             $transaction->commit();
         } catch (Exception $e) {
@@ -653,6 +634,42 @@ class TasksController extends BaseInstructorRestController
             );
         }
         return $task;
+    }
+
+
+    /**
+     * Save and validate structural requirements
+     * @param StructuralRequirements[] $structuralRequirements Structural requirements to save
+     * @param int $taskId The task ID the structural requirements belong to
+     * @return string[] Array of error messages
+     * @throws ServerErrorHttpException
+     */
+    private function saveAndValidateStructuralRequirements(
+        array $structuralRequirements,
+        int $taskId
+    ): array {
+        $errors = [];
+        foreach ($structuralRequirements as $index=>$structuralRequirementItem) {
+            $structuralRequirement = new StructuralRequirementResource();
+            $structuralRequirement->taskID = $taskId;
+            $structuralRequirement->regexExpression = $structuralRequirementItem['regexExpression'];
+            $structuralRequirement->type = $structuralRequirementItem['type'];
+            if(!$structuralRequirement->validate()) {
+                if($structuralRequirement->hasErrors('regexExpression.invalid')) {
+                    $structuralRequirement->clearErrors('regexExpression.invalid');
+                    $structuralRequirement->addError("structuralRequirements.$index.regexExpression",
+                        Yii::t('app', 'Invalid regular expression'));
+                }
+                $errors = array_merge($errors, $structuralRequirement->errors);
+            }
+            else if(!$structuralRequirement->save()) {
+                throw new ServerErrorHttpException(
+                    Yii::t('app', 'Failed to save structural requirement. Message: ') .
+                    Yii::t('app', 'A database error occurred')
+                );
+            }
+        }
+        return $errors;
     }
 
     /**

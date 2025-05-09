@@ -24,7 +24,7 @@ return [
     'requirement_4' => [
         'id' => 4,
         'taskID' => 5024,
-        'regexExpression' => '.*dir\/.*',
+        'regexExpression' => '/dir/',
         'type' => StructuralRequirements::SUBMISSION_EXCLUDES,
     ],
 ];
