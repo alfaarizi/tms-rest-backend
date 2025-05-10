@@ -22,7 +22,7 @@ class UploadTaskFileResource extends Model implements IOpenApiFieldTypes
     public int $taskID;
     public string $category = TaskFile::CATEGORY_ATTACHMENT;
     public array $files;
-    public bool $override;
+    public bool $override = false;
 
     /**
      * @inheritdoc
