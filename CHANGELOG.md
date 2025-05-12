@@ -4,6 +4,21 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.1.0](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0...v4.1.0) (2025-05-12)
+
+### Features
+
+* Add IP address and range whitelist management and usage for tasks ([dc91d3](https://gitlab.com/tms-elte/backend-core/commit/dc91d329450850ba425805c3038bb34132f25ce3))
+* Define and enforce structural requirements for the tasks ([ff4038](https://gitlab.com/tms-elte/backend-core/commit/ff4038623309c2cf60279f38112802246de5c5c0))
+* Support overwriting Task Files ([e29a6f](https://gitlab.com/tms-elte/backend-core/commit/e29a6fa6f79fa60be63117b01b637e96c68f1a6c))
+
+### Bug Fixes
+
+* Create tests for own groups regardless if lecturer is assigned ([d864d0](https://gitlab.com/tms-elte/backend-core/commit/d864d0b393a81f2ed62142a2a99f7e43de2614f1))
+
+
+---
+
 ## [4.0.0](https://gitlab.com/tms-elte/backend-core/compare/v3.4.0...v4.0.0) (2025-04-19)
 
 ### ⚠ BREAKING CHANGES
