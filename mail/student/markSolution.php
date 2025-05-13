@@ -14,32 +14,6 @@ use yii\web\View;
 $group = $submission->task->group;
 ?>
 
-<?php
-$tableData = [
-    Html::encode($group->course->name),
-    Yii::t('app', $submission->status),
-    $submission->grade,
-    Html::encode(nl2br($submission->notes, false))
-];
-
-$tableHeaders = [
-    Yii::t('app/mail', 'Course'),
-    Yii::t('app/mail', 'Status'),
-    Yii::t('app/mail', 'Grade'),
-    Yii::t('app/mail', 'Remark')
-];
-
-if (!empty($group->number) && !$group->isExamGroup) {
-    array_splice($tableData, 1, 0, [$group->number]);
-    array_splice($tableHeaders, 1, 0, [Yii::t('app/mail', 'group')]);
-}
-
-if (!$group->isExamGroup) {
-    $tableData[] = Html::encode($actor->name);
-    $tableHeaders[] = Yii::t('app/mail', 'Modifier');
-}
-?>
-
 <h2><?= Yii::t('app/mail', 'Graded submission') ?></h2>
 <?=
 MailHtml::p(
@@ -47,8 +21,32 @@ MailHtml::p(
 )
 ?>
 <?=
-MailHtml::table(
-    $tableData,
-    $tableHeaders
-)
+MailHtml::table([
+    [
+        'th' => Yii::t('app/mail', 'Course'),
+        'td' => Html::encode($group->course->name)
+    ],
+    [
+        'th' => Yii::t('app/mail', 'group'),
+        'td' => $group->number,
+        'cond' => (!empty($group->number) && !$group->isExamGroup)
+    ],
+    [
+        'th' => Yii::t('app/mail', 'Status'),
+        'td' => Yii::t('app', $submission->status)
+    ],
+    [
+        'th' => Yii::t('app/mail', 'Grade'),
+        'td' => $submission->grade
+    ],
+    [
+        'th' => Yii::t('app/mail', 'Remark'),
+        'td' => Html::encode(nl2br($submission->notes, false))
+    ],
+    [
+        'th' => Yii::t('app/mail', 'Modifier'),
+        'td' => Html::encode($actor->name),
+        'cond' => (!$group->isExamGroup)
+    ]
+])
 ?>

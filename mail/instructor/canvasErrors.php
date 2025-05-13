@@ -18,20 +18,27 @@ MailHtml::p(
 );
 ?>
 <?=
-MailHtml::table(
-    [Html::encode($group->course->name), Html::encode($group->number)],
-    [Yii::t('app/mail', 'Course'),Yii::t('app/mail', 'Group Number')]
-)
+MailHtml::table([
+    [
+        'th' => Yii::t('app/mail', 'Course'),
+        'td' => Html::encode($group->course->name)
+    ],
+    [
+        'th' => Yii::t('app/mail', 'Group Number'),
+        'td' => Html::encode($group->number)
+    ],
+])
 ?>
 <?php
 $errorMassages = $group->canvasErrors ? explode(PHP_EOL, $group->canvasErrors) : [];
-?>
-<?=
-MailHtml::table(
-    $errorMassages,
-    [],
-    [
-        "textAlign" => "left"
-    ]
-);
+
+$errorRows = array_map(function ($error) {
+    return ['td' => Html::encode($error)];
+}, $errorMassages);
+
+if (!empty($errorRows)) {
+    echo MailHtml::table($errorRows, [
+        'textAlign' => 'left',
+    ]);
+}
 ?>

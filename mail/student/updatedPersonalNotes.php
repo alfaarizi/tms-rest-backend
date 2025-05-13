@@ -13,23 +13,6 @@ $group = $subscription->group;
 $notes = $subscription->notes;
 ?>
 
-<?php
-$tableData = [
-    Html::encode($group->course->name),
-    Html::encode($notes)
-];
-
-$tableHeaders = [
-    Yii::t('app/mail', 'Course'),
-    Yii::t('app/mail', 'Notes')
-];
-
-if (!empty($group->number) && !$group->isExamGroup) {
-    array_splice($tableData, 1, 0, [$group->number]);
-    array_splice($tableHeaders, 1, 0, [Yii::t('app/mail', 'group')]);
-}
-?>
-
 <h2><?= Yii::t('app/mail', 'New Notes') ?></h2>
 <?=
 MailHtml::p(
@@ -37,8 +20,19 @@ MailHtml::p(
 )
 ?>
 <?=
-MailHtml::table(
-    $tableData,
-    $tableHeaders,
-)
+MailHtml::table([
+    [
+        'th' => Yii::t('app/mail', 'Course'),
+        'td' => Html::encode($group->course->name)
+    ],
+    [
+        'th' => Yii::t('app/mail', 'group'),
+        'td' => $group->number,
+        'cond' => (!empty($group->number) && !$group->isExamGroup)
+    ],
+    [
+        'th' => Yii::t('app/mail', 'Notes'),
+        'td' => Html::encode($notes)
+    ]
+])
 ?>

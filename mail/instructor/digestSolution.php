@@ -19,38 +19,38 @@ MailHtml::p(
 )
 ?>
 <?php foreach ($solutions as $solution) : ?>
-    <?php
-    $tableData = [
-        Html::encode($solution->uploader->name) . ' ' . (Html::encode($solution->uploader->userCode)),
-        Html::encode($solution->task->group->course->name),
-        Html::encode($solution->task->name)
-    ];
-
-    $tableHeaders = [
-        Yii::t('app/mail', 'Name'),
-        Yii::t('app/mail', 'Course'),
-        Yii::t('app/mail', 'Task name')
-    ];
-
-    if (!empty($solution->task->group->number)) {
-        array_splice($tableData, 2, 0, [$solution->task->group->number]);
-        array_splice($tableHeaders, 2, 0, [Yii::t('app/mail', 'group')]);
-    }
-
-    if ($solution->status == Submission::STATUS_CORRUPTED) {
-        $tableData[] = '<span style="color: #dc4126;">' . Yii::t('app/mail', 'Corrupted') . '</span>';
-    }
-
-    $tableData[] = Html::a(
-        Yii::t('app/mail', 'View solution'),
-        Yii::$app->params['frontendUrl'] . '/instructor/task-manager/submissions/' . $solution->id
-    )
-    ?>
     <?=
-    MailHtml::table(
-        $tableData,
-        $tableHeaders
-    )
+    MailHtml::table([
+        [
+            'th' => Yii::t('app/mail', 'Name'),
+            'td' => Html::encode("{$solution->uploader->name} ({$solution->uploader->userCode})")
+        ],
+        [
+            'th' => Yii::t('app/mail', 'Course'),
+            'td' => Html::encode($solution->task->group->course->name)
+        ],
+        [
+            'th' => Yii::t('app/mail', 'group'),
+            'td' => $solution->task->group->number,
+            'cond' => (!empty($solution->task->group->number))
+        ],
+        [
+            'th' => Yii::t('app/mail', 'Task name'),
+            'td' => Html::encode($solution->task->name)
+        ],
+        [
+            'th' => Yii::t('app/mail', 'Status'),
+            'td' => Yii::t('app/mail', 'Corrupted'),
+            'cond' => ($solution->status == Submission::STATUS_CORRUPTED)
+        ],
+        [
+            'th' => Yii::t('app/mail', 'View solution'),
+            'td' => Html::a(
+                Yii::t('app/mail', 'View solution'),
+                Yii::$app->params['frontendUrl'] . '/instructor/task-manager/submissions/' . $solution->id
+            )
+        ]
+    ])
     ?>
 <?php endforeach; ?>
 <?=

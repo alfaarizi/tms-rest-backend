@@ -21,7 +21,7 @@ use yii\web\View;
             'course' => Html::encode($group->course->name),
             'group' => $group->number
         ])
-    );
+    )
     ?>
 <?php else : ?>
     <?=
@@ -29,12 +29,14 @@ use yii\web\View;
         Yii::t('app/mail', 'You have been assigned to the course {course}.', [
             'course' => Html::encode($group->course->name)
         ])
-    );
+    )
     ?>
 <?php endif; ?>
 <?=
-MailHtml::table(
-    [Html::encode($actor->name)],
-    [Yii::t('app/mail', 'Modifier')]
-);
+MailHtml::table([
+    [
+        'th' => Yii::t('app/mail', 'Modifier'),
+        'td' => Html::encode($actor->name)
+    ]
+])
 ?>

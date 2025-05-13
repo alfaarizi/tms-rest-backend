@@ -19,18 +19,20 @@ use yii\web\View;
         Yii::t('app/mail', 'You have been assigned to the course {course} as a lecturer.', [
             'course' => $course->name,
         ])
-    );
+    )
     ?>
 <?php else : ?>
     <?=
     MailHtml::p(
         Yii::t('app/mail', 'You have been assigned to a course.')
-    );
+    )
     ?>
 <?php endif; ?>
 <?=
-MailHtml::table(
-    [Html::encode($actor->name)],
-    [Yii::t('app/mail', 'Modifier')]
-);
+MailHtml::table([
+    [
+        'th' => Yii::t('app/mail', 'Modifier'),
+        'td' => Html::encode($actor->name)
+    ],
+])
 ?>

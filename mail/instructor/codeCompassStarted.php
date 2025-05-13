@@ -29,20 +29,23 @@ MailHtml::p(
 ?>
 <?=
 MailHtml::p(
-    Yii::t('app/mail', 'Link to your CodeCompass instance: ') . Html::a("CodeCompass", getCodeCompassUrl($instance->port))
+    Yii::t('app/mail', 'Link to your CodeCompass instance: ') . Html::a("CodeCompass", getCodeCompassUrl($instance->port)),
+    ['textAlign' => 'left']
 )
 ?>
 <?=
 MailHtml::p(
     Yii::t('app/mail', 'Your username: {username}', [
         'username' => Html::encode($instance->username)
-    ])
+    ]),
+    ['textAlign' => 'left']
 )
 ?>
 <?=
 MailHtml::p(
     Yii::t('app/mail', 'Your password: {password}', [
         'password' => Html::encode($instance->password)
-    ])
+    ]),
+    ['textAlign' => 'left']
 )
 ?>
