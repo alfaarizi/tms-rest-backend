@@ -15,25 +15,6 @@ $group = $task->group;
 
 ?>
 
-<?php
-$tableData = [
-    Html::encode($group->course->name),
-    Html::a(Html::encode($task->name), Yii::$app->params['frontendUrl'] . '/student/task-manager/tasks/' . $task->id),
-    Html::encode($submission->safeErrorMsg)
-];
-
-$tableHeaders = [
-    Yii::t('app/mail', 'Course'),
-    Yii::t('app/mail', 'Task name'),
-    Yii::t('app/mail', 'Remark')
-];
-
-if (!empty($group->number) && !$group->isExamGroup) {
-    array_splice($tableData, 1, 0, [$group->number]);
-    array_splice($tableHeaders, 1, 0, [Yii::t('app/mail', 'group')]);
-}
-?>
-
 <h2><?= Yii::t('app/mail', 'Corrupted Submission') ?></h2>
 <?=
 MailHtml::p(
@@ -41,8 +22,10 @@ MailHtml::p(
 )
 ?>
 <?=
-MailHtml::table(
-    $tableData,
-    $tableHeaders
-)
+MailHtml::table([
+    ['th' => Yii::t('app/mail', 'Course'), 'td' => Html::encode($group->course->name)],
+    ['th' =>  Yii::t('app/mail', 'group'), 'td' => (!empty($group->number) && !$group->isExamGroup) ? $group->number : ''],
+    ['th' => Yii::t('app/mail', 'Task name'), 'td' => Html::a(Html::encode($task->name), Yii::$app->params['frontendUrl'] . '/student/task-manager/tasks/' . $task->id)],
+    ['th' => Yii::t('app/mail', 'Remark'), 'td' => Html::encode($submission->safeErrorMsg)]
+])
 ?>

@@ -34,9 +34,8 @@ use yii\web\View;
 <?php endif; ?>
 <?php if (!$group->isExamGroup) : ?>
     <?=
-    MailHtml::table(
-        [Html::encode($actor->name)],
-        [Yii::t('app/mail', 'Modifier')]
-    )
+    MailHtml::table([
+        ['th' => Yii::t('app/mail', 'Modifier'), 'td' => Html::encode($actor->name)]
+    ])
     ?>
 <?php endif; ?>

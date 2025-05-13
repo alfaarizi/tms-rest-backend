@@ -14,33 +14,6 @@ use yii\web\View;
 
 ?>
 
-<?php
-$tableData = [
-    Html::encode($task->name),
-    Yii::t('app/mail', $task->category)
-];
-
-$tableHeaders = [
-    Yii::t('app/mail', 'Task name'),
-    Yii::t('app/mail', 'Category')
-];
-
-if (!empty($task->available)) {
-    $tableData[] = DateTimeHelpers::timeZoneConvert($task->available, $task->group->timezone, true);
-    $tableHeaders[] = Yii::t('app/mail', 'Available from');
-}
-
-if (!empty($task->softDeadline)) {
-    $tableData[] = DateTimeHelpers::timeZoneConvert($task->softDeadline, $task->group->timezone, true);
-    $tableHeaders[] = Yii::t('app/mail', 'Soft deadline of task');
-}
-
-if (!empty($task->hardDeadline)) {
-    $tableData[] = DateTimeHelpers::timeZoneConvert($task->hardDeadline, $task->group->timezone, true);
-    $tableHeaders[] = Yii::t('app/mail', 'Hard deadline of task');
-}
-?>
-
 <h2><?= Yii::t('app/mail', 'New task') ?></h2>
 <?php if (!empty($task->group->number) && !$task->group->isExamGroup) : ?>
     <?=
@@ -60,19 +33,19 @@ if (!empty($task->hardDeadline)) {
     );
     ?>
 <?php endif; ?>
-<?php if (!$task->group->isExamGroup) : ?>
-    <?=
-    MailHtml::table(
-        [Html::encode($actor->name)],
-        [Yii::t('app/mail', 'Modifier')]
-    )
-    ?>
-<?php endif; ?>
 <?=
-MailHtml::table(
-    $tableData,
-    $tableHeaders
-);
+MailHtml::table([
+    ['th' => Yii::t('app/mail', 'Modifier'), 'td' => (!$task->group->isExamGroup) ? Html::encode($actor->name) : '']
+])
+?>
+<?=
+MailHtml::table([
+    ['th' => Yii::t('app/mail', 'Task name'), 'td' => Html::encode($task->name)],
+    ['th' => Yii::t('app/mail', 'Category'), 'td' => Yii::t('app/mail', $task->category)],
+    ['th' => Yii::t('app/mail', 'Available from'), 'td' => (!empty($task->available)) ? DateTimeHelpers::timeZoneConvert($task->available, $task->group->timezone, true) : ''],
+    ['th' => Yii::t('app/mail', 'Soft deadline of task'), 'td' => (!empty($task->softDeadline)) ? DateTimeHelpers::timeZoneConvert($task->softDeadline, $task->group->timezone, true) : ''],
+    ['th' => Yii::t('app/mail', 'Hard deadline of task'), 'td' => (!empty($task->hardDeadline)) ? DateTimeHelpers::timeZoneConvert($task->hardDeadline, $task->group->timezone, true) : ''],
+])
 ?>
 <?php if (!$task->entryPasswordProtected) : ?>
     <?= $this->render('../partials/taskDescription', ['task' => $task]) ?>

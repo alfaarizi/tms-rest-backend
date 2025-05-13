@@ -25,44 +25,41 @@ MailHtml::p(
 ?>
 <?php
 foreach ($data as $datum) {
-    $tableHeaders = [
-        Yii::t('app/mail', 'Course'),
-        Yii::t('app/mail', 'Task name'),
-        Yii::t('app/mail', 'Hard deadline of task'),
-    ];
-
-    $tableData = [
-        Html::encode($datum['task']->group->course->name),
-        Html::a(
-            Html::encode($datum['task']->name),
-            Yii::$app->params['frontendUrl'] . '/student/task-manager/tasks/' . $datum['task']->id
-        ),
-        DateTimeHelpers::timeZoneConvert(
-            $datum['task']->hardDeadline,
-            $datum['task']->group->timezone,
-            true
-        ),
-    ];
-
-    if ($datum['submission'] != null) {
-        $tableHeaders[] = [
-            Yii::t('app/mail', 'Solution last submitted at'),
-            Yii::t('app/mail', 'Status of latest submission')
-        ];
-        $tableData[] = [
-            DateTimeHelpers::timeZoneConvert(
+    echo MailHtml::table([
+        [
+            'th' => Yii::t('app/mail', 'Course'),
+            'td' => Html::encode($datum['task']->group->course->name)
+        ],
+        [
+            'th' => Yii::t('app/mail', 'Task name'),
+            'td' => Html::a(
+                Html::encode($datum['task']->name),
+                Yii::$app->params['frontendUrl'] . '/student/task-manager/tasks/' . $datum['task']->id
+            )
+        ],
+        [
+            'th' => Yii::t('app/mail', 'Hard deadline of task'),
+            'td' =>  DateTimeHelpers::timeZoneConvert(
+                $datum['task']->hardDeadline,
+                $datum['task']->group->timezone,
+                true
+            )
+        ],
+        [
+            'th' => Yii::t('app/mail', 'Solution last submitted at'),
+            'td' => ($datum['submission'] != null) ? DateTimeHelpers::timeZoneConvert(
                 $datum['submission']->uploadTime,
                 $datum['task']->group->timezone,
                 true
-            ),
-            $datum['submission']->translatedStatus
-        ];
-    }
-
-    echo MailHtml::table(
-        $tableData,
-        $tableHeaders
-    );
+            ) : '',
+            'cond' => ($datum['submission'] != null)
+        ],
+        [
+            'th' => Yii::t('app/mail', 'Status of latest submission'),
+            'td' => ($datum['submission'] != null) ? ($datum['submission']->translatedStatus) : '',
+            'cond' => ($datum['submission'] != null)
+        ]
+    ]);
 }
 ?>
 <?=

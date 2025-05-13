@@ -21,10 +21,20 @@ MailHtml::p(
 )
 ?>
 <?=
-MailHtml::table(
-    [Html::encode($courseArg), Html::encode($taskArg), Html::encode($semester->name)],
-    ["Kurzusnév minta", "Feladat sorszám", "Szemeszter"]
-)
+MailHtml::table([
+    [
+        'th' => "Kurzusnév minta",
+        'td' => Html::encode($courseArg)
+    ],
+    [
+        'th' => "Feladat sorszám",
+        'td' => Html::encode($taskArg)
+    ],
+    [
+        'th' => "Szemeszter",
+        'td' => Html::encode($semester->name)
+    ]
+])
 ?>
 <?=
 MailHtml::p(
@@ -32,28 +42,12 @@ MailHtml::p(
 )
 ?>
 <?php foreach ($results as $result) : ?>
-    <?php
-    $tableData = [
-    Html::encode($result['userName']) . ' ' . (Html::encode($result['userCode'])),
-    Html::encode($result['courseName']) . ' (' . $result['courseCode'] . '/' . $result['groupNumber'] . ')',
-    Html::encode($result['taskName']),
-    ];
-
-    $tableHeaders = [
-    "Név", "Kurzus", "Feladat"
-    ];
-
-    if (!empty($result['status'])) {
-        $tableData[] = Yii::t('app', $result['status'], [], 'hu');
-    } else {
-        $tableData[] = "Nem beküldött";
-    }
-    $tableHeaders[] = "Állapot";
-    ?>
     <?=
-    MailHtml::table(
-        $tableData,
-        $tableHeaders
-    )
+    MailHtml::table([
+        ['th' => "Név", 'td' => Html::encode("{$result['userName']} ({$result['userCode']})")],
+        ['th' => "Kurzus", 'td' => Html::encode("{$result['courseName']} ({$result['courseCode']}/{$result['groupNumber']})")],
+        ['th' => "Feladat", 'td' => $result['taskName']],
+        ['th' => "Állapot", 'td' =>  (!empty($result['status'])) ? Yii::t('app', $result['status'], [], 'hu') : "Nem beküldött"]
+    ])
     ?>
 <?php endforeach; ?>
