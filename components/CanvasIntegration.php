@@ -1098,10 +1098,22 @@ class CanvasIntegration
 
                         foreach (array_keys(Yii::$app->params['supportedLocale']) as $lang) {
                             Yii::$app->language = $lang;
-                            $msg1 = Yii::t('app', 'TMS automatic tester result: ');
-                            $msg2 = Yii::t('app', 'TMS static code analyzer result: ');
-                            if (strpos($comment['comment'], $msg1) === 0 || strpos($comment['comment'], $msg2) === 0) {
-                                $isHumanComment = false;
+                            $messages = [
+                                Yii::t('app', 'TMS automatic tester result: '),
+                                Yii::t('app', 'TMS static code analyzer result: '),
+                                Yii::t('app', 'The uploaded solution contains the following excluded files or directories: '),
+                                Yii::t('app', 'The uploaded solution should contain all required files and directories.'),
+                                Yii::t('app', 'You are not complying with the following regular expressions: '),
+                            ];
+
+                            foreach ($messages as $message) {
+                                if (strpos($comment['comment'], $message) === 0) {
+                                    $isHumanComment = false;
+                                    break;
+                                }
+                            }
+
+                            if (!$isHumanComment) {
                                 break;
                             }
                         }
