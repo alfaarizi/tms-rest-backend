@@ -708,7 +708,11 @@ class CanvasIntegration
             $morePages = !empty($response->data);
 
             foreach ($out as $assignment) {
-                if ($assignment['published'] && !$assignment['is_quiz_assignment']) {
+                if (
+                    $assignment['published'] && !$assignment['is_quiz_assignment'] &&
+                    isset($assignment['allowed_extensions']) &&
+                    $assignment['allowed_extensions'] == ['zip']
+                ) {
                     if ($group->canvasSectionID == -1 && !empty($assignment['lock_at'])) {
                         $id = $this->saveTask($assignment, $group);
                         if ($id !== null) {
@@ -1018,12 +1022,16 @@ class CanvasIntegration
                 }
             } else if (strtotime($tmsFile->uploadTime) !== strtotime($canvasFile['updated_at'])) {
                 // Check if the submission passes the structural requirements
-                $structuralReqErrorMsg = $this->checkStructuralRequirements(
-                    $task,
-                    $canvasFile['display_name'],
-                    $canvasFile['url'],
-                    $user->userCode
-                );
+                try {
+                    $structuralReqErrorMsg = $this->checkStructuralRequirements(
+                        $task,
+                        $canvasFile['display_name'],
+                        $canvasFile['url'],
+                        $user->userCode
+                    );
+                } catch (ErrorException | \yii\base\Exception $e) {
+                    $newFileCorrupted = true;
+                }
                 if (!is_null($structuralReqErrorMsg)) {
                     // Send a message to the Canvas task saying that the submission failed the structural requirement test
                     $synchronizer = $task->group->synchronizer;
@@ -1074,11 +1082,11 @@ class CanvasIntegration
                     $this->saveCanvasFile($task->id, $canvasFile['display_name'], $canvasFile['url'], $user->userCode);
                     $tmsFile->name = $canvasFile['display_name'];
                     $tmsFile->uploadTime = date('Y-m-d H:i:s', strtotime($canvasFile['updated_at']));
-                    $tmsFile->status = Submission::STATUS_UPLOADED;
+                    $tmsFile->status = $newFileCorrupted ? Submission::STATUS_CORRUPTED : Submission::STATUS_UPLOADED;
                     $tmsFile->autoTesterStatus = Submission::AUTO_TESTER_STATUS_NOT_TESTED;
                     $tmsFile->codeCheckerResultID = null;
                     $tmsFile->uploadCount++;
-                    $hasNewUpload = true;
+                    $hasNewUpload = !$newFileCorrupted;
                 }
             }
         }
@@ -1221,6 +1229,8 @@ class CanvasIntegration
                     Yii::t('app', 'The uploaded solution contains the following excluded files or directories: ') .
                     implode(", ", $structuralRequirementResult["failedExcludedPaths"]);
             }
+        } else {
+            throw new ErrorException("Archive is corrupted.");
         }
 
         FileHelper::removeDirectory($path);
