@@ -708,10 +708,11 @@ class CanvasIntegration
             $morePages = !empty($response->data);
 
             foreach ($out as $assignment) {
+                // TODO: fix ZIP extension requirement, so that already synchronized tasks are not removed
                 if (
-                    $assignment['published'] && !$assignment['is_quiz_assignment'] &&
+                    $assignment['published'] && !$assignment['is_quiz_assignment'] /*&&
                     isset($assignment['allowed_extensions']) &&
-                    $assignment['allowed_extensions'] == ['zip']
+                    $assignment['allowed_extensions'] == ['zip']*/
                 ) {
                     if ($group->canvasSectionID == -1 && !empty($assignment['lock_at'])) {
                         $id = $this->saveTask($assignment, $group);
