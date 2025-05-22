@@ -48,7 +48,7 @@ class QuizQuestionSet extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         return [
             [['name', 'courseID'], 'required'],
             [['courseID'], 'integer'],
-            [['name'], 'string', 'max' => 45],
+            [['name'], 'string', 'max' => 100],
             [['courseID'], 'exist', 'skipOnError' => true, 'targetClass' => Course::class, 'targetAttribute' => ['courseID' => 'id']],
         ];
     }
