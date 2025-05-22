@@ -211,6 +211,15 @@ class Group extends ActiveRecord implements IOpenApiFieldTypes
         ];
     }
 
+    public function afterFind()
+    {
+        parent::afterFind();
+
+        if ($this->startTime) {
+            $this->startTime = date('H:i', strtotime($this->startTime));
+        }
+    }
+
     /**
      * Convert syncLevel set field from comma separated string to array.
      * @return array syncLevel as an array.
