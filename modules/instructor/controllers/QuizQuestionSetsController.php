@@ -407,28 +407,46 @@ class QuizQuestionSetsController extends BaseInstructorRestController
             );
         }
 
-        $copy = new QuizQuestionSetResource();
-        $copy->name = $questionSet->name . ' ' . Yii::t('app', '(copy)');
-        $copy->courseID = $questionSet->courseID;
-        $copy->save();
-        $batchAnswers = array();
-        $answerAttr = ['id', 'text', 'correct', 'questionID'];
-        /** @var QuizQuestion[] $questions */
-        $questions = $questionSet->getQuestions()->all();
-        foreach ($questions as $question) {
-            $copyQuestion = new QuizQuestion();
-            $copyQuestion->text = $question->text;
-            $copyQuestion->questionsetID = $copy->id;
-            $copyQuestion->save();
-            /** @var QuizAnswer[] $answers */
-            $answers = $question->getAnswers()->all();
-            foreach ($answers as $answer) {
-                $batchAnswers[] = [null, $answer->text, $answer->correct, $copyQuestion->id];
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $copy = new QuizQuestionSetResource();
+            $copy->name = substr($questionSet->name, 0, 90) . ' ' . Yii::t('app', '(copy)');
+            $copy->courseID = $questionSet->courseID;
+            if (!$copy->save()) {
+                throw new \yii\db\Exception("Failed to copy question set (id: $questionSet->id)");
             }
-        }
-        Yii::$app->db->createCommand()->batchInsert(QuizAnswer::tableName(), $answerAttr, $batchAnswers)->execute();
 
-        return $copy;
+            $batchAnswers = array();
+            $answerAttr = ['id', 'text', 'correct', 'questionID'];
+            /** @var QuizQuestion[] $questions */
+            $questions = $questionSet->getQuestions()->all();
+            foreach ($questions as $question) {
+                $copyQuestion = new QuizQuestion();
+                $copyQuestion->text = $question->text;
+                $copyQuestion->questionsetID = $copy->id;
+                if (!$copyQuestion->save()) {
+                    throw new \yii\db\Exception("Failed to copy question (id: $question->id)");
+                }
+
+                /** @var QuizAnswer[] $answers */
+                $answers = $question->getAnswers()->all();
+                foreach ($answers as $answer) {
+                    $batchAnswers[] = [null, $answer->text, $answer->correct, $copyQuestion->id];
+                }
+            }
+            Yii::$app->db->createCommand()->batchInsert(QuizAnswer::tableName(), $answerAttr, $batchAnswers)->execute();
+
+            $transaction->commit();
+            return $copy;
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            Yii::error(
+                "Failed to duplicate question set #{$questionSet->id}." . PHP_EOL .
+                "Message: {$e->getMessage()}",
+                __METHOD__
+            );
+            throw new ServerErrorHttpException(Yii::t('app', "Quiz duplication failed"));
+        }
     }
 
     /**
