@@ -445,7 +445,7 @@ class QuizQuestionSetsController extends BaseInstructorRestController
                 "Message: {$e->getMessage()}",
                 __METHOD__
             );
-            throw new ServerErrorHttpException(Yii::t('app', "Quiz duplication failed"));
+            throw new ServerErrorHttpException(Yii::t('app', "Question set duplication failed"));
         }
     }
 
