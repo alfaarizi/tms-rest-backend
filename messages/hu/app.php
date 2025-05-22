@@ -459,6 +459,7 @@ return [
     "Question set name" => "Kérdéshalmaz neve",
     "Question sets" => "Kérdéshalmazok",
     "Question set updated successfully" => "Kérdéshalmaz sikeresen módosítva",
+    "Question set duplication failed" => "Kérdéshalmaz duplikálása sikertelen",
     "Question updated successfully" => "Kérdés sikeresen módosítva",
     "Score" => "Pontszám",
     "Select a course" => "Válassz egy kurzust",
