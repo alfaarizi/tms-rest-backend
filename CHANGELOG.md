@@ -4,6 +4,17 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.1.1](https://gitlab.com/tms-elte/backend-core/compare/v4.1.0...v4.1.1) (2025-05-23)
+
+### Bug Fixes
+
+* Handle QuestionSet name length overflow during duplication ([ec4151](https://gitlab.com/tms-elte/backend-core/commit/ec41517ba7ba39dcb05064e5f97d89210f012eb1))
+* Structural requirements Canvas comments are propagated back to TMS ([ca37a5](https://gitlab.com/tms-elte/backend-core/commit/ca37a50ed6c6cd6459afbfff84067a0278572a61))
+* Students can upload non-zip files through Canvas ([0cd729](https://gitlab.com/tms-elte/backend-core/commit/0cd729f9ed390db83064fe5e9e1e26b5202374ef))
+
+
+---
+
 ## [4.1.0](https://gitlab.com/tms-elte/backend-core/compare/v4.0.0...v4.1.0) (2025-05-12)
 
 ### Features
