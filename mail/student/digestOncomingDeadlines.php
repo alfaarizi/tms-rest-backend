@@ -51,13 +51,11 @@ foreach ($data as $datum) {
                 $datum['submission']->uploadTime,
                 $datum['task']->group->timezone,
                 true
-            ) : '',
-            'cond' => ($datum['submission'] != null)
+            ) : ''
         ],
         [
             'th' => Yii::t('app/mail', 'Status of latest submission'),
-            'td' => ($datum['submission'] != null) ? ($datum['submission']->translatedStatus) : '',
-            'cond' => ($datum['submission'] != null)
+            'td' => ($datum['submission'] != null) ? ($datum['submission']->translatedStatus) : ''
         ]
     ]);
 }
