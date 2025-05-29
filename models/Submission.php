@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\behaviors\ISODateTimeBehavior;
+use app\components\docker\DockerContainerBuilder;
 use app\components\openapi\generators\OAList;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
@@ -361,8 +362,7 @@ class Submission extends File implements IOpenApiFieldTypes
      */
     public function getContainerName(): string
     {
-        // Prefixing.
-        return "tms_{$this->id}";
+        return DockerContainerBuilder::generateName('submission', $this->id);
     }
 
     /**

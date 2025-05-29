@@ -64,6 +64,9 @@ app:
   # Automated evaluator configuration
   evaluator:
     enabled: false
+    docker:
+      testerName: 'tester'
+      runnerName: 'runner'
     # Linux-based docker host
     linux: 'unix:///var/run/docker.sock'
     #  Windows-based docker host

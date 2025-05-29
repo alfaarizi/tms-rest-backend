@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use app\components\docker\DockerContainerBuilder;
 use app\models\Submission;
 use ArrayObject;
 use Docker\API\Exception\ContainerDeleteBadRequestException;
@@ -66,7 +67,7 @@ class CodeCompass extends BaseObject
         $this->_imageName = $imageName;
         $this->_docker = $docker;
 
-        $this->_containerId = 'compass_' . $this->_submission->id;
+        $this->_containerId = DockerContainerBuilder::generateName('compass', $this->_submission->id);
         $this->_projectBasePath = Yii::getAlias("@tmp/codecompass/") . $this->_submission->id;
         parent::__construct();
     }

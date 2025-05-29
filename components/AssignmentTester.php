@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use app\components\docker\DockerContainerBuilder;
 use app\components\docker\DockerImageManager;
 use app\components\docker\EvaluatorTarBuilder;
 use app\exceptions\EvaluatorTarBuilderException;
@@ -109,7 +110,10 @@ class AssignmentTester
     {
         $task = $this->submission->task;
         $imageName = $task->imageName;
-        $containerName = $this->submission->containerName;
+        $containerName = DockerContainerBuilder::generateName(
+            Yii::$app->params['evaluator']['docker']['testerName'] ?? 'tester',
+            $this->submission->id
+        );
 
         $dockerImageManager = Yii::$container->get(DockerImageManager::class, ['os' => $task->testOS]);
 

@@ -48,6 +48,14 @@ class SubmissionRunner
     {
         $this->submission = $submission;
 
+        if (empty($containerName)) {
+            $uniqueId = Yii::$app->security->generateRandomString(8);
+            $containerName = DockerContainerBuilder::generateName(
+                Yii::$app->params['evaluator']['docker']['runnerName'] ?? 'runner',
+                $uniqueId
+            );
+        }
+
         $dockerContainer = null;
         try {
             $dockerContainer = $this->buildContainer($containerName, $hostPort, $builder);

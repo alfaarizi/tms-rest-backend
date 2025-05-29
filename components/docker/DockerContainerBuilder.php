@@ -251,6 +251,13 @@ class DockerContainerBuilder
         return $config;
     }
 
+    public static function generateName(string $component, $id): string
+    {
+        // Prefixing.
+        $prefix = YII_ENV_PROD ? 'tms' : "tms-" . YII_ENV;
+        return "{$prefix}_{$component}_{$id}";
+    }
+
     /**
      * @throws \yii\base\Exception
      */
