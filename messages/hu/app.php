@@ -99,7 +99,6 @@ return [
     'Invalid username or password' => 'Érvénytelen felhasználónév vagy jelszó',
     'Invalid password' => 'Érvénytelen jelszó',
     'Larger tasks' => 'Beadandók',
-    'Late Submission' => 'Pótolható',
     'Locale' => 'Nyelv',
     'Logout' => 'Kilépés',
     'Login' => 'Bejelentkezés',
@@ -225,6 +224,7 @@ return [
     'You are not allowed to upload files here!' => 'Nem tölthetsz fel megoldásokat ehhez a feladathoz!',
     'Your solution was accepted!' => 'A megoldásod már elfogadásra került!',
     'The hard deadline of the solution has passed!' => 'A feladat végső határideje már lejárt!',
+    'The deadline of the solution has passed!' => 'A feladat határideje már lejárt!',
     '+{days} days' => '+{days} nap',
     'Only ZIP files are accepted for upload.' => 'Kizárólag ZIP állományok tölthetőek fel.',
     'The uploaded archive should NOT contain binaries.' => 'A feltöltött tömörített állomány NEM tartalmazhat bináris fájlokat.',
@@ -269,6 +269,7 @@ return [
     'The maximum number of submissions has been reached!' => 'Elérte a maximális probálkozások számát!',
     "This user has been already added to this group." => "Ez a felhasználó már hozzá lett rendelve ehhez a csoporthoz.",
     "You can't modify grade a solution from a previous semester!" => "Előző szemeszterből származó megoldást nem lehet értékelni",
+    "You can't set a personal deadline for a solution from a previous semester!" => "Előző szemeszterből származó megoldáshoz nem lehet személyes határidőt rendelni",
     "Failed to remove task. This task can not be removed anymore, there is uploaded solution!"
     => "Beadandó feladat törlése sikertelen. Olyan feladatot nem lehet törölni, amihez már van feltöltött megoldás!",
     "Local Docker images can't be updated from registry." => "Lokális Docker képek nem frissíthetőek a registryből",

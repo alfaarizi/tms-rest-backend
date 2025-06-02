@@ -244,7 +244,7 @@ class SubmissionsController extends BaseStudentRestController
 
         if (
             $task->isSubmissionCountRestricted
-            && $prevSubmission->status !== Submission::STATUS_LATE_SUBMISSION
+            && is_null($prevSubmission->personalDeadline)
             && $task->submissionLimit <= $prevSubmission->uploadCount
         ) {
             throw new BadRequestHttpException(
@@ -252,10 +252,15 @@ class SubmissionsController extends BaseStudentRestController
             );
         }
 
-        // Verify that the task is open for submissions or the student has a special late submission permission.
+        // Verify that the task is open for submissions or the student has a personal deadline.
         if (
-            strtotime($task->hardDeadline) < time() &&
-            (is_null($prevSubmission) || $prevSubmission->status !== Submission::STATUS_LATE_SUBMISSION)
+            !is_null($prevSubmission) &&
+            strtotime($prevSubmission->deadline) < time()
+        ) {
+            throw new BadRequestHttpException(Yii::t('app', 'The hard deadline of the solution has passed!'));
+        } else if (
+            is_null($prevSubmission) &&
+            strtotime($task->hardDeadline) < time()
         ) {
             throw new BadRequestHttpException(Yii::t('app', 'The hard deadline of the solution has passed!'));
         }
@@ -339,7 +344,7 @@ class SubmissionsController extends BaseStudentRestController
             $this->logIpAddress($submission, IpAddress::ACTIVITY_SUBMISSION_UPLOAD);
 
             if ($versionControlled) {
-                GitManager::afterStatusUpdate($submission);
+                GitManager::updateSubmissionHooks($submission);
             }
             return $submission;
         } else {

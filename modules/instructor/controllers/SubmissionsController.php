@@ -49,6 +49,7 @@ class SubmissionsController extends BaseInstructorRestController
             'list-for-student' => ['GET'],
             'view' => ['GET'],
             'update' => ['PATCH'],
+            'set-personal-deadline' => ['PATCH'],
             'download' => ['GET'],
             'download-all-files' => ['GET'],
             'start-code-compass' => ['POST'],
@@ -455,7 +456,7 @@ class SubmissionsController extends BaseInstructorRestController
 
         // Disable Git push if submission was accepted
         if (Yii::$app->params['versionControl']['enabled'] && $submission->task->isVersionControlled) {
-            GitManager::afterStatusUpdate($submission);
+            GitManager::updateSubmissionHooks($submission);
         }
 
         $isCanvasSynced = Yii::$app->params['canvas']['enabled'] && !empty($submission->canvasID);
@@ -505,6 +506,90 @@ class SubmissionsController extends BaseInstructorRestController
             } else {
                 throw new ServerErrorHttpException(Yii::t('app', 'Failed to refresh Canvas Token.'));
             }
+        }
+
+        return $submission;
+    }
+
+    /**
+     * Set personal deadline for user
+     * @return SubmissionResource|array|null
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
+     * @throws ServerErrorHttpException
+     *
+     * @OA\Patch(
+     *     path="/instructor/submissions/{id}/set-personal-deadline",
+     *     operationId="instructor::SubmissionsController::actionSetPersonalDeadline",
+     *     tags={"Instructor Student Files"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        required=true,
+     *        description="ID of the student file",
+     *        @OA\Schema(ref="#/components/schemas/int_id"),
+     *     ),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_fields"),
+     *     @OA\Parameter(ref="#/components/parameters/yii2_expand"),
+     *     @OA\RequestBody(
+     *         description="personal deadline to be set",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(ref="#/components/schemas/Instructor_SubmissionResource_ScenarioPersonalDeadline"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="updated submission",
+     *         @OA\JsonContent(ref="#/components/schemas/Instructor_SubmissionResource_Read"),
+     *     ),
+     *    @OA\Response(response=400, ref="#/components/responses/400"),
+     *    @OA\Response(
+     *        response=401,
+     *        description="Unauthorized: missing, invalid or expired access or Canvas token. If Canvas login is required, the Proxy-Authenticate header containains the login URL.",
+     *        @OA\JsonContent(ref="#/components/schemas/Yii2Error"),
+     *    ),
+     *    @OA\Response(response=403, ref="#/components/responses/403"),
+     *    @OA\Response(response=404, ref="#/components/responses/404"),
+     *    @OA\Response(response=422, ref="#/components/responses/422"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * ),
+     */
+    public function actionSetPersonalDeadline(int $id) {
+        $submission = SubmissionResource::findOne($id);
+
+        if (is_null($submission)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Submission not found'));
+        }
+
+        // Authorization check
+        if (!Yii::$app->user->can('manageGroup', ['groupID' => $submission->task->groupID])) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You must be an instructor of the group to perform this action!'));
+        }
+
+        // Check semester
+        if (SemesterResource::getActualID() !== $submission->task->semesterID) {
+            throw new BadRequestHttpException(
+                Yii::t('app', "You can't set a personal deadline for a solution from a previous semester!")
+            );
+        }
+
+        $submission->scenario = SubmissionResource::SCENARIO_PERSONAL_DEADLINE;
+        $submission->load(Yii::$app->request->post(), '');
+
+        if (!$submission->validate()) {
+            $this->response->statusCode = 422;
+            return $submission->errors;
+        }
+
+        if (!$submission->save()) {
+            throw new ServerErrorHttpException(Yii::t('app',  'Failed to save Submission. Message: ') . Yii::t('app', 'A database error occurred'));
+        }
+
+        if ($submission->isVersionControlled) {
+            GitManager::updateSubmissionHooks($submission);
         }
 
         return $submission;
