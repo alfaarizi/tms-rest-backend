@@ -294,7 +294,6 @@ class SubmissionsTest extends \Codeception\Test\Unit
         $invalidStatusValues = [
             Submission::STATUS_ACCEPTED,
             Submission::STATUS_FAILED,
-            Submission::STATUS_LATE_SUBMISSION,
             Submission::STATUS_PASSED,
             Submission::STATUS_REJECTED,
         ];

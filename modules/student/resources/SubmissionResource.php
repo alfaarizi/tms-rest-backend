@@ -20,6 +20,7 @@ class SubmissionResource extends \app\models\Submission
             'id',
             'name',
             'uploadTime',
+            'personalDeadline',
             'status',
             'uploadCount',
             'translatedStatus',
@@ -31,7 +32,7 @@ class SubmissionResource extends \app\models\Submission
                 return $model->safeErrorMsg;
             },
             'taskID',
-            'verified',
+            'verified'
         ];
     }
 

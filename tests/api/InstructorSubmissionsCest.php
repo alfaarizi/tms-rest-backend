@@ -3,6 +3,8 @@
 namespace app\tests\api;
 
 use ApiTester;
+use app\tests\DateFormat;
+use Helper\Api;
 use Yii;
 use app\models\Submission;
 use app\tests\unit\fixtures\AccessTokenFixture;
@@ -206,8 +208,8 @@ class InstructorSubmissionsCest
             [
                 'id' => 1,
                 'name' => 'stud01.zip',
-                'status' => Submission::STATUS_LATE_SUBMISSION,
-                'translatedStatus' => 'Late Submission',
+                'status' => Submission::STATUS_REJECTED,
+                'translatedStatus' => 'Rejected',
                 'grade' => 4,
                 'notes' => '',
                 'isVersionControlled' => 0,
@@ -217,8 +219,8 @@ class InstructorSubmissionsCest
                 'groupID' => 2000,
                 'uploaderID' => 1001,
                 'gitRepo' => null,
-                'uploadCount' => 1,
-                'codeCompassID' => 1
+                'uploadCount' => 0,
+                'codeCompassID' => 1,
             ]
         );
     }
@@ -298,7 +300,7 @@ class InstructorSubmissionsCest
                 'graderName' => 'Teacher Two',
                 'gitRepo' => null,
                 'errorMsg' => 'FULL_ERROR_MESSAGE',
-                'uploadCount' => 1,
+                'uploadCount' => 0,
             ]
         );
 
@@ -351,6 +353,35 @@ class InstructorSubmissionsCest
                 'autoTesterStatus' => Submission::AUTO_TESTER_STATUS_NOT_TESTED,
                 'grade' => 5,
                 'notes' => 'Note',
+            ]
+        );
+    }
+
+    public function setPersonalDeadline(ApiTester $I)
+    {
+        $personalDeadlineDate = new \DateTime('+1 day');
+        $I->sendPatch(
+            "/instructor/submissions/1/set-personal-deadline",
+            [
+                'personalDeadline' =>  $personalDeadlineDate->format(\DateTime::ATOM)
+            ]
+        );
+
+        $I->seeResponseCodeIs(HttpCode::OK);
+
+        $I->seeResponseContainsJson(
+            [
+                'id' => 1,
+                'name' => 'stud01.zip',
+                'personalDeadline' => $personalDeadlineDate->format(\DateTime::ATOM),
+            ]
+        );
+
+        $I->seeRecord(
+            Submission::class,
+            [
+                'id' => 1,
+                'personalDeadline' => $personalDeadlineDate->format(DateFormat::MYSQL),
             ]
         );
     }

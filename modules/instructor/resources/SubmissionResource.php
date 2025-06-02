@@ -36,6 +36,7 @@ class SubmissionResource extends Submission
             'gitRepo',
             'uploaderID',
             'uploadTime',
+            'personalDeadline',
             'delay',
             'uploadCount',
             'verified',

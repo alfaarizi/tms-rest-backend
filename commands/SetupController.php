@@ -314,7 +314,7 @@ class SetupController extends BaseController
             $this->seedSubmission(7, 'stud03', 1, Submission::STATUS_ACCEPTED, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
             $this->seedSubmission(8, 'stud04', 1, Submission::STATUS_ACCEPTED, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
             $this->seedSubmission(9, 'stud05', 1, Submission::STATUS_PASSED, null, Submission::AUTO_TESTER_STATUS_PASSED);
-            $this->seedSubmission(10, 'stud06', 1, Submission::STATUS_LATE_SUBMISSION, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
+            $this->seedSubmission(10, 'stud06', 1, Submission::STATUS_UPLOADED, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
             // Second Task
             $this->seedSubmission(5, 'stud01', 2, Submission::STATUS_REJECTED, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);
             $this->seedSubmission(6, 'stud02', 2, Submission::STATUS_REJECTED, 2, Submission::AUTO_TESTER_STATUS_NOT_TESTED);

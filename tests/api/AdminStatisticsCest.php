@@ -105,7 +105,7 @@ class AdminStatisticsCest
             [
                 'groupsCount' => 8,
                 'tasksCount' => 25,
-                'submissionsCount' => 22,
+                'submissionsCount' => 21,
                 'testedSubmissionCount' => 10,
             ]
         );

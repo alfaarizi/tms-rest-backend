@@ -112,14 +112,14 @@ class SubmissionsCest
             [
                 'id' => 1,
                 'name' => 'stud01.zip',
-                'status' => Submission::STATUS_LATE_SUBMISSION,
-                'translatedStatus' => 'Late Submission',
+                'status' => Submission::STATUS_REJECTED,
+                'translatedStatus' => 'Rejected',
                 'isVersionControlled' => 0,
                 'grade' => 4,
                 'notes' => '',
                 'graderName' => 'Teacher Two',
                 'errorMsg' => 'The solution didn\'t compile',
-                'uploadCount' => 1,
+                'uploadCount' => 0,
                 'verified' => true,
             ]
         );
@@ -306,6 +306,40 @@ class SubmissionsCest
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
     }
 
+
+    public function uploadWithinPersonalDeadline(ApiTester $I)
+    {
+        $I->amBearerAuthenticated("STUD02;VALID");
+
+        $I->sendPost(
+            "/student/submissions/upload",
+            ['taskID' => 5005],
+            ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
+        );
+
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
+
+        $I->seeResponseContainsJson(
+            [
+                "name" => "stud01_upload_test.zip",
+                "status" => Submission::STATUS_UPLOADED,
+                "verified" => true,
+            ]
+        );
+        $I->seeRecord(
+            Submission::class,
+            [
+                "id" => 56,
+                "name" => "stud01_upload_test.zip",
+                "status" => Submission::STATUS_UPLOADED,
+                'uploadCount' => 2,
+            ]
+        );
+
+        $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5005/stud02/"));
+    }
+
     public function uploadUploaded(ApiTester $I)
     {
         $I->sendPost(
@@ -363,50 +397,6 @@ class SubmissionsCest
                 'message' => 'Your solution was accepted!'
             ]
         );
-    }
-
-    public function uploadLateSubmission(ApiTester $I)
-    {
-        $I->sendPost(
-            "/student/submissions/upload",
-            ['taskID' => 5001],
-            ['file' => codecept_data_dir("upload_samples/stud01_upload_test.zip")]
-        );
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseMatchesJsonType(self::SUBMISSION_SCHEMA);
-        $I->seeResponseContainsJson(
-            [
-                "name" => "stud01_upload_test.zip",
-                "status" => Submission::STATUS_UPLOADED,
-                "translatedStatus" => "Uploaded",
-                "grade" => 4,
-                "notes" => "",
-                "isVersionControlled" => 0,
-                "graderName" => "Teacher Two",
-                "errorMsg" => null,
-                "uploadCount" => 2,
-                'verified' => true,
-            ]
-        );
-        $I->seeRecord(
-            Submission::class,
-            [
-                "id" => 1,
-                "name" => "stud01_upload_test.zip",
-                "status" => Submission::STATUS_UPLOADED,
-                "grade" => 4,
-                "uploadCount" => 2,
-            ]
-        );
-        $I->seeRecord(
-            IpAddress::class,
-            [
-                "submissionID" => 1,
-                "activity" => IpAddress::ACTIVITY_SUBMISSION_UPLOAD
-            ]
-        );
-        $I->cantSeeFileFound("stud01.zip", Yii::getAlias("@appdata/uploadedfiles/5001/stud01/"));
-        $I->seeFileFound("stud01_upload_test.zip", Yii::getAlias("@appdata/uploadedfiles/5001/stud01/"));
     }
 
     public function uploadOutOfSubmissionLimit(ApiTester $I)
