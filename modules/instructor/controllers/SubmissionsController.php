@@ -216,7 +216,7 @@ class SubmissionsController extends BaseInstructorRestController
             [
                 'header' => Yii::t('app', 'IP addresses'),
                 'value' => function ($model) {
-                    /** @var $model Submission */
+                    /** @var Submission $model */
                     return implode(', ', $model->ipAddresses);
                 }
             ],

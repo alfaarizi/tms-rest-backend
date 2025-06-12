@@ -248,7 +248,7 @@ class PlagiarismBasefileController extends BaseInstructorRestController
                     }
                 }
 
-                /** @phpstan-ignore-next-line */
+                /** @phpstan-ignore-next-line booleanNot.alwaysFalse (YII_ENV_DEV can be either true or false) */
                 if ($file->saveAs($baseFile->path, !YII_ENV_TEST)) {
                     $response->uploaded[] = $baseFile;
                 } else {

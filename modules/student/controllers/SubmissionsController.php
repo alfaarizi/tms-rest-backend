@@ -305,7 +305,7 @@ class SubmissionsController extends BaseStudentRestController
         }
 
         // Save file to disc.
-        /** @phpstan-ignore-next-line */
+        /** @phpstan-ignore-next-line booleanNot.alwaysFalse (YII_ENV_DEV can be either true or false) */
         $result = $newFile->saveAs($basepath . $newFile->name, !YII_ENV_TEST);
         if (!$result) {
             // Log

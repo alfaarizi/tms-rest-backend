@@ -23,9 +23,5 @@ parameters:
         - tests/_output
   bootstrapFiles:
     - vendor/yiisoft/yii2/Yii.php
-  stubFiles:
-    - stubs/BaseYii.stub
-    - stubs/ConsoleApplication.stub
-    - stubs/WebApplication.stub
   ignoreErrors:
     - '#.*yii.*#'

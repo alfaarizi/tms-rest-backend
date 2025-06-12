@@ -61,7 +61,7 @@
         "light/yii2-swagger": "~3.0",
         "doctrine/annotations": "^2.0.2",
         "wikimedia/scoped-callback": "^4.0.0",
-        "phpstan/phpstan": "^1.10"
+        "phpstan/phpstan": "^2.1"
     },
     "config": {
         "process-timeout": 1800,

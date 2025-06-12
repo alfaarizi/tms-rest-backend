@@ -9,7 +9,6 @@ use app\components\docker\EvaluatorTarBuilder;
 use app\exceptions\CodeCheckerRunnerException;
 use app\exceptions\EvaluatorTarBuilderException;
 use app\models\Submission;
-use Throwable;
 use Yii;
 use yii\base\BaseObject;
 use yii\base\ErrorException;
@@ -81,7 +80,6 @@ abstract class AnalyzerRunner extends BaseObject
     /**
      * Contains logic that runs before code analyzers.
      * @return void
-     * @throws CodeCheckerRunnerException Thrown if a precondition fails
      */
     protected function beforeRun()
     {

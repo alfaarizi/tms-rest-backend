@@ -69,8 +69,8 @@ class DockerContainerBuilder
 
     private string $os;
     private string $imageName;
-    private ?array $command;
-    private ?string $workingDir;
+    private array $command;
+    private string $workingDir;
     private bool $withTty = true;
     private array $portMappings = [];
     private string $networkMode;

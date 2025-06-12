@@ -279,7 +279,8 @@ class QuizQuestionSetsController extends BaseInstructorRestController
         }
 
         // Check permissions for the modified object (courseID can be changed)
-        /** @phpstan-ignore-next-line */
+        /** @phpstan-ignore-next-line booleanNot.alwaysFalse
+         * ($questionSet->courseID can change when calling $questionSet->load) above */
         if (!Yii::$app->user->can('manageGroup', [
             'courseID' => $questionSet->courseID,
             'semesterID' => Semester::getActualID()
@@ -606,7 +607,7 @@ class QuizQuestionSetsController extends BaseInstructorRestController
                     '0',
                     Yii::$app->security->generateRandomString(12)
                 ) . '.' . $file->extension;
-            /** @phpstan-ignore-next-line */
+            /** @phpstan-ignore-next-line booleanNot.alwaysFalse (YII_ENV_DEV can be either true or false) */
             $result = $file->saveAs($path . $saveName, !YII_ENV_TEST);
 
             // If the save failed return the error message.

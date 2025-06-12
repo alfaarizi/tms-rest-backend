@@ -279,7 +279,7 @@ class TaskFilesController extends BaseInstructorRestController
                     throw new AddFailedException($taskFile->name, $taskFile->errors);
                 }
 
-                /** @phpstan-ignore-next-line */
+                /** @phpstan-ignore-next-line booleanNot.alwaysFalse (YII_ENV_DEV can be either true or false) */
                 if (!$file->saveAs($taskFile->path, !YII_ENV_TEST)) {
                     // Log
                     Yii::error(
