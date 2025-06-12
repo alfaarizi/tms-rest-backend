@@ -708,7 +708,6 @@ class GroupsController extends BaseInstructorRestController
                     throw new AddFailedException($userCode, ['userCode' => [ Yii::t('app', 'User not found.')]]);
                 }
 
-
                 // Add the instructor to the group.
                 $instructorGroup = new InstructorGroup(
                     [
@@ -963,13 +962,16 @@ class GroupsController extends BaseInstructorRestController
         set_time_limit(ini_get('max_execution_time') +
                        count($userCodes) * count($tasks) * 6);
 
+        $authManager = Yii::$app->authManager;
         foreach ($userCodes as $userCode) {
             // Starts DB transaction
             $transaction = \Yii::$app->db->beginTransaction();
             $transactionSucceeded = false;
             try {
+
                 // First we try as an id aka already existing user.
                 $user = UserResource::findOne(['userCode' => $userCode]);
+
                 if (is_null($user)) {
                     $user = new UserResource();
                     $user->userCode = strtolower($userCode);
@@ -991,6 +993,11 @@ class GroupsController extends BaseInstructorRestController
 
                 if (!$subscription->save()) {
                     throw new AddFailedException($userCode, $subscription->errors);
+                }
+
+                // Assign student role if it is not assigned already
+                if (!$authManager->checkAccess($user->id, 'student')) {
+                    $authManager->assign($authManager->getRole('student'), $user->id);
                 }
 
                 foreach ($tasks as $task) {
