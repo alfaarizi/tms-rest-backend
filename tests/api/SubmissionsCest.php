@@ -662,6 +662,14 @@ class SubmissionsCest
                 "verified" => true,
             ]
         );
+
+        $I->seeRecord(
+            IpAddress::class,
+            [
+                "submissionID" => 34,
+                "activity" => IpAddress::ACTIVITY_TASK_VERIFY,
+            ]
+        );
     }
 
     public function verifySolutionAlreadyVerified(ApiTester $I)

@@ -24,11 +24,15 @@ class IpAddress extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     public const ACTIVITY_LOGIN = 'Login';
     public const ACTIVITY_SUBMISSION_UPLOAD = 'Submission upload';
     public const ACTIVITY_SUBMISSION_DOWNLOAD = 'Submission download';
+    public const ACTIVITY_TASK_UNLOCK = 'Task unlock';
+    public const ACTIVITY_TASK_VERIFY = 'Task verify';
 
     const ACTIVITY_VALUES = [
         self::ACTIVITY_LOGIN,
         self::ACTIVITY_SUBMISSION_UPLOAD,
-        self::ACTIVITY_SUBMISSION_DOWNLOAD
+        self::ACTIVITY_SUBMISSION_DOWNLOAD,
+        self::ACTIVITY_TASK_UNLOCK,
+        self::ACTIVITY_TASK_VERIFY
     ];
 
     /**
