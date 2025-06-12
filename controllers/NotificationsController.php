@@ -149,7 +149,7 @@ class NotificationsController extends BaseRestController
      *         response=200,
      *         description="notification dismissed",
      *         @OA\JsonContent(ref="#/components/schemas/Common_NotificationResource_Read"),
-     *     ),*
+     *     ),
      *     @OA\Response(response=401, ref="#/components/responses/401"),
      *     @OA\Response(response=400, ref="#/components/responses/400"),
      *     @OA\Response(response=404, ref="#/components/responses/404"),

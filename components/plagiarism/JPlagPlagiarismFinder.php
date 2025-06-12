@@ -72,7 +72,7 @@ class JPlagPlagiarismFinder extends AbstractPlagiarismFinder
             // When running on the console, print everything directly on the console.
             // This means that the whole output is visible, and lines appear as they are printed,
             // not only after JPlag terminates.
-            /** @phpstan-ignore-next-line */
+            /** @phpstan-ignore-next-line function.void (passthru's result's type can be either bool or null) */
             $result = passthru($cmd, $result_code);
             $output = [];
         } else {

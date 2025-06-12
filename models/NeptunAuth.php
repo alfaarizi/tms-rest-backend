@@ -61,7 +61,6 @@ class NeptunAuth extends \yii\base\BaseObject implements RemoteAuthInterface
             throw new NotSupportedException('SAML is not supported.');
         }
 
-        /** @phpstan-ignore-next-line */
         $this->_simpleSaml = new \SimpleSAML_Auth_Simple('default-sp');
         $this->_attributes = $this->_simpleSaml->getAttributes();
     }

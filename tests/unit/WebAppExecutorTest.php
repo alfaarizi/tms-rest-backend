@@ -180,9 +180,7 @@ class WebAppExecutorTest extends \Codeception\Test\Unit
         self::assertEquals('https://tms.elte.hu:8081', $webAppExecutionResource->url);
         self::assertNotEmpty($webAppExecutionResource->startedAt);
         self::assertNotEmpty($webAppExecutionResource->shutdownAt);
-        //self::assertObjectNotHasAttribute('dockerHostUrl', $webAppExecutionResource); // deprecated
-        // todo: use assertObjectHasNotProperty(), once it becomes available. Until then:
-        self::assertIsObject($webAppExecutionResource);
+        self::assertObjectNotHasProperty('dockerHostUrl', $webAppExecutionResource);
         self::assertFalse(property_exists($webAppExecutionResource, 'dockerHostUrl'));
     }
 

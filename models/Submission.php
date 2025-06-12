@@ -39,7 +39,7 @@ use yii\helpers\StringHelper;
  * @property-read string $deadline
  * @property-read string[] $ipAddresses
  * @property-read IpAddress[] $detailedIpAddresses
- * @property-read string $safeErrorMsg
+ * @property-read string|null $safeErrorMsg
  *
  * @property Task $task
  * @property User $uploader

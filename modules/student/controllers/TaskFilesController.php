@@ -79,7 +79,7 @@ class TaskFilesController extends BaseStudentRestController
      * Send the requested task file to the client
      * @param int $id is the id of the file
      * @throws NotFoundHttpException
-     * @throws ForbiddenHttpException;
+     * @throws ForbiddenHttpException
      *
      * @OA\Get(
      *     path="/student/task-files/{id}/download",

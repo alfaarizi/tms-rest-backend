@@ -9,14 +9,14 @@ use yii\helpers\FileHelper;
 class MossPlagiarismFinder extends AbstractPlagiarismFinder
 {
     /** URL of the plagiarism check result */
-    private ?string $mossUrl;
+    private string $mossUrl;
     /**
      * Authorization token to store with the plagiarism and
      * burn in the downloaded files
      */
     private string $token;
     /** Working directory before changing it to upload files */
-    private ?string $cwd;
+    private string $cwd;
 
     /** The third-party Moss handler */
     private Moss $moss;
