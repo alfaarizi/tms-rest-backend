@@ -440,6 +440,9 @@ class SubmissionsController extends BaseStudentRestController
                 "A submission (#$file->id) has been verified. Upload IP addresses: $uploadAddressesStringList.",
                 __METHOD__
             );
+
+            $this->logIpAddress($file, IpAddress::ACTIVITY_TASK_VERIFY);
+
             return $file;
         } else {
             throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
