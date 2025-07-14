@@ -103,7 +103,8 @@ class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
             [['questionamount', 'duration', 'groupID', 'questionsetID'], 'integer'],
             [['shuffled', 'unique'], 'boolean'],
             [['availablefrom', 'availableuntil'], 'safe'],
-            [['questionamount', 'duration'], 'integer', 'min' => 1],
+            ['questionamount', 'integer', 'min' => 1],
+            ['duration', 'integer', 'min' => 0],
             [['name'], 'string', 'max' => 45],
             [
                 ['questionsetID'],
