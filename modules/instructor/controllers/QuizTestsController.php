@@ -186,13 +186,14 @@ class QuizTestsController extends BaseInstructorRestController
 
         $questionSet = QuizQuestionSetResource::findone($test->questionsetID);
 
-        if (!Yii::$app->user->can(
-            'manageGroup',
-            [
+        if (
+            !Yii::$app->user->can(
+                'manageGroup',
+                [
                 'courseID' => $questionSet->courseID,
                 'semesterID' => SemesterResource::getActualID()
-            ]
-        )
+                ]
+            )
         ) {
             throw new ForbiddenHttpException(
                 Yii::t('app', 'You must be an incumbent instructor of the course to perform this action!')
@@ -323,13 +324,14 @@ class QuizTestsController extends BaseInstructorRestController
                 Yii::t('app', 'You must be an instructor of the group to perform this action!')
             );
         }
-
+        // test should only be deleted when it's not finalized, or it's not available yet
         try {
-            $test->delete();
-            $this->response->statusCode = 204;
-            return;
-        } catch (\yii\db\IntegrityException $e) {
-            throw new ConflictHttpException(Yii::t('app', 'Cannot delete test because it is already in progress'));
+            if ($test->delete()) {
+                $this->response->statusCode = 204;
+                return;
+            } else {
+                throw new ConflictHttpException(Yii::t('app', 'Cannot delete test because it is already in progress'));
+            }
         } catch (\yii\base\ErrorException $e) {
             throw new ServerErrorHttpException(Yii::t('app', 'A database error occurred'));
         }

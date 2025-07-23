@@ -31,6 +31,8 @@ use yii\helpers\ArrayHelper;
  * @property QuizTestInstance[] $testinstances
  * @property QuizQuestionSet $questionSet
  * @property Group $group
+ *
+ * @property bool $isFinalized
  */
 class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
 {
@@ -336,6 +338,10 @@ class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
     {
         return !empty($this->password);
     }
+    public function getIsFinalized(): bool
+    {
+        return $this->getTestInstances()->exists();
+    }
 
     /**
      * {@inheritdoc}
@@ -344,5 +350,17 @@ class QuizTest extends ActiveRecord implements IOpenApiFieldTypes
     public static function find()
     {
         return new QuizTestQuery(get_called_class());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function beforeDelete(): bool
+    {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+
+        return (!$this->isFinalized || strtotime($this->availablefrom) > time());
     }
 }

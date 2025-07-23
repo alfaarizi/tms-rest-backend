@@ -83,8 +83,8 @@ class SubmittedAnswerTest extends \Codeception\Test\Unit
         $answer->testinstanceID = 1;
         $answer->answerID = 1;
         $answer->save();
-        $this->tester->expectException(\yii\db\IntegrityException::class, function () {
-            QuizTestInstance::findOne(1)->delete();
-        });
+        $this->assertFalse(
+            QuizTestInstance::findOne(1)->delete()
+        );
     }
 }
