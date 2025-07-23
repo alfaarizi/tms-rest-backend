@@ -166,4 +166,9 @@ class QuizTestInstance extends \yii\db\ActiveRecord implements IOpenApiFieldType
     {
         return new QuizTestInstanceQuery(get_called_class());
     }
+
+    public function beforeDelete(): bool
+    {
+        return QuizTest::findOne($this->testID)->beforeDelete();
+    }
 }

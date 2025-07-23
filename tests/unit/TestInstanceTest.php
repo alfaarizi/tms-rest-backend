@@ -77,9 +77,7 @@ class TestInstanceTest extends \Codeception\Test\Unit
         $test->testID = 1;
         $test->userID = 1000;
         $test->save();
-        $this->tester->expectException(\yii\db\IntegrityException::class, function () {
-            QuizTest::findOne(1)->delete();
-        });
+        $this->assertFalse(QuizTest::findOne(1)->delete());
     }
 
     public function testDeleteUser()

@@ -7,7 +7,7 @@ use app\models\QuizTest;
 use yii\helpers\ArrayHelper;
 
 /**
- * @property-read bool $finalized
+ * @property-read bool $isFinalized
  * @property-read QuizTestInstanceResource[] $testInstances
  */
 class QuizTestResource extends QuizTest
@@ -27,7 +27,7 @@ class QuizTestResource extends QuizTest
             'isPasswordProtected',
             'groupID',
             'questionsetID',
-            'finalized',
+            'isFinalized',
         ];
     }
 
@@ -42,7 +42,7 @@ class QuizTestResource extends QuizTest
             parent::fieldTypes(),
             [
                 'group' => new OAProperty(['ref' => '#/components/schemas/Instructor_QuizTestResource_Read']),
-                'finalized' => new OAProperty(['type' => 'bool']),
+                'isFinalized' => new OAProperty(['type' => 'bool']),
             ]
         );
     }
@@ -55,10 +55,7 @@ class QuizTestResource extends QuizTest
         return $this->hasMany(QuizTestInstanceResource::class, ['testID' => 'id']);
     }
 
-    /**
-     * @return bool
-     */
-    public function getFinalized()
+    public function getIsFinalized(): bool
     {
         return $this->getTestInstances()->exists();
     }
