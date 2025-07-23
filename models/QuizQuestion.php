@@ -12,6 +12,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property int $id
  * @property string $text
+ * @property int $questionNumber
  * @property int $questionsetID
  *
  * @property QuizAnswer[] $answers
@@ -60,6 +61,7 @@ class QuizQuestion extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
             'id' => Yii::t('app', 'ID'),
             'text' => Yii::t('app', 'Text'),
             'questionsetID' => Yii::t('app', 'Questionset ID'),
+            'questionNumber' => Yii::t('app', 'Question Number'),
         ];
     }
 
@@ -68,6 +70,7 @@ class QuizQuestion extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
         return [
             'id' => new OAProperty(['ref' => "#/components/schemas/int_id"]),
             'text' => new OAProperty(['type' => 'string']),
+            'questionNumber' => new OAProperty(['type' => 'integer']),
             'questionsetID' => new OAProperty(['ref' => "#/components/schemas/int_id"]),
         ];
     }
@@ -103,5 +106,17 @@ class QuizQuestion extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
     {
         return $this->hasMany(QuizTestInstance::class, ['id' => 'testinstanceID'])
             ->viaTable('{{%quiz_testinstance_questions}}', ['questionID' => 'id']);
+    }
+
+    public function beforeSave($insert): bool
+    {
+        if ($insert && empty($this->questionNumber)) {
+            // auto-assign next number in the set
+            $maxNumber = static::find()
+                ->where(['questionsetID' => $this->questionsetID])
+                ->max('questionNumber') ?: 0;
+            $this->questionNumber = $maxNumber + 1;
+        }
+        return parent::beforeSave($insert);
     }
 }
