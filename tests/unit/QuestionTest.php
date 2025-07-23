@@ -58,4 +58,13 @@ class QuestionTest extends \Codeception\Test\Unit
         $answers = QuizAnswer::find()->where(['questionID' => 1])->all();
         $this->assertEmpty($answers, "Deleting a question causes the related answers to be deleted as well");
     }
+
+    public function testOrderNumberAutoAssign()
+    {
+        $question = new QuizQuestion();
+        $question->questionsetID = 1;
+        $question->text = 'Dummy';
+        $question->save();
+        $this->assertEquals(4, $question->questionNumber);
+    }
 }

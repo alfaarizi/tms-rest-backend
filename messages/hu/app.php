@@ -452,6 +452,7 @@ return [
     "Group number" => "Csoport száma",
     "My tests" => "Tesztjeim",
     "Question" => "Kérdés",
+    "Question Number" => "Kérdés sorszáma",
     "Question amount" => "Kérdések száma",
     "Question created successfully" => "Kérdés sikeresen létrehozva",
     "Question deleted successfully" => "Kérdés sikeresen törölve",

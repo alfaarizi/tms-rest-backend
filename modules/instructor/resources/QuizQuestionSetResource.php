@@ -61,6 +61,6 @@ class QuizQuestionSetResource extends QuizQuestionSet
      */
     public function getQuestions()
     {
-        return $this->hasMany(QuizQuestionResource::class, ['questionsetID' => 'id']);
+        return $this->hasMany(QuizQuestionResource::class, ['questionsetID' => 'id'])->orderBy(['questionNumber' => SORT_ASC]);
     }
 }
