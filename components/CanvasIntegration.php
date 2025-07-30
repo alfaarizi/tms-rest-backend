@@ -7,7 +7,7 @@ use app\models\AccessToken;
 use app\models\CodeCheckerResult;
 use app\models\Group;
 use app\models\InstructorGroup;
-use app\models\StructuralRequirements;
+use app\models\StructuralRequirement;
 use app\models\Submission;
 use app\models\Subscription;
 use app\models\Task;
@@ -1110,9 +1110,7 @@ class CanvasIntegration
                             $messages = [
                                 Yii::t('app', 'TMS automatic tester result: '),
                                 Yii::t('app', 'TMS static code analyzer result: '),
-                                Yii::t('app', 'The uploaded solution contains the following excluded files or directories: '),
-                                Yii::t('app', 'The uploaded solution should contain all required files and directories.'),
-                                Yii::t('app', 'You are not complying with the following regular expressions: '),
+                                Yii::t('app', 'TMS structural analyzer found issues in the uploaded solution.'),
                             ];
 
                             foreach ($messages as $message) {
@@ -1208,7 +1206,7 @@ class CanvasIntegration
     private function checkStructuralRequirements(Task $task, string $name, string $url, string $userCode): ?string
     {
         $errorMsg = null;
-        $structuralRequirements = StructuralRequirements::find()
+        $structuralRequirements = StructuralRequirement::find()
             ->where(['taskID' => $task->id])
             ->all();
 
@@ -1231,16 +1229,16 @@ class CanvasIntegration
 
             $structuralRequirementResult = StructuralRequirementChecker::validatePaths($structuralRequirements, $fileNames);
 
-            if (count($structuralRequirementResult["failedIncludedRequirements"]) > 0) {
-                $errorMsg = Yii::t('app', 'The uploaded solution should contain all required files and directories.') . ' ' .
-                    Yii::t('app', 'You are not complying with the following regular expressions: ') .
-                    implode(", ", $structuralRequirementResult["failedIncludedRequirements"]);
+            if (!empty($structuralRequirementResult['includeErrors'])) {
+                $errorMsg = Yii::t('app', 'TMS structural analyzer found issues in the uploaded solution.');
+                $errorMsg .= implode(' ', $structuralRequirementResult['includeErrors']);
             }
 
-            if (count($structuralRequirementResult["failedExcludedPaths"]) > 0) {
-                $errorMsg = $errorMsg . ' ' .
-                    Yii::t('app', 'The uploaded solution contains the following excluded files or directories: ') .
-                    implode(", ", $structuralRequirementResult["failedExcludedPaths"]);
+            if (!empty($structuralRequirementResult['excludeErrors'])) {
+                $errorMsg = is_null($errorMsg)
+                    ? Yii::t('app', 'TMS structural analyzer found issues in the uploaded solution.')
+                    : $errorMsg . ' ';
+                $errorMsg .= implode(' ', $structuralRequirementResult['excludeErrors']);
             }
         } else {
             throw new ErrorException("Archive is corrupted.");

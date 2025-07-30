@@ -6,7 +6,7 @@ use app\components\CodeCompassHelper;
 use app\components\GitManager;
 use app\components\TaskEmailer;
 use app\models\Group;
-use app\models\StructuralRequirements;
+use app\models\StructuralRequirement;
 use app\models\TaskFile;
 use app\models\Submission;
 use app\models\Subscription;
@@ -437,7 +437,7 @@ class TasksController extends BaseInstructorRestController
             return $task->errors;
         }
 
-        StructuralRequirements::deleteAll(['taskID' => $task->id]);
+        StructuralRequirement::deleteAll(['taskID' => $task->id]);
 
         $structuralRequirementsData = ArrayHelper::getValue(Yii::$app->request->post(), 'task.structuralRequirements');
 
@@ -608,7 +608,7 @@ class TasksController extends BaseInstructorRestController
             );
         }
 
-        StructuralRequirements::deleteAll(['taskID' => $task->id]);
+        StructuralRequirement::deleteAll(['taskID' => $task->id]);
         $structuralRequirementsData = Yii::$app->request->post('structuralRequirements');
 
         if(is_array($structuralRequirementsData)) {
@@ -639,7 +639,7 @@ class TasksController extends BaseInstructorRestController
 
     /**
      * Save and validate structural requirements
-     * @param StructuralRequirements[] $structuralRequirements Structural requirements to save
+     * @param StructuralRequirement[] $structuralRequirements Structural requirements to save
      * @param int $taskId The task ID the structural requirements belong to
      * @return string[] Array of error messages
      * @throws ServerErrorHttpException
@@ -654,6 +654,7 @@ class TasksController extends BaseInstructorRestController
             $structuralRequirement->taskID = $taskId;
             $structuralRequirement->regexExpression = $structuralRequirementItem['regexExpression'];
             $structuralRequirement->type = $structuralRequirementItem['type'];
+            $structuralRequirement->errorMessage = $structuralRequirementItem['errorMessage'];
             if(!$structuralRequirement->validate()) {
                 if($structuralRequirement->hasErrors('regexExpression.invalid')) {
                     $structuralRequirement->clearErrors('regexExpression.invalid');

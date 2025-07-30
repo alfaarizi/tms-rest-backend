@@ -3,9 +3,9 @@
 namespace app\modules\instructor\resources;
 
 
-use app\models\StructuralRequirements;
+use app\models\StructuralRequirement;
 
-class StructuralRequirementResource extends StructuralRequirements
+class StructuralRequirementResource extends StructuralRequirement
 {
     /**
      * @inheritdoc
@@ -17,6 +17,7 @@ class StructuralRequirementResource extends StructuralRequirements
             'taskID',
             'regexExpression',
             'type',
+            'errorMessage',
         ];
     }
 
