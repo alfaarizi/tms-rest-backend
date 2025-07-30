@@ -14,10 +14,11 @@ use Yii;
 * @property integer $taskID
 * @property string $regexExpression
 * @property string $type
+* @property string|null $errorMessage
 *
 * @property-read Task $task
 */
-class StructuralRequirements extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
+class StructuralRequirement extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
 {
     public const SCENARIO_UPDATE = 'update';
     public const SCENARIO_CREATE = 'create';
@@ -39,8 +40,8 @@ class StructuralRequirements extends \yii\db\ActiveRecord implements IOpenApiFie
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_CREATE] = ['taskID', 'regexExpression', 'type'];
-        $scenarios[self::SCENARIO_UPDATE] = ['regexExpression', 'type'];
+        $scenarios[self::SCENARIO_CREATE] = ['taskID', 'regexExpression', 'type', 'errorMessage'];
+        $scenarios[self::SCENARIO_UPDATE] = ['regexExpression', 'type', 'errorMessage'];
 
         return $scenarios;
     }
@@ -50,7 +51,7 @@ class StructuralRequirements extends \yii\db\ActiveRecord implements IOpenApiFie
         return [
             [['taskID', 'regexExpression', 'type'], 'required'],
             [['taskID'], 'integer'],
-            [['regexExpression'], 'string'],
+            [['regexExpression', 'errorMessage'], 'string'],
             [['regexExpression'], 'validateRegex'],
         ];
     }
@@ -72,6 +73,7 @@ class StructuralRequirements extends \yii\db\ActiveRecord implements IOpenApiFie
             'taskID' => Yii::t('app', 'Task ID'),
             'regexExpression' => Yii::t('app', 'Regular Expression'),
             'type' => Yii::t('app', 'Structural Requirement Type'),
+            'errorMessage' => Yii::t('app', 'Error Message'),
         ];
     }
 
@@ -82,6 +84,7 @@ class StructuralRequirements extends \yii\db\ActiveRecord implements IOpenApiFie
             'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'type' => new OAProperty(['type' => 'string', 'enum' => new OAList(self::STRUCTURAL_REQUIREMENT_TYPE)]),
             'regexExpression' => new OAProperty(['type' => 'string']),
+            'errorMessage' => new OAProperty(['type' => 'string']),
         ];
     }
 

@@ -228,9 +228,10 @@ return [
     '+{days} days' => '+{days} nap',
     'Only ZIP files are accepted for upload.' => 'Kizárólag ZIP állományok tölthetőek fel.',
     'The uploaded archive should NOT contain binaries.' => 'A feltöltött tömörített állomány NEM tartalmazhat bináris fájlokat.',
-    'The uploaded solution contains the following excluded files or directories: ' => 'A feltöltött megoldás a következő tiltott mappákat vagy fájlokat tartalmazza: ',
-    'The uploaded solution should contain all required files and directories.' => 'A feltöltött megoldásnak tartalmaznia kell az összes szükséges fájlt és mappát.',
-    'You are not complying with the following regular expressions: ' => 'A következő reguláris kifejezéseknek nem teszel eleget: ',
+    'TMS structural analyzer found issues in the uploaded solution.' => 'A TMS strutkurális ellenőrző hibát talált a feltöltésben.',
+    'The uploaded solution does not match the required regular expression: ' => 'A feltöltött megoldás nem teljesíti a kötelezően elvárt regurális kifejezést: ',
+    'The uploaded solution matches the prohibited regular expression: ' => 'A feltöltött megoldás megfelel a tiltott regurális kifejezésnek: ',
+
     'The uploaded archive should NOT contain git repository.' => 'A feltöltött tömörített állomány NEM tartalmazhat git repositoryt.',
     'The uploaded archive is corrupted, please retry!' => 'A feltöltött tömörített állomány sérült, kérlek próbáld újra!',
     'Refusing to create new branch: ' => 'Nem hozhtasz létre új branch-et: ',

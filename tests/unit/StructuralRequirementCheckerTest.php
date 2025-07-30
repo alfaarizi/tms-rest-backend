@@ -3,7 +3,7 @@
 namespace app\tests\unit;
 
 use app\components\StructuralRequirementChecker;
-use app\models\StructuralRequirements;
+use app\models\StructuralRequirement;
 use Codeception\Test\Unit;
 
 class StructuralRequirementCheckerTest extends Unit
@@ -11,13 +11,13 @@ class StructuralRequirementCheckerTest extends Unit
     public function testValidatePaths()
     {
         $structuralRequirements = [
-            new StructuralRequirements([
+            new StructuralRequirement([
                 'regexExpression' => '.*\.txt',
-                'type' => StructuralRequirements::SUBMISSION_INCLUDES
+                'type' => StructuralRequirement::SUBMISSION_INCLUDES
             ]),
-            new StructuralRequirements([
+            new StructuralRequirement([
                 'regexExpression' => '.*\.exe',
-                'type' => StructuralRequirements::SUBMISSION_EXCLUDES
+                'type' => StructuralRequirement::SUBMISSION_EXCLUDES
             ]),
         ];
 
@@ -28,20 +28,20 @@ class StructuralRequirementCheckerTest extends Unit
 
         $result = StructuralRequirementChecker::validatePaths($structuralRequirements, $paths);
 
-        $this->assertEquals(['file2.exe'], $result['failedExcludedPaths']);
-        $this->assertEquals(['.*\.txt'], $result['failedIncludedRequirements']);
+        $this->assertNotEmpty($result['includeErrors']);
+        $this->assertNotEmpty($result['excludeErrors']);
     }
 
     public function testValidatePathsNoError()
     {
         $structuralRequirements = [
-            new StructuralRequirements([
+            new StructuralRequirement([
                 'regexExpression' => '.*\.txt',
-                'type' => StructuralRequirements::SUBMISSION_INCLUDES
+                'type' => StructuralRequirement::SUBMISSION_INCLUDES
             ]),
-            new StructuralRequirements([
+            new StructuralRequirement([
                 'regexExpression' => '.*\.exe',
-                'type' => StructuralRequirements::SUBMISSION_EXCLUDES
+                'type' => StructuralRequirement::SUBMISSION_EXCLUDES
             ]),
         ];
 
@@ -52,7 +52,7 @@ class StructuralRequirementCheckerTest extends Unit
 
         $result = StructuralRequirementChecker::validatePaths($structuralRequirements, $paths);
 
-        $this->assertEquals([], $result['failedExcludedPaths']);
-        $this->assertEquals([], $result['failedIncludedRequirements']);
+        $this->assertEmpty($result['includeErrors']);
+        $this->assertEmpty($result['excludeErrors']);
     }
 }

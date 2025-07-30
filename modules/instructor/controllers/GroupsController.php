@@ -4,7 +4,7 @@ namespace app\modules\instructor\controllers;
 
 use app\components\GitManager;
 use app\models\Group;
-use app\models\StructuralRequirements;
+use app\models\StructuralRequirement;
 use app\models\TaskFile;
 use app\models\InstructorGroup;
 use app\models\Semester;
@@ -522,7 +522,7 @@ class GroupsController extends BaseInstructorRestController
 
                     if ($task->save()) {
                         foreach ($taskToDuplicate->structuralRequirements as $structuralRequirement) {
-                            $newStructuralRequirement = new StructuralRequirements($structuralRequirement);
+                            $newStructuralRequirement = new StructuralRequirement($structuralRequirement);
                             unset($newStructuralRequirement->id);
                             $newStructuralRequirement->taskID = $task->id;
                             if (!$newStructuralRequirement->save()) {
