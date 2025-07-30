@@ -283,6 +283,7 @@ exit \$rc";
             $submission->task->exitPasswordProtected,
             $submission->status == Submission::STATUS_ACCEPTED,
             $submission->uploadCount >= $submission->task->submissionLimit
+            && $submission->task->submissionLimit != 0
             && is_null($submission->personalDeadline)
         );
         fclose($hookfile);
