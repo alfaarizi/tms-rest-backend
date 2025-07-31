@@ -11,6 +11,8 @@ use app\models\Semester;
 use app\models\Submission;
 use app\models\Subscription;
 use app\models\Task;
+use app\models\TaskIpRestriction;
+use app\models\TestCase;
 use app\modules\instructor\resources\GroupResource;
 use app\modules\instructor\resources\GroupSubmittedStatsResource;
 use app\modules\instructor\resources\GroupTaskStatsResource;
@@ -548,6 +550,28 @@ class GroupsController extends BaseInstructorRestController
                             if (!$file->save()) {
                                 throw new ServerErrorHttpException(
                                     'Failed to save TaskFile to the database: ' . VarDumper::dumpAsString($file->firstErrors)
+                                );
+                            }
+                        }
+
+                        foreach ($taskToDuplicate->testCases as $testCasesToDuplicate) {
+                            $newTestCase = new TestCase($testCasesToDuplicate);
+                            unset($newTestCase->id);
+                            $newTestCase->taskID = $task->id;
+                            if (!$newTestCase->save()) {
+                                throw new ServerErrorHttpException(
+                                    'Failed to save TestCase to the database: ' . VarDumper::dumpAsString($newTestCase->firstErrors)
+                                );
+                            }
+                        }
+
+                        foreach ($taskToDuplicate->ipRestrictions as $ipRestrictionsToDuplicate) {
+                            $newIpRestriction = new TaskIpRestriction($ipRestrictionsToDuplicate);
+                            unset($newIpRestriction->id);
+                            $newIpRestriction->taskID = $task->id;
+                            if (!$newIpRestriction->save()) {
+                                throw new ServerErrorHttpException(
+                                    'Failed to save IpRestriction to the database: ' . VarDumper::dumpAsString($newIpRestriction->firstErrors)
                                 );
                             }
                         }
