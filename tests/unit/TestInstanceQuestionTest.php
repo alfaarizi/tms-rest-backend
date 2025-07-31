@@ -74,8 +74,8 @@ class TestInstanceQuestionTest extends \Codeception\Test\Unit
         $question->testinstanceID = 1;
         $question->questionID = 1;
         $question->save();
-        $this->tester->expectException(\yii\db\IntegrityException::class, function () {
-                QuizTestInstance::findOne(1)->delete();
-        });
+        $this->assertFalse(
+            QuizTestInstance::findOne(1)->delete()
+        );
     }
 }

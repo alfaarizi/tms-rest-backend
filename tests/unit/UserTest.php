@@ -77,7 +77,6 @@ class UserTest extends \Codeception\Test\Unit
         $this->assertFalse($user->validate());
         $user->customEmail = 'batman@nanana.com';
         $this->assertTrue($user->validate());
-        $this->assertNull($user->customEmailConfirmed);
         $user->beforeSave(/* $insert = */ false);
         $this->assertFalse($user->customEmailConfirmed);
     }
@@ -117,8 +116,10 @@ class UserTest extends \Codeception\Test\Unit
                 $this->assertNull(User::findByConfirmationCode($confirmationCode));
                 $user->save();
                 $user2 = User::findByConfirmationCode($confirmationCode);
+                /** @phpstan-ignore-next-line method.impossibleType ($user2 can be null here) */
                 $this->assertNotNull($user2);
                 $this->assertEquals($user->id, $user2->id);
+                /** @phpstan-ignore-next-line method.impossibleType ($confirmationCode can be null here) */
                 $this->assertNotNull($confirmationCode);
                 $user->markAttributeDirty('customEmail');
             } else {

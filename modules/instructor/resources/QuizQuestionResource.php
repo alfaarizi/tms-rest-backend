@@ -15,7 +15,8 @@ class QuizQuestionResource extends QuizQuestion
         return [
             'id',
             'text',
-            'questionsetID'
+            'questionsetID',
+            'questionNumber'
         ];
     }
 

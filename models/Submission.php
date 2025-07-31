@@ -21,6 +21,7 @@ use yii\helpers\StringHelper;
  * @property-read string $reportPath
  * @property-read string $basePath
  * @property string|null $uploadTime
+ * @property string|null $personalDeadline
  * @property integer $taskID
  * @property integer $uploaderID
  * @property string $status
@@ -35,9 +36,10 @@ use yii\helpers\StringHelper;
  * @property boolean $verified
  * @property integer|null $codeCheckerResultID
  * @property-read string $containerName
+ * @property-read string $deadline
  * @property-read string[] $ipAddresses
  * @property-read IpAddress[] $detailedIpAddresses
- * @property-read string $safeErrorMsg
+ * @property-read string|null $safeErrorMsg
  *
  * @property Task $task
  * @property User $uploader
@@ -49,6 +51,7 @@ use yii\helpers\StringHelper;
 class Submission extends File implements IOpenApiFieldTypes
 {
     public const SCENARIO_GRADE = 'grade';
+    public const SCENARIO_PERSONAL_DEADLINE = 'personalDeadline';
 
     public const AUTO_TESTER_STATUS_NOT_TESTED = 'Not Tested';
     public const AUTO_TESTER_STATUS_LEGACY_FAILED = 'Legacy Failed';
@@ -74,7 +77,6 @@ class Submission extends File implements IOpenApiFieldTypes
     public const STATUS_UPLOADED = 'Uploaded';
     public const STATUS_ACCEPTED = 'Accepted';
     public const STATUS_REJECTED = 'Rejected';
-    public const STATUS_LATE_SUBMISSION = 'Late Submission';
     public const STATUS_PASSED = 'Passed';
     public const STATUS_FAILED = 'Failed';
     public const STATUS_CORRUPTED = 'Corrupted';
@@ -84,7 +86,6 @@ class Submission extends File implements IOpenApiFieldTypes
         self::STATUS_UPLOADED,
         self::STATUS_ACCEPTED,
         self::STATUS_REJECTED,
-        self::STATUS_LATE_SUBMISSION,
         self::STATUS_PASSED,
         self::STATUS_FAILED,
         self::STATUS_NO_SUBMISSION,
@@ -95,7 +96,6 @@ class Submission extends File implements IOpenApiFieldTypes
         self::STATUS_UPLOADED,
         self::STATUS_ACCEPTED,
         self::STATUS_REJECTED,
-        self::STATUS_LATE_SUBMISSION,
         self::STATUS_PASSED, // Required by a third party tool
         self::STATUS_FAILED, // Required by a third party tool
     ];
@@ -107,6 +107,7 @@ class Submission extends File implements IOpenApiFieldTypes
     {
         $scenarios = parent::scenarios();
         $scenarios[self::SCENARIO_GRADE] = ['status', 'grade', 'notes'];
+        $scenarios[self::SCENARIO_PERSONAL_DEADLINE] = ['personalDeadline'];
         return $scenarios;
     }
 
@@ -119,7 +120,7 @@ class Submission extends File implements IOpenApiFieldTypes
         return [
             [
                 'class' => ISODateTimeBehavior::class,
-                'attributes' => ['uploadTime']
+                'attributes' => ['uploadTime', 'personalDeadline'],
             ]
         ];
     }
@@ -145,7 +146,7 @@ class Submission extends File implements IOpenApiFieldTypes
             [['name', 'uploadTime'], 'compare', 'compareValue' => 'null', 'when' => function ($submission) {
                 return $submission->uploadCount === 0;
             }],
-            [['uploadTime'], 'safe'],
+            [['uploadTime', 'personalDeadline'], 'safe'],
             [['taskID', 'uploaderID', 'graderID'], 'integer'],
             [['status', 'reportPath'], 'string'],
             [['name'], 'string', 'max' => 200],
@@ -170,6 +171,7 @@ class Submission extends File implements IOpenApiFieldTypes
             'path' => Yii::t('app', 'Path'),
             'reportPath' => Yii::t('app', 'Report Path'),
             'uploadTime' => Yii::t('app', 'Upload Time'),
+            'personalDeadline' => Yii::t('app', 'Personal Deadline'),
             'taskID' => Yii::t('app', 'Task ID'),
             'uploaderID' => Yii::t('app', 'Uploader ID'),
             'status' => Yii::t('app', 'Is Accepted'),
@@ -193,6 +195,7 @@ class Submission extends File implements IOpenApiFieldTypes
             'path' => new OAProperty(['type' => 'string']),
             'reportPath' => new OAProperty(['type' => 'string']),
             'uploadTime' => new OAProperty(['type' => 'string']),
+            'personalDeadline' => new OAProperty(['type' => 'string']),
             'taskID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'uploaderID' => new OAProperty(['ref' => '#/components/schemas/int_id']),
             'status' => new OAProperty(['type' => 'string',  'enum' => new OAList(self::STATUS_VALUES)]),
@@ -363,6 +366,18 @@ class Submission extends File implements IOpenApiFieldTypes
     {
         // Prefixing.
         return "tms_{$this->id}";
+    }
+
+    /**
+     * Gets the deadline for the submission.
+     */
+    public function getDeadline(): string
+    {
+        return (
+            !is_null($this->personalDeadline) &&
+            strtotime($this->personalDeadline) > strtotime($this->task->hardDeadline))
+            ? $this->personalDeadline
+            : $this->task->hardDeadline;
     }
 
     /**

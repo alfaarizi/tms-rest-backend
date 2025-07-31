@@ -3,6 +3,9 @@
 namespace app\modules\student\controllers;
 
 use app\models\AccessToken;
+use app\models\IpAddress;
+use app\models\Submission;
+use app\models\Task;
 use app\models\TaskAccessTokens;
 use app\modules\student\helpers\PermissionHelpers;
 use app\modules\student\resources\GroupResource;
@@ -10,6 +13,7 @@ use app\modules\student\resources\TaskResource;
 use app\modules\student\resources\UnlockTaskResource;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
@@ -228,6 +232,22 @@ class TasksController extends BaseStudentRestController
                 "Task has been unlocked: {$task->name} ($task->id)",
                 __METHOD__
             );
+        }
+
+        $submissionId = Submission::find()
+            ->select('id')
+            ->where(['taskId' => $task->id, 'uploaderID' => Yii::$app->user->id])
+            ->scalar();
+
+        if (!$submissionId) {
+            throw new ServerErrorHttpException(Yii::t('app', 'No submission found for this task.'));
+        }
+
+        $ipAddress = new IpAddress();
+        $ipAddress->submissionID = $submissionId;
+        $ipAddress->activity = IpAddress::ACTIVITY_TASK_UNLOCK;
+        if (!$ipAddress->save()) {
+            throw new ServerErrorHttpException(Yii::t('app', "A database error occurred"));
         }
 
         return $task;

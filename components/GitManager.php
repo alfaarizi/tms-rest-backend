@@ -211,13 +211,13 @@ curl --request GET --url \"" . Url::toRoute(['/git/git-push', 'taskid' => $taski
     /**
      * Write git pre-receive git hook to prevent creating new branches on repo and to prevent pushing solutions after the deadline or to password protected tasks
      * @param resource $prerecievehook is the githook file
-     * @param string $hardDeadline is the deadline of the task
+     * @param string $deadline is the deadline of the task
      * @param bool $isPasswordProtected is the task password protected
      * @param bool $isAccepted is the acceptance status of the student submission
      */
     public static function writePreRecieveGitHook(
         $prerecievehook,
-        string $hardDeadline,
+        string $deadline,
         bool $isPasswordProtected = false,
         bool $isAccepted = false,
         bool $isSubmissionLimitReached = false
@@ -247,8 +247,8 @@ exit 1";
         } else {
             $hook .= "
 currTime=`date +\"%Y-%m-%d %H:%m:%M\"`
-harddeadline='" . $hardDeadline . "'
-if [[ \"\$currTime\" > \"\$harddeadline\" ]]; then
+deadline='" . $deadline . "'
+if [[ \"\$currTime\" > \"\$deadline\" ]]; then
      rc=1
      echo \"" . Yii::t('app', 'The deadline expired') . "\"
 fi
@@ -262,28 +262,14 @@ exit \$rc";
      */
     public static function afterTaskUpdate(Task $task, Subscription $subscription): void
     {
-        $repopath = Yii::getAlias("@appdata/uploadedfiles/") . $task->id . '/'
-            . strtolower($subscription->user->userCode) . '/';
-        $dirs = FileHelper::findDirectories($repopath, ['recursive' => false]);
-        rsort($dirs);
-        $repopath = $repopath . basename($dirs[0]) . '/';
-        $hookfile = fopen($repopath . '.git/hooks/pre-receive', "w");
         $submission = Submission::findOne(['taskID' => $task->id, 'uploaderID' => $subscription->userID]);
-        self::writePreRecieveGitHook(
-            $hookfile,
-            $task->hardDeadline,
-            $task->exitPasswordProtected,
-            $submission != null && $submission->status == Submission::STATUS_ACCEPTED,
-            $submission->uploadCount >= $task->submissionLimit
-            && $submission->status !== Submission::STATUS_LATE_SUBMISSION
-        );
-        fclose($hookfile);
+        self::updateSubmissionHooks($submission);
     }
 
     /**
-     * Triggers pre-receive hook update after task update
+     * Triggers pre-receive hook update after submission update
      */
-    public static function afterStatusUpdate(Submission $submission): void
+    public static function updateSubmissionHooks(Submission $submission): void
     {
         $repopath = Yii::getAlias("@appdata/uploadedfiles/") . $submission->taskID . '/'
             . strtolower($submission->uploader->userCode) . '/';
@@ -293,11 +279,12 @@ exit \$rc";
         $hookfile = fopen($repopath . '.git/hooks/pre-receive', "w");
         self::writePreRecieveGitHook(
             $hookfile,
-            $submission->task->hardDeadline,
+            $submission->deadline,
             $submission->task->exitPasswordProtected,
             $submission->status == Submission::STATUS_ACCEPTED,
             $submission->uploadCount >= $submission->task->submissionLimit
-            && $submission->status !== Submission::STATUS_LATE_SUBMISSION
+            && $submission->task->submissionLimit != 0
+            && is_null($submission->personalDeadline)
         );
         fclose($hookfile);
     }

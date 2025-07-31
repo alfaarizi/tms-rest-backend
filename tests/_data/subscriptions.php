@@ -64,5 +64,13 @@ return [
         'groupID' => 2000,
         'semesterID' => 3001,
         'notes' => 'subscription8'
-    ]
+    ],
+    'subscription9' => [
+        'id' => 9,
+        'userID' => 1002,
+        'isAccepted' => 1,
+        'groupID' => 2010,
+        'semesterID' => 3000,
+        'notes' => 'subscription9'
+    ],
 ];

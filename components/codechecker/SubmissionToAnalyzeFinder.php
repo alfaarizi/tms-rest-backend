@@ -29,7 +29,6 @@ class SubmissionToAnalyzeFinder extends BaseObject
                     [
                         Submission::STATUS_REJECTED,
                         Submission::STATUS_ACCEPTED,
-                        Submission::STATUS_LATE_SUBMISSION,
                         Submission::STATUS_CORRUPTED,
                     ]
                 ]

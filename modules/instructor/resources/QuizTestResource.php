@@ -6,6 +6,10 @@ use app\components\openapi\generators\OAProperty;
 use app\models\QuizTest;
 use yii\helpers\ArrayHelper;
 
+/**
+ * @property-read bool $isFinalized
+ * @property-read QuizTestInstanceResource[] $testInstances
+ */
 class QuizTestResource extends QuizTest
 {
     public function fields()
@@ -23,6 +27,7 @@ class QuizTestResource extends QuizTest
             'isPasswordProtected',
             'groupID',
             'questionsetID',
+            'isFinalized',
         ];
     }
 
@@ -36,7 +41,8 @@ class QuizTestResource extends QuizTest
         return ArrayHelper::merge(
             parent::fieldTypes(),
             [
-                'group' => new OAProperty(['ref'=> '#/components/schemas/Instructor_QuizTestResource_Read']),
+                'group' => new OAProperty(['ref' => '#/components/schemas/Instructor_QuizTestResource_Read']),
+                'isFinalized' => new OAProperty(['type' => 'bool']),
             ]
         );
     }
@@ -47,6 +53,11 @@ class QuizTestResource extends QuizTest
     public function getTestInstances()
     {
         return $this->hasMany(QuizTestInstanceResource::class, ['testID' => 'id']);
+    }
+
+    public function getIsFinalized(): bool
+    {
+        return $this->getTestInstances()->exists();
     }
 
     public function getGroup(): \yii\db\ActiveQuery

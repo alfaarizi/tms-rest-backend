@@ -171,8 +171,7 @@ class WebAppExecutor
 
         if ($submission->task->appType != Task::APP_TYPE_WEB) {
             Yii::error(
-            /** @phpstan-ignore-next-line */
-                "Only [Web] Task types are executable submission [$submission->id] is of type [$submission->task->appType]"
+                "Only [Web] Task types are executable submission [".$submission->id."] is of type [".$submission->task->appType."]"
             );
             throw new WebAppExecutionException(Yii::t('app', 'Only Web application task types are executable.'), WebAppExecutionException::$PREPARATION_FAILURE);
         }

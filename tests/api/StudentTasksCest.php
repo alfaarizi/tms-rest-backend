@@ -3,6 +3,7 @@
 namespace app\tests\api;
 
 use ApiTester;
+use app\models\IpAddress;
 use app\models\TaskAccessTokens;
 use app\tests\unit\fixtures\SubmissionsFixture;
 use app\tests\unit\fixtures\TaskAccessTokenFixture;
@@ -171,6 +172,11 @@ class StudentTasksCest
                 'taskID' => 5019,
             ]
         );
+
+        $I->seeRecord(IpAddress::class, [
+            'submissionID' => 57,
+            'activity' => IpAddress::ACTIVITY_TASK_UNLOCK,
+        ]);
     }
 
     public function unlockEntryPasswordProtectedTaskWithWrongPassword(ApiTester $I)

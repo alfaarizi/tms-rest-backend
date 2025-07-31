@@ -589,7 +589,11 @@ class QuizTestInstancesController extends BaseStudentRestController
         $spent = (time() - strtotime($testInstance->starttime)) * 1000;
         $timeLeft = (strtotime($testInstance->test->availableuntil) - time()) * 1000;
         $duration = $testInstance->test->duration * 60000 - $spent;
-        $duration = min($timeLeft, $duration);
+        if ($testInstance->test->duration == 0) {
+            $duration = $timeLeft;
+        } else {
+            $duration = min($timeLeft, $duration);
+        }
 
         return $duration;
     }

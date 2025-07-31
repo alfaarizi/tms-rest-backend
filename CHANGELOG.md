@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [4.2.0](https://gitlab.com/tms-elte/backend-core/compare/v4.1.1...v4.2.0) (2025-06-12)
+
+### ⚠ BREAKING CHANGES
+
+* Deadline for late submissions ([3442f1](https://gitlab.com/tms-elte/backend-core/commit/3442f1ee9b9d2d3b9e9c8c8a97a89d9d893698be))
+
+
+---
+
 ## [4.1.1](https://gitlab.com/tms-elte/backend-core/compare/v4.1.0...v4.1.1) (2025-05-23)
 
 ### Bug Fixes

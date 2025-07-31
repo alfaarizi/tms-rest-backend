@@ -3,7 +3,7 @@
 namespace app\tests\api;
 
 use ApiTester;
-use app\models\StructuralRequirements;
+use app\models\StructuralRequirement;
 use app\models\TaskFile;
 use app\models\Submission;
 use app\models\Task;
@@ -246,6 +246,7 @@ class InstructorTasksCest
                 [
                     'regexExpression' => '.*\.txt$',
                     'type' => 'Includes',
+                    'errorMessage' => '',
                 ]
             ]
         ];
@@ -294,6 +295,7 @@ class InstructorTasksCest
                 [
                     'regexExpression' => '[.*/.txt$',
                     'type' => 'Includes',
+                    'errorMessage' => '',
                 ]
             ]
         ];
@@ -505,6 +507,7 @@ class InstructorTasksCest
                     [
                         'regexExpression' => '.*\.updated$',
                         'type' => 'Includes',
+                        'errorMessage' => '',
                     ]
                 ]
             ]
@@ -524,7 +527,7 @@ class InstructorTasksCest
             ]
         );
 
-        $I->seeRecord(StructuralRequirements::class, ['regexExpression' => '.*\.updated$']);
+        $I->seeRecord(StructuralRequirement::class, ['regexExpression' => '.*\.updated$']);
     }
 
     public function updateInvalid(ApiTester $I)
@@ -557,6 +560,7 @@ class InstructorTasksCest
                         [
                             'regexExpression' => '[.*/.txt$',
                             'type' => 'Includes',
+                            'errorMessage' => '',
                         ]
                     ]
                 ],
@@ -586,6 +590,7 @@ class InstructorTasksCest
                         [
                             'regexExpression' => '.*\.updated$',
                             'type' => 'Includes',
+                            'errorMessage' => '',
                         ]
                     ]
                 ],

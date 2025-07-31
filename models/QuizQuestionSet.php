@@ -79,7 +79,7 @@ class QuizQuestionSet extends \yii\db\ActiveRecord implements IOpenApiFieldTypes
      */
     public function getQuestions()
     {
-        return $this->hasMany(QuizQuestion::class, ['questionsetID' => 'id']);
+        return $this->hasMany(QuizQuestion::class, ['questionsetID' => 'id'])->orderBy(['questionNumber' => SORT_ASC]);
     }
 
     /**

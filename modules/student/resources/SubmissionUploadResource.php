@@ -5,7 +5,7 @@ namespace app\modules\student\resources;
 use app\components\openapi\generators\OAProperty;
 use app\components\openapi\IOpenApiFieldTypes;
 use app\components\StructuralRequirementChecker;
-use app\models\StructuralRequirements;
+use app\models\StructuralRequirement;
 use Yii;
 use yii\web\UploadedFile;
 
@@ -43,7 +43,7 @@ class SubmissionUploadResource extends \yii\base\Model implements IOpenApiFieldT
 
     public function validateFile()
     {
-        $structuralRequirements = StructuralRequirements::find()
+        $structuralRequirements = StructuralRequirement::find()
             ->where(['taskID' => $this->taskID])
             ->all();
         $fileNames = [];
@@ -68,17 +68,13 @@ class SubmissionUploadResource extends \yii\base\Model implements IOpenApiFieldT
                 $fileNames
             );
 
-            if(count($structuralRequirementResult["failedIncludedRequirements"]) > 0) {
-                $this->addError('file', Yii::t('app', 'The uploaded solution should contain all required files and directories.') . ' ' .
-                    Yii::t('app', 'You are not complying with the following regular expressions: ') .
-                    implode(", ", $structuralRequirementResult["failedIncludedRequirements"]));
+            foreach ($structuralRequirementResult['includeErrors'] as $error) {
+                $this->addError('file', $error);
             }
 
-            if(count($structuralRequirementResult["failedExcludedPaths"]) > 0) {
-                $this->addError('file', Yii::t('app', 'The uploaded solution contains the following excluded files or directories: ') .
-                    implode(", ", $structuralRequirementResult["failedExcludedPaths"]));
+            foreach ($structuralRequirementResult['excludeErrors'] as $error) {
+                $this->addError('file', $error);
             }
-
         } else {
             $this->addError('file', Yii::t('app', 'The uploaded archive is corrupted, please retry!'));
         }

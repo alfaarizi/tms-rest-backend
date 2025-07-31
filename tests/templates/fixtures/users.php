@@ -1,11 +1,11 @@
 <?php
 
 /**
- * @var $faker \Faker\Generator
- * @var $index integer
+ * @var \Faker\Generator $faker
+ * @var integer $index
  */
 return [
     'userCode' => strtoupper(Yii::$app->getSecurity()->generateRandomString(6)),
-    'name' => $faker->name, /** @phpstan-ignore-line */
-    'email' => $faker->email, /** @phpstan-ignore-line */
+    'name' => $faker->name,
+    'email' => $faker->email,
 ];

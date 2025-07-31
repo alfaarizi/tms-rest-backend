@@ -35,7 +35,7 @@ use yii\web\IdentityInterface;
  * @property string $customEmailConfirmationExpiry
  * @property string $notificationTarget
  * @property-read boolean $isAuthenticatedInCanvas
- * @property-read string $notificationEmail
+ * @property-read string|null $notificationEmail
  * @property-read string $authKey
  *
  * @property Group[] $groups

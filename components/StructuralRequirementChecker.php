@@ -2,7 +2,7 @@
 
 namespace app\components;
 
-use app\models\StructuralRequirements;
+use app\models\StructuralRequirement;
 
 /**
  *  This class checks the validity of submission uploads according
@@ -11,66 +11,72 @@ use app\models\StructuralRequirements;
 class StructuralRequirementChecker
 {
     /**
-     * A helper method that checks the structural requirements of the given paths
-     * @param StructuralRequirements[] $structuralRequirements
-     * @param string[] $paths
+     * A helper method that checks the structural requirements on the given paths.
+     * @param StructuralRequirement[] $structuralRequirements The structural requirements to check against.
+     * @param string[] $paths The paths to validate.
      * @return array{
-     *  failedExcludedPaths: string[],
-     *  failedIncludedRequirements: string[],
+     *  includeErrors: string[],
+     *  excludeErrors: string[],
      * }
      */
-    public static function validatePaths(array $structuralRequirements, array $paths)
+    public static function validatePaths(array $structuralRequirements, array $paths): array
     {
-        $failedIncludedRequirements = array_filter($structuralRequirements, function ($structuralRequirement) {
-            return $structuralRequirement->type === StructuralRequirements::SUBMISSION_INCLUDES;
-        });
-        $failedIncludedRequirements = array_map(function ($structuralRequirement) {
-            return $structuralRequirement->regexExpression;
-        }, $failedIncludedRequirements);
-        $failedExcludedPaths = [];
-        foreach ($paths as $path) {
-            $result = self::checkStructuralRequirements($structuralRequirements, $path, $failedIncludedRequirements);
-            $failedIncludedRequirements = $result['failedIncludedRequirements'];
-            if (count($result['failedExcludedPaths']) > 0) {
-                $failedExcludedPaths = array_merge($failedExcludedPaths, $result['failedExcludedPaths']);
+        $includeErrors = [];
+        $excludeErrors = [];
+
+        foreach ($structuralRequirements as $req) {
+            if ($req->type === StructuralRequirement::SUBMISSION_INCLUDES) {
+                if (!self::checkInclusionRequirement($req, $paths)) {
+                    $includeErrors[] = $req->errorMessage ?:
+                        \Yii::t('app', 'The uploaded solution does not match the required regular expression: ') . $req->regexExpression;
+                }
+            } elseif ($req->type === StructuralRequirement::SUBMISSION_EXCLUDES) {
+                if (!self::checkExclusionRequirement($req, $paths)) {
+                    $excludeErrors[] = $req->errorMessage ?:
+                        \Yii::t('app', 'The uploaded solution matches the prohibited regular expression: ') . $req->regexExpression;
+                }
             }
         }
 
         return [
-            'failedExcludedPaths' => $failedExcludedPaths,
-            'failedIncludedRequirements' => $failedIncludedRequirements
+            'includeErrors' => $includeErrors,
+            'excludeErrors' => $excludeErrors,
         ];
     }
 
     /**
-     * @param StructuralRequirements[] $structuralRequirements
-     * @param string $path
-     * @param string[] $failedIncludedRequirements
-     * @return array{
-     *  failedExcludedPaths: string[],
-     *  failedIncludedRequirements: string[],
-     * }
+     * Checks if the given paths satisfy the inclusion requirement.
+     * @param StructuralRequirement $req The structural requirement to check.
+     * @param string[] $paths Paths to check against the requirement.
+     * @return bool True if the requirement is satisfied, false otherwise.
      */
-    private static function checkStructuralRequirements(
-        array $structuralRequirements,
-        string $path,
-        array $failedIncludedRequirements
-    ): array {
-        $failedExcludedPaths = [];
-        foreach ($structuralRequirements as $structuralRequirement) {
-            $escapedRegexExpression = str_replace("#", "\\#", $structuralRequirement->regexExpression);
-            if (
-                $structuralRequirement->type === StructuralRequirements::SUBMISSION_INCLUDES &&
-                preg_match('#' . $escapedRegexExpression . '#', $path)
-            ) {
-                $failedIncludedRequirements = array_diff($failedIncludedRequirements, [$structuralRequirement->regexExpression]);
-            } else if (preg_match('#' . $escapedRegexExpression . '#', $path)) {
-                $failedExcludedPaths[] = $path;
+    private static function checkInclusionRequirement(StructuralRequirement $req, array $paths): bool
+    {
+        $escapedRegexExpression = str_replace("#", "\\#", $req->regexExpression);
+
+        foreach ($paths as $path) {
+            if (preg_match('#' . $escapedRegexExpression . '#', $path)) {
+                return true;
             }
         }
-        return [
-            'failedExcludedPaths' => $failedExcludedPaths,
-            'failedIncludedRequirements' => $failedIncludedRequirements
-        ];
+        return false;
+    }
+
+    /**
+     * Checks if the given paths satisfy the exclusion requirement.
+     * @param StructuralRequirement $req The structural requirement to check.
+     * @param string[] $paths Paths to check against the requirement.
+     * @return bool True if the requirement is satisfied, false otherwise.
+     */
+    private static function checkExclusionRequirement(StructuralRequirement $req, array $paths): bool
+    {
+        $escapedRegexExpression = str_replace("#", "\\#", $req->regexExpression);
+
+        foreach ($paths as $path) {
+            if (preg_match('#' . $escapedRegexExpression . '#', $path)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
