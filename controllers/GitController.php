@@ -3,11 +3,15 @@
 namespace app\controllers;
 
 use app\components\GitManager;
+use app\components\StructuralRequirementChecker;
+use app\modules\instructor\resources\TaskResource;
 use Yii;
 use app\models\Submission;
 use app\models\User;
 use yii\helpers\FileHelper;
 use yii\filters\AccessControl;
+use yii\web\BadRequestHttpException;
+use yii\web\NotFoundHttpException;
 
 /**
  * This class controls the git actions
@@ -141,5 +145,85 @@ class GitController extends BaseRestController
                 return Yii::t('app', "A database error occurred");
             }
         }
+    }
+
+    /**
+     * Checks if the given paths conform to structural requirements.
+     * This action is called from pre-receive git hooks and only accessible from localhost.
+     * @param int $taskId is the id of the task
+     *
+     * @OA\Post(
+     *     path="/git/check-structural-requirements",
+     *     operationId="local::GitController::actionCheckStructuralRequirements",
+     *     tags={"Local Git"},
+     *     @OA\Parameter(
+     *          name="taskId",
+     *          in="query",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="paths",
+     *                  type="array",
+     *                  @OA\Items(type="string")
+     *              )
+     *          )
+     *      ),
+     *    @OA\Response(
+     *       response=204,
+     *       description="structural requirements met",
+     *       @OA\JsonContent(type="string"),
+     *    ),
+     *    @OA\Response(
+     *        response=422,
+     *        description="structural requirements not met",
+     *        @OA\JsonContent(type="string"),
+     *     ),
+     *    @OA\Response(response=401, ref="#/components/responses/401"),
+     *    @OA\Response(response=500, ref="#/components/responses/500"),
+     * )
+     * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
+     */
+    public function actionCheckStructuralRequirements(int $taskId)
+    {
+        $task = TaskResource::findOne($taskId);
+
+        if (is_null($task)) {
+            throw new NotFoundHttpException(Yii::t('app', 'Task not found.'));
+        }
+
+        $paths = Yii::$app->request->post('paths', []);
+
+        if (empty($paths) || !is_array($paths)) {
+            throw new BadRequestHttpException("Paths must be an array of strings.");
+        }
+
+        $structuralRequirementResult = StructuralRequirementChecker::validatePaths($task->structuralRequirements, $paths);
+        $errorMsg = "";
+
+        if (!empty($structuralRequirementResult['includeErrors'])) {
+            $errorMsg = Yii::t('app', 'TMS structural analyzer found issues in the uploaded solution.');
+            $errorMsg .= implode(' ', $structuralRequirementResult['includeErrors']);
+        }
+
+        if (!empty($structuralRequirementResult['excludeErrors'])) {
+            $errorMsg = empty($errorMsg)
+                ? Yii::t('app', 'TMS structural analyzer found issues in the uploaded solution.')
+                : $errorMsg . ' ';
+            $errorMsg .= implode(' ', $structuralRequirementResult['excludeErrors']);
+        }
+
+        if (!empty($errorMsg)) {
+            $this->response->statusCode = 422;
+        } else {
+            $this->response->statusCode = 204;
+        }
+
+        return empty($errorMsg) ? null : $errorMsg;
     }
 }

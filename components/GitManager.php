@@ -58,7 +58,7 @@ class GitManager
                 Yii::$app->language = $student->locale;
                 if ($a) {
                     $prerecievehook = fopen($repopath . '.git/hooks/pre-receive', 'w');
-                    self::writePreRecieveGitHook($prerecievehook, $task->hardDeadline, $task->exitPasswordProtected);
+                    self::writePreRecieveGitHook($prerecievehook, $task->id, $task->hardDeadline, $task->exitPasswordProtected);
                     fclose($prerecievehook);
                 }
                 // Create pre-receive git hook
@@ -195,7 +195,7 @@ class GitManager
     }
 
     /**
-     * Write git pre-receive git hook to prevent creating new branches on repo and to prevent pushing solutions after the deadline
+     * Write git post-receive git hook to persist the submission to the database and the file system
      * @param resource $postrecievehook is the githook file
      * @param int $taskid is the id of the task
      * @param int $studentid is the id of the student
@@ -217,6 +217,7 @@ curl --request GET --url \"" . Url::toRoute(['/git/git-push', 'taskid' => $taski
      */
     public static function writePreRecieveGitHook(
         $prerecievehook,
+        int $taskId,
         string $deadline,
         bool $isPasswordProtected = false,
         bool $isAccepted = false,
@@ -230,6 +231,26 @@ while read old new refname; do
                 rc=1
                 echo \"" . Yii::t('app', 'Refusing to create new branch: ') . "\$refname\"
         fi
+    fi
+    file_paths=$(git ls-tree -r --name-only \"\$new\")
+
+    json_file_paths=\"[\"
+    while IFS= read -r file_path; do
+        json_file_paths+=\"\\\"\$file_path\\\",\"
+    done <<< \"\$file_paths\"
+    json_file_paths=\"\${json_file_paths%,}]\"
+
+    response=$(curl --fail-with-body -s -w \"HTTP_CODE:%{http_code}\" \
+    -X POST " . Url::toRoute(['/git/check-structural-requirements', 'taskId' => $taskId], true) . "\
+    -H \"Content-Type: application/json\" \
+    -d \"{\\\"paths\\\": \$json_file_paths}\")
+
+    http_code=$(echo \"\$response\" | awk -F'HTTP_CODE:' '{print $2}')
+    body=$(echo \"\$response\" | awk -F'HTTP_CODE:' '{print $1}')
+
+    if [[ \$http_code == 4* ]]; then
+        echo \"\$body\"
+        rc=1
     fi
 done";
         if ($isAccepted) {
@@ -279,6 +300,7 @@ exit \$rc";
         $hookfile = fopen($repopath . '.git/hooks/pre-receive', "w");
         self::writePreRecieveGitHook(
             $hookfile,
+            $submission->taskID,
             $submission->deadline,
             $submission->task->exitPasswordProtected,
             $submission->status == Submission::STATUS_ACCEPTED,
